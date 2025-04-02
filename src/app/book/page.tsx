@@ -8,6 +8,14 @@ export default function Page() {
     <main className="max-w-4xl mx-auto py-20 px-6 font-sans">
       <h1 className="text-4xl font-bold mb-8 text-center">Book Facilities</h1>
 
+      <div className="text-center mb-8">
+        <Link href="/book/schedule">
+          <button className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
+            View Availability
+          </button>
+        </Link>
+      </div>
+
       <div className="flex flex-col md:flex-row justify-center gap-6">
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 text-center flex-1">
           <h2 className="text-2xl font-semibold mb-4">🏊‍♂️ Pool</h2>
