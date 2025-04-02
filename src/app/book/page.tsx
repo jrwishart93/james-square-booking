@@ -21,7 +21,7 @@ export default function Page() {
           <h2 className="text-2xl font-semibold mb-4">🏊‍♂️ Pool</h2>
           <Link href="/book/pool">
             <button className="w-full py-3 bg-black text-white rounded-lg text-lg font-medium hover:bg-gray-900 transition">
-              Book Pool
+              View Availability
             </button>
           </Link>
         </div>
@@ -30,7 +30,7 @@ export default function Page() {
           <h2 className="text-2xl font-semibold mb-4">🏋️‍♀️ Gym</h2>
           <Link href="/book/gym">
             <button className="w-full py-3 bg-black text-white rounded-lg text-lg font-medium hover:bg-gray-900 transition">
-              Book Gym
+              View Availability
             </button>
           </Link>
         </div>
@@ -39,7 +39,7 @@ export default function Page() {
           <h2 className="text-2xl font-semibold mb-4">🧖‍♀️ Sauna</h2>
           <Link href="/book/sauna">
             <button className="w-full py-3 bg-black text-white rounded-lg text-lg font-medium hover:bg-gray-900 transition">
-              Book Sauna
+              View Availability
             </button>
           </Link>
         </div>
