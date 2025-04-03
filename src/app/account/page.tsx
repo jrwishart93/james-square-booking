@@ -5,8 +5,17 @@ import { auth, db } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 
+// Define the Profile type
+interface Profile {
+  fullName: string;
+  email: string;
+  building: string;
+  flat: string;
+}
+
 export default function AccountPage() {
-  const [profile, setProfile] = useState<any>(null);
+  // Replace any with the Profile type (or null if no profile is found)
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -15,7 +24,8 @@ export default function AccountPage() {
         const docRef = doc(db, 'users', user.uid);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          setProfile(docSnap.data());
+          // Here, we're assuming the data conforms to the Profile interface.
+          setProfile(docSnap.data() as Profile);
         }
       }
       setLoading(false);

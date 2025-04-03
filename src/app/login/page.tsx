@@ -61,13 +61,14 @@ export default function LoginPage() {
         setIsRedirecting(true);
         window.location.href = '/book/schedule';
       }
-    } catch (error: any) {
-      if (error.code === 'auth/user-not-found') {
+    } catch (error: unknown) {
+      const err = error as { code?: string; message?: string };
+      if (err.code === 'auth/user-not-found') {
         setIsRegistering(true);
         setMessage('No account found. Switching to registration.');
       } else {
-        console.error(error);
-        setMessage(error.message || 'Something went wrong. Please try again.');
+        console.error(err);
+        setMessage(err.message || 'Something went wrong. Please try again.');
       }
     }
   };
