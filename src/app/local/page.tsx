@@ -1,86 +1,118 @@
-export default function LocalTipsPage() {
-    return (
-      <main className="max-w-4xl mx-auto py-20 px-6">
-        <h1 className="text-4xl font-bold mb-6 text-center">Local Suggestions</h1>
-        <p className="text-lg text-gray-700 dark:text-gray-300 mb-10 text-center">
-          Here are some recommended spots to eat, drink, and unwind — all within walking distance of James Square.
-        </p>
-  
-        <div className="space-y-16">
-  
-          <section>
-            <h2 className="text-2xl font-semibold mb-6">🍽️ Restaurants</h2>
-  
-            <div className="space-y-10">
-              <div>
-                <h3 className="text-xl font-semibold">La Casa</h3>
-                <p className="text-gray-700 dark:text-gray-300 mb-2">6a Roseburn Terrace, EH12 5NG – Cosy, family-run tapas restaurant serving classic Spanish small plates and wine in a warm and relaxed setting.</p>
-                <img
-                  src="/images/venues/la-casa.jpg"
-                  alt="La Casa restaurant"
-                  className="w-full max-w-md rounded-lg shadow mx-auto"
-                />
-              </div>
-  
-              <div>
-                <h3 className="text-xl font-semibold">First Coast</h3>
-                <p className="text-gray-700 dark:text-gray-300 mb-2">97-101 Dalry Road, EH11 2AB – Modern Scottish bistro using seasonal ingredients, with an ever-changing menu and a casual but refined atmosphere.</p>
-                <img
-                  src="/images/venues/first-coast.jpg"
-                  alt="First Coast restaurant"
-                  className="w-full max-w-md rounded-lg shadow mx-auto"
-                />
-              </div>
-  
-              <div>
-                <h3 className="text-xl font-semibold">Locanda De Gusti</h3>
-                <p className="text-gray-700 dark:text-gray-300 mb-2">102 Dalry Road, EH11 2DW – Authentic Neapolitan dining experience with seafood and pasta specials, run by a passionate Italian chef and team.</p>
-                <img
-                  src="/images/venues/locanda.jpg"
-                  alt="Locanda De Gusti restaurant"
-                  className="w-full max-w-md rounded-lg shadow mx-auto"
-                />
-              </div>
-  
-              <div>
-                <h3 className="text-xl font-semibold">Sushiya</h3>
-                <p className="text-gray-700 dark:text-gray-300 mb-2">19 Dalry Road, EH11 2BQ – A tiny gem of a sushi bar offering high-quality nigiri, sashimi and rolls, made fresh by skilled Japanese chefs.</p>
-                <img
-                  src="/images/venues/sushiya.jpg"
-                  alt="Sushiya restaurant"
-                  className="w-full max-w-md rounded-lg shadow mx-auto"
-                />
-              </div>
-  
-              <ul className="list-disc list-inside text-gray-700 dark:text-gray-300 mt-10">
-                <li><strong>Kuzina</strong> – Vibrant Greek street food with wraps and gyros.</li>
-                <li><strong>Pizza Geeks</strong> – Neapolitan-style pizza with geeky names and amazing dough.</li>
-              </ul>
-            </div>
-          </section>
-  
-          <section>
-            <h2 className="text-2xl font-semibold mb-6">🍔 Fast Food & Takeaways</h2>
-            <ul className="list-disc list-inside text-gray-700 dark:text-gray-300">
-              <li><strong>Wingstop</strong> – US-style chicken wings in bold flavours (Fountain Park).</li>
-              <li><strong>Five Guys</strong> – Classic American burgers and fries (Fountain Park).</li>
-              <li><strong>Hollywood Burgers & Shakes</strong> – Casual burger joint with indulgent desserts.</li>
-              <li><strong>Kebabish Original</strong> – Hearty Indian grill with sizzling mixed platters.</li>
-            </ul>
-          </section>
-  
-          <section>
-            <h2 className="text-2xl font-semibold mb-6">🍻 Bars & Pubs</h2>
-            <ul className="list-disc list-inside text-gray-700 dark:text-gray-300">
-              <li><strong>The Fountain</strong> – Modern pub with comfort food and Sunday roasts.</li>
-              <li><strong>Old Pal</strong> – Stylish cocktail bar in Haymarket with vintage charm.</li>
-              <li><strong>Malones Irish Bar</strong> – Sports, live music and a proper pint of Guinness.</li>
-              <li><strong>Teuchters</strong> – Traditional whisky bar with local beers and hearty Scottish food.</li>
-            </ul>
-          </section>
-  
-        </div>
-      </main>
-    );
+'use client';
+
+import React, { useState } from 'react';
+import Image from 'next/image';
+import { motion, AnimatePresence } from 'framer-motion';
+
+const recommendations = [
+  {
+    name: 'La Casa',
+    image: '/images/venues/la-casa.jpg',
+    description: 'Rustic Spanish tapas and wine bar near Haymarket.',
+    address: '10 Eyre Place, Edinburgh EH3 5EP',
+    link: 'https://www.lacasauk.com/',
+    mapEmbed: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2244.167763481791!2d-3.2167641!3d55.945402!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4887c7bca2a1a8c3%3A0x2d82435e93821d7c!2sLa%20Casa!5e0!3m2!1sen!2suk!4v1615300000000!5m2!1sen!2suk'
+  },
+  {
+    name: 'First Coast',
+    image: '/images/venues/first-coast.jpg',
+    description: 'Modern Scottish bistro serving seasonal dishes.',
+    address: '97-101 Dalry Road, Edinburgh EH11 2AB',
+    link: 'https://www.first-coast.co.uk/',
+    mapEmbed: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2244.1421627523023!2d-3.2191236!3d55.9457634!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4887c7b6b38c9abf%3A0xe4f6b939a650f496!2sFirst%20Coast!5e0!3m2!1sen!2suk!4v1615300000001!5m2!1sen!2suk'
+  },
+  {
+    name: 'Locanda de Gusti',
+    image: '/images/venues/locanda.jpg',
+    description: 'Authentic Neapolitan cuisine from southern Italy.',
+    address: '102 Dalry Road, Edinburgh EH11 2DW',
+    link: 'https://www.locandadegusti.com/',
+    mapEmbed: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2244.108679375208!2d-3.2187312!3d55.946254!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4887c7b61b1dc8f3%3A0x2787f41e1b71929f!2sLocanda%20De%20Gusti!5e0!3m2!1sen!2suk!4v1615300000002!5m2!1sen!2suk'
+  },
+  {
+    name: 'Sushiya',
+    image: '/images/venues/sushiya.jpg',
+    description: 'Small, hidden sushi bar with incredible fresh rolls.',
+    address: '19 Dalry Road, Edinburgh EH11 2BQ',
+    link: 'https://www.instagram.com/sushiya.edinburgh/',
+    mapEmbed: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2244.1448827277795!2d-3.2137752!3d55.9457261!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4887c7b5e7395c7b%3A0x77e693938ddbe9de!2sSushiya!5e0!3m2!1sen!2suk!4v1615300000003!5m2!1sen!2suk'
   }
-  
+];
+
+export default function LocalPage() {
+  const [expanded, setExpanded] = useState<string | null>(null);
+
+  return (
+    <main className="max-w-5xl mx-auto py-12 px-4">
+      <h1 className="text-4xl font-bold mb-6 text-center">Local Food & Drink Suggestions</h1>
+      <p className="text-center text-gray-600 dark:text-gray-300 mb-10">
+        A few personal favourites just minutes from James Square.
+      </p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+        {recommendations.map((place) => {
+          const isOpen = expanded === place.name;
+          return (
+            <motion.div
+              key={place.name}
+              layout
+              transition={{ layout: { duration: 0.4, type: 'spring' } }}
+              className={`bg-white dark:bg-gray-900 rounded-lg shadow p-4 hover:shadow-md transition cursor-pointer ${isOpen ? 'col-span-2' : ''}`}
+              onClick={() => setExpanded(isOpen ? null : place.name)}
+            >
+              <motion.div
+                layout
+                className="relative w-full rounded overflow-hidden mb-3"
+                style={{ height: isOpen ? 'auto' : '200px' }}
+              >
+                <Image
+                  src={place.image}
+                  alt={place.name}
+                  layout="responsive"
+                  width={800}
+                  height={isOpen ? 600 : 300}
+                  objectFit="cover"
+                  className="rounded"
+                />
+              </motion.div>
+              <motion.h2 layout className="text-xl font-semibold mb-1">{place.name}</motion.h2>
+              <motion.p layout className="text-sm text-gray-600 dark:text-gray-400 mb-2">{place.description}</motion.p>
+              <motion.a
+                layout
+                href={place.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:underline text-sm"
+              >
+                Visit website
+              </motion.a>
+
+              <AnimatePresence>
+                {isOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="mt-4"
+                  >
+                    <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                      <strong>Address:</strong> {place.address}
+                    </p>
+                    <iframe
+                      src={place.mapEmbed}
+                      width="100%"
+                      height="200"
+                      allowFullScreen
+                      loading="lazy"
+                      className="rounded border mt-2"
+                    ></iframe>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          );
+        })}
+      </div>
+    </main>
+  );
+}
