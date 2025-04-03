@@ -1,9 +1,38 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 
+const timeSlots = [
+  '05:30', '06:00', '06:30', '07:00', '07:30', '08:00', '08:30', '09:00', '09:30',
+  '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30',
+  '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30',
+  '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30',
+  '22:00', '22:30'
+];
+
+const generateInitialBookings = () => {
+  const facilities = ['Pool', 'Gym', 'Sauna'];
+  const bookings: Record<string, string[]> = {};
+  facilities.forEach((facility) => (bookings[facility] = []));
+  return bookings;
+};
+
 export default function Page() {
+  const [bookings, setBookings] = useState<Record<string, string[]>>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('james-square-bookings');
+      return stored ? JSON.parse(stored) : generateInitialBookings();
+    }
+    return generateInitialBookings();
+  });
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('james-square-bookings', JSON.stringify(bookings));
+    }
+  }, [bookings]);
+
   return (
     <main className="max-w-4xl mx-auto py-20 px-6 font-sans">
       <h1 className="text-4xl font-bold mb-8 text-center">Book Facilities</h1>
@@ -19,27 +48,27 @@ export default function Page() {
       <div className="flex flex-col md:flex-row justify-center gap-6">
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 text-center flex-1">
           <h2 className="text-2xl font-semibold mb-4">🏊‍♂️ Pool</h2>
-          <Link href="/book/pool">
+          <Link href="/book/schedule">
             <button className="w-full py-3 bg-black text-white rounded-lg text-lg font-medium hover:bg-gray-900 transition">
-              View Availability
+              Book
             </button>
           </Link>
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 text-center flex-1">
           <h2 className="text-2xl font-semibold mb-4">🏋️‍♀️ Gym</h2>
-          <Link href="/book/gym">
+          <Link href="/book/schedule">
             <button className="w-full py-3 bg-black text-white rounded-lg text-lg font-medium hover:bg-gray-900 transition">
-              View Availability
+              Book
             </button>
           </Link>
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 text-center flex-1">
           <h2 className="text-2xl font-semibold mb-4">🧖‍♀️ Sauna</h2>
-          <Link href="/book/sauna">
+          <Link href="/book/schedule">
             <button className="w-full py-3 bg-black text-white rounded-lg text-lg font-medium hover:bg-gray-900 transition">
-              View Availability
+              Book
             </button>
           </Link>
         </div>
