@@ -55,7 +55,7 @@ const renderDateSelector = (selectedDate: string, setSelectedDate: (d: string) =
       {dates.map(({ iso, display }) => (
         <button
           key={iso}
-          className={`min-w-[110px] px-3 py-1 rounded text-sm border whitespace-nowrap transition duration-200 ease-in-out transform hover:scale-105 ${
+          className={`min-w-[110px] px-3 py-1 rounded text-sm border whitespace-nowrap transition duration-200 ease-in-out transform hover:scale-105 hover:shadow-md ${
             iso === selectedDate
               ? 'bg-black text-white'
               : iso === todayISO
@@ -75,7 +75,7 @@ export default function Page() {
   const [expandedFacility, setExpandedFacility] = useState<string | null>(null);
   const [bookings, setBookings] = useState<Record<string, Record<string, Record<string, string>>>>(generateInitialBookings);
   const [selectedDate, setSelectedDate] = useState(getUKDate());
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<{ email: string } | null>(null);
 
   const handleExpand = (facility: string | null) => {
     setExpandedFacility((prev) => (prev === facility ? null : facility));
@@ -94,7 +94,9 @@ export default function Page() {
 
   useEffect(() => {
     fetchBookings(selectedDate);
-    const unsubscribe = onAuthStateChanged(auth, setUser);
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      setUser(firebaseUser ? { email: firebaseUser.email ?? '' } : null);
+    });
     return () => unsubscribe();
   }, [selectedDate]);
 
