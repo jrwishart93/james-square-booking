@@ -16,6 +16,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
+// Define the time slots for booking.
 const timeSlots = [
   '05:30', '06:00', '06:30', '07:00', '07:30', '08:00', '08:30', '09:00', '09:30',
   '10:00', '10:30', '11:00', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30',
@@ -29,6 +30,7 @@ interface BookingData {
   user: string;
 }
 
+// Initialize bookings state for each facility.
 const generateInitialBookings = () => {
   const facilities = ['Pool', 'Gym', 'Sauna'];
   const bookings: Record<string, Record<string, Record<string, string>>> = {};
@@ -36,12 +38,14 @@ const generateInitialBookings = () => {
   return bookings;
 };
 
+// Get the current UK date (or offset by a number of days).
 const getUKDate = (offset = 0) => {
   const uk = new Date(new Date().toLocaleString('en-GB', { timeZone: 'Europe/London' }));
   uk.setDate(uk.getDate() + offset);
   return uk.toISOString().split('T')[0];
 };
 
+// Render a horizontal date selector.
 const renderDateSelector = (selectedDate: string, setSelectedDate: (d: string) => void) => {
   const today = new Date();
   const todayISO = today.toISOString().split('T')[0];
@@ -78,6 +82,14 @@ const renderDateSelector = (selectedDate: string, setSelectedDate: (d: string) =
   );
 };
 
+/**
+ * SchedulePage Component
+ *
+ * Displays the booking schedule for facilities.
+ * - If a user is not signed in, available slots show a "Sign in to book" link.
+ * - If a user is signed in, available slots show a "Book" button (or "Cancel" if it's their own booking),
+ *   provided they haven't exceeded their slot limits and the slot is not already booked by another user.
+ */
 export default function SchedulePage() {
   const [expandedFacility, setExpandedFacility] = useState<string | null>(null);
   const [bookings, setBookings] = useState<Record<string, Record<string, Record<string, string>>>>(generateInitialBookings);
@@ -86,6 +98,7 @@ export default function SchedulePage() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
+  // Fetch bookings for the selected date and listen for auth state changes.
   useEffect(() => {
     fetchBookings(selectedDate);
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
@@ -99,6 +112,7 @@ export default function SchedulePage() {
     setExpandedFacility((prev) => (prev === facility ? null : facility));
   };
 
+  // Fetch bookings from Firestore for the given date.
   const fetchBookings = async (date: string) => {
     const snapshot = await getDocs(query(collection(db, 'bookings'), where('date', '==', date)));
     const updated = generateInitialBookings();
@@ -110,6 +124,7 @@ export default function SchedulePage() {
     setBookings(updated);
   };
 
+  // Count how many slots the user has booked for the facility and overall for the day.
   const countUserBookings = (facility: string) => {
     let facilityCount = 0;
     let totalCount = 0;
@@ -124,7 +139,9 @@ export default function SchedulePage() {
     return { facilityCount, totalCount };
   };
 
+  // Handle booking or cancelling a slot.
   const onBook = async (facility: string, time: string) => {
+    // If user is not signed in, redirect them to sign in.
     if (!user) {
       router.push('/login');
       return;
@@ -134,6 +151,7 @@ export default function SchedulePage() {
     const bookingRef = doc(db, `bookings/${facility}_${selectedDate}_${time}`);
 
     if (isBooked) {
+      // Cancel the booking if the current user has already booked.
       await deleteDoc(bookingRef);
       setBookings((prev) => {
         const updated = { ...prev };
@@ -152,6 +170,7 @@ export default function SchedulePage() {
       }
 
       try {
+        // Create a booking document in Firestore.
         await setDoc(bookingRef, {
           facility,
           time,
@@ -160,6 +179,7 @@ export default function SchedulePage() {
           timestamp: new Date(),
         });
 
+        // Update the local bookings state.
         setBookings((prev) => ({
           ...prev,
           [facility]: {
@@ -182,6 +202,7 @@ export default function SchedulePage() {
     }
   };
 
+  // Render the schedule for a specific facility.
   const renderSchedule = (facility: string) => {
     const isExpanded = expandedFacility === null || expandedFacility === facility;
 
@@ -207,6 +228,7 @@ export default function SchedulePage() {
               const [h, m] = start.split(':').map(Number);
               const timeValue = h * 60 + m;
 
+              // Determine the status of the slot.
               let status = 'Unavailable';
               if ((h === 9 && m >= 30) || h === 10) status = 'Cleaning';
               else if (start === '11:00') status = 'Free Use';
@@ -219,6 +241,7 @@ export default function SchedulePage() {
                 ? 'Booked by another user'
                 : status;
 
+              // Apply different styling based on slot status.
               const styleClass = isOwn
                 ? 'bg-green-700 text-white'
                 : bookedBy
@@ -288,12 +311,13 @@ export default function SchedulePage() {
     <main className="max-w-6xl mx-auto py-12 px-4">
       <h1 className="text-4xl font-bold mb-4 text-center">Facility Booking</h1>
       <p className="text-center text-gray-600 dark:text-gray-400 mb-6">
-        This page is visible to all users — but you'll need to sign in to book a slot.
+        This page is visible to all users — but you&apos;ll need to sign in to book a slot.
       </p>
 
+      {/* For users not signed in, display a prompt with a link to sign in */}
       {!user && (
         <div className="text-center mb-6 text-sm text-red-600">
-          You’re currently viewing as a guest. <Link href="/login" className="underline">Sign in</Link> to make bookings.
+          You&apos;re currently viewing as a guest. <Link href="/login" className="underline">Sign in</Link> to make bookings.
         </div>
       )}
 
