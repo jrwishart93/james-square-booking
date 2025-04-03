@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { auth, isSignInWithEmailLink, signInWithEmailLink } from 'firebase/auth';
+import { getAuth, isSignInWithEmailLink, signInWithEmailLink } from 'firebase/auth';
 
 export default function LoginCallback() {
   const router = useRouter();
@@ -23,6 +23,7 @@ export default function LoginCallback() {
       }
 
       try {
+        const auth = getAuth(); // Initialize auth using getAuth
         if (isSignInWithEmailLink(auth, window.location.href)) {
           await signInWithEmailLink(auth, email, window.location.href);
           window.localStorage.removeItem('emailForSignIn');
