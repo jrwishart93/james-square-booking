@@ -14,12 +14,20 @@ import {
 } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 const timeSlots = [
   '05:30', '06:00', '06:30', '07:00', '07:30', '08:00', '08:30', '09:00', '09:30',
   '10:00', '10:30', '11:00', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30',
   '20:00', '20:30', '21:00', '21:30', '22:00', '22:30', '23:00'
 ];
+
+interface BookingData {
+  facility: string;
+  date: string;
+  time: string;
+  user: string;
+}
 
 const generateInitialBookings = () => {
   const facilities = ['Pool', 'Gym', 'Sauna'];
@@ -46,7 +54,6 @@ const renderDateSelector = (selectedDate: string, setSelectedDate: (d: string) =
       day: 'numeric',
       month: 'short',
     })}`.replace(',', '');
-
     return { iso, display };
   });
 
@@ -95,8 +102,8 @@ export default function SchedulePage() {
   const fetchBookings = async (date: string) => {
     const snapshot = await getDocs(query(collection(db, 'bookings'), where('date', '==', date)));
     const updated = generateInitialBookings();
-    snapshot.forEach((doc) => {
-      const data = doc.data();
+    snapshot.forEach((docSnapshot) => {
+      const data = docSnapshot.data() as BookingData;
       if (!updated[data.facility][data.date]) updated[data.facility][data.date] = {};
       updated[data.facility][data.date][data.time] = data.user;
     });
@@ -163,11 +170,12 @@ export default function SchedulePage() {
             },
           },
         }));
-      } catch (err: any) {
-        if (err.code === 'permission-denied') {
+      } catch (err: unknown) {
+        const error = err as { code?: string; message?: string };
+        if (error.code === 'permission-denied') {
           alert(`That time slot has already been booked. Please choose another.`);
         } else {
-          console.error('Booking failed:', err.message);
+          console.error('Booking failed:', error.message);
           alert('An error occurred while booking. Please try again.');
         }
       }
@@ -202,7 +210,8 @@ export default function SchedulePage() {
               let status = 'Unavailable';
               if ((h === 9 && m >= 30) || h === 10) status = 'Cleaning';
               else if (start === '11:00') status = 'Free Use';
-              else if ((timeValue >= 330 && timeValue < 570) || (timeValue >= 1020 && timeValue < 1380)) status = 'Available';
+              else if ((timeValue >= 330 && timeValue < 570) || (timeValue >= 1020 && timeValue < 1380))
+                status = 'Available';
 
               const showLabel = isOwn
                 ? 'Your booking'
@@ -228,11 +237,13 @@ export default function SchedulePage() {
                   className={`flex justify-between items-center px-3 py-2 rounded ${styleClass}`}
                   title={isOwn ? 'Your booking' : bookedBy ? 'Booked by another user' : ''}
                 >
-                  <span className="text-sm font-medium">{start} – {end}</span>
+                  <span className="text-sm font-medium">
+                    {start} – {end}
+                  </span>
                   {status === 'Available' ? (
                     user ? (
                       bookedBy && !isOwn ? (
-                        <span className="text-xs italic">{showLabel}</span>
+                        <span className="text-xs italic">Booked by another user</span>
                       ) : (
                         <button
                           aria-label={`Book ${facility} at ${start}`}
@@ -242,12 +253,12 @@ export default function SchedulePage() {
                           {isOwn ? 'Cancel' : 'Book'}
                         </button>
                       )
+                    ) : bookedBy ? (
+                      <span className="text-xs italic">Booked by another user</span>
                     ) : (
-                      bookedBy ? (
-                        <span className="text-xs italic">{showLabel}</span>
-                      ) : (
-                        <a href="/login" className="text-xs text-red-600 underline">Sign in to book</a>
-                      )
+                      <Link href="/login" className="text-xs text-red-600 underline">
+                        Sign in to book
+                      </Link>
                     )
                   ) : (
                     <span className="text-xs italic">{showLabel}</span>
@@ -269,6 +280,10 @@ export default function SchedulePage() {
     );
   };
 
+  if (loading) {
+    return <main className="text-center py-12">Loading...</main>;
+  }
+
   return (
     <main className="max-w-6xl mx-auto py-12 px-4">
       <h1 className="text-4xl font-bold mb-4 text-center">Facility Booking</h1>
@@ -278,7 +293,7 @@ export default function SchedulePage() {
 
       {!user && (
         <div className="text-center mb-6 text-sm text-red-600">
-          You’re currently viewing as a guest. <a href="/login" className="underline">Sign in</a> to make bookings.
+          You’re currently viewing as a guest. <Link href="/login" className="underline">Sign in</Link> to make bookings.
         </div>
       )}
 

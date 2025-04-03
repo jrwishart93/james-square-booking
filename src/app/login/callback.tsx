@@ -12,9 +12,6 @@ export default function LoginCallback() {
       if (typeof window === 'undefined') return;
 
       const email = window.localStorage.getItem('emailForSignIn');
-      const name = window.localStorage.getItem('nameForSignIn');
-      const building = window.localStorage.getItem('buildingForSignIn');
-      const flat = window.localStorage.getItem('flatForSignIn');
 
       if (!email) {
         alert('Missing email for sign-in. Please start again.');

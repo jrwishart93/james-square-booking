@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
-import { onAuthStateChanged, signOut } from "firebase/auth";
+import { onAuthStateChanged, signOut, User } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [userName, setUserName] = useState("");
   const pathname = usePathname();
 
@@ -20,9 +20,9 @@ export default function Header() {
         try {
           const q = query(collection(db, "users"), where("email", "==", currentUser.email));
           const snapshot = await getDocs(q);
-          const doc = snapshot.docs[0];
-          if (doc?.exists()) {
-            const name = doc.data().name;
+          const docSnap = snapshot.docs[0];
+          if (docSnap?.exists()) {
+            const name = docSnap.data().name;
             setUserName(name || "");
           }
         } catch (err) {
