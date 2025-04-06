@@ -16,6 +16,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "James Square Booking Portal",
   description: "Facilities Booking at James Square",
+  viewport: "width=device-width, initial-scale=1", // Ensures proper scaling on mobile devices
 };
 
 export default function RootLayout({
@@ -24,7 +25,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#f5f1e8] text-black`}
+        className={`
+          ${geistSans.variable} ${geistMono.variable} antialiased min-h-screen 
+          bg-[#f5f1e8] dark:bg-[#1f2937] 
+          text-black dark:text-white
+        `}
       >
         <Header />
         <main className="max-w-5xl mx-auto p-4">{children}</main>

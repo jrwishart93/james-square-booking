@@ -77,7 +77,7 @@ export default function LoginPage() {
     return (
       <main className="flex items-center justify-center h-screen text-center">
         <div>
-          <div className="animate-spin h-10 w-10 border-4 border-black border-t-transparent rounded-full mx-auto mb-4" />
+          <div className="animate-spin h-10 w-10 border-4 border-blue-500 dark:border-blue-400 border-t-transparent rounded-full mx-auto mb-4" />
           <p className="text-lg text-gray-800 dark:text-gray-200">Signing you in...</p>
         </div>
       </main>
@@ -85,13 +85,15 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="max-w-md mx-auto mt-20 p-6 bg-white dark:bg-gray-900 rounded-lg shadow text-center">
-      <h1 className="text-2xl font-bold mb-6">{isRegistering ? 'Register' : 'Sign In'}</h1>
-      <form onSubmit={handleSubmit} className="space-y-4 text-left">
+    <main className="max-w-md mx-auto mt-20 p-8 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+      <h1 className="text-3xl font-semibold mb-6 text-gray-900 dark:text-gray-100">
+        {isRegistering ? 'Register' : 'Sign In'}
+      </h1>
+      <form onSubmit={handleSubmit} className="space-y-5">
         <input
           type="email"
           placeholder="Email"
-          className="w-full px-4 py-2 border border-gray-300 rounded dark:bg-gray-800 dark:text-white"
+          className="w-full px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-300"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -99,7 +101,7 @@ export default function LoginPage() {
         <input
           type="password"
           placeholder="Password"
-          className="w-full px-4 py-2 border border-gray-300 rounded dark:bg-gray-800 dark:text-white"
+          className="w-full px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-300"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
@@ -110,7 +112,7 @@ export default function LoginPage() {
             <input
               type="text"
               placeholder="Full name"
-              className="w-full px-4 py-2 border border-gray-300 rounded dark:bg-gray-800 dark:text-white"
+              className="w-full px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-300"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               required
@@ -118,7 +120,7 @@ export default function LoginPage() {
             <input
               type="text"
               placeholder="Building"
-              className="w-full px-4 py-2 border border-gray-300 rounded dark:bg-gray-800 dark:text-white"
+              className="w-full px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-300"
               value={building}
               onChange={(e) => setBuilding(e.target.value)}
               required
@@ -126,7 +128,7 @@ export default function LoginPage() {
             <input
               type="text"
               placeholder="Flat"
-              className="w-full px-4 py-2 border border-gray-300 rounded dark:bg-gray-800 dark:text-white"
+              className="w-full px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-300"
               value={flat}
               onChange={(e) => setFlat(e.target.value)}
               required
@@ -136,7 +138,7 @@ export default function LoginPage() {
 
         <button
           type="submit"
-          className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition"
+          className="w-full py-2 bg-blue-600 dark:bg-blue-500 text-white rounded hover:bg-blue-700 dark:hover:bg-blue-600 transition focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           {isRegistering ? 'Create Account' : 'Log In'}
         </button>
@@ -144,12 +146,12 @@ export default function LoginPage() {
 
       <button
         onClick={() => setIsRegistering(!isRegistering)}
-        className="mt-4 text-sm text-blue-600 underline"
+        className="mt-4 text-sm text-blue-600 dark:text-blue-400 underline focus:outline-none"
       >
         {isRegistering ? 'Already have an account? Log in' : 'New here? Register'}
       </button>
 
-      {message && <p className="mt-4 text-sm text-gray-600 dark:text-gray-300">{message}</p>}
+      {message && <p className="mt-4 text-sm text-red-600 dark:text-red-400">{message}</p>}
     </main>
   );
 }

@@ -44,7 +44,7 @@ export default function Header() {
     <li>
       <Link
         href={href}
-        className={`block px-3 py-2 rounded-full transition-all ${
+        className={`block px-4 py-2 rounded-full transition-all ${
           pathname === href ? "bg-black text-white" : "hover:bg-black hover:text-white"
         }`}
         onClick={() => setMenuOpen(false)}
@@ -55,26 +55,23 @@ export default function Header() {
   );
 
   return (
-    <header className="sticky top-4 z-50 backdrop-blur-sm bg-[rgba(245,241,232,0.9)] text-black px-6 py-4 shadow-md rounded-b-2xl mx-4 transition-all duration-300">
-      <nav className="flex justify-between items-center max-w-5xl mx-auto">
+    <header className="sticky top-0 z-50 bg-white text-black shadow-md">
+      <nav className="flex justify-between items-center max-w-5xl mx-auto px-4 py-3">
         <Link href="/" className="text-2xl font-bold tracking-tight">
           James Square Booking Portal
         </Link>
-
         {user && (
-          <div className="hidden sm:block text-sm text-gray-500 mr-4">
+          <div className="hidden sm:block text-sm text-gray-600 mr-4">
             Welcome, {userName?.split(" ")[0] || "Resident"}
           </div>
         )}
-
         <button
-          className="sm:hidden text-xl z-50"
+          className="sm:hidden text-2xl z-50"
           onClick={() => setMenuOpen(true)}
           aria-label="Open Menu"
         >
           ☰
         </button>
-
         <ul className="hidden sm:flex gap-4 text-sm items-center">
           {navLink("/book", "Book Facilities")}
           {navLink("/local", "Local Suggestions")}
@@ -82,7 +79,7 @@ export default function Header() {
             <li>
               <button
                 onClick={handleSignOut}
-                className="px-3 py-2 rounded-full hover:bg-black hover:text-white transition-all"
+                className="px-4 py-2 rounded-full hover:bg-black hover:text-white transition-all"
               >
                 Sign Out
               </button>
@@ -93,29 +90,30 @@ export default function Header() {
         </ul>
       </nav>
 
+      {/* Mobile Menu Dropdown */}
       <div
-        className={`fixed top-0 right-0 h-full w-64 bg-[rgba(245,241,232,1)] shadow-lg z-40 transform transition-transform duration-300 ease-in-out ${
-          menuOpen ? "translate-x-0" : "translate-x-full"
+        className={`fixed top-0 left-0 w-full h-full bg-gradient-to-b from-blue-600 to-indigo-700 text-white z-40 transform transition-transform duration-300 ease-in-out ${
+          menuOpen ? "translate-y-0" : "-translate-y-full"
         } sm:hidden`}
       >
-        <div className="flex items-center justify-between p-4 border-b border-gray-300">
-          <span className="text-lg font-bold">Menu</span>
+        <div className="flex items-center justify-between p-4 border-b border-blue-400">
+          <span className="text-xl font-bold">Menu</span>
           <button
-            className="text-xl"
+            className="text-2xl"
             onClick={() => setMenuOpen(false)}
             aria-label="Close Menu"
           >
             ←
           </button>
         </div>
-        <ul className="flex flex-col gap-2 p-4 text-sm">
+        <ul className="flex flex-col gap-4 p-4 text-lg">
           {navLink("/book", "Book Facilities")}
           {navLink("/local", "Local Suggestions")}
           {user ? (
             <li>
               <button
                 onClick={handleSignOut}
-                className="px-3 py-2 rounded-full hover:bg-black hover:text-white transition-all text-left w-full"
+                className="w-full text-left px-4 py-2 rounded-full hover:bg-black hover:text-white transition-all"
               >
                 Sign Out
               </button>
