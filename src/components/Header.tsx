@@ -45,7 +45,9 @@ export default function Header() {
       <Link
         href={href}
         className={`block px-4 py-2 rounded-full transition-all ${
-          pathname === href ? "bg-black text-white" : "hover:bg-black hover:text-white"
+          pathname === href
+            ? "bg-gray-200 text-black dark:bg-gray-800 dark:text-white"
+            : "hover:bg-gray-100 dark:hover:bg-gray-700"
         }`}
         onClick={() => setMenuOpen(false)}
       >
@@ -55,13 +57,13 @@ export default function Header() {
   );
 
   return (
-    <header className="sticky top-0 z-50 bg-white text-black shadow-md">
+    <header className="sticky top-0 z-50 bg-white dark:bg-gray-900 text-black dark:text-white shadow-md">
       <nav className="flex justify-between items-center max-w-5xl mx-auto px-4 py-3">
         <Link href="/" className="text-2xl font-bold tracking-tight">
           James Square Booking Portal
         </Link>
         {user && (
-          <div className="hidden sm:block text-sm text-gray-600 mr-4">
+          <div className="hidden sm:block text-sm text-gray-600 dark:text-gray-300 mr-4">
             Welcome, {userName?.split(" ")[0] || "Resident"}
           </div>
         )}
@@ -79,7 +81,7 @@ export default function Header() {
             <li>
               <button
                 onClick={handleSignOut}
-                className="px-4 py-2 rounded-full hover:bg-black hover:text-white transition-all"
+                className="px-4 py-2 rounded-full transition-all hover:bg-gray-200 dark:hover:bg-gray-700"
               >
                 Sign Out
               </button>
@@ -92,11 +94,11 @@ export default function Header() {
 
       {/* Mobile Menu Dropdown */}
       <div
-        className={`fixed top-0 left-0 w-full h-full bg-gradient-to-b from-blue-600 to-indigo-700 text-white z-40 transform transition-transform duration-300 ease-in-out ${
+        className={`fixed top-0 left-0 w-full h-full bg-white dark:bg-gray-900 text-black dark:text-white z-40 transform transition-transform duration-300 ease-in-out ${
           menuOpen ? "translate-y-0" : "-translate-y-full"
         } sm:hidden`}
       >
-        <div className="flex items-center justify-between p-4 border-b border-blue-400">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <span className="text-xl font-bold">Menu</span>
           <button
             className="text-2xl"
@@ -113,7 +115,7 @@ export default function Header() {
             <li>
               <button
                 onClick={handleSignOut}
-                className="w-full text-left px-4 py-2 rounded-full hover:bg-black hover:text-white transition-all"
+                className="w-full text-left px-4 py-2 rounded-full transition-all hover:bg-gray-200 dark:hover:bg-gray-700"
               >
                 Sign Out
               </button>
