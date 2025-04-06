@@ -1,5 +1,17 @@
 'use client';
 
+import { generateViewport } from 'next/metadata';
+
+export const metadata = {
+  title: 'Account',
+  description: 'Manage your account details',
+};
+
+export const viewport = generateViewport({
+  width: 'device-width',
+  initialScale: 1,
+});
+
 import { useEffect, useState } from 'react';
 import { auth, db } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
