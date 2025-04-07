@@ -77,6 +77,7 @@ export default function Header() {
         <ul className="hidden sm:flex gap-4 text-sm items-center">
           {navLink("/book", "Book Facilities")}
           {navLink("/local", "Local Suggestions")}
+          {navLink("/factor", "Factor")}
           {user ? (
             <li>
               <button
@@ -111,6 +112,7 @@ export default function Header() {
         <ul className="flex flex-col gap-4 p-4 text-lg">
           {navLink("/book", "Book Facilities")}
           {navLink("/local", "Local Suggestions")}
+          {navLink("/factor", "Factor")}
           {user ? (
             <li>
               <button
