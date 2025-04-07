@@ -25,7 +25,7 @@ interface BookingActivity {
 }
 
 export default function AdminDashboard() {
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  // Removed the unused currentUser variable
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [users, setUsers] = useState<UserRegistration[]>([]);
   const [bookings, setBookings] = useState<BookingActivity[]>([]);
@@ -34,7 +34,6 @@ export default function AdminDashboard() {
   // Check auth status and if the user is admin
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setCurrentUser(user);
       if (user) {
         const userDocRef = doc(db, 'users', user.uid);
         const userSnap = await getDoc(userDocRef);

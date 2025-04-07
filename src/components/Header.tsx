@@ -11,6 +11,7 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [userName, setUserName] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
   const pathname = usePathname();
 
   useEffect(() => {
@@ -18,12 +19,20 @@ export default function Header() {
       setUser(currentUser);
       if (currentUser?.email) {
         try {
-          const q = query(collection(db, "users"), where("email", "==", currentUser.email));
+          const q = query(
+            collection(db, "users"),
+            where("email", "==", currentUser.email)
+          );
           const snapshot = await getDocs(q);
           const docSnap = snapshot.docs[0];
           if (docSnap?.exists()) {
-            const name = docSnap.data().name;
-            setUserName(name || "");
+            const data = docSnap.data();
+            setUserName(data.name || "");
+            if (data.isAdmin) {
+              setIsAdmin(true);
+            } else {
+              setIsAdmin(false);
+            }
           }
         } catch (err) {
           console.error("Error fetching user profile:", err);
@@ -37,6 +46,7 @@ export default function Header() {
     await signOut(auth);
     setUser(null);
     setUserName("");
+    setIsAdmin(false);
     setMenuOpen(false);
   };
 
@@ -78,6 +88,7 @@ export default function Header() {
           {navLink("/book", "Book Facilities")}
           {navLink("/local", "Local Suggestions")}
           {navLink("/factor", "Factor")}
+          {isAdmin && navLink("/admin", "Admin")}
           {user ? (
             <li>
               <button
@@ -113,6 +124,7 @@ export default function Header() {
           {navLink("/book", "Book Facilities")}
           {navLink("/local", "Local Suggestions")}
           {navLink("/factor", "Factor")}
+          {isAdmin && navLink("/admin", "Admin")}
           {user ? (
             <li>
               <button
