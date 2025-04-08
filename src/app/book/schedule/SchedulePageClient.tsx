@@ -3,7 +3,15 @@
 import React, { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { db, auth } from '@/lib/firebase';
-import { doc, setDoc, deleteDoc, getDocs, collection, query, where } from 'firebase/firestore';
+import {
+  doc,
+  setDoc,
+  deleteDoc,
+  getDocs,
+  collection,
+  query,
+  where,
+} from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -31,7 +39,10 @@ const getUKDate = (offset = 0) => {
 };
 
 // Render a horizontal date selector.
-const renderDateSelector = (selectedDate: string, setSelectedDate: (d: string) => void) => {
+const renderDateSelector = (
+  selectedDate: string,
+  setSelectedDate: (d: string) => void
+) => {
   const today = new Date();
   const todayISO = today.toISOString().split('T')[0];
   const dates = Array.from({ length: 14 }, (_, i) => {
@@ -41,7 +52,7 @@ const renderDateSelector = (selectedDate: string, setSelectedDate: (d: string) =
     const display = `${date.toLocaleDateString('en-GB', {
       weekday: 'short',
       day: 'numeric',
-      month: 'short'
+      month: 'short',
     })}`.replace(',', '');
     return { iso, display };
   });
@@ -91,10 +102,17 @@ export default function SchedulePageClient() {
 
   // Fetch bookings from Firestore for the given date.
   const fetchBookings = async (date: string) => {
-    const snapshot = await getDocs(query(collection(db, 'bookings'), where('date', '==', date)));
+    const snapshot = await getDocs(
+      query(collection(db, 'bookings'), where('date', '==', date))
+    );
     const updated = generateInitialBookings();
     snapshot.forEach((docSnapshot) => {
-      const data = docSnapshot.data() as { facility: string; date: string; time: string; user: string };
+      const data = docSnapshot.data() as {
+        facility: string;
+        date: string;
+        time: string;
+        user: string;
+      };
       if (!updated[data.facility][data.date]) updated[data.facility][data.date] = {};
       updated[data.facility][data.date][data.time] = data.user;
     });
@@ -106,11 +124,17 @@ export default function SchedulePageClient() {
     let facilityCount = 0;
     let totalCount = 0;
     const selectedFacilityBookings = bookings[facility]?.[selectedDate] || {};
-    facilityCount = Object.values(selectedFacilityBookings).filter((email) => email === user?.email).length;
+    facilityCount = Object.values(selectedFacilityBookings).filter(
+      (email) => email === user?.email
+    ).length;
+
     Object.values(bookings).forEach((fac) => {
       const dayBookings = fac[selectedDate] || {};
-      totalCount += Object.values(dayBookings).filter((email) => email === user?.email).length;
+      totalCount += Object.values(dayBookings).filter(
+        (email) => email === user?.email
+      ).length;
     });
+
     return { facilityCount, totalCount };
   };
 
@@ -120,8 +144,10 @@ export default function SchedulePageClient() {
       router.push('/login');
       return;
     }
+
     const isBooked = bookings[facility][selectedDate]?.[time] === user.email;
     const bookingRef = doc(db, `bookings/${facility}_${selectedDate}_${time}`);
+
     if (isBooked) {
       await deleteDoc(bookingRef);
       setBookings((prev) => {
@@ -147,6 +173,7 @@ export default function SchedulePageClient() {
           date: selectedDate,
           timestamp: new Date(),
         });
+
         setBookings((prev) => ({
           ...prev,
           [facility]: {
@@ -169,7 +196,8 @@ export default function SchedulePageClient() {
     }
   };
 
-  // Render schedule for a given facility.
+  const renderedDateSelector = renderDateSelector(selectedDate, setSelectedDate);
+
   const renderSchedule = (facility: string) => {
     const isExpanded = expandedFacility === null || expandedFacility === facility;
     return (
@@ -182,10 +210,7 @@ export default function SchedulePageClient() {
             : 'bg-gray-100 dark:bg-gray-800 opacity-40 scale-95 pointer-events-none'
         }`}
       >
-        {/* Updated title style: ensure text is visible in dark mode */}
-        <h2 className="text-xl font-semibold mb-3 text-center text-black dark:text-white">
-          {facility}
-        </h2>
+        <h2 className="text-xl font-semibold mb-3 text-center">{facility}</h2>
         <ul className="space-y-2">
           <AnimatePresence>
             {timeSlots.map((start, i) => {
@@ -195,16 +220,22 @@ export default function SchedulePageClient() {
               const isOwn = bookedBy === user?.email;
               const [h, m] = start.split(':').map(Number);
               const timeValue = h * 60 + m;
+
               let status = 'Unavailable';
               if ((h === 9 && m >= 30) || h === 10) status = 'Cleaning';
               else if (start === '11:00') status = 'Free Use';
-              else if ((timeValue >= 330 && timeValue < 570) || (timeValue >= 1020 && timeValue < 1380))
+              else if (
+                (timeValue >= 330 && timeValue < 570) ||
+                (timeValue >= 1020 && timeValue < 1380)
+              )
                 status = 'Available';
+
               const showLabel = isOwn
                 ? 'Your booking'
                 : bookedBy
                 ? 'Booked by another user'
                 : status;
+
               const styleClass = isOwn
                 ? 'bg-green-700 text-white'
                 : bookedBy
@@ -216,6 +247,7 @@ export default function SchedulePageClient() {
                 : status === 'Free Use'
                 ? 'bg-yellow-100 text-gray-800'
                 : 'bg-red-100 text-gray-500';
+
               return (
                 <motion.li
                   key={start}
@@ -264,8 +296,6 @@ export default function SchedulePageClient() {
       </motion.div>
     );
   };
-
-  const renderedDateSelector = renderDateSelector(selectedDate, setSelectedDate);
 
   if (loading) {
     return <main className="text-center py-12">Loading...</main>;
