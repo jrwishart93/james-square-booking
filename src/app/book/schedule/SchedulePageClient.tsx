@@ -68,7 +68,7 @@ const renderDateSelector = (selectedDate: string, setSelectedDate: (d: string) =
 };
 
 export default function SchedulePageClient() {
-  const [expandedFacilities, setExpandedFacilities] = useState<Record<string, boolean>>({});
+  const [expandedFacility, setExpandedFacility] = useState<string | null>(null);
   const [bookings, setBookings] = useState<Record<string, Record<string, Record<string, string>>>>(generateInitialBookings);
   const [selectedDate, setSelectedDate] = useState(getUKDate());
   const [user, setUser] = useState<{ email: string } | null>(null);
@@ -85,19 +85,13 @@ export default function SchedulePageClient() {
     return () => unsubscribe();
   }, [selectedDate]);
 
-  // Toggle expanded state for an individual facility.
-  const toggleFacilityExpansion = (facility: string) => {
-    setExpandedFacilities((prev) => ({
-      ...prev,
-      [facility]: !prev[facility],
-    }));
+  const handleExpand = (facility: string | null) => {
+    setExpandedFacility((prev) => (prev === facility ? null : facility));
   };
 
   // Fetch bookings from Firestore for the given date.
   const fetchBookings = async (date: string) => {
-    const snapshot = await getDocs(
-      query(collection(db, 'bookings'), where('date', '==', date))
-    );
+    const snapshot = await getDocs(query(collection(db, 'bookings'), where('date', '==', date)));
     const updated = generateInitialBookings();
     snapshot.forEach((docSnapshot) => {
       const data = docSnapshot.data() as { facility: string; date: string; time: string; user: string };
@@ -107,19 +101,15 @@ export default function SchedulePageClient() {
     setBookings(updated);
   };
 
-  // Count how many slots the user has booked.
+  // Count how many slots the user has booked for the facility and overall for the day.
   const countUserBookings = (facility: string) => {
     let facilityCount = 0;
     let totalCount = 0;
     const selectedFacilityBookings = bookings[facility]?.[selectedDate] || {};
-    facilityCount = Object.values(selectedFacilityBookings).filter(
-      (email) => email === user?.email
-    ).length;
+    facilityCount = Object.values(selectedFacilityBookings).filter((email) => email === user?.email).length;
     Object.values(bookings).forEach((fac) => {
       const dayBookings = fac[selectedDate] || {};
-      totalCount += Object.values(dayBookings).filter(
-        (email) => email === user?.email
-      ).length;
+      totalCount += Object.values(dayBookings).filter((email) => email === user?.email).length;
     });
     return { facilityCount, totalCount };
   };
@@ -181,37 +171,18 @@ export default function SchedulePageClient() {
 
   // Render schedule for a given facility.
   const renderSchedule = (facility: string) => {
-    const expanded = expandedFacilities[facility] || false;
-    if (!expanded) {
-      // Minimal glance view.
-      return (
-        <motion.div
-          layout
-          key={facility}
-          className="rounded-xl shadow-md p-4 border bg-white dark:bg-gray-900"
-        >
-          <h2 className="text-xl font-semibold text-center text-black dark:text-white">
-            {facility}
-          </h2>
-          <div className="text-center mt-4">
-            <button
-              onClick={() => toggleFacilityExpansion(facility)}
-              className="px-4 py-2 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-all"
-            >
-              View Availability
-            </button>
-          </div>
-        </motion.div>
-      );
-    }
-
-    // Expanded view: show full schedule.
+    const isExpanded = expandedFacility === null || expandedFacility === facility;
     return (
       <motion.div
         layout
         key={facility}
-        className="rounded-xl shadow-md p-4 border transition-all duration-300 bg-white dark:bg-gray-900 scale-[1.03]"
+        className={`rounded-xl shadow-md p-4 border transition-all duration-300 ${
+          isExpanded
+            ? 'bg-white dark:bg-gray-900 scale-[1.03]'
+            : 'bg-gray-100 dark:bg-gray-800 opacity-40 scale-95 pointer-events-none'
+        }`}
       >
+        {/* Updated title style: ensure text is visible in dark mode */}
         <h2 className="text-xl font-semibold mb-3 text-center text-black dark:text-white">
           {facility}
         </h2>
@@ -284,10 +255,10 @@ export default function SchedulePageClient() {
         </ul>
         <div className="text-right mt-3">
           <button
-            onClick={() => toggleFacilityExpansion(facility)}
+            onClick={() => handleExpand(facility)}
             className="text-xs text-gray-500 hover:text-black"
           >
-            Collapse
+            {expandedFacility === facility ? 'Minimise' : '...'}
           </button>
         </div>
       </motion.div>
@@ -314,9 +285,7 @@ export default function SchedulePageClient() {
       {renderedDateSelector}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {['Pool', 'Gym', 'Sauna'].map((facility) => (
-          <React.Fragment key={facility}>
-            {renderSchedule(facility)}
-          </React.Fragment>
+          <React.Fragment key={facility}>{renderSchedule(facility)}</React.Fragment>
         ))}
       </div>
     </main>
