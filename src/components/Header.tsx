@@ -27,12 +27,9 @@ export default function Header() {
           const docSnap = snapshot.docs[0];
           if (docSnap?.exists()) {
             const data = docSnap.data();
-            setUserName(data.name || "");
-            if (data.isAdmin) {
-              setIsAdmin(true);
-            } else {
-              setIsAdmin(false);
-            }
+            // Change from data.name to data.fullName to display the user's name.
+            setUserName(data.fullName || "");
+            setIsAdmin(!!data.isAdmin);
           }
         } catch (err) {
           console.error("Error fetching user profile:", err);
@@ -67,16 +64,29 @@ export default function Header() {
   );
 
   return (
-    <header className="sticky top-0 z-50 bg-white dark:bg-gray-900 text-black dark:text-white shadow-md">
+    <header className="sticky top-0 z-50 bg-white text-black shadow-md">
       <nav className="flex justify-between items-center max-w-5xl mx-auto px-4 py-3">
-        <Link href="/" className="text-2xl font-bold tracking-tight">
-          James Square Booking Portal
+        {/* Logo and Brand Section */}
+        <Link href="/" className="flex items-center">
+          <img
+            src="/images/logo/Logo.png"
+            alt="James Square Logo"
+            className="h-10 w-auto mr-3"
+          />
+          <span className="text-2xl font-sans whitespace-nowrap">
+            <span className="text-black font-bold">James</span>
+            <span className="text-[#708090]">Square</span>
+          </span>
         </Link>
+
+        {/* Welcome message for logged-in user (desktop only) */}
         {user && (
-          <div className="hidden sm:block text-sm text-gray-600 dark:text-gray-300 mr-4">
-            Welcome, {userName?.split(" ")[0] || "Resident"}
+          <div className="hidden sm:block text-sm text-gray-600 mr-4">
+            {userName ? `Welcome, ${userName.split(" ")[0]}` : "Welcome"}
           </div>
         )}
+
+        {/* Mobile Menu Toggle Button */}
         <button
           className="sm:hidden text-2xl z-50"
           onClick={() => setMenuOpen(true)}
@@ -84,6 +94,8 @@ export default function Header() {
         >
           ☰
         </button>
+
+        {/* Desktop Navigation */}
         <ul className="hidden sm:flex gap-4 text-sm items-center">
           {navLink("/book", "Book Facilities")}
           {navLink("/local", "Local Suggestions")}
@@ -93,7 +105,7 @@ export default function Header() {
             <li>
               <button
                 onClick={handleSignOut}
-                className="px-4 py-2 rounded-full transition-all hover:bg-gray-200 dark:hover:bg-gray-700"
+                className="px-4 py-2 rounded-full transition-all hover:bg-gray-200"
               >
                 Sign Out
               </button>
@@ -106,11 +118,11 @@ export default function Header() {
 
       {/* Mobile Menu Dropdown */}
       <div
-        className={`fixed top-0 left-0 w-full h-full bg-white dark:bg-gray-900 text-black dark:text-white z-40 transform transition-transform duration-300 ease-in-out ${
+        className={`fixed top-0 left-0 w-full h-full bg-white text-black z-40 transform transition-transform duration-300 ease-in-out ${
           menuOpen ? "translate-y-0" : "-translate-y-full"
         } sm:hidden`}
       >
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <span className="text-xl font-bold">Menu</span>
           <button
             className="text-2xl"
@@ -129,7 +141,7 @@ export default function Header() {
             <li>
               <button
                 onClick={handleSignOut}
-                className="w-full text-left px-4 py-2 rounded-full transition-all hover:bg-gray-200 dark:hover:bg-gray-700"
+                className="w-full text-left px-4 py-2 rounded-full transition-all hover:bg-gray-200"
               >
                 Sign Out
               </button>
