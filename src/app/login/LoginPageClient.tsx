@@ -14,14 +14,14 @@ export default function LoginPageClient() {
   // while login mode uses one field for email or username.
   const [identifier, setIdentifier] = useState(''); // For login: Email or Username
   const [password, setPassword] = useState('');
-  
+
   // Registration fields:
   const [fullName, setFullName] = useState('');
   const [username, setUsername] = useState(''); // For registration mode.
   const [email, setEmail] = useState(''); // For registration mode, stores email.
   const [property, setProperty] = useState('');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
-  
+
   const [message, setMessage] = useState('');
   const [isRegistering, setIsRegistering] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
@@ -80,7 +80,7 @@ export default function LoginPageClient() {
         const user = userCredential.user;
         await setDoc(doc(db, 'users', user.uid), {
           email,
-          username: username.toLowerCase().trim(), // store normalized username
+          username: username.toLowerCase().trim(),
           fullName,
           property,
           createdAt: new Date().toISOString(),
@@ -152,7 +152,7 @@ export default function LoginPageClient() {
               placeholder="Username"
               className="w-full px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-300"
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={(e) => setUsername(e.target.value.toLowerCase().trim())}
               required
             />
           </>
