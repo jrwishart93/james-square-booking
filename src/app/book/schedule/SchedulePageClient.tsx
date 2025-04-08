@@ -15,6 +15,7 @@ import {
 import { onAuthStateChanged } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { DateTime } from 'luxon';
 
 // Define the time slots for booking.
 const timeSlots = [
@@ -31,29 +32,31 @@ const generateInitialBookings = () => {
   return bookings;
 };
 
-// Get the current UK date (or offset by a number of days).
+// Using Luxon: Always return the current UK date.
 const getUKDate = (offset = 0) => {
-  const uk = new Date(new Date().toLocaleString('en-GB', { timeZone: 'Europe/London' }));
-  uk.setDate(uk.getDate() + offset);
-  return uk.toISOString().split('T')[0];
+  return DateTime.now()
+    .setZone('Europe/London')
+    .plus({ days: offset })
+    .toISODate();
 };
 
-// Render a horizontal date selector.
+// Update renderDateSelector to use Luxon as well
 const renderDateSelector = (
   selectedDate: string,
   setSelectedDate: (d: string) => void
 ) => {
-  const today = new Date();
-  const todayISO = today.toISOString().split('T')[0];
+  // Get today's date in the UK timezone.
+  const today = DateTime.now().setZone('Europe/London');
+  
   const dates = Array.from({ length: 14 }, (_, i) => {
-    const date = new Date(today);
-    date.setDate(date.getDate() + i);
-    const iso = date.toISOString().split('T')[0];
-    const display = `${date.toLocaleDateString('en-GB', {
+    const date = today.plus({ days: i });
+    const iso = date.toISODate();
+    // Format display as: Mon, 8 Apr etc.
+    const display = date.toLocaleString({
       weekday: 'short',
       day: 'numeric',
       month: 'short',
-    })}`.replace(',', '');
+    });
     return { iso, display };
   });
 
@@ -65,7 +68,7 @@ const renderDateSelector = (
           className={`min-w-[110px] px-3 py-1 rounded text-sm border whitespace-nowrap transition duration-200 ease-in-out transform hover:scale-105 hover:shadow-md ${
             iso === selectedDate
               ? 'bg-black text-white'
-              : iso === todayISO
+              : iso === getUKDate() // comparing with current UK date
               ? 'border-black text-black font-semibold'
               : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-white'
           }`}
@@ -78,6 +81,14 @@ const renderDateSelector = (
   );
 };
 
+interface Slot {
+  start: string;
+  end: string;
+  status: string;
+  // For grouped slots (i.e. cleaning), we add an optional array of keys.
+  groupKeys?: string[];
+}
+
 export default function SchedulePageClient() {
   const [expandedFacility, setExpandedFacility] = useState<string | null>(null);
   const [bookings, setBookings] = useState<Record<string, Record<string, Record<string, string>>>>(generateInitialBookings);
@@ -86,37 +97,40 @@ export default function SchedulePageClient() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  // Fetch bookings for the selected date and listen for auth state changes.
+  // Effect: Fetch bookings for the selected date.
   useEffect(() => {
+    const fetchBookings = async (date: string) => {
+      const snapshot = await getDocs(
+        query(collection(db, 'bookings'), where('date', '==', date))
+      );
+      const updated = generateInitialBookings();
+      snapshot.forEach((docSnapshot) => {
+        const data = docSnapshot.data() as {
+          facility: string;
+          date: string;
+          time: string;
+          user: string;
+        };
+        if (!updated[data.facility][data.date]) updated[data.facility][data.date] = {};
+        updated[data.facility][data.date][data.time] = data.user;
+      });
+      setBookings(updated);
+    };
+
     fetchBookings(selectedDate);
+  }, [selectedDate]);
+
+  // Effect: Listen for authentication state changes.
+  useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser ? { email: firebaseUser.email ?? '' } : null);
       setLoading(false);
     });
     return () => unsubscribe();
-  }, [selectedDate]);
+  }, []);
 
   const handleExpand = (facility: string | null) => {
     setExpandedFacility((prev) => (prev === facility ? null : facility));
-  };
-
-  // Fetch bookings from Firestore for the given date.
-  const fetchBookings = async (date: string) => {
-    const snapshot = await getDocs(
-      query(collection(db, 'bookings'), where('date', '==', date))
-    );
-    const updated = generateInitialBookings();
-    snapshot.forEach((docSnapshot) => {
-      const data = docSnapshot.data() as {
-        facility: string;
-        date: string;
-        time: string;
-        user: string;
-      };
-      if (!updated[data.facility][data.date]) updated[data.facility][data.date] = {};
-      updated[data.facility][data.date][data.time] = data.user;
-    });
-    setBookings(updated);
   };
 
   // Count how many slots the user has booked for the facility and overall for the day.
@@ -196,10 +210,44 @@ export default function SchedulePageClient() {
     }
   };
 
-  const renderedDateSelector = renderDateSelector(selectedDate, setSelectedDate);
-
+  // Build a list of schedule slots with any cleaning grouping.
   const renderSchedule = (facility: string) => {
     const isExpanded = expandedFacility === null || expandedFacility === facility;
+
+    const scheduleSlots: Slot[] = [];
+    for (let i = 0; i < timeSlots.length - 1;) {
+      const start = timeSlots[i];
+      let end = timeSlots[i + 1];
+      if (start === '09:30') {
+        // Group cleaning slots from 09:30 to 11:00.
+        end = timeSlots[i + 3] || end; // Expect timeSlots[i+3] to be '11:00'
+        scheduleSlots.push({
+          start,
+          end,
+          status: 'Closed for Cleaning',
+          groupKeys: ['09:30', '10:00', '10:30'],
+        });
+        i += 3;
+      } else {
+        let status = 'Unavailable';
+        if (start === '11:00') {
+          status = 'Free to Use without Booking';
+        } else {
+          const [h, m] = start.split(':').map(Number);
+          const timeValue = h * 60 + m;
+          if ((timeValue >= 330 && timeValue < 570) || (timeValue >= 1020 && timeValue < 1380)) {
+            status = 'Available';
+          }
+        }
+        scheduleSlots.push({
+          start,
+          end,
+          status,
+        });
+        i++;
+      }
+    }
+
     return (
       <motion.div
         layout
@@ -213,58 +261,53 @@ export default function SchedulePageClient() {
         <h2 className="text-xl font-semibold mb-3 text-center">{facility}</h2>
         <ul className="space-y-2">
           <AnimatePresence>
-            {timeSlots.map((start, i) => {
-              const end = timeSlots[i + 1];
-              if (!end) return null;
-              const bookedBy = bookings[facility][selectedDate]?.[start] || null;
+            {scheduleSlots.map((slot) => {
+              const keysToCheck = slot.groupKeys ? slot.groupKeys : [slot.start];
+              const bookedBy =
+                keysToCheck
+                  .map((key) => bookings[facility][selectedDate]?.[key])
+                  .find((val) => !!val) || null;
               const isOwn = bookedBy === user?.email;
-              const [h, m] = start.split(':').map(Number);
-              const timeValue = h * 60 + m;
-
-              let status = 'Unavailable';
-              if ((h === 9 && m >= 30) || h === 10) status = 'Cleaning';
-              else if (start === '11:00') status = 'Free Use';
-              else if (
-                (timeValue >= 330 && timeValue < 570) ||
-                (timeValue >= 1020 && timeValue < 1380)
-              )
-                status = 'Available';
-
-              const showLabel = isOwn
-                ? 'Your booking'
-                : bookedBy
-                ? 'Booked by another user'
-                : status;
-
-              const styleClass = isOwn
-                ? 'bg-green-700 text-white'
-                : bookedBy
-                ? 'bg-gray-300 text-gray-700 italic'
-                : status === 'Available'
-                ? 'bg-green-100 text-black'
-                : status === 'Cleaning'
-                ? 'bg-blue-100 text-blue-700'
-                : status === 'Free Use'
-                ? 'bg-yellow-100 text-gray-800'
-                : 'bg-red-100 text-gray-500';
+              const showLabel =
+                isOwn
+                  ? 'Your booking'
+                  : bookedBy
+                  ? 'Booked by another user'
+                  : slot.status;
+              let styleClass = '';
+              if (isOwn) {
+                styleClass = 'bg-green-700 text-white';
+              } else if (bookedBy) {
+                styleClass = 'bg-gray-300 text-gray-700 italic';
+              } else {
+                if (slot.status === 'Available') {
+                  styleClass = 'bg-green-100 text-black';
+                } else if (slot.status === 'Closed for Cleaning') {
+                  styleClass = 'bg-blue-100 text-blue-700';
+                } else if (slot.status === 'Free to Use without Booking') {
+                  styleClass = 'bg-yellow-100 text-gray-800';
+                } else {
+                  styleClass = 'bg-red-100 text-gray-500';
+                }
+              }
 
               return (
                 <motion.li
-                  key={start}
+                  key={slot.start}
                   className={`flex justify-between items-center px-3 py-2 rounded ${styleClass}`}
                   title={isOwn ? 'Your booking' : bookedBy ? 'Booked by another user' : ''}
                 >
                   <span className="text-sm font-medium">
-                    {start} – {end}
+                    {slot.start} – {slot.end}
                   </span>
-                  {status === 'Available' ? (
+                  {slot.status === 'Available' ? (
                     user ? (
                       bookedBy && !isOwn ? (
                         <span className="text-xs italic">Booked by another user</span>
                       ) : (
                         <button
-                          aria-label={`Book ${facility} at ${start}`}
-                          onClick={() => onBook(facility, start)}
+                          aria-label={`Book ${facility} at ${slot.start}`}
+                          onClick={() => onBook(facility, slot.start)}
                           className="text-xs text-white bg-black rounded px-2 py-1 hover:bg-gray-900"
                         >
                           {isOwn ? 'Cancel' : 'Book'}
@@ -309,10 +352,14 @@ export default function SchedulePageClient() {
       </p>
       {!user && (
         <div className="text-center mb-6 text-sm text-red-600">
-          You&apos;re currently viewing as a guest. <Link href="/login" className="underline">Sign in</Link> to make bookings.
+          You&apos;re currently viewing as a guest.{' '}
+          <Link href="/login" className="underline">
+            Sign in
+          </Link>{' '}
+          to make bookings.
         </div>
       )}
-      {renderedDateSelector}
+      {renderDateSelector(selectedDate, setSelectedDate)}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {['Pool', 'Gym', 'Sauna'].map((facility) => (
           <React.Fragment key={facility}>{renderSchedule(facility)}</React.Fragment>
