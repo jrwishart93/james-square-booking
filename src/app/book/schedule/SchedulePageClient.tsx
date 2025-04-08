@@ -75,7 +75,7 @@ export default function SchedulePageClient() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  // On mount, fetch bookings for selected date and observe auth state.
+  // Fetch bookings for the selected date and listen for auth state changes.
   useEffect(() => {
     fetchBookings(selectedDate);
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
@@ -93,7 +93,7 @@ export default function SchedulePageClient() {
     }));
   };
 
-  // Fetch bookings from Firestore for the selected date.
+  // Fetch bookings from Firestore for the given date.
   const fetchBookings = async (date: string) => {
     const snapshot = await getDocs(
       query(collection(db, 'bookings'), where('date', '==', date))
@@ -107,7 +107,7 @@ export default function SchedulePageClient() {
     setBookings(updated);
   };
 
-  // Count bookings by the current user.
+  // Count how many slots the user has booked.
   const countUserBookings = (facility: string) => {
     let facilityCount = 0;
     let totalCount = 0;
@@ -115,14 +115,12 @@ export default function SchedulePageClient() {
     facilityCount = Object.values(selectedFacilityBookings).filter(
       (email) => email === user?.email
     ).length;
-
     Object.values(bookings).forEach((fac) => {
       const dayBookings = fac[selectedDate] || {};
       totalCount += Object.values(dayBookings).filter(
         (email) => email === user?.email
       ).length;
     });
-
     return { facilityCount, totalCount };
   };
 
@@ -181,11 +179,11 @@ export default function SchedulePageClient() {
     }
   };
 
-  // Render the schedule view for a facility.
-  // If not expanded, show a minimal "View Availability" view.
+  // Render schedule for a given facility.
   const renderSchedule = (facility: string) => {
     const expanded = expandedFacilities[facility] || false;
     if (!expanded) {
+      // Minimal glance view.
       return (
         <motion.div
           layout
@@ -195,10 +193,10 @@ export default function SchedulePageClient() {
           <h2 className="text-xl font-semibold text-center text-black dark:text-white">
             {facility}
           </h2>
-          <div className="text-right mt-3">
+          <div className="text-center mt-4">
             <button
               onClick={() => toggleFacilityExpansion(facility)}
-              className="text-xs text-gray-500 hover:text-black"
+              className="px-4 py-2 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-all"
             >
               View Availability
             </button>
@@ -207,7 +205,7 @@ export default function SchedulePageClient() {
       );
     }
 
-    // Expanded view (full schedule)
+    // Expanded view: show full schedule.
     return (
       <motion.div
         layout
@@ -316,7 +314,9 @@ export default function SchedulePageClient() {
       {renderedDateSelector}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {['Pool', 'Gym', 'Sauna'].map((facility) => (
-          <React.Fragment key={facility}>{renderSchedule(facility)}</React.Fragment>
+          <React.Fragment key={facility}>
+            {renderSchedule(facility)}
+          </React.Fragment>
         ))}
       </div>
     </main>
