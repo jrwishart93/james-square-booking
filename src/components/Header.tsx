@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { onAuthStateChanged, signOut, User } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
+import Image from "next/image";
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -68,9 +69,11 @@ export default function Header() {
       <nav className="flex justify-between items-center max-w-5xl mx-auto px-4 py-3">
         {/* Logo and Brand Section */}
         <Link href="/" className="flex items-center">
-          <img
+          <Image
             src="/images/logo/Logo.png"
             alt="James Square Logo"
+            width={40}
+            height={40}
             className="h-10 w-auto mr-3"
           />
           <span className="text-2xl font-sans whitespace-nowrap">

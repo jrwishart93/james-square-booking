@@ -305,11 +305,11 @@ export default function SchedulePageClient() {
     <main className="max-w-6xl mx-auto py-12 px-4">
       <h1 className="text-4xl font-bold mb-4 text-center">Facility Booking</h1>
       <p className="text-center text-gray-600 dark:text-gray-400 mb-6">
-        This page is visible to all users — but you'll need to sign in to book a slot.
+        This page is visible to all users — but you&apos;ll need to sign in to book a slot.
       </p>
       {!user && (
         <div className="text-center mb-6 text-sm text-red-600">
-          You're currently viewing as a guest. <Link href="/login" className="underline">Sign in</Link> to make bookings.
+          You&apos;re currently viewing as a guest. <Link href="/login" className="underline">Sign in</Link> to make bookings.
         </div>
       )}
       {renderedDateSelector}
