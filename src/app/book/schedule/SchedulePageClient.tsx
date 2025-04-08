@@ -32,7 +32,7 @@ const generateInitialBookings = () => {
   return bookings;
 };
 
-// Using Luxon: Always return the current UK date.
+// Using Luxon to always return the current UK date.
 const getUKDate = (offset = 0) => {
   return DateTime.now()
     .setZone('Europe/London')
@@ -40,18 +40,16 @@ const getUKDate = (offset = 0) => {
     .toISODate();
 };
 
-// Update renderDateSelector to use Luxon as well
+// Update renderDateSelector to use Luxon as well.
 const renderDateSelector = (
   selectedDate: string,
   setSelectedDate: (d: string) => void
 ) => {
-  // Get today's date in the UK timezone.
   const today = DateTime.now().setZone('Europe/London');
   
   const dates = Array.from({ length: 14 }, (_, i) => {
     const date = today.plus({ days: i });
     const iso = date.toISODate();
-    // Format display as: Mon, 8 Apr etc.
     const display = date.toLocaleString({
       weekday: 'short',
       day: 'numeric',
@@ -68,7 +66,7 @@ const renderDateSelector = (
           className={`min-w-[110px] px-3 py-1 rounded text-sm border whitespace-nowrap transition duration-200 ease-in-out transform hover:scale-105 hover:shadow-md ${
             iso === selectedDate
               ? 'bg-black text-white'
-              : iso === getUKDate() // comparing with current UK date
+              : iso === getUKDate()
               ? 'border-black text-black font-semibold'
               : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-white'
           }`}
@@ -90,7 +88,8 @@ interface Slot {
 }
 
 export default function SchedulePageClient() {
-  const [expandedFacility, setExpandedFacility] = useState<string | null>(null);
+  // Use an object to track expanded state per facility.
+  const [expandedFacilities, setExpandedFacilities] = useState<Record<string, boolean>>({});
   const [bookings, setBookings] = useState<Record<string, Record<string, Record<string, string>>>>(generateInitialBookings);
   const [selectedDate, setSelectedDate] = useState(getUKDate());
   const [user, setUser] = useState<{ email: string } | null>(null);
@@ -129,8 +128,9 @@ export default function SchedulePageClient() {
     return () => unsubscribe();
   }, []);
 
-  const handleExpand = (facility: string | null) => {
-    setExpandedFacility((prev) => (prev === facility ? null : facility));
+  // Toggle the expansion state for a facility.
+  const handleToggleExpand = (facility: string) => {
+    setExpandedFacilities((prev) => ({ ...prev, [facility]: !prev[facility] }));
   };
 
   // Count how many slots the user has booked for the facility and overall for the day.
@@ -212,15 +212,13 @@ export default function SchedulePageClient() {
 
   // Build a list of schedule slots with any cleaning grouping.
   const renderSchedule = (facility: string) => {
-    const isExpanded = expandedFacility === null || expandedFacility === facility;
-
     const scheduleSlots: Slot[] = [];
     for (let i = 0; i < timeSlots.length - 1;) {
       const start = timeSlots[i];
       let end = timeSlots[i + 1];
       if (start === '09:30') {
         // Group cleaning slots from 09:30 to 11:00.
-        end = timeSlots[i + 3] || end; // Expect timeSlots[i+3] to be '11:00'
+        end = timeSlots[i + 3] || end;
         scheduleSlots.push({
           start,
           end,
@@ -248,20 +246,26 @@ export default function SchedulePageClient() {
       }
     }
 
+    // In the minimised view, show only "Closed for Cleaning" and "Free to Use without Booking" slots.
+    const isExpanded = !!expandedFacilities[facility];
+    const displayedSlots = isExpanded
+      ? scheduleSlots
+      : scheduleSlots.filter(
+          slot =>
+            slot.status === 'Closed for Cleaning' ||
+            slot.status === 'Free to Use without Booking'
+        );
+
     return (
       <motion.div
         layout
         key={facility}
-        className={`rounded-xl shadow-md p-4 border transition-all duration-300 ${
-          isExpanded
-            ? 'bg-white dark:bg-gray-900 scale-[1.03]'
-            : 'bg-gray-100 dark:bg-gray-800 opacity-40 scale-95 pointer-events-none'
-        }`}
+        className="rounded-xl shadow-md p-4 border transition-all duration-300 bg-white dark:bg-gray-900"
       >
         <h2 className="text-xl font-semibold mb-3 text-center">{facility}</h2>
         <ul className="space-y-2">
           <AnimatePresence>
-            {scheduleSlots.map((slot) => {
+            {displayedSlots.map((slot) => {
               const keysToCheck = slot.groupKeys ? slot.groupKeys : [slot.start];
               const bookedBy =
                 keysToCheck
@@ -290,7 +294,7 @@ export default function SchedulePageClient() {
                   styleClass = 'bg-red-100 text-gray-500';
                 }
               }
-
+              
               return (
                 <motion.li
                   key={slot.start}
@@ -330,10 +334,12 @@ export default function SchedulePageClient() {
         </ul>
         <div className="text-right mt-3">
           <button
-            onClick={() => handleExpand(facility)}
+            onClick={() => handleToggleExpand(facility)}
             className="text-xs text-gray-500 hover:text-black"
           >
-            {expandedFacility === facility ? 'Minimise' : '...'}
+            {isExpanded
+              ? 'Minimise'
+              : 'Expand to see Available and Booked Slots'}
           </button>
         </div>
       </motion.div>
