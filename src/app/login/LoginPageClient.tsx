@@ -12,7 +12,7 @@ import { collection, doc, getDoc, getDocs, query, where, setDoc } from 'firebase
 export default function LoginPageClient() {
   // In registration mode we use separate inputs for email and username,
   // while login mode uses one field for email or username.
-  const [identifier, setIdentifier] = useState(''); // For login: Email or Username, used for login mode.
+  const [identifier, setIdentifier] = useState(''); // For login: Email or Username
   const [password, setPassword] = useState('');
   
   // Registration fields:
@@ -55,9 +55,9 @@ export default function LoginPageClient() {
           setUsername(data.username || '');
           setProperty(data.property || '');
           // Pre-fill login identifier with email.
-          setIdentifier(user.email || '');
+          setIdentifier(user.email?.toLowerCase().trim() || '');
           // Also set registration email if available.
-          setEmail(user.email || '');
+          setEmail(user.email?.toLowerCase().trim() || '');
         }
       }
     });
@@ -80,7 +80,7 @@ export default function LoginPageClient() {
         const user = userCredential.user;
         await setDoc(doc(db, 'users', user.uid), {
           email,
-          username,
+          username: username.toLowerCase().trim(), // store normalized username
           fullName,
           property,
           createdAt: new Date().toISOString(),
@@ -144,7 +144,7 @@ export default function LoginPageClient() {
               placeholder="Email"
               className="w-full px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-300"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => setEmail(e.target.value.toLowerCase().trim())}
               required
             />
             <input
@@ -163,7 +163,7 @@ export default function LoginPageClient() {
             placeholder="Email or Username"
             className="w-full px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-300"
             value={identifier}
-            onChange={(e) => setIdentifier(e.target.value)}
+            onChange={(e) => setIdentifier(e.target.value.toLowerCase().trim())}
             required
           />
         )}
