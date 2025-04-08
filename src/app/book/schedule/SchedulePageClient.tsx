@@ -41,7 +41,7 @@ const renderDateSelector = (selectedDate: string, setSelectedDate: (d: string) =
     const display = `${date.toLocaleDateString('en-GB', {
       weekday: 'short',
       day: 'numeric',
-      month: 'short',
+      month: 'short'
     })}`.replace(',', '');
     return { iso, display };
   });
@@ -68,14 +68,14 @@ const renderDateSelector = (selectedDate: string, setSelectedDate: (d: string) =
 };
 
 export default function SchedulePageClient() {
-  const [expandedFacility, setExpandedFacility] = useState<string | null>(null);
+  const [expandedFacilities, setExpandedFacilities] = useState<Record<string, boolean>>({});
   const [bookings, setBookings] = useState<Record<string, Record<string, Record<string, string>>>>(generateInitialBookings);
   const [selectedDate, setSelectedDate] = useState(getUKDate());
   const [user, setUser] = useState<{ email: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  // Fetch bookings for the selected date and listen for auth state changes.
+  // On mount, fetch bookings for selected date and observe auth state.
   useEffect(() => {
     fetchBookings(selectedDate);
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
@@ -85,13 +85,19 @@ export default function SchedulePageClient() {
     return () => unsubscribe();
   }, [selectedDate]);
 
-  const handleExpand = (facility: string | null) => {
-    setExpandedFacility((prev) => (prev === facility ? null : facility));
+  // Toggle expanded state for an individual facility.
+  const toggleFacilityExpansion = (facility: string) => {
+    setExpandedFacilities((prev) => ({
+      ...prev,
+      [facility]: !prev[facility],
+    }));
   };
 
-  // Fetch bookings from Firestore for the given date.
+  // Fetch bookings from Firestore for the selected date.
   const fetchBookings = async (date: string) => {
-    const snapshot = await getDocs(query(collection(db, 'bookings'), where('date', '==', date)));
+    const snapshot = await getDocs(
+      query(collection(db, 'bookings'), where('date', '==', date))
+    );
     const updated = generateInitialBookings();
     snapshot.forEach((docSnapshot) => {
       const data = docSnapshot.data() as { facility: string; date: string; time: string; user: string };
@@ -101,16 +107,20 @@ export default function SchedulePageClient() {
     setBookings(updated);
   };
 
-  // Count how many slots the user has booked for the facility and overall for the day.
+  // Count bookings by the current user.
   const countUserBookings = (facility: string) => {
     let facilityCount = 0;
     let totalCount = 0;
     const selectedFacilityBookings = bookings[facility]?.[selectedDate] || {};
-    facilityCount = Object.values(selectedFacilityBookings).filter((email) => email === user?.email).length;
+    facilityCount = Object.values(selectedFacilityBookings).filter(
+      (email) => email === user?.email
+    ).length;
 
     Object.values(bookings).forEach((fac) => {
       const dayBookings = fac[selectedDate] || {};
-      totalCount += Object.values(dayBookings).filter((email) => email === user?.email).length;
+      totalCount += Object.values(dayBookings).filter(
+        (email) => email === user?.email
+      ).length;
     });
 
     return { facilityCount, totalCount };
@@ -122,10 +132,8 @@ export default function SchedulePageClient() {
       router.push('/login');
       return;
     }
-
     const isBooked = bookings[facility][selectedDate]?.[time] === user.email;
     const bookingRef = doc(db, `bookings/${facility}_${selectedDate}_${time}`);
-
     if (isBooked) {
       await deleteDoc(bookingRef);
       setBookings((prev) => {
@@ -143,7 +151,6 @@ export default function SchedulePageClient() {
         alert('You can only book up to 6 slots per day.');
         return;
       }
-
       try {
         await setDoc(bookingRef, {
           facility,
@@ -152,7 +159,6 @@ export default function SchedulePageClient() {
           date: selectedDate,
           timestamp: new Date(),
         });
-
         setBookings((prev) => ({
           ...prev,
           [facility]: {
@@ -175,20 +181,42 @@ export default function SchedulePageClient() {
     }
   };
 
+  // Render the schedule view for a facility.
+  // If not expanded, show a minimal "View Availability" view.
   const renderSchedule = (facility: string) => {
-    const isExpanded = expandedFacility === null || expandedFacility === facility;
+    const expanded = expandedFacilities[facility] || false;
+    if (!expanded) {
+      return (
+        <motion.div
+          layout
+          key={facility}
+          className="rounded-xl shadow-md p-4 border bg-white dark:bg-gray-900"
+        >
+          <h2 className="text-xl font-semibold text-center text-black dark:text-white">
+            {facility}
+          </h2>
+          <div className="text-right mt-3">
+            <button
+              onClick={() => toggleFacilityExpansion(facility)}
+              className="text-xs text-gray-500 hover:text-black"
+            >
+              View Availability
+            </button>
+          </div>
+        </motion.div>
+      );
+    }
 
+    // Expanded view (full schedule)
     return (
       <motion.div
         layout
         key={facility}
-        className={`rounded-xl shadow-md p-4 border transition-all duration-300 ${
-          isExpanded
-            ? 'bg-white dark:bg-gray-900 scale-[1.03]'
-            : 'bg-gray-100 dark:bg-gray-800 opacity-40 scale-95 pointer-events-none'
-        }`}
+        className="rounded-xl shadow-md p-4 border transition-all duration-300 bg-white dark:bg-gray-900 scale-[1.03]"
       >
-        <h2 className="text-xl font-semibold mb-3 text-center">{facility}</h2>
+        <h2 className="text-xl font-semibold mb-3 text-center text-black dark:text-white">
+          {facility}
+        </h2>
         <ul className="space-y-2">
           <AnimatePresence>
             {timeSlots.map((start, i) => {
@@ -196,22 +224,18 @@ export default function SchedulePageClient() {
               if (!end) return null;
               const bookedBy = bookings[facility][selectedDate]?.[start] || null;
               const isOwn = bookedBy === user?.email;
-
               const [h, m] = start.split(':').map(Number);
               const timeValue = h * 60 + m;
-
               let status = 'Unavailable';
               if ((h === 9 && m >= 30) || h === 10) status = 'Cleaning';
               else if (start === '11:00') status = 'Free Use';
               else if ((timeValue >= 330 && timeValue < 570) || (timeValue >= 1020 && timeValue < 1380))
                 status = 'Available';
-
               const showLabel = isOwn
                 ? 'Your booking'
                 : bookedBy
                 ? 'Booked by another user'
                 : status;
-
               const styleClass = isOwn
                 ? 'bg-green-700 text-white'
                 : bookedBy
@@ -223,7 +247,6 @@ export default function SchedulePageClient() {
                 : status === 'Free Use'
                 ? 'bg-yellow-100 text-gray-800'
                 : 'bg-red-100 text-gray-500';
-
               return (
                 <motion.li
                   key={start}
@@ -263,15 +286,17 @@ export default function SchedulePageClient() {
         </ul>
         <div className="text-right mt-3">
           <button
-            onClick={() => handleExpand(facility)}
+            onClick={() => toggleFacilityExpansion(facility)}
             className="text-xs text-gray-500 hover:text-black"
           >
-            {expandedFacility === facility ? 'Minimise' : '...'}
+            Collapse
           </button>
         </div>
       </motion.div>
     );
   };
+
+  const renderedDateSelector = renderDateSelector(selectedDate, setSelectedDate);
 
   if (loading) {
     return <main className="text-center py-12">Loading...</main>;
@@ -281,22 +306,17 @@ export default function SchedulePageClient() {
     <main className="max-w-6xl mx-auto py-12 px-4">
       <h1 className="text-4xl font-bold mb-4 text-center">Facility Booking</h1>
       <p className="text-center text-gray-600 dark:text-gray-400 mb-6">
-        This page is visible to all users — but you&apos;ll need to sign in to book a slot.
+        This page is visible to all users — but you'll need to sign in to book a slot.
       </p>
-
       {!user && (
         <div className="text-center mb-6 text-sm text-red-600">
-          You&apos;re currently viewing as a guest. <Link href="/login" className="underline">Sign in</Link> to make bookings.
+          You're currently viewing as a guest. <Link href="/login" className="underline">Sign in</Link> to make bookings.
         </div>
       )}
-
-      {renderDateSelector(selectedDate, setSelectedDate)}
-
+      {renderedDateSelector}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {['Pool', 'Gym', 'Sauna'].map((facility) => (
-          <React.Fragment key={facility}>
-            {renderSchedule(facility)}
-          </React.Fragment>
+          <React.Fragment key={facility}>{renderSchedule(facility)}</React.Fragment>
         ))}
       </div>
     </main>
