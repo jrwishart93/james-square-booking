@@ -1,16 +1,16 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, ChangeEvent } from 'react';
 import { auth, db } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import { collection, getDocs, orderBy, query, doc, getDoc } from 'firebase/firestore';
+import { collection, getDocs, orderBy, query, doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 
 interface UserRegistration {
   id: string;
   email: string;
   fullName: string;
-  building: string;
-  flat: string;
+  username: string;
+  property: string;
   createdAt: string;
   isFlagged?: boolean;
 }
@@ -25,13 +25,13 @@ interface BookingActivity {
 }
 
 export default function AdminDashboard() {
-  // Removed the unused currentUser variable
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [users, setUsers] = useState<UserRegistration[]>([]);
   const [bookings, setBookings] = useState<BookingActivity[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingUser, setEditingUser] = useState<UserRegistration | null>(null);
 
-  // Check auth status and if the user is admin
+  // Check auth status and if the current user is an admin.
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
@@ -43,11 +43,10 @@ export default function AdminDashboard() {
       }
       setLoading(false);
     });
-
     return () => unsubscribe();
   }, []);
 
-  // Fetch user registrations and booking activities if admin
+  // Fetch user registrations and booking activities if admin.
   useEffect(() => {
     if (!isAdmin) return;
 
@@ -75,6 +74,58 @@ export default function AdminDashboard() {
     fetchBookings();
   }, [isAdmin]);
 
+  // Handlers for editing user details
+  const startEditing = (user: UserRegistration) => {
+    setEditingUser({ ...user });
+  };
+
+  const cancelEditing = () => {
+    setEditingUser(null);
+  };
+
+  const handleEditChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    if (editingUser) {
+      setEditingUser({
+        ...editingUser,
+        [e.target.name]: e.target.value,
+      });
+    }
+  };
+
+  const saveEdits = async () => {
+    if (!editingUser) return;
+    try {
+      const userRef = doc(db, 'users', editingUser.id);
+      await updateDoc(userRef, {
+        fullName: editingUser.fullName,
+        username: editingUser.username,
+        property: editingUser.property,
+      });
+      // Update local state.
+      setUsers((prevUsers) =>
+        prevUsers.map((user) =>
+          user.id === editingUser.id ? { ...user, ...editingUser } : user
+        )
+      );
+      setEditingUser(null);
+    } catch (error) {
+      console.error('Failed to update user:', error);
+    }
+  };
+
+  // Handler to remove a user.
+  const removeUser = async (userId: string) => {
+    if (window.confirm('Are you sure you want to remove this user?')) {
+      try {
+        await deleteDoc(doc(db, 'users', userId));
+        // Remove the user from the local state.
+        setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId));
+      } catch (error) {
+        console.error('Failed to delete user:', error);
+      }
+    }
+  };
+
   if (loading) {
     return <div className="p-6 text-center">Loading admin dashboard...</div>;
   }
@@ -99,23 +150,97 @@ export default function AdminDashboard() {
                 <tr>
                   <th className="border px-4 py-2">Email</th>
                   <th className="border px-4 py-2">Full Name</th>
-                  <th className="border px-4 py-2">Building</th>
-                  <th className="border px-4 py-2">Flat</th>
+                  <th className="border px-4 py-2">Username</th>
+                  <th className="border px-4 py-2">Property</th>
                   <th className="border px-4 py-2">Registered At</th>
                   <th className="border px-4 py-2">Flagged</th>
+                  <th className="border px-4 py-2">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {users.map((user) => (
-                  <tr key={user.id}>
-                    <td className="border px-4 py-2">{user.email}</td>
-                    <td className="border px-4 py-2">{user.fullName}</td>
-                    <td className="border px-4 py-2">{user.building}</td>
-                    <td className="border px-4 py-2">{user.flat}</td>
-                    <td className="border px-4 py-2">{new Date(user.createdAt).toLocaleString()}</td>
-                    <td className="border px-4 py-2">{user.isFlagged ? 'Yes' : 'No'}</td>
-                  </tr>
-                ))}
+                {users.map((user) =>
+                  editingUser && editingUser.id === user.id ? (
+                    <tr key={user.id}>
+                      <td className="border px-4 py-2">{user.email}</td>
+                      <td className="border px-4 py-2">
+                        <input
+                          type="text"
+                          name="fullName"
+                          value={editingUser.fullName || ''}
+                          onChange={handleEditChange}
+                          className="w-full border rounded px-2 py-1"
+                        />
+                      </td>
+                      <td className="border px-4 py-2">
+                        <input
+                          type="text"
+                          name="username"
+                          value={editingUser.username || ''}
+                          onChange={handleEditChange}
+                          className="w-full border rounded px-2 py-1"
+                        />
+                      </td>
+                      <td className="border px-4 py-2">
+                        <input
+                          type="text"
+                          name="property"
+                          value={editingUser.property || ''}
+                          onChange={handleEditChange}
+                          className="w-full border rounded px-2 py-1"
+                        />
+                      </td>
+                      <td className="border px-4 py-2">
+                        {new Date(user.createdAt).toLocaleString()}
+                      </td>
+                      <td className="border px-4 py-2">
+                        {user.isFlagged ? 'Yes' : 'No'}
+                      </td>
+                      <td className="border px-4 py-2 space-x-2">
+                        <button
+                          onClick={saveEdits}
+                          className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600"
+                        >
+                          Save
+                        </button>
+                        <button
+                          onClick={cancelEditing}
+                          className="bg-gray-500 text-white px-2 py-1 rounded hover:bg-gray-600"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={() => removeUser(user.id)}
+                          className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
+                        >
+                          Remove
+                        </button>
+                      </td>
+                    </tr>
+                  ) : (
+                    <tr key={user.id}>
+                      <td className="border px-4 py-2">{user.email}</td>
+                      <td className="border px-4 py-2">{user.fullName}</td>
+                      <td className="border px-4 py-2">{user.username}</td>
+                      <td className="border px-4 py-2">{user.property}</td>
+                      <td className="border px-4 py-2">{new Date(user.createdAt).toLocaleString()}</td>
+                      <td className="border px-4 py-2">{user.isFlagged ? 'Yes' : 'No'}</td>
+                      <td className="border px-4 py-2 space-x-2">
+                        <button
+                          onClick={() => startEditing(user)}
+                          className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => removeUser(user.id)}
+                          className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
+                        >
+                          Remove
+                        </button>
+                      </td>
+                    </tr>
+                  )
+                )}
               </tbody>
             </table>
           </div>
