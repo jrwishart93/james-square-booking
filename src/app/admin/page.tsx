@@ -321,10 +321,12 @@ export default function AdminDashboard() {
     let csvContent = '';
 
     if (users.length > 0) {
-      csvContent += 'Users:\n' + convertToCSV(users) + '\n\n';
+      // Spread each user into a new plain object.
+      csvContent += 'Users:\n' + convertToCSV(users.map(user => ({ ...user }))) + '\n\n';
     }
     if (bookings.length > 0) {
-      csvContent += 'Bookings:\n' + convertToCSV(bookings) + '\n\n';
+      // Spread each booking into a new plain object.
+      csvContent += 'Bookings:\n' + convertToCSV(bookings.map(booking => ({ ...booking }))) + '\n\n';
     }
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
