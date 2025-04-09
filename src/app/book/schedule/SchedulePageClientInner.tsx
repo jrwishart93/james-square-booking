@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { db, auth } from '@/lib/firebase';
 import {
   doc,
+  getDoc,
   setDoc,
   deleteDoc,
   getDocs,
@@ -28,13 +29,11 @@ const timeSlots = [
 const generateInitialBookings = () => {
   const facilities = ['Pool', 'Gym', 'Sauna'];
   const bookings: Record<string, Record<string, Record<string, string>>> = {};
-  facilities.forEach((facility) => {
-    bookings[facility] = {};
-  });
+  facilities.forEach((facility) => (bookings[facility] = {}));
   return bookings;
 };
 
-// Using Luxon to always return the current UK date.
+// Using Luxon to always return the current UK date (in Europe/London).
 const getUKDate = (offset = 0) => {
   return DateTime.now()
     .setZone('Europe/London')
@@ -42,7 +41,7 @@ const getUKDate = (offset = 0) => {
     .toISODate();
 };
 
-// Render the date selector.
+// Render a horizontal date selector.
 const renderDateSelector = (
   selectedDate: string,
   setSelectedDate: (d: string) => void
@@ -91,7 +90,7 @@ function SchedulePageClientInner() {
   const searchParams = useSearchParams();
   const expandedParam = searchParams.get('expanded')?.toLowerCase();
 
-  // Use an object to track expanded state per facility.
+  // Track expanded state per facility
   const [expandedFacilities, setExpandedFacilities] = useState<Record<string, boolean>>(
     expandedParam ? { [expandedParam]: true } : {}
   );
@@ -99,23 +98,21 @@ function SchedulePageClientInner() {
     generateInitialBookings()
   );
   const [selectedDate, setSelectedDate] = useState(getUKDate());
-  const [user, setUser] = useState<{ email: string } | null>(null);
+  const [user, setUser] = useState<{ email: string; property?: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   // Fetch bookings for the selected date.
   useEffect(() => {
     const fetchBookings = async (date: string) => {
-      const snapshot = await getDocs(
-        query(collection(db, 'bookings'), where('date', '==', date))
-      );
+      const qSnap = await getDocs(query(collection(db, 'bookings'), where('date', '==', date)));
       const updated = generateInitialBookings();
-      snapshot.forEach((docSnapshot) => {
-        const data = docSnapshot.data() as {
+      qSnap.forEach((docSnap) => {
+        const data = docSnap.data() as {
           facility: string;
           date: string;
           time: string;
-          user: string;
+          user: string; // stored as "encodeURIComponent(email)|encodeURIComponent(property)"
         };
         if (!updated[data.facility][data.date]) {
           updated[data.facility][data.date] = {};
@@ -130,26 +127,64 @@ function SchedulePageClientInner() {
 
   // Listen for authentication state changes.
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      setUser(firebaseUser ? { email: firebaseUser.email ?? '' } : null);
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        // Admin check with @admin.com
+        const isAdmin = firebaseUser.email?.endsWith('@admin.com') || false;
+        // Optionally fetch user doc for property
+        let property = '';
+        if (isAdmin) {
+          const docRef = doc(db, 'users', firebaseUser.uid);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            property = docSnap.data().property || '';
+          }
+        }
+        setUser({ email: firebaseUser.email ?? '', property });
+      } else {
+        setUser(null);
+      }
       setLoading(false);
     });
     return () => unsubscribe();
   }, []);
 
-  // Toggle the expansion state for a facility.
+  // Toggle the expand/minimize for a facility
   const handleToggleExpand = (facility: string) => {
     const key = facility.toLowerCase();
     setExpandedFacilities((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  // Check if the user has already booked this slot for the previous 3 consecutive days.
+  // Count how many slots the current user has booked for the facility (and overall).
+  const countUserBookings = (facility: string) => {
+    let facilityCount = 0;
+    let totalCount = 0;
+    const selectedFacilityBookings = bookings[facility]?.[selectedDate] || {};
+
+    // Each booking is "encodedEmail|encodedProperty"
+    facilityCount = Object.values(selectedFacilityBookings).filter((v) => {
+      const [encodedEmail] = v.split('|');
+      const decodedEmail = decodeURIComponent(encodedEmail);
+      return decodedEmail === user?.email;
+    }).length;
+
+    Object.values(bookings).forEach((fac) => {
+      const dayBookings = fac[selectedDate] || {};
+      totalCount += Object.values(dayBookings).filter((v) => {
+        const [encodedEmail] = v.split('|');
+        const decodedEmail = decodeURIComponent(encodedEmail);
+        return decodedEmail === user?.email;
+      }).length;
+    });
+
+    return { facilityCount, totalCount };
+  };
+
+  // Check for 3 consecutive previous bookings
   const checkConsecutiveBookings = async (facility: string, time: string): Promise<boolean> => {
     if (!user) return false;
-    // Convert current selectedDate to a Luxon DateTime object.
     const currentDate = DateTime.fromISO(selectedDate, { zone: 'Europe/London' });
     let consecutiveCount = 0;
-    // Check each of the previous 3 days.
     for (let i = 1; i <= 3; i++) {
       const prevDate = currentDate.minus({ days: i }).toISODate();
       const q = query(
@@ -158,11 +193,13 @@ function SchedulePageClientInner() {
         where('date', '==', prevDate),
         where('time', '==', time)
       );
-      const snapshot = await getDocs(q);
+      const snap = await getDocs(q);
       let bookedForPrevDate = false;
-      snapshot.forEach((docSnap) => {
-        const data = docSnap.data();
-        if (data.user === user.email) {
+      snap.forEach((dSnap) => {
+        const data = dSnap.data();
+        const [encodedEmail] = (data.user || '').split('|');
+        const decodedEmail = decodeURIComponent(encodedEmail);
+        if (decodedEmail === user.email) {
           bookedForPrevDate = true;
         }
       });
@@ -175,26 +212,26 @@ function SchedulePageClientInner() {
     return consecutiveCount === 3;
   };
 
-  // Handle booking or cancelling a slot.
+  // Handle booking or cancelling a slot
   const onBook = async (facility: string, time: string) => {
     if (!user) {
       router.push('/login');
       return;
     }
-
-    // Check consecutive bookings before allowing new booking.
     const hasConsecutiveBookings = await checkConsecutiveBookings(facility, time);
     if (hasConsecutiveBookings) {
-      alert(
-        "You have already booked this slot for 3 consecutive days. You cannot book it for another consecutive day."
-      );
+      alert("You have already booked this slot for 3 consecutive days. You cannot book it again.");
       return;
     }
 
-    const isBooked = bookings[facility][selectedDate]?.[time] === user.email;
+    const currentBooking = bookings[facility][selectedDate]?.[time] || '';
+    const [encodedEmail] = currentBooking.split('|');
+    const decodedEmail = decodeURIComponent(encodedEmail);
+    const isBooked = decodedEmail === user.email;
     const bookingRef = doc(db, `bookings/${facility}_${selectedDate}_${time}`);
 
     if (isBooked) {
+      // Cancel
       await deleteDoc(bookingRef);
       setBookings((prev) => {
         const updated = { ...prev };
@@ -212,21 +249,23 @@ function SchedulePageClientInner() {
         return;
       }
       try {
+        // Store as encodeURIComponent(email)|encodeURIComponent(property)
+        const bookingValue =
+          encodeURIComponent(user.email) + '|' + encodeURIComponent(user.property ?? '');
         await setDoc(bookingRef, {
           facility,
           time,
-          user: user.email,
+          user: bookingValue,
           date: selectedDate,
           timestamp: new Date(),
         });
-
         setBookings((prev) => ({
           ...prev,
           [facility]: {
             ...prev[facility],
             [selectedDate]: {
               ...(prev[facility][selectedDate] || {}),
-              [time]: user.email,
+              [time]: bookingValue,
             },
           },
         }));
@@ -242,33 +281,14 @@ function SchedulePageClientInner() {
     }
   };
 
-  // Count how many slots the user has booked for the facility and overall for the day.
-  const countUserBookings = (facility: string) => {
-    let facilityCount = 0;
-    let totalCount = 0;
-    const selectedFacilityBookings = bookings[facility]?.[selectedDate] || {};
-    facilityCount = Object.values(selectedFacilityBookings).filter(
-      (email) => email === user?.email
-    ).length;
-
-    Object.values(bookings).forEach((fac) => {
-      const dayBookings = fac[selectedDate] || {};
-      totalCount += Object.values(dayBookings).filter(
-        (email) => email === user?.email
-      ).length;
-    });
-
-    return { facilityCount, totalCount };
-  };
-
-  // Build and render the schedule for a given facility.
+  // Render schedule for a given facility
   const renderSchedule = (facility: string) => {
     const scheduleSlots: Slot[] = [];
     for (let i = 0; i < timeSlots.length - 1;) {
       const start = timeSlots[i];
       let end = timeSlots[i + 1];
       if (start === '09:30') {
-        // Group cleaning slots from 09:30 to 11:00.
+        // Group cleaning 09:30 - 11:00
         end = timeSlots[i + 3] || end;
         scheduleSlots.push({
           start,
@@ -282,6 +302,7 @@ function SchedulePageClientInner() {
         if (start === '11:00') {
           status = 'Free to Use without Booking';
         } else {
+          // Convert time to minutes
           const [h, m] = start.split(':').map(Number);
           const timeValue = h * 60 + m;
           if ((timeValue >= 330 && timeValue < 570) || (timeValue >= 1020 && timeValue < 1380)) {
@@ -297,7 +318,7 @@ function SchedulePageClientInner() {
     const displayedSlots = isExpanded
       ? scheduleSlots
       : scheduleSlots.filter(
-          slot =>
+          (slot) =>
             slot.status === 'Closed for Cleaning' ||
             slot.status === 'Free to Use without Booking'
         );
@@ -314,22 +335,42 @@ function SchedulePageClientInner() {
         <ul className="space-y-2">
           <AnimatePresence>
             {displayedSlots.map((slot) => {
-              const keysToCheck = slot.groupKeys ? slot.groupKeys : [slot.start];
-              const bookedBy =
+              const keysToCheck = slot.groupKeys ?? [slot.start];
+              // We look in local 'bookings' to see if any of the grouped keys is booked
+              const bookedStr =
                 keysToCheck
                   .map((key) => bookings[facility][selectedDate]?.[key])
-                  .find((val) => !!val) || null;
-              const isOwn = bookedBy === user?.email;
-              const showLabel =
-                isOwn
-                  ? 'Your booking'
-                  : bookedBy
-                  ? 'Booked by another user'
-                  : slot.status;
+                  .find((val) => !!val) || '';
+              let emailDecoded = '';
+              let propertyDecoded = '';
+              if (bookedStr) {
+                const [encodedEmail, encodedProp] = bookedStr.split('|');
+                emailDecoded = decodeURIComponent(encodedEmail ?? '');
+                propertyDecoded = decodeURIComponent(encodedProp ?? '');
+              }
+
+              const isOwn = emailDecoded === user?.email;
+              let showLabel = slot.status;
+              if (isOwn) {
+                showLabel = 'Your booking';
+              } else if (emailDecoded) {
+                // If user is admin => user.email ends with '@admin.com'
+                // Display user + property
+                if (user?.email?.endsWith('@admin.com')) {
+                  showLabel = `Booked by: ${emailDecoded}`;
+                  if (propertyDecoded) {
+                    showLabel += ` (Property: ${propertyDecoded})`;
+                  }
+                } else {
+                  showLabel = 'Booked by another user';
+                }
+              }
+
+              // Style
               let styleClass = '';
               if (isOwn) {
                 styleClass = 'bg-green-700 text-white';
-              } else if (bookedBy) {
+              } else if (emailDecoded) {
                 styleClass = 'bg-gray-300 text-gray-700 italic';
               } else {
                 if (slot.status === 'Available') {
@@ -342,20 +383,26 @@ function SchedulePageClientInner() {
                   styleClass = 'bg-red-100 text-gray-500';
                 }
               }
-              
+
               return (
                 <motion.li
                   key={slot.start}
                   className={`flex justify-between items-center px-3 py-2 rounded ${styleClass}`}
-                  title={isOwn ? 'Your booking' : bookedBy ? 'Booked by another user' : ''}
+                  title={isOwn ? 'Your booking' : emailDecoded ? 'Booked by another user' : ''}
                 >
                   <span className="text-sm font-medium">
                     {slot.start} – {slot.end}
                   </span>
                   {slot.status === 'Available' ? (
                     user ? (
-                      bookedBy && !isOwn ? (
-                        <span className="text-xs italic">Booked by another user</span>
+                      emailDecoded && !isOwn ? (
+                        <span className="text-xs italic">
+                          {user.email.endsWith('@admin.com')
+                            ? `Booked by: ${emailDecoded} ${
+                                propertyDecoded ? `(Property: ${propertyDecoded})` : ''
+                              }`
+                            : 'Booked by another user'}
+                        </span>
                       ) : (
                         <button
                           aria-label={`Book ${facility} at ${slot.start}`}
@@ -365,7 +412,7 @@ function SchedulePageClientInner() {
                           {isOwn ? 'Cancel' : 'Book'}
                         </button>
                       )
-                    ) : bookedBy ? (
+                    ) : emailDecoded ? (
                       <span className="text-xs italic">Booked by another user</span>
                     ) : (
                       <Link href="/login" className="text-xs text-red-600 underline">
@@ -385,9 +432,7 @@ function SchedulePageClientInner() {
             onClick={() => handleToggleExpand(facility)}
             className="text-xs text-gray-500 hover:text-black"
           >
-            {isExpanded
-              ? 'Minimise'
-              : 'Expand to see Available and Booked Slots'}
+            {isExpanded ? 'Minimise' : 'Expand to see Available and Booked Slots'}
           </button>
         </div>
       </motion.div>
