@@ -307,10 +307,15 @@ export default function AdminDashboard() {
   // -----------------
   // Technical Tools
   // -----------------
+  // Updated exportDataAsCSV using a generic to avoid "any" types.
   const exportDataAsCSV = () => {
-    const convertToCSV = (data: any[]) => {
-      const array = [Object.keys(data[0])].concat(data.map(item => Object.values(item)));
-      return array.map(row => row.join(',')).join('\n');
+    const convertToCSV = <T extends Record<string, unknown>>(data: T[]): string => {
+      if (data.length === 0) return '';
+      const header = Object.keys(data[0]);
+      const rows = data.map((item) =>
+        header.map((field) => String(item[field]))
+      );
+      return [header.join(','), ...rows.map(row => row.join(','))].join('\n');
     };
 
     let csvContent = '';
