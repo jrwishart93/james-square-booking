@@ -17,6 +17,14 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { DateTime } from 'luxon';
 
+// Define interface for Slot
+interface Slot {
+  start: string;
+  end: string;
+  status: string;
+  groupKeys?: string[];
+}
+
 // Define the time slots for booking.
 const timeSlots = [
   '05:30', '06:00', '06:30', '07:00', '07:30', '08:00', '08:30', '09:00', '09:30',
@@ -78,13 +86,6 @@ function renderDateSelector(
       ))}
     </div>
   );
-}
-
-interface Slot {
-  start: string;
-  end: string;
-  status: string;
-  groupKeys?: string[];
 }
 
 function SchedulePageClientInner() {
@@ -322,7 +323,6 @@ function SchedulePageClientInner() {
               if (isOwn) {
                 showLabel = 'Your booking';
               } else if (bookedBy) {
-                // Admin users see the booking details.
                 showLabel = user?.isAdmin ? `Booked by: ${bookedBy}` : 'Booked by another user';
               }
               let styleClass = '';
@@ -401,11 +401,11 @@ function SchedulePageClientInner() {
     <main className="max-w-6xl mx-auto py-12 px-4">
       <h1 className="text-4xl font-bold mb-4 text-center">Facility Booking</h1>
       <p className="text-center text-gray-600 dark:text-gray-400 mb-6">
-        This page is visible to all users — but you'll need to sign in to book a slot.
+        This page is visible to all users &mdash; but you&apos;ll need to sign in to book a slot.
       </p>
       {!user && (
         <div className="text-center mb-6 text-sm text-red-600">
-          You're currently viewing as a guest.{' '}
+          You&apos;re currently viewing as a guest.{' '}
           <Link href="/login" className="underline">
             Sign in
           </Link>{' '}

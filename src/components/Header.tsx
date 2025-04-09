@@ -101,6 +101,7 @@ export default function Header() {
         {/* Desktop Navigation */}
         <ul className="hidden sm:flex gap-4 text-sm items-center">
           {navLink("/book", "Book Facilities")}
+          {navLink("/book/my-bookings", "My Bookings")}
           {navLink("/local", "Local Suggestions")}
           {navLink("/factor", "Factor")}
           {isAdmin && navLink("/admin", "Admin")}
@@ -137,6 +138,7 @@ export default function Header() {
         </div>
         <ul className="flex flex-col gap-4 p-4 text-lg">
           {navLink("/book", "Book Facilities")}
+          {navLink("/book/my-bookings", "My Bookings")}
           {navLink("/local", "Local Suggestions")}
           {navLink("/factor", "Factor")}
           {isAdmin && navLink("/admin", "Admin")}

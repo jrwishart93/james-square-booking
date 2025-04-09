@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import { DateTime } from 'luxon';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 
 interface Booking {
   id: string;
@@ -94,7 +95,7 @@ export default function MyBookingsPage() {
 
       {bookings.length === 0 ? (
         <div className="text-center">
-          <p>You don't have any upcoming bookings.</p>
+          <p>You don&apos;t have any upcoming bookings.</p>
           <Link href="/book" className="underline text-blue-600">Make a booking now</Link>
         </div>
       ) : (
@@ -122,9 +123,11 @@ export default function MyBookingsPage() {
                 className="border rounded-xl p-4 shadow-sm flex flex-col md:flex-row md:justify-between items-center"
               >
                 <div className="flex items-center mb-2 md:mb-0">
-                  <img
+                  <Image
                     src={facilityIcons[booking.facility]}
                     alt={`${booking.facility} icon`}
+                    width={40}
+                    height={40}
                     className="w-10 h-10 mr-3"
                   />
                   <div>
