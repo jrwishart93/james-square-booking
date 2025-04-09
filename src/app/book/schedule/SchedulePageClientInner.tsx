@@ -380,7 +380,7 @@ function SchedulePageClientInner() {
             })}
           </AnimatePresence>
         </ul>
-        {/* Updated Expand/Minimise Button */}
+        {/* Expand/Minimise Button */}
         <div className="mt-4">
           <button
             onClick={() => handleToggleExpand(facility)}
@@ -417,6 +417,15 @@ function SchedulePageClientInner() {
         {['Pool', 'Gym', 'Sauna'].map((facility) => (
           <React.Fragment key={facility}>{renderSchedule(facility)}</React.Fragment>
         ))}
+      </div>
+      {/* New My Bookings Button moved to the bottom of the page */}
+      <div className="flex justify-center mt-6">
+        <Link
+          href="/book/my-bookings"
+          className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition"
+        >
+          My Bookings
+        </Link>
       </div>
     </main>
   );

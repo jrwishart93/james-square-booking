@@ -56,10 +56,16 @@ export default function BookPage() {
         Book Facilities
       </h1>
 
-      <div className="text-center mb-8">
+      {/* Buttons Container: View Availability and My Bookings */}
+      <div className="text-center mb-8 flex justify-center gap-4">
         <Link href="/book/schedule">
           <button className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-300">
             View Availability
+          </button>
+        </Link>
+        <Link href="/book/my-bookings">
+          <button className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-300">
+            My Bookings
           </button>
         </Link>
       </div>

@@ -91,6 +91,15 @@ export default function MyBookingsPage() {
 
   return (
     <main className="max-w-4xl mx-auto py-12 px-4">
+      {/* New "Make New Booking" Button at the Top */}
+      <div className="text-center mb-4">
+        <Link href="/book/schedule">
+          <button className="px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition duration-300">
+            Make New Booking
+          </button>
+        </Link>
+      </div>
+
       <h1 className="text-3xl font-bold text-center mb-4">🗓️ My Upcoming Bookings</h1>
 
       {bookings.length === 0 ? (
