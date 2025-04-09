@@ -3,7 +3,16 @@
 import React, { useEffect, useState, ChangeEvent } from 'react';
 import { auth, db } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import { collection, getDocs, orderBy, query, doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import {
+  collection,
+  getDocs,
+  orderBy,
+  query,
+  doc,
+  getDoc,
+  updateDoc,
+  deleteDoc,
+} from 'firebase/firestore';
 
 interface UserRegistration {
   id: string;
@@ -74,11 +83,12 @@ export default function AdminDashboard() {
     fetchBookings();
   }, [isAdmin]);
 
-  // Handlers for editing user details
+  // Handler for editing user details.
   const startEditing = (user: UserRegistration) => {
     setEditingUser({ ...user });
   };
 
+  // Cancel editing handler.
   const cancelEditing = () => {
     setEditingUser(null);
   };
@@ -118,10 +128,33 @@ export default function AdminDashboard() {
     if (window.confirm('Are you sure you want to remove this user?')) {
       try {
         await deleteDoc(doc(db, 'users', userId));
-        // Remove the user from the local state.
         setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId));
       } catch (error) {
         console.error('Failed to delete user:', error);
+      }
+    }
+  };
+
+  // NEW: Reset All Bookings Handler.
+  const resetBookings = async () => {
+    if (
+      window.confirm(
+        'Are you sure you want to reset all bookings? This action cannot be undone.'
+      )
+    ) {
+      try {
+        const bookingsCollectionRef = collection(db, 'bookings');
+        const snapshot = await getDocs(bookingsCollectionRef);
+        const deletePromises = snapshot.docs.map((docSnap) =>
+          deleteDoc(docSnap.ref)
+        );
+        await Promise.all(deletePromises);
+        // Reset local bookings state to an empty array.
+        setBookings([]);
+        alert('All bookings have been reset.');
+      } catch (error) {
+        console.error('Failed to reset bookings:', error);
+        alert('Failed to reset bookings. Please try again later.');
       }
     }
   };
@@ -137,6 +170,16 @@ export default function AdminDashboard() {
   return (
     <div className="max-w-7xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-4">Admin Dashboard</h1>
+
+      {/* RESET BOOKINGS BUTTON */}
+      {/* Use proper JSX comment syntax */}
+      {/* Reset All Bookings Button */}
+      <button
+        onClick={resetBookings}
+        className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 mb-6"
+      >
+        Reset All Bookings
+      </button>
 
       {/* User Registrations Section */}
       <section className="mb-8">
@@ -222,7 +265,9 @@ export default function AdminDashboard() {
                       <td className="border px-4 py-2">{user.fullName}</td>
                       <td className="border px-4 py-2">{user.username}</td>
                       <td className="border px-4 py-2">{user.property}</td>
-                      <td className="border px-4 py-2">{new Date(user.createdAt).toLocaleString()}</td>
+                      <td className="border px-4 py-2">
+                        {new Date(user.createdAt).toLocaleString()}
+                      </td>
                       <td className="border px-4 py-2">{user.isFlagged ? 'Yes' : 'No'}</td>
                       <td className="border px-4 py-2 space-x-2">
                         <button
