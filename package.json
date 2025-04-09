@@ -9,13 +9,16 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@sendgrid/mail": "^8.1.5",
     "firebase": "^11.6.0",
     "firebase-admin": "^13.2.0",
+    "firebase-functions": "^6.3.2",
     "framer-motion": "^12.6.3",
     "luxon": "^3.6.1",
     "next": "15.2.4",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "resend": "^4.2.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
