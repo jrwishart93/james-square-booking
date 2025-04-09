@@ -84,7 +84,6 @@ interface Slot {
   start: string;
   end: string;
   status: string;
-  // For grouped slots (i.e. cleaning), optionally include all the keys in the group.
   groupKeys?: string[];
 }
 
@@ -104,6 +103,7 @@ function SchedulePageClientInner() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
+  // Fetch bookings for the selected date.
   useEffect(() => {
     const fetchBookings = async (date: string) => {
       const snapshot = await getDocs(
@@ -128,6 +128,7 @@ function SchedulePageClientInner() {
     fetchBookings(selectedDate);
   }, [selectedDate]);
 
+  // Listen for authentication state changes.
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser ? { email: firebaseUser.email ?? '' } : null);
@@ -136,32 +137,57 @@ function SchedulePageClientInner() {
     return () => unsubscribe();
   }, []);
 
+  // Toggle the expansion state for a facility.
   const handleToggleExpand = (facility: string) => {
     const key = facility.toLowerCase();
     setExpandedFacilities((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const countUserBookings = (facility: string) => {
-    let facilityCount = 0;
-    let totalCount = 0;
-    const selectedFacilityBookings = bookings[facility]?.[selectedDate] || {};
-    facilityCount = Object.values(selectedFacilityBookings).filter(
-      (email) => email === user?.email
-    ).length;
-
-    Object.values(bookings).forEach((fac) => {
-      const dayBookings = fac[selectedDate] || {};
-      totalCount += Object.values(dayBookings).filter(
-        (email) => email === user?.email
-      ).length;
-    });
-
-    return { facilityCount, totalCount };
+  // Check if the user has already booked this slot for the previous 3 consecutive days.
+  const checkConsecutiveBookings = async (facility: string, time: string): Promise<boolean> => {
+    if (!user) return false;
+    // Convert current selectedDate to a Luxon DateTime object.
+    const currentDate = DateTime.fromISO(selectedDate, { zone: 'Europe/London' });
+    let consecutiveCount = 0;
+    // Check each of the previous 3 days.
+    for (let i = 1; i <= 3; i++) {
+      const prevDate = currentDate.minus({ days: i }).toISODate();
+      const q = query(
+        collection(db, 'bookings'),
+        where('facility', '==', facility),
+        where('date', '==', prevDate),
+        where('time', '==', time)
+      );
+      const snapshot = await getDocs(q);
+      let bookedForPrevDate = false;
+      snapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        if (data.user === user.email) {
+          bookedForPrevDate = true;
+        }
+      });
+      if (bookedForPrevDate) {
+        consecutiveCount++;
+      } else {
+        break;
+      }
+    }
+    return consecutiveCount === 3;
   };
 
+  // Handle booking or cancelling a slot.
   const onBook = async (facility: string, time: string) => {
     if (!user) {
       router.push('/login');
+      return;
+    }
+
+    // Check consecutive bookings before allowing new booking.
+    const hasConsecutiveBookings = await checkConsecutiveBookings(facility, time);
+    if (hasConsecutiveBookings) {
+      alert(
+        "You have already booked this slot for 3 consecutive days. You cannot book it for another consecutive day."
+      );
       return;
     }
 
@@ -216,6 +242,26 @@ function SchedulePageClientInner() {
     }
   };
 
+  // Count how many slots the user has booked for the facility and overall for the day.
+  const countUserBookings = (facility: string) => {
+    let facilityCount = 0;
+    let totalCount = 0;
+    const selectedFacilityBookings = bookings[facility]?.[selectedDate] || {};
+    facilityCount = Object.values(selectedFacilityBookings).filter(
+      (email) => email === user?.email
+    ).length;
+
+    Object.values(bookings).forEach((fac) => {
+      const dayBookings = fac[selectedDate] || {};
+      totalCount += Object.values(dayBookings).filter(
+        (email) => email === user?.email
+      ).length;
+    });
+
+    return { facilityCount, totalCount };
+  };
+
+  // Build and render the schedule for a given facility.
   const renderSchedule = (facility: string) => {
     const scheduleSlots: Slot[] = [];
     for (let i = 0; i < timeSlots.length - 1;) {
@@ -247,7 +293,6 @@ function SchedulePageClientInner() {
       }
     }
 
-    // If not expanded, show only cleaning and free-to-use slots.
     const isExpanded = !!expandedFacilities[facility.toLowerCase()];
     const displayedSlots = isExpanded
       ? scheduleSlots
@@ -263,7 +308,6 @@ function SchedulePageClientInner() {
         key={facility}
         className="rounded-xl shadow-md p-4 border transition-all duration-300 bg-white dark:bg-gray-900"
       >
-        {/* Updated title: add dark mode text classes */}
         <h2 className="text-xl font-semibold mb-3 text-center text-black dark:text-white">
           {facility}
         </h2>
