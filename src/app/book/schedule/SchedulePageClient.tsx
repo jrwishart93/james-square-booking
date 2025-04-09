@@ -13,7 +13,7 @@ import {
   where,
 } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { DateTime } from 'luxon';
 
@@ -88,8 +88,16 @@ interface Slot {
 }
 
 export default function SchedulePageClient() {
+  // Read the "expanded" query parameter.
+  const searchParams = useSearchParams();
+  const expandedParam = searchParams.get('expanded')?.toLowerCase();
+  
   // Use an object to track expanded state per facility.
-  const [expandedFacilities, setExpandedFacilities] = useState<Record<string, boolean>>({});
+  // Initialize with the query parameter if present.
+  const [expandedFacilities, setExpandedFacilities] = useState<Record<string, boolean>>(
+    expandedParam ? { [expandedParam]: true } : {}
+  );
+  
   const [bookings, setBookings] = useState<Record<string, Record<string, Record<string, string>>>>(generateInitialBookings);
   const [selectedDate, setSelectedDate] = useState(getUKDate());
   const [user, setUser] = useState<{ email: string } | null>(null);
@@ -130,7 +138,8 @@ export default function SchedulePageClient() {
 
   // Toggle the expansion state for a facility.
   const handleToggleExpand = (facility: string) => {
-    setExpandedFacilities((prev) => ({ ...prev, [facility]: !prev[facility] }));
+    const key = facility.toLowerCase();
+    setExpandedFacilities((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
   // Count how many slots the user has booked for the facility and overall for the day.
@@ -247,7 +256,7 @@ export default function SchedulePageClient() {
     }
 
     // In the minimised view, show only "Closed for Cleaning" and "Free to Use without Booking" slots.
-    const isExpanded = !!expandedFacilities[facility];
+    const isExpanded = !!expandedFacilities[facility.toLowerCase()];
     const displayedSlots = isExpanded
       ? scheduleSlots
       : scheduleSlots.filter(

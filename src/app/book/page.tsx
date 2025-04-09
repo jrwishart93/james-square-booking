@@ -5,9 +5,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 
 const FACILITIES = [
-  { name: 'Pool', icon: '/images/icons/pool-icon.png', route: '/book/pool' },
-  { name: 'Gym', icon: '/images/icons/gym-icon.png', route: '/book/gym' },
-  { name: 'Sauna', icon: '/images/icons/sauna-icon.png', route: '/book/sauna' },
+  { name: 'Pool', icon: '/images/icons/pool-icon.png' },
+  { name: 'Gym', icon: '/images/icons/gym-icon.png' },
+  { name: 'Sauna', icon: '/images/icons/sauna-icon.png' },
 ];
 
 const RULES = [
@@ -36,21 +36,24 @@ export default function BookPage() {
       </div>
 
       <div className="flex flex-col md:flex-row justify-center gap-6">
-        {FACILITIES.map(({ name, icon, route }) => (
+        {FACILITIES.map(({ name, icon }) => (
           <div
             key={name}
-            className="bg-white dark:bg-gray-50 border border-gray-200 dark:border-gray-300 rounded-lg shadow-md p-6 text-center flex-1"
+            className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 text-center flex-1"
           >
-            <div className="mx-auto mb-4 w-24 h-24 relative rounded-full overflow-hidden border border-gray-200">
-              <Image
-                src={icon}
-                alt={`${name} icon`}
-                layout="fill"
-                objectFit="cover"
-              />
+            <div className="flex justify-center mb-4">
+              <div className="w-24 h-24 relative rounded-full overflow-hidden border border-gray-200 dark:border-gray-700">
+                <Image 
+                  src={icon}
+                  alt={`${name} icon`}
+                  fill
+                  className="object-cover"
+                />
+              </div>
             </div>
             <h2 className="text-2xl font-semibold mb-4">{name}</h2>
-            <Link href={route}>
+            {/* Navigate to schedule page with query parameter to auto-expand the selected facility */}
+            <Link href={`/book/schedule?expanded=${name.toLowerCase()}`}>
               <button className="w-full py-3 bg-black text-white rounded-lg text-lg font-medium hover:bg-gray-900 transition duration-300">
                 Book {name}
               </button>
@@ -59,7 +62,7 @@ export default function BookPage() {
         ))}
       </div>
 
-      <div className="mt-16 flex flex-col md:flex-row gap-12 text-gray-700 dark:text-gray-600 text-base">
+      <div className="mt-16 flex flex-col md:flex-row gap-12 text-gray-700 dark:text-gray-300 text-base">
         <div className="md:w-1/2 text-center md:text-left">
           <h2 className="text-3xl font-bold underline mb-6">Opening Times</h2>
           <p className="font-semibold">Facilities open daily from:</p>
@@ -76,7 +79,8 @@ export default function BookPage() {
 
           <p className="font-semibold">Booking required from:</p>
           <p>
-            5:30 a.m. – 9:30 a.m.<br />
+            5:30 a.m. – 9:30 a.m.
+            <br />
             5:00 p.m. – 11:00 p.m.
           </p>
         </div>
