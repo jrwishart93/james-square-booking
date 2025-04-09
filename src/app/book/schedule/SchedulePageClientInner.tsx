@@ -25,39 +25,41 @@ const timeSlots = [
 ];
 
 // Initialize bookings state for each facility.
-const generateInitialBookings = () => {
+function generateInitialBookings() {
   const facilities = ['Pool', 'Gym', 'Sauna'];
   const bookings: Record<string, Record<string, Record<string, string>>> = {};
   facilities.forEach((facility) => {
     bookings[facility] = {};
   });
   return bookings;
-};
+}
 
-// Using Luxon to always return the current UK date.
-const getUKDate = (offset = 0) => {
+// Return the current UK date (YYYY-MM-DD) using Luxon.
+function getUKDate(offset = 0) {
   return DateTime.now()
     .setZone('Europe/London')
     .plus({ days: offset })
     .toISODate();
-};
+}
 
 // Render a horizontal date selector.
-const renderDateSelector = (
+function renderDateSelector(
   selectedDate: string,
   setSelectedDate: (d: string) => void
-) => {
+) {
   const today = DateTime.now().setZone('Europe/London');
   const dates = Array.from({ length: 14 }, (_, i) => {
     const date = today.plus({ days: i });
-    const iso = date.toISODate();
-    const display = date.toLocaleString({
-      weekday: 'short',
-      day: 'numeric',
-      month: 'short',
-    });
-    return { iso, display };
+    return {
+      iso: date.toISODate(),
+      display: date.toLocaleString({
+        weekday: 'short',
+        day: 'numeric',
+        month: 'short',
+      }),
+    };
   });
+
   return (
     <div className="flex overflow-x-auto gap-2 mb-6 px-2 scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600">
       {dates.map(({ iso, display }) => (
@@ -77,7 +79,7 @@ const renderDateSelector = (
       ))}
     </div>
   );
-};
+}
 
 interface Slot {
   start: string;
@@ -90,17 +92,15 @@ function SchedulePageClientInner() {
   const searchParams = useSearchParams();
   const expandedParam = searchParams.get('expanded')?.toLowerCase();
 
-  // Track expanded state per facility.
+  // State for expanded facilities.
   const [expandedFacilities, setExpandedFacilities] = useState<Record<string, boolean>>(
     expandedParam ? { [expandedParam]: true } : {}
   );
-
+  // Bookings state: facility -> date -> time -> email.
   const [bookings, setBookings] = useState<Record<string, Record<string, Record<string, string>>>>(
     generateInitialBookings()
   );
-
   const [selectedDate, setSelectedDate] = useState(getUKDate());
-  // The user object includes an optional isAdmin flag.
   const [user, setUser] = useState<{ email: string; isAdmin?: boolean } | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -108,12 +108,14 @@ function SchedulePageClientInner() {
   // Fetch bookings for the selected date.
   useEffect(() => {
     async function fetchBookings(date: string) {
-      const snapshot = await getDocs(
-        query(collection(db, 'bookings'), where('date', '==', date))
+      const q = query(
+        collection(db, 'bookings'),
+        where('date', '==', date)
       );
+      const snap = await getDocs(q);
       const updated = generateInitialBookings();
-      snapshot.forEach((docSnapshot) => {
-        const data = docSnapshot.data() as {
+      snap.forEach((docSnap) => {
+        const data = docSnap.data() as {
           facility: string;
           date: string;
           time: string;
@@ -129,11 +131,11 @@ function SchedulePageClientInner() {
     fetchBookings(selectedDate);
   }, [selectedDate]);
 
-  // Listen for authentication state changes.
+  // Listen for Firebase authentication state changes.
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
-        // Consider a user admin if their email ends with '@admin.com'.
+        // A user is considered admin if their email ends with '@admin.com'
         const isAdmin = firebaseUser.email?.endsWith('@admin.com') || false;
         setUser({ email: firebaseUser.email ?? '', isAdmin });
       } else {
@@ -144,30 +146,30 @@ function SchedulePageClientInner() {
     return () => unsubscribe();
   }, []);
 
-  // Toggle the expansion state for a facility.
-  const handleToggleExpand = (facility: string) => {
+  // Toggle expand/collapse for a facility.
+  function handleToggleExpand(facility: string) {
     const key = facility.toLowerCase();
     setExpandedFacilities((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
+  }
 
-  // Count how many slots the current user has booked.
-  const countUserBookings = (facility: string) => {
+  // Count current user's bookings for a facility and overall.
+  function countUserBookings(facility: string) {
     let facilityCount = 0;
     let totalCount = 0;
     const selectedFacilityBookings = bookings[facility]?.[selectedDate] || {};
     facilityCount = Object.values(selectedFacilityBookings).filter(
-      (email) => email === user?.email
+      (bookedEmail) => bookedEmail === user?.email
     ).length;
     Object.values(bookings).forEach((fac) => {
       const dayBookings = fac[selectedDate] || {};
       totalCount += Object.values(dayBookings).filter(
-        (email) => email === user?.email
+        (bookedEmail) => bookedEmail === user?.email
       ).length;
     });
     return { facilityCount, totalCount };
-  };
+  }
 
-  // Check if the user has booked this facility slot for the previous 3 consecutive days.
+  // Check if the user has booked a slot for the previous 3 consecutive days.
   async function checkConsecutiveBookings(facility: string, time: string): Promise<boolean> {
     if (!user) return false;
     const currentDate = DateTime.fromISO(selectedDate, { zone: 'Europe/London' });
@@ -180,40 +182,37 @@ function SchedulePageClientInner() {
         where('date', '==', prevDate),
         where('time', '==', time)
       );
-      const snapshot = await getDocs(q);
-      let bookedForPrevDate = false;
-      snapshot.forEach((docSnap) => {
+      const snap = await getDocs(q);
+      let found = false;
+      snap.forEach((docSnap) => {
         const data = docSnap.data();
         if (data.user === user.email) {
-          bookedForPrevDate = true;
+          found = true;
         }
       });
-      if (bookedForPrevDate) {
-        consecutiveCount++;
-      } else {
-        break;
-      }
+      if (found) consecutiveCount++;
+      else break;
     }
     return consecutiveCount === 3;
   }
 
-  // Handle booking or cancelling a slot.
+  // Handle booking or cancellation of a slot.
   async function onBook(facility: string, time: string) {
     if (!user) {
       router.push('/login');
       return;
     }
-    const hasConsecutiveBookings = await checkConsecutiveBookings(facility, time);
-    if (hasConsecutiveBookings) {
-      alert("You have already booked this slot for 3 consecutive days. You cannot book it again.");
+    const hasConsecutive = await checkConsecutiveBookings(facility, time);
+    if (hasConsecutive) {
+      alert('You have already booked this slot for 3 consecutive days. You cannot book it again.');
       return;
     }
     const isBooked = bookings[facility][selectedDate]?.[time] === user.email;
     const bookingRef = doc(db, `bookings/${facility}_${selectedDate}_${time}`);
     if (isBooked) {
-      // Cancel booking.
+      // Cancel the booking.
       await deleteDoc(bookingRef);
-      setBookings(prev => {
+      setBookings((prev) => {
         const updated = { ...prev };
         delete updated[facility][selectedDate][time];
         return updated;
@@ -236,7 +235,7 @@ function SchedulePageClientInner() {
           date: selectedDate,
           timestamp: new Date()
         });
-        setBookings(prev => ({
+        setBookings((prev) => ({
           ...prev,
           [facility]: {
             ...prev[facility],
@@ -246,24 +245,26 @@ function SchedulePageClientInner() {
             }
           }
         }));
-      } catch (err: any) {
-        if (err.code === 'permission-denied') {
+      } catch (err: unknown) {
+        const error = err as { code?: string; message?: string };
+        if (error.code === 'permission-denied') {
           alert('That time slot has already been booked. Please choose another.');
         } else {
-          console.error('Booking failed:', err.message);
+          console.error('Booking failed:', error.message);
           alert('An error occurred while booking. Please try again.');
         }
       }
     }
   }
 
-  // Render the schedule for a given facility.
+  // Render schedule for a facility.
   function renderSchedule(facility: string) {
     const scheduleSlots: Slot[] = [];
     for (let i = 0; i < timeSlots.length - 1;) {
       const start = timeSlots[i];
       let end = timeSlots[i + 1];
       if (start === '09:30') {
+        // Group cleaning from 09:30 to 11:00.
         end = timeSlots[i + 3] || end;
         scheduleSlots.push({
           start,
@@ -291,9 +292,10 @@ function SchedulePageClientInner() {
     const isExpanded = !!expandedFacilities[facility.toLowerCase()];
     const displayedSlots = isExpanded
       ? scheduleSlots
-      : scheduleSlots.filter(slot =>
-          slot.status === 'Closed for Cleaning' ||
-          slot.status === 'Free to Use without Booking'
+      : scheduleSlots.filter(
+          slot =>
+            slot.status === 'Closed for Cleaning' ||
+            slot.status === 'Free to Use without Booking'
         );
 
     return (
@@ -307,11 +309,11 @@ function SchedulePageClientInner() {
         </h2>
         <ul className="space-y-2">
           <AnimatePresence>
-            {displayedSlots.map(slot => {
+            {displayedSlots.map((slot) => {
               const keysToCheck = slot.groupKeys ? slot.groupKeys : [slot.start];
               const bookedBy = keysToCheck
-                .map(key => bookings[facility][selectedDate]?.[key])
-                .find(val => !!val) || null;
+                .map((key) => bookings[facility][selectedDate]?.[key])
+                .find((val) => !!val) || null;
               const isOwn = bookedBy === user?.email;
               let showLabel = slot.status;
               if (isOwn) {
@@ -335,7 +337,6 @@ function SchedulePageClientInner() {
                   styleClass = 'bg-red-100 text-gray-500';
                 }
               }
-              
               return (
                 <motion.li
                   key={slot.start}
@@ -389,7 +390,7 @@ function SchedulePageClientInner() {
         </div>
       </motion.div>
     );
-  };
+  }
 
   if (loading) {
     return <main className="text-center py-12">Loading...</main>;
