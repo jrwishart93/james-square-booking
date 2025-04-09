@@ -89,11 +89,10 @@ interface Slot {
 }
 
 function SchedulePageClientInner() {
-  // Read the "expanded" query parameter and normalize to lowercase.
   const searchParams = useSearchParams();
   const expandedParam = searchParams.get('expanded')?.toLowerCase();
 
-  // Use an object to track expanded state for each facility.
+  // Use an object to track expanded state per facility.
   const [expandedFacilities, setExpandedFacilities] = useState<Record<string, boolean>>(
     expandedParam ? { [expandedParam]: true } : {}
   );
@@ -105,7 +104,6 @@ function SchedulePageClientInner() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  // Fetch bookings for the selected date.
   useEffect(() => {
     const fetchBookings = async (date: string) => {
       const snapshot = await getDocs(
@@ -130,7 +128,6 @@ function SchedulePageClientInner() {
     fetchBookings(selectedDate);
   }, [selectedDate]);
 
-  // Listen for authentication state changes.
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser ? { email: firebaseUser.email ?? '' } : null);
@@ -139,13 +136,11 @@ function SchedulePageClientInner() {
     return () => unsubscribe();
   }, []);
 
-  // Toggle the expansion state for a facility.
   const handleToggleExpand = (facility: string) => {
     const key = facility.toLowerCase();
     setExpandedFacilities((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  // Count how many slots the user has booked for the facility and overall for the day.
   const countUserBookings = (facility: string) => {
     let facilityCount = 0;
     let totalCount = 0;
@@ -164,7 +159,6 @@ function SchedulePageClientInner() {
     return { facilityCount, totalCount };
   };
 
-  // Handle booking or cancelling a slot.
   const onBook = async (facility: string, time: string) => {
     if (!user) {
       router.push('/login');
@@ -222,7 +216,6 @@ function SchedulePageClientInner() {
     }
   };
 
-  // Build and render the schedule for a given facility.
   const renderSchedule = (facility: string) => {
     const scheduleSlots: Slot[] = [];
     for (let i = 0; i < timeSlots.length - 1;) {
@@ -254,6 +247,7 @@ function SchedulePageClientInner() {
       }
     }
 
+    // If not expanded, show only cleaning and free-to-use slots.
     const isExpanded = !!expandedFacilities[facility.toLowerCase()];
     const displayedSlots = isExpanded
       ? scheduleSlots
@@ -269,7 +263,10 @@ function SchedulePageClientInner() {
         key={facility}
         className="rounded-xl shadow-md p-4 border transition-all duration-300 bg-white dark:bg-gray-900"
       >
-        <h2 className="text-xl font-semibold mb-3 text-center">{facility}</h2>
+        {/* Updated title: add dark mode text classes */}
+        <h2 className="text-xl font-semibold mb-3 text-center text-black dark:text-white">
+          {facility}
+        </h2>
         <ul className="space-y-2">
           <AnimatePresence>
             {displayedSlots.map((slot) => {
@@ -344,7 +341,9 @@ function SchedulePageClientInner() {
             onClick={() => handleToggleExpand(facility)}
             className="text-xs text-gray-500 hover:text-black"
           >
-            {isExpanded ? 'Minimise' : 'Expand to see Available and Booked Slots'}
+            {isExpanded
+              ? 'Minimise'
+              : 'Expand to see Available and Booked Slots'}
           </button>
         </div>
       </motion.div>
