@@ -28,7 +28,6 @@ export default function Header() {
           const docSnap = snapshot.docs[0];
           if (docSnap?.exists()) {
             const data = docSnap.data();
-            // Change from data.name to data.fullName to display the user's name.
             setUserName(data.fullName || "");
             setIsAdmin(!!data.isAdmin);
           }
@@ -65,9 +64,9 @@ export default function Header() {
   );
 
   return (
-    <header className="sticky top-0 z-50 bg-white text-black shadow-md">
+    <header className="sticky top-0 z-50 bg-white dark:bg-neutral-900 text-black dark:text-white shadow-md">
       <nav className="flex justify-between items-center max-w-5xl mx-auto px-4 py-3">
-        {/* Logo and Brand Section */}
+        {/* Logo */}
         <Link href="/" className="flex items-center">
           <Image
             src="/images/logo/Logo.png"
@@ -77,28 +76,29 @@ export default function Header() {
             className="h-10 w-auto mr-3"
           />
           <span className="text-2xl font-sans whitespace-nowrap">
-            <span className="text-black font-bold">James</span>
+            <span className="text-black dark:text-white font-bold">James</span>
             <span className="text-[#708090]">Square</span>
           </span>
         </Link>
 
-        {/* Welcome message for logged-in user (desktop only) */}
+        {/* Welcome user on desktop */}
         {user && (
-          <div className="hidden sm:block text-sm text-gray-600 mr-4">
+          <div className="hidden sm:block text-sm text-gray-600 dark:text-gray-300 mr-4">
             {userName ? `Welcome, ${userName.split(" ")[0]}` : "Welcome"}
           </div>
         )}
 
-        {/* Mobile Menu Toggle Button */}
+        {/* Mobile Burger Button */}
         <button
           className="sm:hidden text-2xl z-50"
-          onClick={() => setMenuOpen(true)}
-          aria-label="Open Menu"
+          onClick={() => setMenuOpen(prev => !prev)} // Toggle instead of open only
+          aria-label="Toggle Menu"
+          aria-expanded={menuOpen}
         >
-          ☰
+          {menuOpen ? "×" : "☰"}
         </button>
 
-        {/* Desktop Navigation */}
+        {/* Desktop Nav */}
         <ul className="hidden sm:flex gap-4 text-sm items-center">
           {navLink("/book", "Book Facilities")}
           {navLink("/book/my-bookings", "My Bookings")}
@@ -109,7 +109,7 @@ export default function Header() {
             <li>
               <button
                 onClick={handleSignOut}
-                className="px-4 py-2 rounded-full transition-all hover:bg-gray-200"
+                className="px-4 py-2 rounded-full transition-all hover:bg-gray-200 dark:hover:bg-gray-700"
               >
                 Sign Out
               </button>
@@ -120,20 +120,20 @@ export default function Header() {
         </ul>
       </nav>
 
-      {/* Mobile Menu Dropdown */}
+      {/* Mobile Menu Overlay */}
       <div
-        className={`fixed top-0 left-0 w-full h-full bg-white text-black z-40 transform transition-transform duration-300 ease-in-out ${
+        className={`fixed top-0 left-0 w-full h-full bg-white dark:bg-neutral-900 text-black dark:text-white z-40 transition-transform duration-300 ease-in-out ${
           menuOpen ? "translate-y-0" : "-translate-y-full"
         } sm:hidden`}
       >
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-neutral-700">
           <span className="text-xl font-bold">Menu</span>
           <button
             className="text-2xl"
             onClick={() => setMenuOpen(false)}
             aria-label="Close Menu"
           >
-            ←
+            ×
           </button>
         </div>
         <ul className="flex flex-col gap-4 p-4 text-lg">
@@ -146,7 +146,7 @@ export default function Header() {
             <li>
               <button
                 onClick={handleSignOut}
-                className="w-full text-left px-4 py-2 rounded-full transition-all hover:bg-gray-200"
+                className="w-full text-left px-4 py-2 rounded-full transition-all hover:bg-gray-200 dark:hover:bg-gray-700"
               >
                 Sign Out
               </button>
