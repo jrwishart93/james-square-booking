@@ -115,71 +115,71 @@ export default function MyBookingsPage() {
   });
 
   if (loading) {
-    return <div className="py-12 text-center">Loading...</div>;
+    return <div className="py-12 text-center text-gray-600 dark:text-gray-300">Loading...</div>;
   }
 
   return (
-    <main className="max-w-4xl mx-auto py-12 px-4">
-      <div className="text-center mb-4">
+    <main className="max-w-4xl mx-auto py-12 px-4 text-gray-800 dark:text-gray-100">
+      <div className="text-center mb-6">
         <Link href="/book/schedule">
-          <button className="px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition duration-300">
+          <button className="px-6 py-3 bg-green-700 text-white rounded-xl hover:bg-green-800 transition duration-300 shadow-md">
             Make New Booking
           </button>
         </Link>
       </div>
-      <h1 className="text-3xl font-bold text-center mb-4">🗓️ My Upcoming Bookings</h1>
+      <h1 className="text-3xl font-bold text-center mb-6">🗓️ My Upcoming Bookings</h1>
       {bookings.length === 0 ? (
         <div className="text-center">
           <p>You don&apos;t have any upcoming bookings.</p>
-          <Link href="/book" className="underline text-blue-600">Make a booking now</Link>
+          <Link href="/book" className="underline text-blue-600 dark:text-blue-400">Make a booking now</Link>
         </div>
       ) : (
         <>
           <div className="mb-6 flex justify-center gap-4">
             <button
-              className={`px-4 py-1 rounded ${sortBy === 'date' ? 'bg-black text-white' : 'bg-gray-200'}`}
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition ${sortBy === 'date' ? 'bg-blue-800 text-white' : 'bg-gray-100 dark:bg-gray-700 dark:text-white'}`}
               onClick={() => setSortBy('date')}
             >
               Sort by Date
             </button>
             <button
-              className={`px-4 py-1 rounded ${sortBy === 'facility' ? 'bg-black text-white' : 'bg-gray-200'}`}
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition ${sortBy === 'facility' ? 'bg-blue-800 text-white' : 'bg-gray-100 dark:bg-gray-700 dark:text-white'}`}
               onClick={() => setSortBy('facility')}
             >
               Sort by Facility
             </button>
           </div>
 
-          <ul className="space-y-4">
+          <ul className="space-y-6">
             {sortedBookings.map(booking => (
               <motion.li
                 key={booking.id}
                 layout
-                className="border rounded-xl p-4 shadow-sm flex flex-col md:flex-row md:justify-between items-center"
+                className="bg-white dark:bg-neutral-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-5 shadow-sm flex flex-col md:flex-row md:justify-between items-center"
               >
-                <div className="flex items-center mb-2 md:mb-0">
+                <div className="flex items-center mb-4 md:mb-0">
                   <Image
                     src={facilityIcons[booking.facility]}
                     alt={`${booking.facility} icon`}
-                    width={40}
-                    height={40}
-                    className="w-10 h-10 mr-3"
+                    width={48}
+                    height={48}
+                    className="w-12 h-12 mr-4"
                   />
                   <div>
-                    <p className="font-semibold">📍 {booking.facility}</p>
-                    <p>📅 {DateTime.fromISO(booking.date).toLocaleString(DateTime.DATE_MED)}</p>
-                    <p>🕒 {booking.time}</p>
+                    <p className="font-semibold text-lg">📍 {booking.facility}</p>
+                    <p className="text-sm">📅 {DateTime.fromISO(booking.date).toLocaleString(DateTime.DATE_MED)}</p>
+                    <p className="text-sm">🕒 {booking.time}</p>
                   </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-3">
                   <button
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition"
+                    className="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm transition shadow-md"
                     onClick={() => addToCalendar(booking)}
                   >
                     Add to Calendar
                   </button>
                   <button
-                    className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition"
+                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm transition shadow-md"
                     onClick={() => cancelBooking(booking.id)}
                   >
                     Cancel
