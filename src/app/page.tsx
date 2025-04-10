@@ -22,7 +22,7 @@ export default function Home() {
           </p>
 
           <p className="text-base sm:text-lg text-neutral-700 dark:text-neutral-300 mt-4 font-sans">
-            Between 11:00 a.m. and 5:00 p.m., the facilities are open for free use without bookings. If you’re hosting short-term guests within James Square, please encourage guests to use the facilities during these times to free up the booking slots for residents who actually live here.
+            Between 11:00 a.m. and 5:00 p.m., the facilities are open for free use without bookings. If you&apos;re hosting short-term guests within James Square, please encourage guests to use the facilities during these times to free up the booking slots for residents who actually live here.
           </p>
 
           <p className="text-base sm:text-lg text-neutral-700 dark:text-neutral-300 mt-4 font-sans">
@@ -30,13 +30,21 @@ export default function Home() {
           </p>
 
           <p className="text-base sm:text-lg text-neutral-700 dark:text-neutral-300 mt-4 font-sans">
-            This booking system exists to support all residents so let’s keep it fair, respectful, and enjoyable for everyone at James Square.
+            This booking system exists to support all residents so let&apos;s keep it fair, respectful, and enjoyable for everyone at James Square.
           </p>
 
           <hr className="my-6 border-neutral-300 dark:border-neutral-700" />
 
           <p className="text-base sm:text-lg text-neutral-700 dark:text-neutral-300 font-sans">
-            To book a time slot, simply head to the <Link href="/book" className="underline text-blue-600 dark:text-blue-400">Book Facilities</Link> page. You'll need to be signed up and logged in. Once you've made a booking, it will appear on your <Link href="/book/my-bookings" className="underline text-blue-600 dark:text-blue-400">My Bookings</Link> page, where you can keep track of your reservations and easily add them to your Apple Calendar or Google Calendar.
+            To book a time slot, simply head to the{' '}
+            <Link href="/book" className="underline text-blue-600 dark:text-blue-400">
+              Book Facilities
+            </Link>{' '}
+            page. You&apos;ll need to be signed up and logged in. Once you&apos;ve made a booking, it will appear on your{' '}
+            <Link href="/book/my-bookings" className="underline text-blue-600 dark:text-blue-400">
+              My Bookings
+            </Link>{' '}
+            page, where you can keep track of your reservations and easily add them to your Apple Calendar or Google Calendar.
           </p>
         </div>
       </div>
