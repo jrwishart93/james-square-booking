@@ -39,14 +39,12 @@ export default function MyBookingsPage() {
       }
       setLoading(false);
     });
-
     return () => unsubscribe();
   }, [router]);
 
   useEffect(() => {
     const fetchBookings = async () => {
       if (!user) return;
-
       const todayISO = DateTime.now().setZone('Europe/London').toISODate();
       const q = query(
         collection(db, 'bookings'),
@@ -55,7 +53,6 @@ export default function MyBookingsPage() {
         orderBy('date', 'asc'),
         orderBy('time', 'asc')
       );
-
       const snap = await getDocs(q);
       const bookingsList: Booking[] = snap.docs.map(docSnap => ({
         id: docSnap.id,
@@ -63,18 +60,50 @@ export default function MyBookingsPage() {
         date: docSnap.data().date,
         time: docSnap.data().time,
       }));
-
       setBookings(bookingsList);
     };
-
     fetchBookings();
   }, [user]);
 
   const cancelBooking = async (bookingId: string) => {
     if (!confirm('Are you sure you want to cancel this booking?')) return;
-
     await deleteDoc(doc(db, 'bookings', bookingId));
     setBookings(prev => prev.filter(b => b.id !== bookingId));
+  };
+
+  const addToCalendar = (booking: Booking) => {
+    const start = DateTime.fromISO(`${booking.date}T${booking.time}`, { zone: 'Europe/London' });
+    const end = start.plus({ minutes: 60 });
+
+    const calendarContent = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'BEGIN:VEVENT',
+      `UID:${booking.id}@jamessquare.com`,
+      `SUMMARY:${booking.facility} Booking`,
+      `DTSTART:${start.toUTC().toFormat("yyyyLLdd'T'HHmmss'Z'")}`,
+      `DTEND:${end.toUTC().toFormat("yyyyLLdd'T'HHmmss'Z'")}`,
+      'DESCRIPTION:Your booking at James Square',
+      'LOCATION:James Square Facilities',
+      'SEQUENCE:0',
+      'BEGIN:VALARM',
+      'TRIGGER:-PT15M',
+      'ACTION:DISPLAY',
+      'DESCRIPTION:Booking Reminder',
+      'END:VALARM',
+      'END:VEVENT',
+      'END:VCALENDAR',
+    ].join('\n');
+
+    const blob = new Blob([calendarContent], { type: 'text/calendar' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${booking.facility}-booking-${booking.date}.ics`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   const sortedBookings = bookings.slice().sort((a, b) => {
@@ -91,7 +120,6 @@ export default function MyBookingsPage() {
 
   return (
     <main className="max-w-4xl mx-auto py-12 px-4">
-      {/* New "Make New Booking" Button at the Top */}
       <div className="text-center mb-4">
         <Link href="/book/schedule">
           <button className="px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition duration-300">
@@ -99,9 +127,7 @@ export default function MyBookingsPage() {
           </button>
         </Link>
       </div>
-
       <h1 className="text-3xl font-bold text-center mb-4">🗓️ My Upcoming Bookings</h1>
-
       {bookings.length === 0 ? (
         <div className="text-center">
           <p>You don&apos;t have any upcoming bookings.</p>
@@ -145,12 +171,20 @@ export default function MyBookingsPage() {
                     <p>🕒 {booking.time}</p>
                   </div>
                 </div>
-                <button
-                  className="mt-2 md:mt-0 bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition"
-                  onClick={() => cancelBooking(booking.id)}
-                >
-                  Cancel Booking
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition"
+                    onClick={() => addToCalendar(booking)}
+                  >
+                    Add to Calendar
+                  </button>
+                  <button
+                    className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition"
+                    onClick={() => cancelBooking(booking.id)}
+                  >
+                    Cancel
+                  </button>
+                </div>
               </motion.li>
             ))}
           </ul>
