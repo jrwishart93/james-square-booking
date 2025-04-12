@@ -17,7 +17,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { DateTime } from 'luxon';
 
-// Define interface for Slot
 interface Slot {
   start: string;
   end: string;
@@ -25,7 +24,7 @@ interface Slot {
   groupKeys?: string[];
 }
 
-// Original time slots array (note: 12:30 is not included)
+// Our original timeSlots array (notice there's no '12:30')
 const timeSlots = [
   '05:30', '06:00', '06:30', '07:00', '07:30', '08:00', '08:30',
   '09:00', '09:30', '10:00', '10:30', '11:00',
@@ -99,14 +98,13 @@ export default function SchedulePageClientInner() {
   const [selectedDate, setSelectedDate] = useState(getUKDate());
   const [user, setUser] = useState<{ email: string; isAdmin?: boolean } | null>(null);
   const [loading, setLoading] = useState(true);
-  // Booking confirmation toast state.
   const [bookingConfirm, setBookingConfirm] = useState<{ message: string; type: 'success' | 'cancel' } | null>(null);
   const router = useRouter();
 
-  // Helper: Check if the selected date is a special Tuesday (every 14 days from 15 April 2025)
+  // Determine if the selected date is a special Tuesday (every 14 days starting from 2025-04-15)
   const isSpecialTuesday = (() => {
     const dt = DateTime.fromISO(selectedDate, { zone: 'Europe/London' });
-    if (dt.weekday !== 2) return false; // Tuesday = 2
+    if (dt.weekday !== 2) return false; // Tuesday
     const baseline = DateTime.fromISO('2025-04-15', { zone: 'Europe/London' });
     const diffDays = dt.diff(baseline, 'days').days;
     return diffDays >= 0 && Math.round(diffDays) % 14 === 0;
@@ -258,47 +256,41 @@ export default function SchedulePageClientInner() {
     }
   }
 
-  /**
-   * Render the schedule for a given facility.
-   * If it's a special Tuesday (every second Tuesday from 15 April 2025) then all facilities
-   * follow an extended deep cleaning schedule:
-   *   - 05:30–09:30: Available for booking.
-   *   - 09:30–12:30: Closed for Cleaning.
-   *   - 12:30–17:00: Free to Use without Booking.
-   *   - 17:00–23:00: Available for booking.
-   */
   function renderSchedule(facility: string) {
-    let scheduleSlots: Slot[] = [];
+    // Use const for the array that we build up.
+    const scheduleSlots: Slot[] = [];
 
     if (isSpecialTuesday) {
-      // Special extended deep cleaning schedule for all facilities.
+      // For special Tuesday deep cleaning (applied to all facilities):
+      // 05:30–09:30: Available
+      // 09:30–12:30: Closed for Cleaning
+      // 12:30–17:00: Free to Use without Booking
+      // 17:00–23:00: Available
       for (let i = 0; i < timeSlots.length - 1; ) {
-        // When we reach "09:30", we insert two custom chunks.
         if (timeSlots[i] === '09:30') {
-          // Insert chunk: 09:30 to 12:30 => "Closed for Cleaning"
+          // Insert two custom chunks:
           scheduleSlots.push({
             start: '09:30',
             end: '12:30',
             status: 'Closed for Cleaning',
             groupKeys: ['09:30', '10:00', '10:30', '11:00']
           });
-          // Insert chunk: 12:30 to 17:00 => "Free to Use without Booking"
           scheduleSlots.push({
             start: '12:30',
             end: '17:00',
             status: 'Free to Use without Booking'
           });
-          // Skip to "17:00" in the timeSlots array.
           const idx17 = timeSlots.indexOf('17:00');
           if (idx17 >= 0) {
+            // Jump to index for '17:00'
+            // We use a new counter value.
             i = idx17;
           } else {
             i = timeSlots.length;
           }
         } else {
-          // For times outside the special block, use default logic.
           const start = timeSlots[i];
-          let end = timeSlots[i + 1];
+          const end = timeSlots[i + 1];
           const [h, m] = start.split(':').map(Number);
           const timeValue = h * 60 + m;
           let status = 'Unavailable';
@@ -310,21 +302,22 @@ export default function SchedulePageClientInner() {
         }
       }
     } else {
-      // Default schedule logic for non-special Tuesdays.
+      // Default schedule logic:
       for (let i = 0; i < timeSlots.length - 1; ) {
         const start = timeSlots[i];
-        let end = timeSlots[i + 1];
         if (start === '09:30') {
           // Group cleaning from 09:30 to 11:00.
-          end = timeSlots[i + 3] || end;
+          const newEnd = timeSlots[i + 3] ?? timeSlots[i + 1];
           scheduleSlots.push({
             start,
-            end,
+            end: newEnd,
             status: 'Closed for Cleaning',
             groupKeys: ['09:30', '10:00', '10:30', '11:00']
           });
           i += 3;
         } else {
+          const start = timeSlots[i];
+          const end = timeSlots[i + 1];
           let status = 'Unavailable';
           if (start === '11:00') {
             status = 'Free to Use without Booking';
@@ -475,9 +468,7 @@ export default function SchedulePageClientInner() {
       {renderDateSelector(selectedDate, setSelectedDate)}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {['Pool', 'Gym', 'Sauna'].map((facility) => (
-          <React.Fragment key={facility}>
-            {renderSchedule(facility)}
-          </React.Fragment>
+          <React.Fragment key={facility}>{renderSchedule(facility)}</React.Fragment>
         ))}
       </div>
       <div className="flex justify-center mt-6">
