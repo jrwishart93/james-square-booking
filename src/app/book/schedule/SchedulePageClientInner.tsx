@@ -25,14 +25,14 @@ interface Slot {
   groupKeys?: string[];
 }
 
-// Define the time slots for booking.
+// Original time slots array (note: 12:30 is not included)
 const timeSlots = [
-  '05:30', '06:00', '06:30', '07:00', '07:30', '08:00', '08:30', '09:00', '09:30',
-  '10:00', '10:30', '11:00', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30',
+  '05:30', '06:00', '06:30', '07:00', '07:30', '08:00', '08:30',
+  '09:00', '09:30', '10:00', '10:30', '11:00',
+  '17:00', '17:30', '18:00', '18:30', '19:00', '19:30',
   '20:00', '20:30', '21:00', '21:30', '22:00', '22:30', '23:00'
 ];
 
-// Initialize bookings state for each facility.
 function generateInitialBookings() {
   const facilities = ['Pool', 'Gym', 'Sauna'];
   const bookings: Record<string, Record<string, Record<string, string>>> = {};
@@ -42,7 +42,6 @@ function generateInitialBookings() {
   return bookings;
 }
 
-// Returns the current UK date (optionally with an offset)
 function getUKDate(offset = 0) {
   return DateTime.now()
     .setZone('Europe/London')
@@ -50,7 +49,6 @@ function getUKDate(offset = 0) {
     .toISODate();
 }
 
-// Render a horizontal date selector with improved styling for dark mode.
 function renderDateSelector(
   selectedDate: string,
   setSelectedDate: (d: string) => void
@@ -88,33 +86,35 @@ function renderDateSelector(
   );
 }
 
-function SchedulePageClientInner() {
+export default function SchedulePageClientInner() {
   const searchParams = useSearchParams();
   const expandedParam = searchParams.get('expanded')?.toLowerCase();
 
-  // Track expanded state per facility.
   const [expandedFacilities, setExpandedFacilities] = useState<Record<string, boolean>>(
     expandedParam ? { [expandedParam]: true } : {}
   );
-  // Bookings state: facility → date → time → email.
   const [bookings, setBookings] = useState<Record<string, Record<string, Record<string, string>>>>(
     generateInitialBookings()
   );
   const [selectedDate, setSelectedDate] = useState(getUKDate());
-  // The user object includes an optional isAdmin flag.
   const [user, setUser] = useState<{ email: string; isAdmin?: boolean } | null>(null);
   const [loading, setLoading] = useState(true);
-  // New state for booking confirmation: message and type ("success" or "cancel").
+  // Booking confirmation toast state.
   const [bookingConfirm, setBookingConfirm] = useState<{ message: string; type: 'success' | 'cancel' } | null>(null);
   const router = useRouter();
 
-  // Fetch bookings for the selected date.
+  // Helper: Check if the selected date is a special Tuesday (every 14 days from 15 April 2025)
+  const isSpecialTuesday = (() => {
+    const dt = DateTime.fromISO(selectedDate, { zone: 'Europe/London' });
+    if (dt.weekday !== 2) return false; // Tuesday = 2
+    const baseline = DateTime.fromISO('2025-04-15', { zone: 'Europe/London' });
+    const diffDays = dt.diff(baseline, 'days').days;
+    return diffDays >= 0 && Math.round(diffDays) % 14 === 0;
+  })();
+
   useEffect(() => {
     async function fetchBookings(date: string) {
-      const q = query(
-        collection(db, 'bookings'),
-        where('date', '==', date)
-      );
+      const q = query(collection(db, 'bookings'), where('date', '==', date));
       const snap = await getDocs(q);
       const updated = generateInitialBookings();
       snap.forEach((docSnap) => {
@@ -134,11 +134,9 @@ function SchedulePageClientInner() {
     fetchBookings(selectedDate);
   }, [selectedDate]);
 
-  // Listen for authentication state changes.
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
-        // A user is considered an admin if their email ends with '@admin.com'
         const isAdmin = firebaseUser.email?.endsWith('@admin.com') || false;
         setUser({ email: firebaseUser.email ?? '', isAdmin });
       } else {
@@ -149,13 +147,11 @@ function SchedulePageClientInner() {
     return () => unsubscribe();
   }, []);
 
-  // Toggle expand/collapse for a facility.
   function handleToggleExpand(facility: string) {
     const key = facility.toLowerCase();
     setExpandedFacilities((prev) => ({ ...prev, [key]: !prev[key] }));
   }
 
-  // Count how many slots the current user has booked for a facility and overall.
   function countUserBookings(facility: string) {
     let facilityCount = 0;
     let totalCount = 0;
@@ -172,7 +168,6 @@ function SchedulePageClientInner() {
     return { facilityCount, totalCount };
   }
 
-  // Check if the user has booked a specific slot for the previous 3 consecutive days.
   async function checkConsecutiveBookings(facility: string, time: string): Promise<boolean> {
     if (!user) return false;
     const currentDate = DateTime.fromISO(selectedDate, { zone: 'Europe/London' });
@@ -199,13 +194,11 @@ function SchedulePageClientInner() {
     return consecutiveCount === 3;
   }
 
-  // Handle booking or cancelling a slot.
   async function onBook(facility: string, time: string) {
     if (!user) {
       router.push('/login');
       return;
     }
-    // Check consecutive bookings before proceeding.
     const hasConsecutive = await checkConsecutiveBookings(facility, time);
     if (hasConsecutive) {
       alert('You have already booked this slot for 3 consecutive days. You cannot book it again.');
@@ -215,7 +208,6 @@ function SchedulePageClientInner() {
     const bookingRef = doc(db, `bookings/${facility}_${selectedDate}_${time}`);
 
     if (isBooked) {
-      // Cancel the booking.
       await deleteDoc(bookingRef);
       setBookings((prev) => {
         const updated = { ...prev };
@@ -266,42 +258,92 @@ function SchedulePageClientInner() {
     }
   }
 
-  // Render the schedule for a given facility.
+  /**
+   * Render the schedule for a given facility.
+   * If it's a special Tuesday (every second Tuesday from 15 April 2025) then all facilities
+   * follow an extended deep cleaning schedule:
+   *   - 05:30–09:30: Available for booking.
+   *   - 09:30–12:30: Closed for Cleaning.
+   *   - 12:30–17:00: Free to Use without Booking.
+   *   - 17:00–23:00: Available for booking.
+   */
   function renderSchedule(facility: string) {
-    const scheduleSlots: Slot[] = [];
-    for (let i = 0; i < timeSlots.length - 1;) {
-      const start = timeSlots[i];
-      let end = timeSlots[i + 1];
-      if (start === '09:30') {
-        // Group cleaning slots from 09:30 to 11:00.
-        end = timeSlots[i + 3] || end;
-        scheduleSlots.push({
-          start,
-          end,
-          status: 'Closed for Cleaning',
-          groupKeys: ['09:30', '10:00', '10:30']
-        });
-        i += 3;
-      } else {
-        let status = 'Unavailable';
-        if (start === '11:00') {
-          status = 'Free to Use without Booking';
+    let scheduleSlots: Slot[] = [];
+
+    if (isSpecialTuesday) {
+      // Special extended deep cleaning schedule for all facilities.
+      for (let i = 0; i < timeSlots.length - 1; ) {
+        // When we reach "09:30", we insert two custom chunks.
+        if (timeSlots[i] === '09:30') {
+          // Insert chunk: 09:30 to 12:30 => "Closed for Cleaning"
+          scheduleSlots.push({
+            start: '09:30',
+            end: '12:30',
+            status: 'Closed for Cleaning',
+            groupKeys: ['09:30', '10:00', '10:30', '11:00']
+          });
+          // Insert chunk: 12:30 to 17:00 => "Free to Use without Booking"
+          scheduleSlots.push({
+            start: '12:30',
+            end: '17:00',
+            status: 'Free to Use without Booking'
+          });
+          // Skip to "17:00" in the timeSlots array.
+          const idx17 = timeSlots.indexOf('17:00');
+          if (idx17 >= 0) {
+            i = idx17;
+          } else {
+            i = timeSlots.length;
+          }
         } else {
+          // For times outside the special block, use default logic.
+          const start = timeSlots[i];
+          let end = timeSlots[i + 1];
           const [h, m] = start.split(':').map(Number);
           const timeValue = h * 60 + m;
+          let status = 'Unavailable';
           if ((timeValue >= 330 && timeValue < 570) || (timeValue >= 1020 && timeValue < 1380)) {
             status = 'Available';
           }
+          scheduleSlots.push({ start, end, status });
+          i++;
         }
-        scheduleSlots.push({ start, end, status });
-        i++;
+      }
+    } else {
+      // Default schedule logic for non-special Tuesdays.
+      for (let i = 0; i < timeSlots.length - 1; ) {
+        const start = timeSlots[i];
+        let end = timeSlots[i + 1];
+        if (start === '09:30') {
+          // Group cleaning from 09:30 to 11:00.
+          end = timeSlots[i + 3] || end;
+          scheduleSlots.push({
+            start,
+            end,
+            status: 'Closed for Cleaning',
+            groupKeys: ['09:30', '10:00', '10:30', '11:00']
+          });
+          i += 3;
+        } else {
+          let status = 'Unavailable';
+          if (start === '11:00') {
+            status = 'Free to Use without Booking';
+          } else {
+            const [h, m] = start.split(':').map(Number);
+            const timeValue = h * 60 + m;
+            if ((timeValue >= 330 && timeValue < 570) || (timeValue >= 1020 && timeValue < 1380)) {
+              status = 'Available';
+            }
+          }
+          scheduleSlots.push({ start, end, status });
+          i++;
+        }
       }
     }
 
     const isExpanded = !!expandedFacilities[facility.toLowerCase()];
-    // In minimized mode, show no slots.
     const displayedSlots = isExpanded ? scheduleSlots : [];
-    
+
     return (
       <motion.div
         layout
@@ -383,7 +425,6 @@ function SchedulePageClientInner() {
             </AnimatePresence>
           </ul>
         )}
-        {/* Expand/Minimise Button */}
         <div className="mt-4">
           <button
             onClick={() => handleToggleExpand(facility)}
@@ -402,7 +443,6 @@ function SchedulePageClientInner() {
 
   return (
     <main className="max-w-6xl mx-auto py-12 px-4">
-      {/* Booking Confirmation Toast */}
       <AnimatePresence>
         {bookingConfirm && (
           <motion.div
@@ -435,10 +475,11 @@ function SchedulePageClientInner() {
       {renderDateSelector(selectedDate, setSelectedDate)}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {['Pool', 'Gym', 'Sauna'].map((facility) => (
-          <React.Fragment key={facility}>{renderSchedule(facility)}</React.Fragment>
+          <React.Fragment key={facility}>
+            {renderSchedule(facility)}
+          </React.Fragment>
         ))}
       </div>
-      {/* My Bookings Button */}
       <div className="flex justify-center mt-6">
         <Link
           href="/book/my-bookings"
@@ -450,5 +491,3 @@ function SchedulePageClientInner() {
     </main>
   );
 }
-
-export default SchedulePageClientInner;
