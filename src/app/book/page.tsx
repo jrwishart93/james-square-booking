@@ -10,45 +10,6 @@ const FACILITIES = [
   { name: 'Sauna', icon: '/images/icons/sauna-icon.png' },
 ];
 
-const RULES = [
-  {
-    title: 'Respect shared spaces',
-    text: 'Please leave all areas clean and tidy for the next resident.',
-  },
-  {
-    title: 'Be considerate of other users',
-    text: 'Use the booking system during peak times. Facilities are open to all, without booking, from 11:00 a.m. – 5:00 p.m.',
-  },
-  {
-    title: 'Children in the pool',
-    text: 'Children must be supervised by an adult at all times in the pool area.',
-  },
-  {
-    title: 'No food, alcohol or glass',
-    text: 'Only bottled water is permitted. No alcohol or glass containers allowed.',
-  },
-  {
-    title: 'Shower before using the pool or sauna',
-    text: 'Help keep the water clean by rinsing off before entering.',
-  },
-  {
-    title: 'Cancel if you can’t attend',
-    text: 'Cancel bookings you won’t use so others can take your place.',
-  },
-  {
-    title: 'Maximum group size: 6 people',
-    text: 'No more than 6 people may use a facility at once.',
-  },
-  {
-    title: 'Be out by 11:00 p.m.',
-    text: 'An alarm will sound if anyone remains after hours.',
-  },
-  {
-    title: 'Damage and rule breaches',
-    text: 'Residents may be liable for damage or breaches of these rules.',
-  },
-];
-
 export default function HomePage() {
   return (
     <main className="max-w-4xl mx-auto py-20 px-6 font-sans bg-white dark:bg-gray-900">
@@ -98,6 +59,7 @@ export default function HomePage() {
         ))}
       </div>
 
+      {/* Opening Times and Rules Image */}
       <div className="mt-16 flex flex-col md:flex-row gap-12 text-gray-700 dark:text-gray-300 text-base">
         <div className="md:w-1/2 text-center md:text-left">
           <h2 className="text-3xl font-bold underline mb-6 text-black dark:text-white">
@@ -124,18 +86,14 @@ export default function HomePage() {
         </div>
 
         <div className="md:w-1/2 text-center md:text-left">
-          <h2 className="text-3xl font-bold underline mb-6 text-red-600">
-            Rules
-          </h2>
-          <ul className="list-none space-y-3 text-sm">
-            {RULES.map(({ title, text }) => (
-              <li key={title}>
-                <strong>{title}</strong>
-                <br />
-                {text}
-              </li>
-            ))}
-          </ul>
+          {/* Removed the "Rules" title. Only the image is displayed now */}
+          <Image
+            src="/images/icons/poolrules.png"
+            alt="Pool Rules"
+            width={500}
+            height={700}
+            className="mx-auto"
+          />
         </div>
       </div>
 
