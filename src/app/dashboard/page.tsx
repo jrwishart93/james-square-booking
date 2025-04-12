@@ -15,18 +15,11 @@ import { DateTime } from 'luxon';
 import Link from 'next/link';
 import Image from 'next/image';
 
-// Define types for booking and user data
 interface Booking {
   id: string;
   facility: string;
   date: string;
   time: string;
-}
-
-interface UserData {
-  username?: string;
-  property?: string;
-  [key: string]: any;
 }
 
 // Map facility names to icon paths
@@ -36,7 +29,7 @@ const facilityIcons: Record<string, string> = {
   Sauna: '/images/icons/sauna-icon.png',
 };
 
-// Complete list of properties
+// Full list of properties
 const propertyOptions = [
   '39/1', '39/2', '39/3', '39/4', '39/5', '39/6', '39/7', '39/8', '39/9', '39/10',
   '39/11', '39/12', '39/13', '39/14', '39/15', '39B',
@@ -54,8 +47,8 @@ const propertyOptions = [
 ];
 
 export default function MyDashboardPage() {
+  // The user state is now explicitly typed as Firebase User or null.
   const [user, setUser] = useState<User | null>(null);
-  const [userData, setUserData] = useState<UserData | null>(null);
   const [editing, setEditing] = useState(false);
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
@@ -63,6 +56,7 @@ export default function MyDashboardPage() {
   const [feedback, setFeedback] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [bookings, setBookings] = useState<Booking[]>([]);
+  // Reintroduced sortBy as a state variable to allow toggling between sorting by 'date' or 'facility'.
   const [sortBy, setSortBy] = useState<'date' | 'facility'>('date');
   const [showUpcoming, setShowUpcoming] = useState(true);
   const [loading, setLoading] = useState(true);
@@ -76,10 +70,9 @@ export default function MyDashboardPage() {
         const docRef = doc(db, 'users', firebaseUser.uid);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          const data = docSnap.data() as UserData;
-          setUserData(data);
-          setUsername(data.username || '');
-          setProperty(data.property || '');
+          const data = docSnap.data();
+          setUsername((data as { username?: string }).username || '');
+          setProperty((data as { property?: string }).property || '');
         }
       } else {
         router.push('/login');
@@ -94,7 +87,7 @@ export default function MyDashboardPage() {
       if (!user) return;
       const q = query(collection(db, 'bookings'), where('user', '==', user.email));
       const snap = await getDocs(q);
-      const bookingsList: Booking[] = snap.docs.map(docSnap => ({
+      const bookingsList: Booking[] = snap.docs.map((docSnap) => ({
         id: docSnap.id,
         facility: docSnap.data().facility,
         date: docSnap.data().date,
@@ -108,7 +101,7 @@ export default function MyDashboardPage() {
   const cancelBooking = async (bookingId: string) => {
     if (!window.confirm('Are you sure you want to cancel this booking?')) return;
     await deleteDoc(doc(db, 'bookings', bookingId));
-    setBookings(prev => prev.filter(b => b.id !== bookingId));
+    setBookings((prev) => prev.filter((b) => b.id !== bookingId));
   };
 
   const addToCalendar = (booking: Booking) => {
@@ -161,8 +154,12 @@ export default function MyDashboardPage() {
       await firebaseUpdateProfile(user, { displayName: username });
       setFeedback('✅ Profile updated successfully.');
       setEditing(false);
-    } catch (error: any) {
-      console.error(error);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error(error);
+      } else {
+        console.error('An unknown error occurred:', error);
+      }
       setFeedback('❌ Failed to update profile.');
     }
   };
@@ -179,7 +176,7 @@ export default function MyDashboardPage() {
   };
 
   const today = DateTime.now().toISODate();
-  const filteredBookings = bookings.filter(b => (showUpcoming ? b.date >= today : b.date < today));
+  const filteredBookings = bookings.filter((b) => (showUpcoming ? b.date >= today : b.date < today));
   const sortedBookings = filteredBookings.sort((a, b) => {
     if (sortBy === 'facility') {
       return a.facility.localeCompare(b.facility) || a.date.localeCompare(b.date) || a.time.localeCompare(b.time);
@@ -202,6 +199,23 @@ export default function MyDashboardPage() {
       </div>
 
       <h1 className="text-3xl font-bold text-center mb-6">🧑‍💻 My Dashboard</h1>
+
+      {/* Sort controls */}
+      <div className="flex justify-center items-center mb-4">
+        <span className="mr-2 font-medium">Sort by:</span>
+        <button
+          onClick={() => setSortBy('date')}
+          className={`px-4 py-1 border rounded ${sortBy === 'date' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'}`}
+        >
+          Date
+        </button>
+        <button
+          onClick={() => setSortBy('facility')}
+          className={`ml-2 px-4 py-1 border rounded ${sortBy === 'facility' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'}`}
+        >
+          Facility
+        </button>
+      </div>
 
       <div className="grid md:grid-cols-2 gap-8">
         {/* Bookings Section */}
@@ -234,7 +248,7 @@ export default function MyDashboardPage() {
             <p className="text-center">No {showUpcoming ? 'upcoming' : 'past'} bookings.</p>
           ) : (
             <ul className="space-y-6">
-              {sortedBookings.map(booking => (
+              {sortedBookings.map((booking) => (
                 <li
                   key={booking.id}
                   className="bg-white dark:bg-neutral-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-5 shadow-sm flex flex-col md:flex-row md:justify-between items-center"
@@ -249,7 +263,9 @@ export default function MyDashboardPage() {
                     />
                     <div>
                       <p className="font-semibold text-lg">📍 {booking.facility}</p>
-                      <p className="text-sm">📅 {DateTime.fromISO(booking.date).toLocaleString(DateTime.DATE_MED)}</p>
+                      <p className="text-sm">
+                        📅 {DateTime.fromISO(booking.date).toLocaleString(DateTime.DATE_MED)}
+                      </p>
                       <p className="text-sm">🕒 {booking.time}</p>
                     </div>
                   </div>
@@ -307,7 +323,7 @@ export default function MyDashboardPage() {
                     className="w-full mt-1 px-4 py-2 border rounded-xl bg-gray-50 dark:bg-neutral-700"
                   >
                     <option value="">Select Property</option>
-                    {propertyOptions.map(opt => (
+                    {propertyOptions.map((opt) => (
                       <option key={opt} value={opt}>
                         {opt}
                       </option>
