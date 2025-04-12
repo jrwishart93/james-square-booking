@@ -18,7 +18,7 @@ export default function LoginPageClient() {
   // Registration fields:
   const [fullName, setFullName] = useState('');
   const [username, setUsername] = useState(''); // For registration mode.
-  const [email, setEmail] = useState(''); // For registration mode, stores email.
+  const [email, setEmail] = useState(''); // For registration mode.
   const [property, setProperty] = useState('');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
@@ -85,13 +85,13 @@ export default function LoginPageClient() {
           property,
           createdAt: new Date().toISOString(),
         });
-        setMessage('Registration successful! Redirecting to schedule...');
+        setMessage('Registration successful! Redirecting to dashboard...');
         setIsRedirecting(true);
         setTimeout(() => {
-          window.location.href = '/book/schedule';
+          window.location.href = '/dashboard';
         }, 2000);
       } else {
-        // Login: Treat identifier as email if it contains "@"; otherwise treat as username.
+        // Login: Treat identifier as email if it contains "@" otherwise as username.
         let loginEmail = identifier;
         if (!loginEmail.includes('@')) {
           const q = query(collection(db, 'users'), where('username', '==', loginEmail));
@@ -105,7 +105,7 @@ export default function LoginPageClient() {
         }
         await signInWithEmailAndPassword(auth, loginEmail, password);
         setIsRedirecting(true);
-        window.location.href = '/book/schedule';
+        window.location.href = '/dashboard';
       }
     } catch (error: unknown) {
       const err = error as { code?: string; message?: string };

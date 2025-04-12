@@ -20,14 +20,15 @@ export default function LoginCallback() {
       }
 
       try {
-        const auth = getAuth(); // Initialize auth using getAuth
+        const auth = getAuth();
         if (isSignInWithEmailLink(auth, window.location.href)) {
           await signInWithEmailLink(auth, email, window.location.href);
           window.localStorage.removeItem('emailForSignIn');
           window.localStorage.removeItem('nameForSignIn');
           window.localStorage.removeItem('buildingForSignIn');
           window.localStorage.removeItem('flatForSignIn');
-          router.push('/success');
+          // Redirect to dashboard after successful email sign in.
+          router.push('/dashboard');
         }
       } catch (error) {
         console.error('Error signing in with email link:', error);
