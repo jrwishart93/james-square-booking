@@ -49,23 +49,23 @@ const RULES = [
   },
 ];
 
-export default function BookPage() {
+export default function HomePage() {
   return (
     <main className="max-w-4xl mx-auto py-20 px-6 font-sans bg-white dark:bg-gray-900">
       <h1 className="text-4xl font-bold mb-8 text-center text-black dark:text-white">
         Book Facilities
       </h1>
 
-      {/* Buttons Container: View Availability and My Bookings */}
+      {/* Buttons Container: View Availability and My Dashboard */}
       <div className="text-center mb-8 flex justify-center gap-4">
         <Link href="/book/schedule">
           <button className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-300">
             View Availability
           </button>
         </Link>
-        <Link href="/book/my-bookings">
+        <Link href="/dashboard">
           <button className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-300">
-            My Bookings
+            My Dashboard
           </button>
         </Link>
       </div>
@@ -137,6 +137,15 @@ export default function BookPage() {
             ))}
           </ul>
         </div>
+      </div>
+
+      {/* Lower Navigation Button */}
+      <div className="flex justify-center mt-6">
+        <Link href="/dashboard">
+          <button className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition">
+            My Dashboard
+          </button>
+        </Link>
       </div>
     </main>
   );

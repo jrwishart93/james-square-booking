@@ -91,7 +91,7 @@ export default function Header() {
         {/* Mobile Burger Button */}
         <button
           className="sm:hidden text-2xl z-50"
-          onClick={() => setMenuOpen(prev => !prev)} // Toggle instead of open only
+          onClick={() => setMenuOpen(prev => !prev)}
           aria-label="Toggle Menu"
           aria-expanded={menuOpen}
         >
@@ -101,7 +101,7 @@ export default function Header() {
         {/* Desktop Nav */}
         <ul className="hidden sm:flex gap-4 text-sm items-center">
           {navLink("/book", "Book Facilities")}
-          {navLink("/book/my-bookings", "My Bookings")}
+          {navLink("/dashboard", "My Dashboard")}
           {navLink("/local", "Local Suggestions")}
           {navLink("/factor", "Factor")}
           {isAdmin && navLink("/admin", "Admin")}
@@ -138,7 +138,7 @@ export default function Header() {
         </div>
         <ul className="flex flex-col gap-4 p-4 text-lg">
           {navLink("/book", "Book Facilities")}
-          {navLink("/book/my-bookings", "My Bookings")}
+          {navLink("/dashboard", "My Dashboard")}
           {navLink("/local", "Local Suggestions")}
           {navLink("/factor", "Factor")}
           {isAdmin && navLink("/admin", "Admin")}
