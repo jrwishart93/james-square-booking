@@ -42,7 +42,7 @@ function generateInitialBookings() {
   return bookings;
 }
 
-// Using Luxon to always return the current UK date.
+// Returns the current UK date (optionally with an offset)
 function getUKDate(offset = 0) {
   return DateTime.now()
     .setZone('Europe/London')
@@ -50,7 +50,7 @@ function getUKDate(offset = 0) {
     .toISODate();
 }
 
-// Render a horizontal date selector.
+// Render a horizontal date selector with improved styling for dark mode.
 function renderDateSelector(
   selectedDate: string,
   setSelectedDate: (d: string) => void
@@ -72,14 +72,14 @@ function renderDateSelector(
       {dates.map(({ iso, display }) => (
         <button
           key={iso}
+          onClick={() => setSelectedDate(iso)}
           className={`min-w-[110px] px-3 py-1 rounded text-sm border whitespace-nowrap transition duration-200 ease-in-out transform hover:scale-105 hover:shadow-md ${
             iso === selectedDate
-              ? 'bg-black text-white'
+              ? 'bg-black text-white dark:bg-blue-600 dark:ring dark:ring-blue-400 dark:text-white'
               : iso === getUKDate()
               ? 'border-black text-black font-semibold'
               : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-white'
           }`}
-          onClick={() => setSelectedDate(iso)}
         >
           {display}
         </button>
@@ -104,6 +104,8 @@ function SchedulePageClientInner() {
   // The user object includes an optional isAdmin flag.
   const [user, setUser] = useState<{ email: string; isAdmin?: boolean } | null>(null);
   const [loading, setLoading] = useState(true);
+  // New state for booking confirmation: message and type ("success" or "cancel").
+  const [bookingConfirm, setBookingConfirm] = useState<{ message: string; type: 'success' | 'cancel' } | null>(null);
   const router = useRouter();
 
   // Fetch bookings for the selected date.
@@ -220,6 +222,8 @@ function SchedulePageClientInner() {
         delete updated[facility][selectedDate][time];
         return updated;
       });
+      setBookingConfirm({ message: 'Booking Cancelled!', type: 'cancel' });
+      setTimeout(() => setBookingConfirm(null), 2000);
     } else {
       const { facilityCount, totalCount } = countUserBookings(facility);
       if (facilityCount >= 2) {
@@ -248,6 +252,8 @@ function SchedulePageClientInner() {
             },
           },
         }));
+        setBookingConfirm({ message: 'Booking Successful!', type: 'success' });
+        setTimeout(() => setBookingConfirm(null), 2000);
       } catch (err: unknown) {
         const error = err as { code?: string; message?: string };
         if (error.code === 'permission-denied') {
@@ -293,14 +299,9 @@ function SchedulePageClientInner() {
     }
 
     const isExpanded = !!expandedFacilities[facility.toLowerCase()];
-    const displayedSlots = isExpanded
-      ? scheduleSlots
-      : scheduleSlots.filter(
-          slot =>
-            slot.status === 'Closed for Cleaning' ||
-            slot.status === 'Free to Use without Booking'
-        );
-
+    // In minimized mode, show no slots.
+    const displayedSlots = isExpanded ? scheduleSlots : [];
+    
     return (
       <motion.div
         layout
@@ -310,76 +311,78 @@ function SchedulePageClientInner() {
         <h2 className="text-xl font-semibold mb-3 text-center text-black dark:text-white">
           {facility}
         </h2>
-        <ul className="space-y-2">
-          <AnimatePresence>
-            {displayedSlots.map((slot) => {
-              const keysToCheck = slot.groupKeys ? slot.groupKeys : [slot.start];
-              const bookedBy =
-                keysToCheck
-                  .map((key) => bookings[facility][selectedDate]?.[key])
-                  .find((val) => !!val) || null;
-              const isOwn = bookedBy === user?.email;
-              let showLabel = slot.status;
-              if (isOwn) {
-                showLabel = 'Your booking';
-              } else if (bookedBy) {
-                showLabel = user?.isAdmin ? `Booked by: ${bookedBy}` : 'Booked by another user';
-              }
-              let styleClass = '';
-              if (isOwn) {
-                styleClass = 'bg-green-700 text-white';
-              } else if (bookedBy) {
-                styleClass = 'bg-gray-300 text-gray-700 italic';
-              } else {
-                if (slot.status === 'Available') {
-                  styleClass = 'bg-green-100 text-black';
-                } else if (slot.status === 'Closed for Cleaning') {
-                  styleClass = 'bg-blue-100 text-blue-700';
-                } else if (slot.status === 'Free to Use without Booking') {
-                  styleClass = 'bg-yellow-100 text-gray-800';
-                } else {
-                  styleClass = 'bg-red-100 text-gray-500';
+        {isExpanded && (
+          <ul className="space-y-2">
+            <AnimatePresence>
+              {displayedSlots.map((slot) => {
+                const keysToCheck = slot.groupKeys ? slot.groupKeys : [slot.start];
+                const bookedBy =
+                  keysToCheck
+                    .map((key) => bookings[facility][selectedDate]?.[key])
+                    .find((val) => !!val) || null;
+                const isOwn = bookedBy === user?.email;
+                let showLabel = slot.status;
+                if (isOwn) {
+                  showLabel = 'Your booking';
+                } else if (bookedBy) {
+                  showLabel = user?.isAdmin ? `Booked by: ${bookedBy}` : 'Booked by another user';
                 }
-              }
-              return (
-                <motion.li
-                  key={slot.start}
-                  className={`flex justify-between items-center px-3 py-2 rounded ${styleClass}`}
-                  title={isOwn ? 'Your booking' : bookedBy ? 'Booked by another user' : ''}
-                >
-                  <span className="text-sm font-medium">
-                    {slot.start} – {slot.end}
-                  </span>
-                  {slot.status === 'Available' ? (
-                    user ? (
-                      bookedBy && !isOwn ? (
-                        <span className="text-xs italic">
-                          {user?.isAdmin ? `Booked by: ${bookedBy}` : 'Booked by another user'}
-                        </span>
+                let styleClass = '';
+                if (isOwn) {
+                  styleClass = 'bg-green-700 text-white';
+                } else if (bookedBy) {
+                  styleClass = 'bg-gray-300 text-gray-700 italic';
+                } else {
+                  if (slot.status === 'Available') {
+                    styleClass = 'bg-green-100 text-black';
+                  } else if (slot.status === 'Closed for Cleaning') {
+                    styleClass = 'bg-blue-100 text-blue-700';
+                  } else if (slot.status === 'Free to Use without Booking') {
+                    styleClass = 'bg-yellow-100 text-gray-800';
+                  } else {
+                    styleClass = 'bg-red-100 text-gray-500';
+                  }
+                }
+                return (
+                  <motion.li
+                    key={slot.start}
+                    className={`flex justify-between items-center px-3 py-2 rounded ${styleClass}`}
+                    title={isOwn ? 'Your booking' : bookedBy ? 'Booked by another user' : ''}
+                  >
+                    <span className="text-sm font-medium">
+                      {slot.start} – {slot.end}
+                    </span>
+                    {slot.status === 'Available' ? (
+                      user ? (
+                        bookedBy && !isOwn ? (
+                          <span className="text-xs italic">
+                            {user?.isAdmin ? `Booked by: ${bookedBy}` : 'Booked by another user'}
+                          </span>
+                        ) : (
+                          <button
+                            aria-label={`Book ${facility} at ${slot.start}`}
+                            onClick={() => onBook(facility, slot.start)}
+                            className="text-xs text-white bg-black rounded px-2 py-1 hover:bg-gray-900"
+                          >
+                            {isOwn ? 'Cancel' : 'Book'}
+                          </button>
+                        )
+                      ) : bookedBy ? (
+                        <span className="text-xs italic">Booked by another user</span>
                       ) : (
-                        <button
-                          aria-label={`Book ${facility} at ${slot.start}`}
-                          onClick={() => onBook(facility, slot.start)}
-                          className="text-xs text-white bg-black rounded px-2 py-1 hover:bg-gray-900"
-                        >
-                          {isOwn ? 'Cancel' : 'Book'}
-                        </button>
+                        <Link href="/login" className="text-xs text-red-600 underline">
+                          Sign in to book
+                        </Link>
                       )
-                    ) : bookedBy ? (
-                      <span className="text-xs italic">Booked by another user</span>
                     ) : (
-                      <Link href="/login" className="text-xs text-red-600 underline">
-                        Sign in to book
-                      </Link>
-                    )
-                  ) : (
-                    <span className="text-xs italic">{showLabel}</span>
-                  )}
-                </motion.li>
-              );
-            })}
-          </AnimatePresence>
-        </ul>
+                      <span className="text-xs italic">{showLabel}</span>
+                    )}
+                  </motion.li>
+                );
+              })}
+            </AnimatePresence>
+          </ul>
+        )}
         {/* Expand/Minimise Button */}
         <div className="mt-4">
           <button
@@ -399,6 +402,23 @@ function SchedulePageClientInner() {
 
   return (
     <main className="max-w-6xl mx-auto py-12 px-4">
+      {/* Booking Confirmation Toast */}
+      <AnimatePresence>
+        {bookingConfirm && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className={`fixed top-4 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded shadow-lg z-50 ${
+              bookingConfirm.type === 'success'
+                ? 'bg-green-500 text-white'
+                : 'bg-red-500 text-white'
+            }`}
+          >
+            {bookingConfirm.message}
+          </motion.div>
+        )}
+      </AnimatePresence>
       <h1 className="text-4xl font-bold mb-4 text-center">Facility Booking</h1>
       <p className="text-center text-gray-600 dark:text-gray-400 mb-6">
         This page is visible to all users &mdash; but you&apos;ll need to sign in to book a slot.
@@ -418,7 +438,7 @@ function SchedulePageClientInner() {
           <React.Fragment key={facility}>{renderSchedule(facility)}</React.Fragment>
         ))}
       </div>
-      {/* New My Bookings Button moved to the bottom of the page */}
+      {/* My Bookings Button */}
       <div className="flex justify-center mt-6">
         <Link
           href="/book/my-bookings"
