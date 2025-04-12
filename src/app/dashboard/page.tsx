@@ -3,12 +3,19 @@
 import React, { useEffect, useState } from 'react';
 import { collection, query, where, getDocs, deleteDoc, doc, updateDoc, getDoc } from 'firebase/firestore';
 import { db, auth } from '@/lib/firebase';
-import { onAuthStateChanged, sendPasswordResetEmail, updateEmail, updateProfile as firebaseUpdateProfile } from 'firebase/auth';
+import {
+  onAuthStateChanged,
+  sendPasswordResetEmail,
+  updateEmail,
+  updateProfile as firebaseUpdateProfile,
+  User,
+} from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { DateTime } from 'luxon';
 import Link from 'next/link';
 import Image from 'next/image';
 
+// Define types for booking and user data
 interface Booking {
   id: string;
   facility: string;
@@ -16,14 +23,20 @@ interface Booking {
   time: string;
 }
 
-// You can map facility names to your corresponding icons
+interface UserData {
+  username?: string;
+  property?: string;
+  [key: string]: any;
+}
+
+// Map facility names to icon paths
 const facilityIcons: Record<string, string> = {
   Pool: '/images/icons/pool-icon.png',
   Gym: '/images/icons/gym-icon.png',
   Sauna: '/images/icons/sauna-icon.png',
 };
 
-// Full list of properties (as provided)
+// Complete list of properties
 const propertyOptions = [
   '39/1', '39/2', '39/3', '39/4', '39/5', '39/6', '39/7', '39/8', '39/9', '39/10',
   '39/11', '39/12', '39/13', '39/14', '39/15', '39B',
@@ -41,8 +54,8 @@ const propertyOptions = [
 ];
 
 export default function MyDashboardPage() {
-  const [user, setUser] = useState<any>(null);
-  const [userData, setUserData] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [userData, setUserData] = useState<UserData | null>(null);
   const [editing, setEditing] = useState(false);
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
@@ -59,11 +72,11 @@ export default function MyDashboardPage() {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         setUser(firebaseUser);
-        setEmail(firebaseUser.email);
+        setEmail(firebaseUser.email ?? '');
         const docRef = doc(db, 'users', firebaseUser.uid);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          const data = docSnap.data();
+          const data = docSnap.data() as UserData;
           setUserData(data);
           setUsername(data.username || '');
           setProperty(data.property || '');
@@ -93,7 +106,7 @@ export default function MyDashboardPage() {
   }, [user]);
 
   const cancelBooking = async (bookingId: string) => {
-    if (!confirm('Are you sure you want to cancel this booking?')) return;
+    if (!window.confirm('Are you sure you want to cancel this booking?')) return;
     await deleteDoc(doc(db, 'bookings', bookingId));
     setBookings(prev => prev.filter(b => b.id !== bookingId));
   };
@@ -138,7 +151,7 @@ export default function MyDashboardPage() {
     try {
       await updateDoc(doc(db, 'users', user.uid), {
         username: username.trim().toLowerCase(),
-        property
+        property,
       });
 
       if (email !== user.email) {
@@ -148,7 +161,7 @@ export default function MyDashboardPage() {
       await firebaseUpdateProfile(user, { displayName: username });
       setFeedback('✅ Profile updated successfully.');
       setEditing(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
       setFeedback('❌ Failed to update profile.');
     }
@@ -166,7 +179,7 @@ export default function MyDashboardPage() {
   };
 
   const today = DateTime.now().toISODate();
-  const filteredBookings = bookings.filter(b => showUpcoming ? b.date >= today : b.date < today);
+  const filteredBookings = bookings.filter(b => (showUpcoming ? b.date >= today : b.date < today));
   const sortedBookings = filteredBookings.sort((a, b) => {
     if (sortBy === 'facility') {
       return a.facility.localeCompare(b.facility) || a.date.localeCompare(b.date) || a.time.localeCompare(b.time);
@@ -175,7 +188,8 @@ export default function MyDashboardPage() {
     }
   });
 
-  if (loading) return <div className="py-12 text-center text-gray-600 dark:text-gray-300">Loading...</div>;
+  if (loading)
+    return <div className="py-12 text-center text-gray-600 dark:text-gray-300">Loading...</div>;
 
   return (
     <main className="max-w-4xl mx-auto py-12 px-4 text-gray-800 dark:text-gray-100">
@@ -272,7 +286,7 @@ export default function MyDashboardPage() {
                   <input
                     type="email"
                     value={email}
-                    onChange={e => setEmail(e.target.value)}
+                    onChange={(e) => setEmail(e.target.value)}
                     className="w-full mt-1 px-4 py-2 border rounded-xl bg-gray-50 dark:bg-neutral-700"
                   />
                 </div>
@@ -281,7 +295,7 @@ export default function MyDashboardPage() {
                   <input
                     type="text"
                     value={username}
-                    onChange={e => setUsername(e.target.value)}
+                    onChange={(e) => setUsername(e.target.value)}
                     className="w-full mt-1 px-4 py-2 border rounded-xl bg-gray-50 dark:bg-neutral-700"
                   />
                 </div>
@@ -289,7 +303,7 @@ export default function MyDashboardPage() {
                   <label className="block text-sm font-medium">Property</label>
                   <select
                     value={property}
-                    onChange={e => setProperty(e.target.value)}
+                    onChange={(e) => setProperty(e.target.value)}
                     className="w-full mt-1 px-4 py-2 border rounded-xl bg-gray-50 dark:bg-neutral-700"
                   >
                     <option value="">Select Property</option>
