@@ -99,6 +99,12 @@ export default function SchedulePageClientInner() {
   const [user, setUser] = useState<{ email: string; isAdmin?: boolean } | null>(null);
   const [loading, setLoading] = useState(true);
   const [bookingConfirm, setBookingConfirm] = useState<{ message: string; type: 'success' | 'cancel' } | null>(null);
+
+  // New state variables to handle peak-time booking warnings.
+  const [showPeakWarning, setShowPeakWarning] = useState(false);
+  const [confirmPeakUsage, setConfirmPeakUsage] = useState(false);
+  const [pendingBooking, setPendingBooking] = useState<{ facility: string; time: string } | null>(null);
+
   const router = useRouter();
 
   // Determine if the selected date is a special Tuesday (every 14 days starting from 2025-04-15)
@@ -166,6 +172,7 @@ export default function SchedulePageClientInner() {
     return { facilityCount, totalCount };
   }
 
+  // Existing check: block if already booked the same slot for 3 consecutive days.
   async function checkConsecutiveBookings(facility: string, time: string): Promise<boolean> {
     if (!user) return false;
     const currentDate = DateTime.fromISO(selectedDate, { zone: 'Europe/London' });
@@ -192,16 +199,28 @@ export default function SchedulePageClientInner() {
     return consecutiveCount === 3;
   }
 
-  async function onBook(facility: string, time: string) {
-    if (!user) {
-      router.push('/login');
-      return;
+  // New function: check if the user has peak bookings (from 17:00 to 20:30) for 3 previous consecutive days.
+  async function checkPeakBookings(userEmail: string): Promise<boolean> {
+    const peakSlots = ['17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30'];
+    let peakBookingCount = 0;
+    const currentDate = DateTime.fromISO(selectedDate, { zone: 'Europe/London' });
+    for (let i = 1; i <= 3; i++) {
+      const dateToCheck = currentDate.minus({ days: i }).toISODate();
+      const q = query(
+        collection(db, 'bookings'),
+        where('date', '==', dateToCheck),
+        where('user', '==', userEmail)
+      );
+      const snap = await getDocs(q);
+      if (snap.docs.some((docSnap) => peakSlots.includes(docSnap.data().time))) {
+        peakBookingCount++;
+      }
     }
-    const hasConsecutive = await checkConsecutiveBookings(facility, time);
-    if (hasConsecutive) {
-      alert('You have already booked this slot for 3 consecutive days. You cannot book it again.');
-      return;
-    }
+    return peakBookingCount >= 3;
+  }
+
+  // Extracted booking logic so it can be called normally or when confirmed via the peak warning.
+  async function proceedWithBooking(facility: string, time: string) {
     const isBooked = bookings[facility][selectedDate]?.[time] === user.email;
     const bookingRef = doc(db, `bookings/${facility}_${selectedDate}_${time}`);
 
@@ -256,19 +275,41 @@ export default function SchedulePageClientInner() {
     }
   }
 
+  async function onBook(facility: string, time: string) {
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+    const hasConsecutive = await checkConsecutiveBookings(facility, time);
+    if (hasConsecutive) {
+      alert('You have already booked this slot for 3 consecutive days. You cannot book it again.');
+      return;
+    }
+    // If the time is one of the peak slots, check for peak bookings warning.
+    const peakSlots = ['17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30'];
+    if (peakSlots.includes(time)) {
+      if (await checkPeakBookings(user.email)) {
+        // Trigger the warning modal.
+        setPendingBooking({ facility, time });
+        setShowPeakWarning(true);
+        return;
+      }
+    }
+    await proceedWithBooking(facility, time);
+  }
+
   function renderSchedule(facility: string) {
-    // Use const for the array that we build up.
+    // Build up the schedule slots.
     const scheduleSlots: Slot[] = [];
 
     if (isSpecialTuesday) {
-      // For special Tuesday deep cleaning (applied to all facilities):
+      // Special Tuesday deep cleaning schedule:
       // 05:30–09:30: Available
       // 09:30–12:30: Closed for Cleaning
       // 12:30–17:00: Free to Use without Booking
       // 17:00–23:00: Available
       for (let i = 0; i < timeSlots.length - 1; ) {
         if (timeSlots[i] === '09:30') {
-          // Insert two custom chunks:
           scheduleSlots.push({
             start: '09:30',
             end: '12:30',
@@ -281,13 +322,7 @@ export default function SchedulePageClientInner() {
             status: 'Free to Use without Booking'
           });
           const idx17 = timeSlots.indexOf('17:00');
-          if (idx17 >= 0) {
-            // Jump to index for '17:00'
-            // We use a new counter value.
-            i = idx17;
-          } else {
-            i = timeSlots.length;
-          }
+          i = idx17 >= 0 ? idx17 : timeSlots.length;
         } else {
           const start = timeSlots[i];
           const end = timeSlots[i + 1];
@@ -452,13 +487,60 @@ export default function SchedulePageClientInner() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Peak Time Warning Modal */}
+      {showPeakWarning && pendingBooking && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h3 className="text-lg font-semibold mb-2">Peak Time Booking Warning</h3>
+            <p className="mb-4">
+              Our system has detected that you have booked peak-time slots for three consecutive days.
+              Please confirm that you intend to use this booking.
+            </p>
+            <label className="flex items-center mb-4">
+              <input
+                type="checkbox"
+                className="mr-2"
+                checked={confirmPeakUsage}
+                onChange={() => setConfirmPeakUsage(!confirmPeakUsage)}
+              />
+              I confirm I intend to use this peak time slot.
+            </label>
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={() => {
+                  setShowPeakWarning(false);
+                  setConfirmPeakUsage(false);
+                  setPendingBooking(null);
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                disabled={!confirmPeakUsage}
+                onClick={async () => {
+                  if (pendingBooking) {
+                    await proceedWithBooking(pendingBooking.facility, pendingBooking.time);
+                  }
+                  setShowPeakWarning(false);
+                  setConfirmPeakUsage(false);
+                  setPendingBooking(null);
+                }}
+              >
+                Confirm Booking
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <h1 className="text-4xl font-bold mb-4 text-center">Facility Booking</h1>
       <p className="text-center text-gray-600 dark:text-gray-400 mb-6">
-        This page is visible to all users &mdash; but you&apos;ll need to sign in to book a slot.
+        This page is visible to all users &mdash; but you'll need to sign in to book a slot.
       </p>
       {!user && (
         <div className="text-center mb-6 text-sm text-red-600">
-          You&apos;re currently viewing as a guest.{' '}
+          You're currently viewing as a guest.{' '}
           <Link href="/login" className="underline">
             Sign in
           </Link>{' '}

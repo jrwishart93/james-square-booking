@@ -1,14 +1,12 @@
-import SchedulePageClient from './SchedulePageClient';
+'use client';
 
-export const metadata = {
-  title: 'Facility Booking - Schedule',
-  description: 'Book your facility time slots',
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-  },
-};
+import React, { Suspense } from 'react';
+import SchedulePageClientInner from './SchedulePageClientInner';
 
-export default function SchedulePage() {
-  return <SchedulePageClient />;
+export default function SchedulePageClient() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SchedulePageClientInner />
+    </Suspense>
+  );
 }
