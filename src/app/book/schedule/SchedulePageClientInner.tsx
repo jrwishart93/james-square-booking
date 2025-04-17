@@ -487,80 +487,80 @@ export default function SchedulePageClientInner() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Peak Time Warning Modal */}
-      {showPeakWarning && pendingBooking && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg">
-            <h3 className="text-lg font-semibold mb-2">Peak Time Booking Warning</h3>
-            <p className="mb-4">
-              Our system has detected that you have booked peak-time slots for three consecutive days.
-              Please confirm that you intend to use this booking.
-            </p>
-            <label className="flex items-center mb-4">
-              <input
-                type="checkbox"
-                className="mr-2"
-                checked={confirmPeakUsage}
-                onChange={() => setConfirmPeakUsage(!confirmPeakUsage)}
-              />
-              I confirm I intend to use this peak time slot.
-            </label>
-            <div className="flex justify-end space-x-2">
-              <button
-                onClick={() => {
-                  setShowPeakWarning(false);
-                  setConfirmPeakUsage(false);
-                  setPendingBooking(null);
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                disabled={!confirmPeakUsage}
-                onClick={async () => {
-                  if (pendingBooking) {
-                    await proceedWithBooking(pendingBooking.facility, pendingBooking.time);
-                  }
-                  setShowPeakWarning(false);
-                  setConfirmPeakUsage(false);
-                  setPendingBooking(null);
-                }}
-              >
-                Confirm Booking
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <h1 className="text-4xl font-bold mb-4 text-center">Facility Booking</h1>
-      <p className="text-center text-gray-600 dark:text-gray-400 mb-6">
-        This page is visible to all users &mdash; but you'll need to sign in to book a slot.
+{/* Peak Time Warning Modal */}
+{showPeakWarning && pendingBooking && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="bg-white p-6 rounded-lg shadow-lg">
+      <h3 className="text-lg font-semibold mb-2">Peak Time Booking Warning</h3>
+      <p className="mb-4">
+        Our system has detected that you have booked peak‑time slots for three consecutive days.
+        Please confirm that you intend to use this booking.
       </p>
-      {!user && (
-        <div className="text-center mb-6 text-sm text-red-600">
-          You're currently viewing as a guest.{' '}
-          <Link href="/login" className="underline">
-            Sign in
-          </Link>{' '}
-          to make bookings.
-        </div>
-      )}
-      {renderDateSelector(selectedDate, setSelectedDate)}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {['Pool', 'Gym', 'Sauna'].map((facility) => (
-          <React.Fragment key={facility}>{renderSchedule(facility)}</React.Fragment>
-        ))}
-      </div>
-      <div className="flex justify-center mt-6">
-        <Link
-          href="/book/my-bookings"
-          className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition"
+      <label className="flex items-center mb-4">
+        <input
+          type="checkbox"
+          className="mr-2"
+          checked={confirmPeakUsage}
+          onChange={() => setConfirmPeakUsage(!confirmPeakUsage)}
+        />
+        I confirm I intend to use this peak time slot.
+      </label>
+      <div className="flex justify-end space-x-2">
+        <button
+          onClick={() => {
+            setShowPeakWarning(false);
+            setConfirmPeakUsage(false);
+            setPendingBooking(null);
+          }}
         >
-          My Bookings
-        </Link>
+          Cancel
+        </button>
+        <button
+          disabled={!confirmPeakUsage}
+          onClick={async () => {
+            if (pendingBooking) {
+              await proceedWithBooking(pendingBooking.facility, pendingBooking.time);
+            }
+            setShowPeakWarning(false);
+            setConfirmPeakUsage(false);
+            setPendingBooking(null);
+          }}
+        >
+          Confirm Booking
+        </button>
       </div>
-    </main>
-  );
-}
+    </div>
+  </div>
+)}
+
+<h1 className="text-4xl font-bold mb-4 text-center">Facility Booking</h1>
+<p className="text-center text-gray-600 dark:text-gray-400 mb-6">
+  This page is visible to all users &mdash; but you&apos;ll need to sign in to book a slot.
+</p>
+
+{!user && (
+  <div className="text-center mb-6 text-sm text-red-600">
+    You&apos;re currently viewing as a guest.{` `}
+    <Link href="/login" className="underline">
+      Sign in
+    </Link>{` `}
+    to make bookings.
+  </div>
+)}
+
+{renderDateSelector(selectedDate, setSelectedDate)}
+
+<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+  {['Pool', 'Gym', 'Sauna'].map((facility) => (
+    <React.Fragment key={facility}>{renderSchedule(facility)}</React.Fragment>
+  ))}
+</div>
+
+<div className="flex justify-center mt-6">
+  <Link
+    href="/book/my-bookings"
+    className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition"
+  >
+    My Bookings
+  </Link>
+</div>
