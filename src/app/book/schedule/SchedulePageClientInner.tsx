@@ -24,7 +24,15 @@ interface Slot {
   groupKeys?: string[];
 }
 
-// time slots (no 12 : 30)
+/** Firestore booking‑document shape */
+interface BookingDoc {
+  facility: string;
+  date: string;
+  time: string;
+  user: string;
+}
+
+// time slots (no 12:30)
 const timeSlots = [
   '05:30', '06:00', '06:30', '07:00', '07:30', '08:00', '08:30',
   '09:00', '09:30', '10:00', '10:30', '11:00',
@@ -40,10 +48,7 @@ function generateInitialBookings() {
 }
 
 function getUKDate(offset = 0) {
-  return DateTime.now()
-    .setZone('Europe/London')
-    .plus({ days: offset })
-    .toISODate();
+  return DateTime.now().setZone('Europe/London').plus({ days: offset }).toISODate();
 }
 
 function renderDateSelector(
@@ -55,11 +60,7 @@ function renderDateSelector(
     const date = today.plus({ days: i });
     return {
       iso: date.toISODate(),
-      display: date.toLocaleString({
-        weekday: 'short',
-        day: 'numeric',
-        month: 'short',
-      }),
+      display: date.toLocaleString({ weekday: 'short', day: 'numeric', month: 'short' }),
     };
   });
 
@@ -123,12 +124,7 @@ export default function SchedulePageClientInner() {
       );
       const updated = generateInitialBookings();
       snap.forEach((d) => {
-        const { facility, date: dDate, time, user: u } = d.data() as {
-          facility: string;
-          date: string;
-          time: string;
-          user: string;
-        };
+        const { facility, date: dDate, time, user: u } = d.data() as BookingDoc;
         if (!updated[facility][dDate]) updated[facility][dDate] = {};
         updated[facility][dDate][time] = u;
       });
@@ -181,7 +177,7 @@ export default function SchedulePageClientInner() {
           where('time', '==', time),
         ),
       );
-      const found = snap.docs.some((d) => (d.data() as any).user === user.email);
+      const found = snap.docs.some((d) => (d.data() as BookingDoc).user === user.email);
       if (found) run += 1;
       else break;
     }
@@ -197,15 +193,14 @@ export default function SchedulePageClientInner() {
       const snap = await getDocs(
         query(collection(db, 'bookings'), where('date', '==', date), where('user', '==', email)),
       );
-      if (snap.docs.some((d) => peak.includes((d.data() as any).time))) cnt += 1;
+      if (snap.docs.some((d) => peak.includes((d.data() as BookingDoc).time))) cnt += 1;
     }
     return cnt >= 3;
   }
 
   /* ---------------- booking core ---------------- */
   async function proceedWithBooking(facility: string, time: string) {
-    // guard: no user ➜ exit (satisfies TypeScript)
-    if (!user) return;
+    if (!user) return; // guard
 
     const isBooked = bookings[facility][selectedDate]?.[time] === user.email;
     const bookingRef = doc(db, `bookings/${facility}_${selectedDate}_${time}`);
@@ -243,10 +238,11 @@ export default function SchedulePageClientInner() {
       }));
       setBookingConfirm({ message: 'Booking Successful!', type: 'success' });
       setTimeout(() => setBookingConfirm(null), 2000);
-    } catch (e: any) {
-      console.error('booking failed', e.message);
+    } catch (err: unknown) {
+      const e = err as { code?: string; message?: string };
+      console.error('booking failed', e?.message);
       alert(
-        e.code === 'permission-denied'
+        e?.code === 'permission-denied'
           ? 'That time slot has already been booked.'
           : 'An error occurred while booking. Please try again.',
       );
@@ -271,6 +267,8 @@ export default function SchedulePageClientInner() {
   /* ---------------- schedule builder ---------------- */
   function renderSchedule(facility: string) {
     const schedule: Slot[] = [];
+
+    /* ------- build schedule slots (unchanged) ------- */
 
     if (isSpecialTuesday) {
       for (let i = 0; i < timeSlots.length - 1; ) {
@@ -480,10 +478,10 @@ export default function SchedulePageClientInner() {
 
       {!user && (
         <div className="text-center mb-6 text-sm text-red-600">
-          You&apos;re currently viewing as a guest.{' '}
+          You&apos;re currently viewing as a guest.&nbsp;
           <Link href="/login" className="underline">
             Sign in
-          </Link>{' '}
+          </Link>&nbsp;
           to make bookings.
         </div>
       )}
