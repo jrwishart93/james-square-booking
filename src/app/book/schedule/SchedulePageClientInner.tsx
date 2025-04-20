@@ -101,11 +101,6 @@ export default function SchedulePageClientInner() {
   const [bookingConfirm, setBookingConfirm] = useState<{ message: string; type: 'success' | 'cancel' } | null>(null);
   const router = useRouter();
 
-const [showPeakWarning, setShowPeakWarning] = useState(false);
-const [confirmPeakUsage, setConfirmPeakUsage] = useState(false);
-const [pendingBooking, setPendingBooking] = useState<{ facility: string; time: string } | null>(null);
-
-
   // Determine if the selected date is a special Tuesday (every 14 days starting from 2025-04-15)
   const isSpecialTuesday = (() => {
     const dt = DateTime.fromISO(selectedDate, { zone: 'Europe/London' });
