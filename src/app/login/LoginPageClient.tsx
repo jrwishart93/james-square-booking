@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { auth, db } from '@/lib/firebase';
 import {
@@ -221,6 +222,17 @@ export default function LoginPageClient() {
           {isRegistering ? 'Create Account' : 'Log In'}
         </button>
       </form>
+
+      {!isRegistering && (
+  <div className="mt-2 text-center">
+    <Link
+      href="/reset-password"
+      className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+    >
+      Forgot your password?
+    </Link>
+  </div>
+)}
 
       <button
         onClick={() => setIsRegistering(!isRegistering)}
