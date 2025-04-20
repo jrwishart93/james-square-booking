@@ -101,6 +101,11 @@ export default function SchedulePageClientInner() {
   const [bookingConfirm, setBookingConfirm] = useState<{ message: string; type: 'success' | 'cancel' } | null>(null);
   const router = useRouter();
 
+const [showPeakWarning, setShowPeakWarning] = useState(false);
+const [confirmPeakUsage, setConfirmPeakUsage] = useState(false);
+const [pendingBooking, setPendingBooking] = useState<{ facility: string; time: string } | null>(null);
+
+
   // Determine if the selected date is a special Tuesday (every 14 days starting from 2025-04-15)
   const isSpecialTuesday = (() => {
     const dt = DateTime.fromISO(selectedDate, { zone: 'Europe/London' });
@@ -191,23 +196,81 @@ export default function SchedulePageClientInner() {
     }
     return consecutiveCount === 3;
   }
-
+  async function checkPeakTimePattern(
+    userEmail: string,
+    time: string
+  ): Promise<boolean> {
+    const peakTimes = [
+      '17:00', '17:30', '18:00', '18:30',
+      '19:00', '19:30', '20:00', '20:30'
+    ];
+  
+    // Only care about peak slots
+    if (!peakTimes.includes(time)) return false;
+  
+    const current = DateTime.fromISO(selectedDate, { zone: 'Europe/London' });
+  
+    let consecutivePeakDays = 0;
+  
+    for (let i = 1; i <= 2; i++) {
+      const prevDate = current.minus({ days: i }).toISODate();
+  
+      const q = query(
+        collection(db, 'bookings'),
+        where('date', '==', prevDate),
+        where('user', '==', userEmail),
+        where('time', 'in', peakTimes)       // ← match *any* peak slot
+      );
+  
+      const snap = await getDocs(q);
+      if (!snap.empty) {
+        consecutivePeakDays++;
+      } else {
+        break;  // stop as soon as a non‑peak day is found
+      }
+    }
+  
+    // If they had peak bookings on both previous days,
+    // this (peak) booking would be the 3rd in a row
+    return consecutivePeakDays >= 2;
+  }
   async function onBook(facility: string, time: string) {
     if (!user) {
       router.push('/login');
       return;
     }
+  
+    // 1) Block booking the same slot 3 days in a row
     const hasConsecutive = await checkConsecutiveBookings(facility, time);
     if (hasConsecutive) {
       alert('You have already booked this slot for 3 consecutive days. You cannot book it again.');
       return;
     }
+
+    // 2) Warn on 3rd consecutive day of ANY peak slot
+const isPeakOveruse = await checkPeakTimePattern(user.email, time);
+if (isPeakOveruse) {
+  const ok = window.confirm(
+    "⚠️ Peak Time Booking Notice\n\n" +
+    "Our system has detected that you\u2019ve already booked peak time slots (between 5pm and 9pm) on the past couple of days. " +
+    "These facilities are shared, and evening hours are a popular time for many residents.\n\n" +
+    "Please be respectful and considerate of others who may also wish to use this space. Only continue if you are confident you will attend and use this booking.\n\n" +
+    "Regularly reserving peak time slots without using them may lead to future restrictions.\n\n" +
+    "Press OK to confirm, or Cancel to choose a different time."
+  );
+  
+  if (!ok) {
+    return;  // user cancelled — abort booking
+  }
+}
+  
     const isBooked = bookings[facility][selectedDate]?.[time] === user.email;
     const bookingRef = doc(db, `bookings/${facility}_${selectedDate}_${time}`);
-
+  
     if (isBooked) {
+      // --- Cancel existing booking ---
       await deleteDoc(bookingRef);
-      setBookings((prev) => {
+      setBookings(prev => {
         const updated = { ...prev };
         delete updated[facility][selectedDate][time];
         return updated;
@@ -215,6 +278,7 @@ export default function SchedulePageClientInner() {
       setBookingConfirm({ message: 'Booking Cancelled!', type: 'cancel' });
       setTimeout(() => setBookingConfirm(null), 2000);
     } else {
+      // --- New booking: enforce per-facility & daily limits ---
       const { facilityCount, totalCount } = countUserBookings(facility);
       if (facilityCount >= 2) {
         alert('You can only book 2 slots per facility per day.');
@@ -224,6 +288,7 @@ export default function SchedulePageClientInner() {
         alert('You can only book up to 6 slots per day.');
         return;
       }
+  
       try {
         await setDoc(bookingRef, {
           facility,
@@ -232,7 +297,7 @@ export default function SchedulePageClientInner() {
           date: selectedDate,
           timestamp: new Date(),
         });
-        setBookings((prev) => ({
+        setBookings(prev => ({
           ...prev,
           [facility]: {
             ...prev[facility],
@@ -255,7 +320,7 @@ export default function SchedulePageClientInner() {
       }
     }
   }
-
+  
   function renderSchedule(facility: string) {
     // Use const for the array that we build up.
     const scheduleSlots: Slot[] = [];
