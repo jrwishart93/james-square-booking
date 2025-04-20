@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { sendPasswordResetEmail } from 'firebase/auth';
+import { FirebaseError } from 'firebase/app';
 import { auth, db } from '@/lib/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 
@@ -14,16 +15,16 @@ export default function ResetPasswordPage() {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
-  // If the user typed a username, look up their email in Firestore.
   const resolveEmail = async (id: string): Promise<string | null> => {
+    // If it looks like an email, validate its format
     if (id.includes('@')) {
-      // quick client‑side email format check
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailPattern.test(id)) {
         throw new Error('invalid-email-format');
       }
       return id;
     }
+    // Otherwise treat as username and look up
     const q = query(
       collection(db, 'users'),
       where('username', '==', id.toLowerCase())
@@ -55,20 +56,21 @@ export default function ResetPasswordPage() {
       setMessage(
         'If an account exists, a password‑reset email has been sent. Please check your inbox.'
       );
-
-      // after a short pause, send them back to login
       setTimeout(() => router.push('/login'), 5000);
 
-    } catch (err: any) {
-      if (err.message === 'invalid-email-format') {
+    } catch (err: unknown) {
+      if (err instanceof Error && err.message === 'invalid-email-format') {
         setError('That doesn’t look like a valid email address.');
-      } else if (err.code === 'auth/invalid-email') {
-        setError('Firebase: invalid email address.');
+      } else if (err instanceof FirebaseError) {
+        if (err.code === 'auth/invalid-email') {
+          setError('Firebase: invalid email address.');
+        } else {
+          console.error(err);
+          setError('Something went wrong. Please try again.');
+        }
       } else {
         console.error(err);
-        setError(
-          'Something went wrong. Please try again or contact support.'
-        );
+        setError('An unexpected error occurred. Please try again.');
       }
     } finally {
       setLoading(false);
