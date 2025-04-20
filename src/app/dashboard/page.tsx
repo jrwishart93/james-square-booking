@@ -198,7 +198,17 @@ export default function MyDashboardPage() {
         </Link>
       </div>
 
-      <h1 className="text-3xl font-bold text-center mb-6">🧑‍💻 My Dashboard</h1>
+      <div className="mb-6 p-4 rounded-lg bg-gray-100 dark:bg-neutral-800">
+  <h1
+    className="
+      text-4xl md:text-5xl font-extrabold text-center
+      text-gray-900 dark:text-white
+      dark:drop-shadow-lg
+    "
+  >
+    🧑‍💻 My Dashboard
+  </h1>
+</div>
 
       {/* Sort controls */}
       <div className="flex justify-center items-center mb-4">
