@@ -683,9 +683,6 @@ if (isPeakOveruse) {
   </div>
 )}
 
-
-{renderDateSelector(selectedDate, setSelectedDate, user)}
-
 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
   {['Pool', 'Gym', 'Sauna'].map((facility) => (
     <React.Fragment key={facility}>{renderSchedule(facility)}</React.Fragment>
