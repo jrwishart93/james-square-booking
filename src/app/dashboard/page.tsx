@@ -46,6 +46,48 @@ const propertyOptions = [
   '65/1', '65/2'
 ];
 
+function renderDateSelector(
+  selectedDate: string,
+  setSelectedDate: (d: string) => void,
+  user: { email: string; isAdmin?: boolean } | null
+) {
+  const today = DateTime.now().setZone('Europe/London');
+  const dateRange = user?.isAdmin ? 60 : 14;
+
+  const dates = Array.from({ length: dateRange }, (_, i) => {
+    const date = today.plus({ days: i });
+    return {
+      iso: date.toISODate(),
+      display: date.toLocaleString({
+        weekday: 'short',
+        day: 'numeric',
+        month: 'short',
+      }),
+    };
+  });
+
+  return (
+    <div className="flex overflow-x-auto gap-2 mb-6 px-2 scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600">
+      {dates.map(({ iso, display }) => (
+        <button
+          key={iso}
+          onClick={() => setSelectedDate(iso)}
+          className={`min-w-[110px] px-3 py-1 rounded text-sm border whitespace-nowrap transition duration-200 ease-in-out transform hover:scale-105 hover:shadow-md ${
+            iso === selectedDate
+              ? 'bg-black text-white dark:bg-blue-600 dark:ring dark:ring-blue-400 dark:text-white'
+              : iso === getUKDate()
+              ? 'border-black text-black font-semibold'
+              : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-white'
+          }`}
+        >
+          {display}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+
 export default function MyDashboardPage() {
   // The user state is now explicitly typed as Firebase User or null.
   const [user, setUser] = useState<User | null>(null);

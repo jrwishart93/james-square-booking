@@ -50,10 +50,13 @@ function getUKDate(offset = 0) {
 
 function renderDateSelector(
   selectedDate: string,
-  setSelectedDate: (d: string) => void
+  setSelectedDate: (d: string) => void,
+  user: { email: string; isAdmin?: boolean } | null
 ) {
   const today = DateTime.now().setZone('Europe/London');
-  const dates = Array.from({ length: 14 }, (_, i) => {
+  const dateRange = user?.isAdmin ? 60 : 14;
+
+  const dates = Array.from({ length: dateRange }, (_, i) => {
     const date = today.plus({ days: i });
     return {
       iso: date.toISODate(),
@@ -64,6 +67,7 @@ function renderDateSelector(
       }),
     };
   });
+
   return (
     <div className="flex overflow-x-auto gap-2 mb-6 px-2 scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600">
       {dates.map(({ iso, display }) => (
@@ -85,6 +89,7 @@ function renderDateSelector(
   );
 }
 
+
 export default function SchedulePageClientInner() {
   const searchParams = useSearchParams();
   const expandedParam = searchParams.get('expanded')?.toLowerCase();
@@ -99,6 +104,16 @@ export default function SchedulePageClientInner() {
   const [user, setUser] = useState<{ email: string; isAdmin?: boolean } | null>(null);
   const [loading, setLoading] = useState(true);
   const [bookingConfirm, setBookingConfirm] = useState<{ message: string; type: 'success' | 'cancel' } | null>(null);
+
+  const [maintenanceWindows, setMaintenanceWindows] = useState<
+  { facility: string; startDate: string; endDate: string }[]
+>([]);
+  
+  // Admin-only state for maintenance window form
+  const [newFacility, setNewFacility] = useState('Pool');
+  const [newStartDate, setNewStartDate] = useState(getUKDate());
+  const [newEndDate, setNewEndDate] = useState(getUKDate());
+
   const router = useRouter();
 
   // Determine if the selected date is a special Tuesday (every 14 days starting from 2025-04-15)
@@ -111,7 +126,7 @@ export default function SchedulePageClientInner() {
   })();
 
   useEffect(() => {
-    async function fetchBookings(date: string) {
+    async function fetchData(date: string) {
       const q = query(collection(db, 'bookings'), where('date', '==', date));
       const snap = await getDocs(q);
       const updated = generateInitialBookings();
@@ -128,8 +143,18 @@ export default function SchedulePageClientInner() {
         updated[data.facility][data.date][data.time] = data.user;
       });
       setBookings(updated);
+
+      const winSnap = await getDocs(query(
+        collection(db, 'maintenanceWindows'),
+        where('startDate', '<=', date),
+        where('endDate',   '>=', date),
+      ));
+      const windows: { facility: string; startDate: string; endDate: string }[] = [];
+      winSnap.forEach(docSnap => windows.push(docSnap.data() as any));
+      setMaintenanceWindows(windows);
+
     }
-    fetchBookings(selectedDate);
+    fetchData(selectedDate);
   }, [selectedDate]);
 
   useEffect(() => {
@@ -234,7 +259,6 @@ export default function SchedulePageClientInner() {
       router.push('/login');
       return;
     }
-  
     // 1) Block booking the same slot 3 days in a row
     const hasConsecutive = await checkConsecutiveBookings(facility, time);
     if (hasConsecutive) {
@@ -316,8 +340,61 @@ if (isPeakOveruse) {
     }
   }
   
+  async function createWindow() {
+    if (!user?.isAdmin) return;
+  
+    const id = `${newFacility}_${newStartDate}_${newEndDate}`;
+    await setDoc(doc(db, 'maintenanceWindows', id), {
+      facility: newFacility,
+      startDate: newStartDate,
+      endDate: newEndDate,
+      timestamp: new Date(),
+    });
+  
+    setMaintenanceWindows((prev) => [
+      ...prev,
+      { facility: newFacility, startDate: newStartDate, endDate: newEndDate }
+    ]);
+  
+    alert(`✅ ${newFacility} blocked from ${newStartDate} to ${newEndDate}`);
+  }
+  
+  async function deleteWindow(id: string) {
+    if (!user?.isAdmin) return;
+  
+    await deleteDoc(doc(db, 'maintenanceWindows', id));
+  
+    setMaintenanceWindows((prev) =>
+      prev.filter((win) => `${win.facility}_${win.startDate}_${win.endDate}` !== id)
+    );
+  
+    alert(`🧹 Unblocked ${id}`);
+  }
+  
   function renderSchedule(facility: string) {
     // Use const for the array that we build up.
+    const closedWindow = maintenanceWindows.find(
+      (w) =>
+        w.facility === facility &&
+        w.startDate <= selectedDate &&
+        w.endDate   >= selectedDate
+    );
+    if (closedWindow) {
+      return (
+        <motion.div
+          layout
+          key={facility}
+          className="rounded-xl shadow-md p-6 border bg-white dark:bg-gray-900"
+        >
+          <h2 className="text-xl font-semibold mb-4 text-center text-black dark:text-white">
+            {facility}
+          </h2>
+          <div className="px-4 py-6 text-center italic bg-gray-100 dark:bg-gray-800 rounded-xl">
+            🚧 Closed from {closedWindow.startDate} to {closedWindow.endDate}
+          </div>
+        </motion.div>
+      );
+    }
     const scheduleSlots: Slot[] = [];
 
     if (isSpecialTuesday) {
@@ -525,20 +602,97 @@ if (isPeakOveruse) {
           to make bookings.
         </div>
       )}
-      {renderDateSelector(selectedDate, setSelectedDate)}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {['Pool', 'Gym', 'Sauna'].map((facility) => (
-          <React.Fragment key={facility}>{renderSchedule(facility)}</React.Fragment>
+      
+{user?.isAdmin && (
+  <div className="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900 rounded-xl">
+    <h3 className="font-semibold mb-2 text-black dark:text-white">
+      🛠 Block Facility for Date Range
+    </h3>
+
+    {/* Block form */}
+    <div className="flex flex-wrap gap-2 items-center mb-4">
+      <select
+        value={newFacility}
+        onChange={(e) => setNewFacility(e.target.value)}
+        className="px-3 py-1 border rounded"
+      >
+        {['Pool', 'Gym', 'Sauna'].map((f) => (
+          <option key={f} value={f}>{f}</option>
         ))}
-      </div>
-      <div className="flex justify-center mt-6">
-        <Link
-          href="/book/my-bookings"
-          className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition"
-        >
-          My Bookings
-        </Link>
-      </div>
-    </main>
+      </select>
+      <input
+        type="date"
+        value={newStartDate}
+        onChange={(e) => setNewStartDate(e.target.value)}
+        className="px-3 py-1 border rounded"
+      />
+      <input
+        type="date"
+        value={newEndDate}
+        onChange={(e) => setNewEndDate(e.target.value)}
+        className="px-3 py-1 border rounded"
+      />
+      <button
+        onClick={createWindow}
+        className="px-4 py-1 bg-yellow-600 text-white font-semibold rounded hover:bg-yellow-700"
+      >
+        Block
+      </button>
+    </div>
+
+    {/* Unblock list */}
+    {maintenanceWindows.length > 0 ? (
+      <>
+        <h4 className="font-semibold mb-2 text-black dark:text-white">
+          🔓 Active Maintenance Windows
+        </h4>
+        <ul className="space-y-2">
+          {maintenanceWindows.map((win) => {
+            const id = `${win.facility}_${win.startDate}_${win.endDate}`;
+            return (
+              <li
+                key={id}
+                className="flex items-center justify-between text-sm bg-white dark:bg-gray-700 p-2 rounded shadow"
+              >
+                <span className="text-black dark:text-white">
+                  {win.facility}: {win.startDate} → {win.endDate}
+                </span>
+                <button
+                  onClick={() => deleteWindow(id)}
+                  className="text-xs px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                >
+                  Unblock
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </>
+    ) : (
+      <p className="text-sm italic text-gray-700 dark:text-gray-300">
+        No current maintenance windows.
+      </p>
+    )}
+  </div>
+)}
+
+
+{renderDateSelector(selectedDate, setSelectedDate, user)}
+
+<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+  {['Pool', 'Gym', 'Sauna'].map((facility) => (
+    <React.Fragment key={facility}>{renderSchedule(facility)}</React.Fragment>
+  ))}
+</div>
+
+<div className="flex justify-center mt-6">
+  <Link
+    href="/book/my-bookings"
+    className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition"
+  >
+    My Bookings
+  </Link>
+</div>
+</main>
   );
 }
