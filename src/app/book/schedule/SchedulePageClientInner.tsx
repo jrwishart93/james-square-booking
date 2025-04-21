@@ -100,7 +100,7 @@ export default function SchedulePageClientInner() {
   const [bookings, setBookings] = useState<Record<string, Record<string, Record<string, string>>>>(
     generateInitialBookings()
   );
-  + // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   const [selectedDate, setSelectedDate] = useState(getUKDate());
   const [user, setUser] = useState<{ email: string; isAdmin?: boolean } | null>(null);
   const [loading, setLoading] = useState(true);
