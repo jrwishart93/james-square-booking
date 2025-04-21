@@ -100,6 +100,7 @@ export default function SchedulePageClientInner() {
   const [bookings, setBookings] = useState<Record<string, Record<string, Record<string, string>>>>(
     generateInitialBookings()
   );
+  + // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedDate, setSelectedDate] = useState(getUKDate());
   const [user, setUser] = useState<{ email: string; isAdmin?: boolean } | null>(null);
   const [loading, setLoading] = useState(true);
@@ -682,6 +683,9 @@ if (isPeakOveruse) {
     )}
   </div>
 )}
+
+
+{renderDateSelector(selectedDate, setSelectedDate, user)}
 
 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
   {['Pool', 'Gym', 'Sauna'].map((facility) => (
