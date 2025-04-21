@@ -130,6 +130,7 @@ export default function SchedulePageClientInner() {
       const q = query(collection(db, 'bookings'), where('date', '==', date));
       const snap = await getDocs(q);
       const updated = generateInitialBookings();
+  
       snap.forEach((docSnap) => {
         const data = docSnap.data() as {
           facility: string;
@@ -142,21 +143,27 @@ export default function SchedulePageClientInner() {
         }
         updated[data.facility][data.date][data.time] = data.user;
       });
+  
       setBookings(updated);
-
+  
       const winSnap = await getDocs(query(
         collection(db, 'maintenanceWindows'),
         where('startDate', '<=', date),
-        where('endDate',   '>=', date),
+        where('endDate', '>=', date),
       ));
+  
       const windows: { facility: string; startDate: string; endDate: string }[] = [];
-      winSnap.forEach(docSnap => windows.push(docSnap.data() as any));
+      winSnap.forEach((docSnap) => {
+        const data = docSnap.data() as { facility: string; startDate: string; endDate: string };
+        windows.push(data);
+      });
+  
       setMaintenanceWindows(windows);
-
     }
+  
     fetchData(selectedDate);
   }, [selectedDate]);
-
+  
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
@@ -602,7 +609,7 @@ if (isPeakOveruse) {
           to make bookings.
         </div>
       )}
-      
+
 {user?.isAdmin && (
   <div className="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900 rounded-xl">
     <h3 className="font-semibold mb-2 text-black dark:text-white">
