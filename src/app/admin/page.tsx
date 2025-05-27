@@ -361,144 +361,186 @@ export default function AdminDashboard() {
     <div className="max-w-7xl mx-auto p-6 space-y-8">
       <h1 className="text-3xl font-bold">Admin Dashboard</h1>
 
-      {/* Booking System Controls */}
-      <div className="flex flex-wrap gap-4">
-        <button
-          onClick={resetBookings}
-          className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-        >
-          Reset All Bookings
-        </button>
+{/* Users */}
+<section className="bg-white p-6 rounded-2xl shadow border border-gray-200">
+  <h2 className="text-2xl font-semibold mb-4">Users</h2>
+  {users.length === 0 ? (
+    <p>No users found.</p>
+  ) : (
+    <>
+      {/* Desktop Table View */}
+      <div className="hidden md:block overflow-x-auto">
+        <table className="min-w-full border-collapse border text-sm">
+          <thead>
+            <tr className="bg-gray-50 text-gray-700">
+              <th className="border px-2 py-1">Email</th>
+              <th className="border px-2 py-1">Full Name</th>
+              <th className="border px-2 py-1">Username</th>
+              <th className="border px-2 py-1">Property</th>
+              <th className="border px-2 py-1">Registered</th>
+              <th className="border px-2 py-1">Flagged</th>
+              <th className="border px-2 py-1">Admin</th>
+              <th className="border px-2 py-1">Disabled</th>
+              <th className="border px-2 py-1">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((user) =>
+              editingUser && editingUser.id === user.id ? (
+                <tr key={user.id}>
+                  <td className="border px-2 py-1">{user.email}</td>
+                  <td className="border px-2 py-1">
+                    <input
+                      type="text"
+                      name="fullName"
+                      value={editingUser.fullName || ''}
+                      onChange={handleEditChange}
+                      className="w-full border rounded px-1 py-0.5 text-xs"
+                    />
+                  </td>
+                  <td className="border px-2 py-1">
+                    <input
+                      type="text"
+                      name="username"
+                      value={editingUser.username || ''}
+                      onChange={handleEditChange}
+                      className="w-full border rounded px-1 py-0.5 text-xs"
+                    />
+                  </td>
+                  <td className="border px-2 py-1">
+                    <input
+                      type="text"
+                      name="property"
+                      value={editingUser.property || ''}
+                      onChange={handleEditChange}
+                      className="w-full border rounded px-1 py-0.5 text-xs"
+                    />
+                  </td>
+                  <td className="border px-2 py-1">
+                    {new Date(user.createdAt).toLocaleDateString('en-GB', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: '2-digit',
+                    })}
+                  </td>
+                  <td className="border px-2 py-1">{user.isFlagged ? 'Yes' : 'No'}</td>
+                  <td className="border px-2 py-1">{user.isAdmin ? 'Yes' : 'No'}</td>
+                  <td className="border px-2 py-1">{user.disabled ? 'Yes' : 'No'}</td>
+                  <td className="border px-2 py-1 space-x-1">
+                    <button
+                      onClick={saveEdits}
+                      className="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600"
+                    >
+                      Save
+                    </button>
+                    <button
+                      onClick={cancelEditing}
+                      className="bg-gray-500 text-white px-2 py-1 rounded text-xs hover:bg-gray-600"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={() => removeUser(user.id)}
+                      className="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600"
+                    >
+                      Remove
+                    </button>
+                  </td>
+                </tr>
+              ) : (
+                <tr key={user.id}>
+                  <td className="border px-2 py-1">{user.email}</td>
+                  <td className="border px-2 py-1">{user.fullName}</td>
+                  <td className="border px-2 py-1">{user.username}</td>
+                  <td className="border px-2 py-1">{user.property}</td>
+                  <td className="border px-2 py-1">
+                    {new Date(user.createdAt).toLocaleDateString('en-GB', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: '2-digit',
+                    })}
+                  </td>
+                  <td className="border px-2 py-1">{user.isFlagged ? 'Yes' : 'No'}</td>
+                  <td className="border px-2 py-1">{user.isAdmin ? 'Yes' : 'No'}</td>
+                  <td className="border px-2 py-1">{user.disabled ? 'Yes' : 'No'}</td>
+                  <td className="border px-2 py-1 space-x-1">
+                    <button
+                      onClick={() => startEditing(user)}
+                      className="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => toggleAdminStatus(user)}
+                      className="bg-purple-500 text-white px-2 py-1 rounded text-xs hover:bg-purple-600"
+                    >
+                      {user.isAdmin ? 'Revoke Admin' : 'Make Admin'}
+                    </button>
+                    <button
+                      onClick={() => toggleDisabledStatus(user)}
+                      className="bg-yellow-500 text-white px-2 py-1 rounded text-xs hover:bg-yellow-600"
+                    >
+                      {user.disabled ? 'Enable' : 'Disable'}
+                    </button>
+                    <button
+                      onClick={() => removeUser(user.id)}
+                      className="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600"
+                    >
+                      Remove
+                    </button>
+                  </td>
+                </tr>
+              )
+            )}
+          </tbody>
+        </table>
       </div>
 
-      <hr />
-
-      {/* User Registrations & Controls */}
-      <section>
-        <h2 className="text-2xl font-semibold mb-4">User Registrations</h2>
-        {users.length === 0 ? (
-          <p>No user registrations found.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full border-collapse border">
-              <thead>
-                <tr>
-                  <th className="border px-4 py-2">Email</th>
-                  <th className="border px-4 py-2">Full Name</th>
-                  <th className="border px-4 py-2">Username</th>
-                  <th className="border px-4 py-2">Property</th>
-                  <th className="border px-4 py-2">Registered At</th>
-                  <th className="border px-4 py-2">Flagged</th>
-                  <th className="border px-4 py-2">Admin</th>
-                  <th className="border px-4 py-2">Disabled</th>
-                  <th className="border px-4 py-2">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((user) =>
-                  editingUser && editingUser.id === user.id ? (
-                    <tr key={user.id}>
-                      <td className="border px-4 py-2">{user.email}</td>
-                      <td className="border px-4 py-2">
-                        <input
-                          type="text"
-                          name="fullName"
-                          value={editingUser.fullName || ''}
-                          onChange={handleEditChange}
-                          className="w-full border rounded px-2 py-1"
-                        />
-                      </td>
-                      <td className="border px-4 py-2">
-                        <input
-                          type="text"
-                          name="username"
-                          value={editingUser.username || ''}
-                          onChange={handleEditChange}
-                          className="w-full border rounded px-2 py-1"
-                        />
-                      </td>
-                      <td className="border px-4 py-2">
-                        <input
-                          type="text"
-                          name="property"
-                          value={editingUser.property || ''}
-                          onChange={handleEditChange}
-                          className="w-full border rounded px-2 py-1"
-                        />
-                      </td>
-                      <td className="border px-4 py-2">
-                        {new Date(user.createdAt).toLocaleString()}
-                      </td>
-                      <td className="border px-4 py-2">{user.isFlagged ? 'Yes' : 'No'}</td>
-                      <td className="border px-4 py-2">{user.isAdmin ? 'Yes' : 'No'}</td>
-                      <td className="border px-4 py-2">{user.disabled ? 'Yes' : 'No'}</td>
-                      <td className="border px-4 py-2 space-x-2">
-                        <button
-                          onClick={saveEdits}
-                          className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600"
-                        >
-                          Save
-                        </button>
-                        <button
-                          onClick={cancelEditing}
-                          className="bg-gray-500 text-white px-2 py-1 rounded hover:bg-gray-600"
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          onClick={() => removeUser(user.id)}
-                          className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
-                        >
-                          Remove
-                        </button>
-                      </td>
-                    </tr>
-                  ) : (
-                    <tr key={user.id}>
-                      <td className="border px-4 py-2">{user.email}</td>
-                      <td className="border px-4 py-2">{user.fullName}</td>
-                      <td className="border px-4 py-2">{user.username}</td>
-                      <td className="border px-4 py-2">{user.property}</td>
-                      <td className="border px-4 py-2">
-                        {new Date(user.createdAt).toLocaleString()}
-                      </td>
-                      <td className="border px-4 py-2">{user.isFlagged ? 'Yes' : 'No'}</td>
-                      <td className="border px-4 py-2">{user.isAdmin ? 'Yes' : 'No'}</td>
-                      <td className="border px-4 py-2">{user.disabled ? 'Yes' : 'No'}</td>
-                      <td className="border px-4 py-2 space-x-2">
-                        <button
-                          onClick={() => startEditing(user)}
-                          className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => toggleAdminStatus(user)}
-                          className="bg-purple-500 text-white px-2 py-1 rounded hover:bg-purple-600"
-                        >
-                          {user.isAdmin ? 'Revoke Admin' : 'Promote to Admin'}
-                        </button>
-                        <button
-                          onClick={() => toggleDisabledStatus(user)}
-                          className="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600"
-                        >
-                          {user.disabled ? 'Enable Account' : 'Disable Account'}
-                        </button>
-                        <button
-                          onClick={() => removeUser(user.id)}
-                          className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
-                        >
-                          Remove
-                        </button>
-                      </td>
-                    </tr>
-                  )
-                )}
-              </tbody>
-            </table>
+      {/* Mobile Card View */}
+      <div className="md:hidden space-y-4">
+        {users.map((user) => (
+          <div key={user.id} className="border rounded p-3 shadow-sm bg-white text-sm">
+            <p><strong>Email:</strong> {user.email}</p>
+            <p><strong>Name:</strong> {user.fullName}</p>
+            <p><strong>Username:</strong> {user.username}</p>
+            <p><strong>Property:</strong> {user.property}</p>
+            <p><strong>Registered:</strong> {new Date(user.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' })}</p>
+            <p><strong>Flagged:</strong> {user.isFlagged ? 'Yes' : 'No'}</p>
+            <p><strong>Admin:</strong> {user.isAdmin ? 'Yes' : 'No'}</p>
+            <p><strong>Disabled:</strong> {user.disabled ? 'Yes' : 'No'}</p>
+            <div className="flex flex-wrap gap-2 mt-2">
+              <button
+                onClick={() => startEditing(user)}
+                className="bg-blue-500 text-white px-2 py-1 rounded text-xs"
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => toggleAdminStatus(user)}
+                className="bg-purple-500 text-white px-2 py-1 rounded text-xs"
+              >
+                {user.isAdmin ? 'Revoke Admin' : 'Make Admin'}
+              </button>
+              <button
+                onClick={() => toggleDisabledStatus(user)}
+                className="bg-yellow-500 text-white px-2 py-1 rounded text-xs"
+              >
+                {user.disabled ? 'Enable' : 'Disable'}
+              </button>
+              <button
+                onClick={() => removeUser(user.id)}
+                className="bg-red-500 text-white px-2 py-1 rounded text-xs"
+              >
+                Remove
+              </button>
+            </div>
           </div>
-        )}
-      </section>
+        ))}
+      </div>
+    </>
+  )}
+</section>
+
 
       <hr />
 
@@ -652,7 +694,6 @@ export default function AdminDashboard() {
       </section>
 
       <hr />
-
       {/* Technical Tools */}
       <section>
         <h2 className="text-2xl font-semibold mb-4">Technical Tools</h2>
@@ -709,6 +750,25 @@ export default function AdminDashboard() {
           <pre>{JSON.stringify({ users, bookings, activityLogs, feedbacks }, null, 2)}</pre>
         </section>
       )}
+
+      {/* Booking System Controls */}
+      <hr className="my-8" />
+      <section className="bg-red-50 p-6 rounded border border-red-200">
+        <h2 className="text-2xl font-semibold text-red-600 mb-2">Danger Zone</h2>
+        <p className="text-sm text-gray-700 mb-4">
+          Clicking the button below will <strong>delete all existing facility bookings</strong> from the system.
+          This action is <strong>permanent and cannot be undone</strong>. Please use with caution.
+        </p>
+        <div className="flex flex-wrap gap-4">
+          <button
+            aria-label="Reset all facility bookings permanently"
+            onClick={resetBookings}
+            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition font-semibold shadow"
+          >
+            Reset All Bookings
+          </button>
+        </div>
+      </section>
     </div>
   );
 }
