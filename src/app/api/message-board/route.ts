@@ -2,19 +2,15 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import admin from 'firebase-admin';
-// Prefer credentials from FIREBASE_SERVICE_ACCOUNT_KEY env var so we don't need
-// to commit the serviceAccountKey.json file. Fallback to the local JSON file
-// located three directories up from this route for local development.
-import fileCredentials from '../../../serviceAccountKey.json';
-
-// Determine credentials from env or the local JSON file.
-const credentials: admin.ServiceAccount = process.env.FIREBASE_SERVICE_ACCOUNT_KEY
-  ? (JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY) as admin.ServiceAccount)
-  : (fileCredentials as admin.ServiceAccount);
+// Parse credentials from the `FIREBASE_SERVICE_ACCOUNT_KEY` environment
+// variable. The full service account JSON is stored there at build time.
+const serviceAccount = JSON.parse(
+  process.env.FIREBASE_SERVICE_ACCOUNT_KEY as string
+) as admin.ServiceAccount;
 
 if (!admin.apps.length) {
   admin.initializeApp({
-    credential: admin.credential.cert(credentials),
+    credential: admin.credential.cert(serviceAccount),
   });
 }
 
