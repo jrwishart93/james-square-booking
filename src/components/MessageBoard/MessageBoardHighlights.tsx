@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-
-interface Post { id: string; title: string; }
+import { Post } from './types';
 
 export default function MessageBoardHighlights({ limit = 3 }: { limit?: number }) {
   const [posts, setPosts] = useState<Post[] | null>(null);
@@ -13,7 +12,7 @@ export default function MessageBoardHighlights({ limit = 3 }: { limit?: number }
       try {
         const res = await fetch(`/api/message-board?limit=${limit}`);
         if (res.ok) {
-          const data = await res.json();
+          const data: { posts: Post[] } = await res.json();
           setPosts(data.posts || []);
         } else {
           setPosts([]);

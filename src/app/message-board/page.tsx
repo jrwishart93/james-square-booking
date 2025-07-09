@@ -1,66 +1,46 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { db } from '@/lib/firebase';
-import { collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
-
-interface Post {
-  id: string;
-  title: string;
-  author: string;
-  excerpt?: string;
-}
+import { Post } from '@/components/MessageBoard/types';
+import PostCard from '@/components/MessageBoard/PostCard';
 
 export default function MessageBoardPage() {
-  const [posts, setPosts] = useState<Post[] | null>(null);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const load = async () => {
+    async function fetchPosts() {
       try {
-        const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'), limit(10));
-        const snapshot = await getDocs(q);
-        const items: Post[] = [];
-        snapshot.forEach((doc) => {
-          const data = doc.data() as any;
-          items.push({
-            id: doc.id,
-            title: data.title || '',
-            author: data.author || '',
-            excerpt: data.excerpt || (data.content ? data.content.slice(0, 100) : ''),
-          });
-        });
-        setPosts(items);
+        const res = await fetch('/api/message-board');
+        if (!res.ok) throw new Error(`HTTP ${res.status} - ${res.statusText}`);
+        const data: { posts: Post[] } = await res.json();
+        setPosts(data.posts);
       } catch (err) {
-        console.error('Failed to fetch posts', err);
-        setPosts([]);
+        console.error(err);
+        setError((err as Error).message);
+      } finally {
+        setLoading(false);
       }
-    };
-    load();
+    }
+    fetchPosts();
   }, []);
 
-  if (posts === null) {
-    return <p>Loading posts...</p>;
-  }
+  if (loading) return <p>Loading posts…</p>;
+  if (error) return <p className="text-red-600">Error: {error}</p>;
 
   return (
-    <>
-      <h1 className="text-3xl font-bold mb-6">Message Board</h1>
+    <main className="py-8 px-4 max-w-3xl mx-auto">
+      <h1 className="text-3xl font-bold mb-6">Community Message Board</h1>
       {posts.length === 0 ? (
-        <p>No posts yet.</p>
+        <p>No posts yet. Be the first to share!</p>
       ) : (
-        <ul className="space-y-6">
+        <div className="space-y-4">
           {posts.map((post) => (
-            <li key={post.id} className="border-b pb-4">
-              <Link href={`/message-board/${post.id}`} className="text-xl font-semibold text-blue-600 hover:underline">
-                {post.title}
-              </Link>
-              <div className="text-sm text-gray-500">by {post.author}</div>
-              <p className="mt-1 text-gray-700">{post.excerpt}</p>
-            </li>
+            <PostCard key={post.id} post={post} />
           ))}
-        </ul>
+        </div>
       )}
-    </>
+    </main>
   );
 }
