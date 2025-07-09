@@ -2,11 +2,19 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import admin from 'firebase-admin';
-import serviceAccount from '../../../../serviceAccountKey.json';
+// Prefer credentials from FIREBASE_SERVICE_ACCOUNT_KEY env var so we don't need
+// to commit the serviceAccountKey.json file. Fallback to the local JSON file
+// located three directories up from this route for local development.
+import fileCredentials from '../../../serviceAccountKey.json';
+
+// Determine credentials from env or the local JSON file.
+const credentials: admin.ServiceAccount = process.env.FIREBASE_SERVICE_ACCOUNT_KEY
+  ? (JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY) as admin.ServiceAccount)
+  : (fileCredentials as admin.ServiceAccount);
 
 if (!admin.apps.length) {
   admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
+    credential: admin.credential.cert(credentials),
   });
 }
 
@@ -26,9 +34,5 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ posts });
   } catch (err) {
     console.error('🔥 [message-board GET] error:', err);
-    return NextResponse.json(
-      { error: 'Internal Server Error – check server logs.' },
-      { status: 500 }
-    );
-  }
-}
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }}
