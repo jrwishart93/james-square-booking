@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import MessageBoardHighlights from '@/components/MessageBoard/MessageBoardHighlights';
 
 export default function Home() {
   return (
@@ -51,6 +52,15 @@ export default function Home() {
 
       {/* Responsive Image Grid */}
       <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
+        <aside className="bg-white dark:bg-neutral-900 rounded-lg shadow p-4 space-y-2">
+          <h2 className="text-xl font-semibold">Message Board</h2>
+          <MessageBoardHighlights limit={3} />
+          <div className="text-right">
+            <Link href="/message-board" className="underline text-sm">
+              View all posts→
+            </Link>
+          </div>
+        </aside>
         {/* Front Image */}
         <div className="overflow-hidden rounded-lg shadow-lg transition-transform duration-300 hover:scale-105">
           <Image
