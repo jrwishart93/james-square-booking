@@ -2,21 +2,23 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import admin from 'firebase-admin';
+import localServiceAccount from '../../../../serviceAccountKey.json';
+
 // Parse credentials from the `FIREBASE_SERVICE_ACCOUNT_KEY` environment
-// variable. The full service account JSON is stored there at build time.
+// variable. The full service account JSON is stored there at build time. When
+// not set (e.g. during local development), fall back to the bundled JSON file.
+let serviceAccount: admin.ServiceAccount;
 const rawServiceAccount = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
-if (!rawServiceAccount) {
-  throw new Error('FIREBASE_SERVICE_ACCOUNT_KEY is not set');
+
+if (rawServiceAccount) {
+  const parsed = JSON.parse(rawServiceAccount) as Record<string, string>;
+  if (parsed.private_key) {
+    parsed.private_key = parsed.private_key.replace(/\\n/g, '\n');
+  }
+  serviceAccount = parsed as admin.ServiceAccount;
+} else {
+  serviceAccount = localServiceAccount as admin.ServiceAccount;
 }
-
-const parsed = JSON.parse(rawServiceAccount) as Record<string, string>;
-
-// Replace escaped newlines in the private key if present
-if (parsed.private_key) {
-  parsed.private_key = parsed.private_key.replace(/\\n/g, '\n');
-}
-
-const serviceAccount = parsed as admin.ServiceAccount;
 
 if (!admin.apps.length) {
   admin.initializeApp({
