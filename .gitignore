@@ -41,3 +41,9 @@ yarn-error.log*
 next-env.d.ts
 keys/
 serviceAccountKey.json
+
+# Env files
+.env
+.env.local
+.env.production
+.env.development
