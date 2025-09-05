@@ -1,35 +1,173 @@
 @import "tailwindcss";
 
+/* ===== App Theme (light/dark) ===== */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  --bg: 235 80% 98%;
+  --fg: 220 14% 10%;
+  --card: 0 0% 100% / 0.6;
+  --ring: 213 94% 68%;
+  --border: 0 0% 100% / 0.35;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Glass + status tokens */
+  --glass: 0 0% 100% / 0.55;
+  --glass-strong: 0 0% 100% / 0.72;
+  --glass-border: 0 0% 0% / 0.10;
+
+  --status-emerald: 145 63% 49%;  /* #2ECC71 - your booking */
+  --status-slate:   204 8% 52%;   /* #7F8C8D - booked by another */
+  --status-gold:     48 89% 50%;  /* #F1C40F - free use */
+  --status-coral:     6 78% 57%;  /* #E74C3C - cleaning */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --bg: 220 18% 8%;
+    --fg: 0 0% 100%;
+    --card: 0 0% 8% / 0.5;
+    --ring: 213 94% 68%;
+    --border: 0 0% 100% / 0.08;
+
+    --glass: 0 0% 9% / 0.55;       /* darker glass */
+    --glass-strong: 0 0% 9% / 0.75; /* stronger glass */
+    --glass-border: 0 0% 100% / 0.08;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Smooth text + global background */
+html, body {
+  min-height: 100%;
 }
-:root {
-  --background: #fdf6ec; /* light beige */
-  --text: #1a1a1a; /* dark charcoal */
+body {
+  color: hsl(var(--fg));
+  background:
+    radial-gradient(1200px 800px at 20% -10%, hsl(213 94% 98%), transparent 60%),
+    radial-gradient(1200px 800px at 120% 20%, hsl(250 95% 97%), transparent 55%),
+    radial-gradient(1200px 800px at -20% 120%, hsl(195 95% 96%), transparent 55%),
+    linear-gradient(hsl(var(--bg)), hsl(var(--bg)));
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-body {
-  background-color: var(--background);
-  color: var(--text);
+/* Optional: soft neutral gradient background for “glass” pages */
+.jqs-gradient-bg {
+  background:
+    radial-gradient(1400px 900px at 10% -10%, hsla(38 60% 95% / .8), transparent 55%),
+    radial-gradient(1200px 700px at 110% 10%, hsla(20 60% 96% / .8), transparent 55%),
+    linear-gradient(hsl(var(--bg)), hsl(var(--bg)));
+}
+
+/* Subtle grain for depth */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQYV2P8z8DwHwAFyAJ2ZzUBWwAAAABJRU5ErkJggg==");
+  opacity: .06;
+}
+
+/* Reusable glass card (original kept, refined) */
+.glass {
+  @apply rounded-2xl border backdrop-blur-xl shadow-md;
+  background: hsl(var(--glass));
+  border-color: hsl(var(--glass-border));
+}
+.glass-dark {
+  background: hsl(var(--glass-strong));
+}
+
+/* New: explicit “jqs-glass” alias (for clarity in components) */
+.jqs-glass {
+  @apply rounded-2xl border backdrop-blur-xl shadow-lg;
+  background: hsl(var(--glass));
+  border-color: hsl(var(--glass-border));
+  box-shadow: 0 12px 40px rgb(0 0 0 / 0.12);
+}
+
+/* Focus ring for accessibility */
+:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+/* Slot button base (kept, with glass tokens) */
+.slot {
+  @apply text-sm md:text-base rounded-xl border backdrop-blur-md transition-colors select-none;
+  border-color: hsl(var(--glass-border));
+  background: hsl(var(--glass-strong));
+  min-height: 44px; /* comfortable tap target */
+}
+.slot:hover { @apply cursor-pointer; }
+
+/* States (kept but tuned for the new palette) */
+.slot-available:hover {
+  /* Lighten on hover without breaking dark mode */
+  background: color-mix(in oklab, hsl(var(--glass-strong)) 85%, white);
+}
+.slot-yours {
+  background: hsl(var(--status-emerald) / 0.95);
+  border-color: hsl(var(--status-emerald) / 0.7);
+  color: white;
+}
+.slot-booked {
+  background: hsl(var(--status-slate) / 0.85);
+  color: white;
+  cursor: not-allowed;
+}
+.slot-closed {
+  background: hsl(var(--status-coral) / 0.9);
+  color: white;
+  cursor: not-allowed;
+}
+.slot-maint {
+  background: hsl(var(--status-gold) / 0.85);
+  color: black;
+  cursor: not-allowed;
+}
+
+/* --- New: Apple-style date pills for the scroller --- */
+.jqs-date-pill {
+  @apply inline-flex items-center rounded-full border px-3 py-2 text-sm transition;
+  border-color: hsl(var(--glass-border));
+  background: hsl(var(--glass));
+  color: hsl(var(--fg));
+}
+.jqs-date-pill--active {
+  background: hsl(var(--glass-strong));
+  box-shadow: inset 0 0 0 2px hsl(0 0% 100% / .65);
+}
+
+/* --- New: Legend chips + dots --- */
+.jqs-chip { @apply inline-flex items-center gap-2 text-sm; }
+.jqs-dot { width: 10px; height: 10px; border-radius: 999px; display: inline-block; }
+.jqs-dot--yours   { background: hsl(var(--status-emerald)); }
+.jqs-dot--booked  { background: hsl(var(--status-slate)); }
+.jqs-dot--free    { background: hsl(var(--status-gold)); }
+.jqs-dot--closed  { background: hsl(var(--status-coral)); }
+.jqs-dot--avail   { background: transparent; outline: 1px solid hsl(var(--glass-border)); outline-offset: -1px; }
+
+/* --- New: Slot “pill” variant (if you prefer class-based over Tailwind inline) --- */
+.jqs-slot { /* base */
+  @apply rounded-xl border backdrop-blur-md inline-flex items-center justify-between gap-3 px-3 py-2;
+  border-color: hsl(var(--glass-border));
+  background: hsl(var(--glass-strong));
+  min-height: 44px;
+}
+.jqs-slot--available { background: hsl(var(--glass)); color: hsl(var(--fg)); }
+.jqs-slot--yours     { background: hsl(var(--status-emerald) / 0.95); color: white; }
+.jqs-slot--booked    { background: hsl(var(--status-slate) / 0.85); color: white; }
+.jqs-slot--free      { background: hsl(var(--status-gold) / 0.9); color: black; }
+.jqs-slot--closed    { background: hsl(var(--status-coral) / 0.9); color: white; }
+.jqs-slot--available:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgb(0 0 0 / 0.10);
+}
+
+/* Reduce motion respect */
+@media (prefers-reduced-motion: reduce) {
+  .slot-available:hover,
+  .jqs-slot--available:hover {
+    transform: none;
+    box-shadow: none;
+  }
 }

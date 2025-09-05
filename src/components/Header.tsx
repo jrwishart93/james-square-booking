@@ -1,160 +1,214 @@
 'use client';
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { onAuthStateChanged, signOut, User } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
-import { collection, query, where, getDocs } from "firebase/firestore";
-import Image from "next/image";
+import { collection, getDocs, query, where, DocumentData } from "firebase/firestore";
+import { motion } from "framer-motion";
+
+/** Shape of the Firestore user document */
+type UserDoc = {
+  fullName?: string;
+  isAdmin?: boolean;
+  email?: string;
+} & DocumentData;
 
 export default function Header() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
-  const [userName, setUserName] = useState("");
-  const [isAdmin, setIsAdmin] = useState(false);
   const pathname = usePathname();
+  const [user, setUser] = useState<User | null>(null);
+  const [userName, setUserName] = useState<string>("");
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const [open, setOpen] = useState<boolean>(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setUser(currentUser);
-      if (currentUser?.email) {
-        try {
-          const q = query(
-            collection(db, "users"),
-            where("email", "==", currentUser.email)
-          );
-          const snapshot = await getDocs(q);
-          const docSnap = snapshot.docs[0];
-          if (docSnap?.exists()) {
-            const data = docSnap.data();
-            setUserName(data.fullName || "");
-            setIsAdmin(!!data.isAdmin);
-          }
-        } catch (err) {
-          console.error("Error fetching user profile:", err);
-        }
+    const unsub = onAuthStateChanged(auth, async (u) => {
+      setUser(u);
+      if (!u) {
+        setUserName("");
+        setIsAdmin(false);
+        return;
+      }
+      try {
+        const qUsers = query(collection(db, "users"), where("email", "==", u.email));
+        const snap = await getDocs(qUsers);
+        const docData = snap.docs[0]?.data() as UserDoc | undefined;
+
+        setUserName(docData?.fullName || u.displayName || "");
+        setIsAdmin(Boolean(docData?.isAdmin));
+      } catch {
+        // ignore
       }
     });
-    return () => unsubscribe();
+    return () => unsub();
   }, []);
 
-  const handleSignOut = async () => {
-    await signOut(auth);
-    setUser(null);
-    setUserName("");
-    setIsAdmin(false);
-    setMenuOpen(false);
-  };
+  // Close mobile nav on route change
+  useEffect(() => {
+    if (open) setOpen(false);
+  }, [pathname]);
 
-  const navLink = (href: string, label: string) => (
-    <li>
-      <Link
-        href={href}
-        className={`block px-4 py-2 rounded-full transition-all ${
-          pathname === href
-            ? "bg-gray-200 text-black dark:bg-gray-800 dark:text-white"
-            : "hover:bg-gray-100 dark:hover:bg-gray-700"
-        }`}
-        onClick={() => setMenuOpen(false)}
-      >
-        {label}
-      </Link>
-    </li>
-  );
+  function NavLink({ href, label }: { href: string; label: string }) {
+    const active = pathname?.startsWith(href);
+
+    return (
+      <li>
+        <motion.div
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.98 }}
+          className="relative group rounded-xl"
+        >
+          <Link
+            href={href}
+            onClick={() => open && setOpen(false)}
+            aria-current={active ? "page" : undefined}
+            className={[
+              "px-3 py-2 rounded-xl transition-colors",
+              "hover:bg-white/55 hover:backdrop-blur",
+              active ? "bg-white/60 font-semibold" : "bg-transparent"
+            ].join(" ")}
+          >
+            <span className="relative z-10">{label}</span>
+
+            {/* sheen on hover */}
+            <span
+              className="pointer-events-none absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"
+              aria-hidden="true"
+            >
+              <span className="absolute -inset-0.5 rounded-xl bg-gradient-to-tr from-white/20 to-white/0" />
+            </span>
+
+            {/* underline slide */}
+            <span
+              className={[
+                "pointer-events-none absolute left-3 right-3 -bottom-1 h-[2px] rounded-full",
+                active
+                  ? "bg-black/60"
+                  : "bg-black/30 scale-x-0 group-hover:scale-x-100 origin-left transition-transform"
+              ].join(" ")}
+              aria-hidden="true"
+            />
+          </Link>
+        </motion.div>
+      </li>
+    );
+  }
 
   return (
-    <header className="sticky top-0 z-50 bg-white dark:bg-neutral-900 text-black dark:text-white shadow-md">
-      <nav className="flex justify-between items-center max-w-5xl mx-auto px-4 py-3">
-        {/* Logo */}
-        <Link href="/" className="flex items-center">
-          <Image
-            src="/images/logo/Logo.png"
-            alt="James Square Logo"
-            width={40}
-            height={40}
-            className="h-10 w-auto mr-3"
-          />
-          <span className="text-2xl font-sans whitespace-nowrap">
-            <span className="text-black dark:text-white font-bold">James</span>
-            <span className="text-[#708090]">Square</span>
-          </span>
-        </Link>
+    <header className="sticky top-0 z-40">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 py-3">
+        <div className="glass border flex items-center justify-between px-3 sm:px-4 py-2">
+          {/* Brand */}
+          <motion.div whileHover={{ scale: 1.02 }} className="rounded-xl">
+            <Link
+              href="/"
+              onClick={() => open && setOpen(false)}
+              className="flex items-center gap-2 font-semibold tracking-tight rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/40"
+              aria-label="Go to homepage"
+            >
+              <span className="relative inline-flex items-center justify-center">
+                <Image
+                  src="/images/logo/Logo.png"
+                  alt="James Square logo"
+                  width={36}
+                  height={36}
+                  priority
+                  className="rounded-lg"
+                />
+                <span
+                  className="absolute -inset-1 rounded-2xl bg-white/30 blur-md opacity-0 hover:opacity-100 transition-opacity"
+                  aria-hidden="true"
+                />
+              </span>
+              <span className="text-lg sm:text-xl">
+                James <span className="text-slate-500">Square</span>
+              </span>
+            </Link>
+          </motion.div>
 
-        {/* Welcome user on desktop */}
-        {user && (
-          <div className="hidden sm:block text-sm text-gray-600 dark:text-gray-300 mr-4">
-            {userName ? `Welcome, ${userName.split(" ")[0]}` : "Welcome"}
+          {/* Desktop nav */}
+          <nav className="hidden sm:block">
+            <ul className="flex items-center gap-2 text-sm">
+              <NavLink href="/book" label="Book Facilities" />
+              <NavLink href="/dashboard" label="My Dashboard" />
+              <NavLink href="/message-board" label="Message Board" />
+              <NavLink href="/local" label="Useful Info" />
+              {isAdmin && <NavLink href="/admin" label="Admin" />}
+
+              {user ? (
+                <>
+                  {userName && (
+                    <li className="px-2 py-1 text-slate-600 dark:text-slate-300 hidden md:block">
+                      Hi, {userName.split(" ")[0]}
+                    </li>
+                  )}
+                  <li>
+                    <motion.button
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={() => signOut(auth)}
+                      className="px-3 py-2 rounded-xl bg-black/80 text-white hover:bg-black"
+                    >
+                      Sign Out
+                    </motion.button>
+                  </li>
+                </>
+              ) : (
+                <NavLink href="/login" label="Sign In" />
+              )}
+            </ul>
+          </nav>
+
+          {/* Mobile toggle */}
+          <motion.button
+            whileTap={{ scale: 0.96 }}
+            className="sm:hidden px-3 py-2 rounded-xl bg-white/50"
+            aria-expanded={open}
+            aria-label="Toggle menu"
+            onClick={() => setOpen((v) => !v)}
+          >
+            {open ? "Close" : "Menu"}
+          </motion.button>
+        </div>
+
+        {/* Mobile sheet */}
+        {open && (
+          <div className="mt-2 glass p-3 sm:hidden">
+            <ul className="flex flex-col gap-2">
+              <NavLink href="/book" label="Book Facilities" />
+              <NavLink href="/dashboard" label="My Dashboard" />
+              <NavLink href="/message-board" label="Message Board" />
+              <NavLink href="/local" label="Useful Info" />
+              {isAdmin && <NavLink href="/admin" label="Admin" />}
+
+              {user ? (
+                <>
+                  {userName && (
+                    <li className="px-2 py-1 text-slate-600 dark:text-slate-300">
+                      Hi, {userName.split(" ")[0]}
+                    </li>
+                  )}
+                  <li>
+                    <motion.button
+                      whileTap={{ scale: 0.97 }}
+                      onClick={() => {
+                        setOpen(false);
+                        signOut(auth);
+                      }}
+                      className="w-full px-3 py-2 rounded-xl bg-black/80 text-white hover:bg-black"
+                    >
+                      Sign Out
+                    </motion.button>
+                  </li>
+                </>
+              ) : (
+                <NavLink href="/login" label="Sign In" />
+              )}
+            </ul>
           </div>
         )}
-
-        {/* Mobile Burger Button */}
-        <button
-          className="sm:hidden text-2xl z-50"
-          onClick={() => setMenuOpen(prev => !prev)}
-          aria-label="Toggle Menu"
-          aria-expanded={menuOpen}
-        >
-          {menuOpen ? "×" : "☰"}
-        </button>
-
-        {/* Desktop Nav */}
-        <ul className="hidden sm:flex gap-4 text-sm items-center">
-          {navLink("/book", "Book Facilities")}
-          {navLink("/dashboard", "My Dashboard")}
-          {navLink("/local", "Local Suggestions")}
-          {navLink("/factor", "Factor")}
-          {isAdmin && navLink("/admin", "Admin")}
-          {user ? (
-            <li>
-              <button
-                onClick={handleSignOut}
-                className="px-4 py-2 rounded-full transition-all hover:bg-gray-200 dark:hover:bg-gray-700"
-              >
-                Sign Out
-              </button>
-            </li>
-          ) : (
-            navLink("/login", "Sign In")
-          )}
-        </ul>
-      </nav>
-
-      {/* Mobile Menu Overlay */}
-      <div
-        className={`fixed top-0 left-0 w-full h-full bg-white dark:bg-neutral-900 text-black dark:text-white z-40 transition-transform duration-300 ease-in-out ${
-          menuOpen ? "translate-y-0" : "-translate-y-full"
-        } sm:hidden`}
-      >
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-neutral-700">
-          <span className="text-xl font-bold">Menu</span>
-          <button
-            className="text-2xl"
-            onClick={() => setMenuOpen(false)}
-            aria-label="Close Menu"
-          >
-            ×
-          </button>
-        </div>
-        <ul className="flex flex-col gap-4 p-4 text-lg">
-          {navLink("/book", "Book Facilities")}
-          {navLink("/dashboard", "My Dashboard")}
-          {navLink("/local", "Local Suggestions")}
-          {navLink("/factor", "Factor")}
-          {isAdmin && navLink("/admin", "Admin")}
-          {user ? (
-            <li>
-              <button
-                onClick={handleSignOut}
-                className="w-full text-left px-4 py-2 rounded-full transition-all hover:bg-gray-200 dark:hover:bg-gray-700"
-              >
-                Sign Out
-              </button>
-            </li>
-          ) : (
-            navLink("/login", "Sign In")
-          )}
-        </ul>
       </div>
     </header>
   );

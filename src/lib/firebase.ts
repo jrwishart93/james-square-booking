@@ -1,19 +1,19 @@
 // src/lib/firebase.ts
-import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { initializeApp, getApps, getApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBhSRONShtqjQXVddguXca23ZP_-G1G9oU",
-  authDomain: "jamessquarebookings.firebaseapp.com",
-  projectId: "jamessquarebookings",
-  storageBucket: "jamessquarebookings.appspot.com",
-  messagingSenderId: "310610178744",
-  appId: "1:310610178744:web:7acfdf5ee86ea54733ba4d",
-  measurementId: "G-41P5M1KW90"
+const cfg = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY!,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN!,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID!,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET!,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID!,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID!,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID!,
 };
 
-const app = initializeApp(firebaseConfig);
+const app = getApps().length ? getApp() : initializeApp(cfg);
 
 export const auth = getAuth(app);
-export const db = getFirestore(app); // ✅ this must be exported
+export const db = getFirestore(app);

@@ -48,6 +48,20 @@ function getUKDate(offset = 0) {
     .toISODate();
 }
 
+/* ---------- UI helpers (purely visual) ---------- */
+
+function Legend() {
+  return (
+    <div className="jqs-glass px-3 py-2 flex flex-wrap items-center justify-center gap-4 mt-6">
+      <span className="jqs-chip"><span className="jqs-dot jqs-dot--yours" /> Your booking</span>
+      <span className="jqs-chip"><span className="jqs-dot jqs-dot--booked" /> Booked</span>
+      <span className="jqs-chip"><span className="jqs-dot jqs-dot--free" /> Free use</span>
+      <span className="jqs-chip"><span className="jqs-dot jqs-dot--closed" /> Cleaning / Closed</span>
+      <span className="jqs-chip"><span className="jqs-dot jqs-dot--avail" /> Available</span>
+    </div>
+  );
+}
+
 function renderDateSelector(
   selectedDate: string,
   setSelectedDate: (d: string) => void,
@@ -69,26 +83,53 @@ function renderDateSelector(
   });
 
   return (
-    <div className="flex overflow-x-auto gap-2 mb-6 px-2 scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600">
-      {dates.map(({ iso, display }) => (
-        <button
-          key={iso}
-          onClick={() => setSelectedDate(iso)}
-          className={`min-w-[110px] px-3 py-1 rounded text-sm border whitespace-nowrap transition duration-200 ease-in-out transform hover:scale-105 hover:shadow-md ${
-            iso === selectedDate
-              ? 'bg-black text-white dark:bg-blue-600 dark:ring dark:ring-blue-400 dark:text-white'
-              : iso === getUKDate()
-              ? 'border-black text-black font-semibold'
-              : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-white'
-          }`}
-        >
-          {display}
-        </button>
-      ))}
+    <div className="flex overflow-x-auto gap-2 mb-6 px-2">
+      {dates.map(({ iso, display }) => {
+        const isActive = iso === selectedDate;
+        const isToday = iso === getUKDate();
+
+        // Tailwind-only visual boost in LIGHT mode when active:
+        // - strong contrast bg + white text + ring + shadow
+        // Dark mode keeps the glass look but with a subtle ring.
+        const activeLight =
+          'bg-black text-white ring-2 ring-black/70 shadow-[0_8px_24px_rgba(0,0,0,0.25)]';
+        const activeDark =
+          'dark:bg-white/10 dark:text-white dark:ring-2 dark:ring-blue-300/60';
+
+        return (
+          <button
+            key={iso}
+            onClick={() => setSelectedDate(iso)}
+            className={[
+              'jqs-date-pill whitespace-nowrap transition active:scale-[0.98]',
+              isActive
+                ? `jqs-date-pill--active ${activeLight} ${activeDark}`
+                : 'hover:ring-1 hover:ring-black/15 dark:hover:ring-white/20',
+              // give “today” a subtle outline when not active
+              !isActive && isToday ? 'border border-black/20 dark:border-white/20' : ''
+            ].join(' ')}
+            aria-current={isActive ? 'date' : undefined}
+            aria-selected={isActive || undefined}
+            aria-label={`${display}${isToday ? ' (Today)' : ''}`}
+            title={isToday ? 'Today' : undefined}
+          >
+            <span className={`text-sm ${isToday && !isActive ? 'font-semibold' : 'font-medium'}`}>
+              {display}
+            </span>
+
+            {/* tiny accent dot for quick recognition when active */}
+            {isActive && (
+              <span
+                className="ml-2 inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_0_2px_rgba(255,255,255,0.65)] dark:shadow-[0_0_0_2px_rgba(0,0,0,0.55)]"
+                aria-hidden="true"
+              />
+            )}
+          </button>
+        );
+      })}
     </div>
   );
 }
-
 
 export default function SchedulePageClientInner() {
   const searchParams = useSearchParams();
@@ -107,8 +148,8 @@ export default function SchedulePageClientInner() {
   const [bookingConfirm, setBookingConfirm] = useState<{ message: string; type: 'success' | 'cancel' } | null>(null);
 
   const [maintenanceWindows, setMaintenanceWindows] = useState<
-  { facility: string; startDate: string; endDate: string }[]
->([]);
+    { facility: string; startDate: string; endDate: string }[]
+  >([]);
   
   // Admin-only state for maintenance window form
   const [newFacility, setNewFacility] = useState('Pool');
@@ -224,6 +265,7 @@ export default function SchedulePageClientInner() {
     }
     return consecutiveCount === 3;
   }
+
   async function checkPeakTimePattern(
     userEmail: string,
     time: string
@@ -254,7 +296,7 @@ export default function SchedulePageClientInner() {
       if (!snap.empty) {
         consecutivePeakDays++;
       } else {
-        break;  // stop as soon as a non‑peak day is found
+        break;  // stop as soon as a non-peak day is found
       }
     }
   
@@ -262,6 +304,7 @@ export default function SchedulePageClientInner() {
     // this (peak) booking would be the 3rd in a row
     return consecutivePeakDays >= 2;
   }
+
   async function onBook(facility: string, time: string) {
     if (!user) {
       router.push('/login');
@@ -275,21 +318,18 @@ export default function SchedulePageClientInner() {
     }
 
     // 2) Warn on 3rd consecutive day of ANY peak slot
-const isPeakOveruse = await checkPeakTimePattern(user.email, time);
-if (isPeakOveruse) {
-  const ok = window.confirm(
-    "⚠️ Peak Time Booking Notice\n\n" +
-    "Our system has detected that you\u2019ve already booked peak time slots (between 5pm and 9pm) on the past couple of days. " +
-    "These facilities are shared, and evening hours are a popular time for many residents.\n\n" +
-    "Please be respectful and considerate of others who may also wish to use this space. Only continue if you are confident you will attend and use this booking.\n\n" +
-    "Regularly reserving peak time slots without using them may lead to future restrictions.\n\n" +
-    "Press OK to confirm, or Cancel to choose a different time."
-  );
-  
-  if (!ok) {
-    return;  // user cancelled — abort booking
-  }
-}
+    const isPeakOveruse = await checkPeakTimePattern(user.email, time);
+    if (isPeakOveruse) {
+      const ok = window.confirm(
+        "⚠️ Peak Time Booking Notice\n\n" +
+        "Our system has detected that you\u2019ve already booked peak time slots (between 5pm and 9pm) on the past couple of days. " +
+        "These facilities are shared, and evening hours are a popular time for many residents.\n\n" +
+        "Please be respectful and considerate of others who may also wish to use this space. Only continue if you are confident you will attend and use this booking.\n\n" +
+        "Regularly reserving peak time slots without using them may lead to future restrictions.\n\n" +
+        "Press OK to confirm, or Cancel to choose a different time."
+      );
+      if (!ok) return;
+    }
   
     const isBooked = bookings[facility][selectedDate]?.[time] === user.email;
     const bookingRef = doc(db, `bookings/${facility}_${selectedDate}_${time}`);
@@ -378,99 +418,88 @@ if (isPeakOveruse) {
   
     alert(`🧹 Unblocked ${id}`);
   }
-  
+
   function renderSchedule(facility: string) {
-    // Use const for the array that we build up.
+    // maintenance window check
     const closedWindow = maintenanceWindows.find(
       (w) =>
         w.facility === facility &&
         w.startDate <= selectedDate &&
-        w.endDate   >= selectedDate
+        w.endDate >= selectedDate
     );
     if (closedWindow) {
       return (
-        <motion.div
-          layout
-          key={facility}
-          className="rounded-xl shadow-md p-6 border bg-white dark:bg-gray-900"
-        >
-          <h2 className="text-xl font-semibold mb-4 text-center text-black dark:text-white">
+        <motion.div layout key={facility} className="jqs-glass p-6 transition-all">
+          <h2 className="text-xl font-semibold mb-4 text-center">
             {facility}
           </h2>
-          <div className="px-4 py-6 text-center italic bg-gray-100 dark:bg-gray-800 rounded-xl">
+          <div className="px-4 py-6 text-center italic rounded-xl slot slot-closed">
             🚧 Closed from {closedWindow.startDate} to {closedWindow.endDate}
           </div>
         </motion.div>
       );
     }
+
+    // build scheduleSlots
     const scheduleSlots: Slot[] = [];
 
     if (isSpecialTuesday) {
-      // For special Tuesday deep cleaning (applied to all facilities):
-      // 05:30–09:30: Available
-      // 09:30–12:30: Closed for Cleaning
-      // 12:30–17:00: Free to Use without Booking
-      // 17:00–23:00: Available
       for (let i = 0; i < timeSlots.length - 1; ) {
-        if (timeSlots[i] === '09:30') {
-          // Insert two custom chunks:
+        if (timeSlots[i] === "09:30") {
           scheduleSlots.push({
-            start: '09:30',
-            end: '12:30',
-            status: 'Closed for Cleaning',
-            groupKeys: ['09:30', '10:00', '10:30', '11:00']
+            start: "09:30",
+            end: "12:30",
+            status: "Closed for Cleaning",
+            groupKeys: ["09:30", "10:00", "10:30", "11:00"],
           });
           scheduleSlots.push({
-            start: '12:30',
-            end: '17:00',
-            status: 'Free to Use without Booking'
+            start: "12:30",
+            end: "17:00",
+            status: "Free to Use without Booking",
           });
-          const idx17 = timeSlots.indexOf('17:00');
-          if (idx17 >= 0) {
-            // Jump to index for '17:00'
-            // We use a new counter value.
-            i = idx17;
-          } else {
-            i = timeSlots.length;
-          }
+          const idx17 = timeSlots.indexOf("17:00");
+          i = idx17 >= 0 ? idx17 : timeSlots.length;
         } else {
           const start = timeSlots[i];
           const end = timeSlots[i + 1];
-          const [h, m] = start.split(':').map(Number);
-          const timeValue = h * 60 + m;
-          let status = 'Unavailable';
-          if ((timeValue >= 330 && timeValue < 570) || (timeValue >= 1020 && timeValue < 1380)) {
-            status = 'Available';
+          const [h, m] = start.split(":").map(Number);
+          const minutes = h * 60 + m;
+          let status = "Unavailable";
+          if (
+            (minutes >= 330 && minutes < 570) ||
+            (minutes >= 1020 && minutes < 1380)
+          ) {
+            status = "Available";
           }
           scheduleSlots.push({ start, end, status });
           i++;
         }
       }
     } else {
-      // Default schedule logic:
       for (let i = 0; i < timeSlots.length - 1; ) {
         const start = timeSlots[i];
-        if (start === '09:30') {
-          // Group cleaning from 09:30 to 11:00.
+        if (start === "09:30") {
           const newEnd = timeSlots[i + 3] ?? timeSlots[i + 1];
           scheduleSlots.push({
             start,
             end: newEnd,
-            status: 'Closed for Cleaning',
-            groupKeys: ['09:30', '10:00', '10:30', '11:00']
+            status: "Closed for Cleaning",
+            groupKeys: ["09:30", "10:00", "10:30", "11:00"],
           });
           i += 3;
         } else {
-          const start = timeSlots[i];
           const end = timeSlots[i + 1];
-          let status = 'Unavailable';
-          if (start === '11:00') {
-            status = 'Free to Use without Booking';
+          let status = "Unavailable";
+          if (start === "11:00") {
+            status = "Free to Use without Booking";
           } else {
-            const [h, m] = start.split(':').map(Number);
-            const timeValue = h * 60 + m;
-            if ((timeValue >= 330 && timeValue < 570) || (timeValue >= 1020 && timeValue < 1380)) {
-              status = 'Available';
+            const [h, m] = start.split(":").map(Number);
+            const minutes = h * 60 + m;
+            if (
+              (minutes >= 330 && minutes < 570) ||
+              (minutes >= 1020 && minutes < 1380)
+            ) {
+              status = "Available";
             }
           }
           scheduleSlots.push({ start, end, status });
@@ -483,14 +512,9 @@ if (isPeakOveruse) {
     const displayedSlots = isExpanded ? scheduleSlots : [];
 
     return (
-      <motion.div
-        layout
-        key={facility}
-        className="rounded-xl shadow-md p-4 border transition-all duration-300 bg-white dark:bg-gray-900"
-      >
-        <h2 className="text-xl font-semibold mb-3 text-center text-black dark:text-white">
-          {facility}
-        </h2>
+      <motion.div layout key={facility} className="jqs-glass p-4 transition-all">
+        <h2 className="text-xl font-semibold mb-3 text-center">{facility}</h2>
+
         {isExpanded && (
           <ul className="space-y-2">
             <AnimatePresence>
@@ -501,206 +525,207 @@ if (isPeakOveruse) {
                     .map((key) => bookings[facility][selectedDate]?.[key])
                     .find((val) => !!val) || null;
                 const isOwn = bookedBy === user?.email;
+
                 let showLabel = slot.status;
                 if (isOwn) {
-                  showLabel = 'Your booking';
+                  showLabel = "Your booking";
                 } else if (bookedBy) {
-                  showLabel = user?.isAdmin ? `Booked by: ${bookedBy}` : 'Booked by another user';
+                  showLabel = user?.isAdmin
+                    ? `Booked by: ${bookedBy}`
+                    : "Booked by another user";
                 }
-                let styleClass = '';
-                if (isOwn) {
-                  styleClass = 'bg-green-700 text-white';
-                } else if (bookedBy) {
-                  styleClass = 'bg-gray-300 text-gray-700 italic';
-                } else {
-                  if (slot.status === 'Available') {
-                    styleClass = 'bg-green-100 text-black';
-                  } else if (slot.status === 'Closed for Cleaning') {
-                    styleClass = 'bg-blue-100 text-blue-700';
-                  } else if (slot.status === 'Free to Use without Booking') {
-                    styleClass = 'bg-yellow-100 text-gray-800';
-                  } else {
-                    styleClass = 'bg-red-100 text-gray-500';
-                  }
-                }
+
+                let slotClass = "slot";
+                if (isOwn) slotClass = "slot slot-yours";
+                else if (bookedBy) slotClass = "slot slot-booked italic";
+                else if (slot.status === "Available") slotClass = "slot slot-available";
+                else if (slot.status === "Closed for Cleaning") slotClass = "slot slot-closed";
+                else if (slot.status === "Free to Use without Booking") slotClass = "slot slot-maint";
+                else slotClass = "slot slot-closed";
+
+                const actionable =
+                  slot.status === "Available" && (!bookedBy || isOwn);
+
                 return (
                   <motion.li
                     key={slot.start}
-                    className={`flex justify-between items-center px-3 py-2 rounded ${styleClass}`}
-                    title={isOwn ? 'Your booking' : bookedBy ? 'Booked by another user' : ''}
+                    className="flex justify-between items-center"
+                    layout
                   >
-                    <span className="text-sm font-medium">
-                      {slot.start} – {slot.end}
-                    </span>
-                    {slot.status === 'Available' ? (
-                      user ? (
-                        bookedBy && !isOwn ? (
-                          <span className="text-xs italic">
-                            {user?.isAdmin ? `Booked by: ${bookedBy}` : 'Booked by another user'}
-                          </span>
-                        ) : (
+                    <div
+                      className={`${slotClass} w-full flex items-center justify-between gap-3 px-3 py-2 rounded-xl`}
+                    >
+                      <span className="text-sm font-medium">
+                        {slot.start} – {slot.end}
+                      </span>
+
+                      {actionable ? (
+                        user ? (
                           <button
-                            aria-label={`Book ${facility} at ${slot.start}`}
+                            aria-label={`${
+                              isOwn ? "Cancel" : "Book"
+                            } ${facility} at ${slot.start}`}
                             onClick={() => onBook(facility, slot.start)}
-                            className="text-xs text-white bg-black rounded px-2 py-1 hover:bg-gray-900"
+                            className="text-xs rounded-full px-3 py-1 bg-black/80 text-white hover:bg-black transition"
                           >
-                            {isOwn ? 'Cancel' : 'Book'}
+                            {isOwn ? "Cancel" : "Book"}
                           </button>
+                        ) : (
+                          <Link href="/login" className="text-xs underline">
+                            Sign in to book
+                          </Link>
                         )
-                      ) : bookedBy ? (
-                        <span className="text-xs italic">Booked by another user</span>
                       ) : (
-                        <Link href="/login" className="text-xs text-red-600 underline">
-                          Sign in to book
-                        </Link>
-                      )
-                    ) : (
-                      <span className="text-xs italic">{showLabel}</span>
-                    )}
+                        <span className="text-xs italic">{showLabel}</span>
+                      )}
+                    </div>
                   </motion.li>
                 );
               })}
             </AnimatePresence>
           </ul>
         )}
+
         <div className="mt-4">
           <button
             onClick={() => handleToggleExpand(facility)}
-            className="w-full py-2 px-4 rounded-full bg-blue-600 text-white font-bold hover:bg-blue-700 transition-colors"
+            className="w-full py-2 px-4 rounded-full jqs-glass font-semibold hover:brightness-[1.05] transition"
           >
-            {isExpanded ? 'Minimise Time Slots' : 'Expand to See All Slots'}
+            {isExpanded ? "Minimise Time Slots" : "Expand to See All Slots"}
           </button>
         </div>
       </motion.div>
     );
-  }
+  } // end of renderSchedule
 
+  // back in SchedulePageClientInner component scope
   if (loading) {
     return <main className="text-center py-12">Loading...</main>;
   }
 
   return (
-    <main className="max-w-6xl mx-auto py-12 px-4">
-      <AnimatePresence>
-        {bookingConfirm && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className={`fixed top-4 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded shadow-lg z-50 ${
-              bookingConfirm.type === 'success'
-                ? 'bg-green-500 text-white'
-                : 'bg-red-500 text-white'
-            }`}
-          >
-            {bookingConfirm.message}
-          </motion.div>
+    <main className="jqs-gradient-bg min-h-screen">
+      <div className="max-w-6xl mx-auto py-12 px-4">
+        <AnimatePresence>
+          {bookingConfirm && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="fixed top-4 left-1/2 -translate-x-1/2 px-4 py-2 jqs-glass rounded z-50"
+            >
+              {bookingConfirm.message}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <h1 className="text-4xl font-bold mb-2 text-center">Facility Booking</h1>
+        <p className="text-center mb-6 text-[color:var(--text-muted)]">
+          This page is visible to all users — but you&apos;ll need to sign in to book a slot.
+        </p>
+
+        {!user && (
+          <div className="text-center mb-6 text-sm text-red-600 dark:text-red-400">
+            You&apos;re currently viewing as a guest.{" "}
+            <Link href="/login" className="underline">
+              Sign in
+            </Link>{" "}
+            to make bookings.
+          </div>
         )}
-      </AnimatePresence>
-      <h1 className="text-4xl font-bold mb-4 text-center">Facility Booking</h1>
-      <p className="text-center text-gray-600 dark:text-gray-400 mb-6">
-        This page is visible to all users &mdash; but you&apos;ll need to sign in to book a slot.
-      </p>
-      {!user && (
-        <div className="text-center mb-6 text-sm text-red-600">
-          You&apos;re currently viewing as a guest.{' '}
-          <Link href="/login" className="underline">
-            Sign in
-          </Link>{' '}
-          to make bookings.
-        </div>
-      )}
 
-{user?.isAdmin && (
-  <div className="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900 rounded-xl">
-    <h3 className="font-semibold mb-2 text-black dark:text-white">
-      🛠 Block Facility for Date Range
-    </h3>
+        {user?.isAdmin && (
+          <div className="mb-6 p-4 jqs-glass rounded-2xl">
+            <h3 className="font-semibold mb-2">
+              🛠 Block Facility for Date Range
+            </h3>
 
-    {/* Block form */}
-    <div className="flex flex-wrap gap-2 items-center mb-4">
-      <select
-        value={newFacility}
-        onChange={(e) => setNewFacility(e.target.value)}
-        className="px-3 py-1 border rounded"
-      >
-        {['Pool', 'Gym', 'Sauna'].map((f) => (
-          <option key={f} value={f}>{f}</option>
-        ))}
-      </select>
-      <input
-        type="date"
-        value={newStartDate}
-        onChange={(e) => setNewStartDate(e.target.value)}
-        className="px-3 py-1 border rounded"
-      />
-      <input
-        type="date"
-        value={newEndDate}
-        onChange={(e) => setNewEndDate(e.target.value)}
-        className="px-3 py-1 border rounded"
-      />
-      <button
-        onClick={createWindow}
-        className="px-4 py-1 bg-yellow-600 text-white font-semibold rounded hover:bg-yellow-700"
-      >
-        Block
-      </button>
-    </div>
-
-    {/* Unblock list */}
-    {maintenanceWindows.length > 0 ? (
-      <>
-        <h4 className="font-semibold mb-2 text-black dark:text-white">
-          🔓 Active Maintenance Windows
-        </h4>
-        <ul className="space-y-2">
-          {maintenanceWindows.map((win) => {
-            const id = `${win.facility}_${win.startDate}_${win.endDate}`;
-            return (
-              <li
-                key={id}
-                className="flex items-center justify-between text-sm bg-white dark:bg-gray-700 p-2 rounded shadow"
+            <div className="flex flex-wrap gap-2 items-center mb-4">
+              <select
+                value={newFacility}
+                onChange={(e) => setNewFacility(e.target.value)}
+                className="px-3 py-1 border rounded bg-transparent"
               >
-                <span className="text-black dark:text-white">
-                  {win.facility}: {win.startDate} → {win.endDate}
-                </span>
-                <button
-                  onClick={() => deleteWindow(id)}
-                  className="text-xs px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-                >
-                  Unblock
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      </>
-    ) : (
-      <p className="text-sm italic text-gray-700 dark:text-gray-300">
-        No current maintenance windows.
-      </p>
-    )}
-  </div>
-)}
+                {["Pool", "Gym", "Sauna"].map((f) => (
+                  <option key={f} value={f}>
+                    {f}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="date"
+                value={newStartDate}
+                onChange={(e) => setNewStartDate(e.target.value)}
+                className="px-3 py-1 border rounded bg-transparent"
+              />
+              <input
+                type="date"
+                value={newEndDate}
+                onChange={(e) => setNewEndDate(e.target.value)}
+                className="px-3 py-1 border rounded bg-transparent"
+              />
+              <button
+                onClick={createWindow}
+                className="px-4 py-1 rounded-full jqs-glass font-semibold hover:brightness-[1.05] transition"
+              >
+                Block
+              </button>
+            </div>
 
+            {maintenanceWindows.length > 0 ? (
+              <>
+                <h4 className="font-semibold mb-2">
+                  🔓 Active Maintenance Windows
+                </h4>
+                <ul className="space-y-2">
+                  {maintenanceWindows.map((win) => {
+                    const id = `${win.facility}_${win.startDate}_${win.endDate}`;
+                    return (
+                      <li
+                        key={id}
+                        className="flex items-center justify-between text-sm jqs-glass p-2 rounded"
+                      >
+                        <span>
+                          {win.facility}: {win.startDate} → {win.endDate}
+                        </span>
+                        <button
+                          onClick={() => deleteWindow(id)}
+                          className="text-xs px-3 py-1 rounded-full bg-black/80 text-white hover:bg-black transition"
+                        >
+                          Unblock
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </>
+            ) : (
+              <p className="text-sm italic text-[color:var(--text-muted)]">
+                No current maintenance windows.
+              </p>
+            )}
+          </div>
+        )}
 
-{renderDateSelector(selectedDate, setSelectedDate, user)}
+        {renderDateSelector(selectedDate, setSelectedDate, user)}
 
-<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-  {['Pool', 'Gym', 'Sauna'].map((facility) => (
-    <React.Fragment key={facility}>{renderSchedule(facility)}</React.Fragment>
-  ))}
-</div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {["Pool", "Gym", "Sauna"].map((f) => (
+            <React.Fragment key={f}>{renderSchedule(f)}</React.Fragment>
+          ))}
+        </div>
 
-<div className="flex justify-center mt-6">
-  <Link
-    href="/book/my-bookings"
-    className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition"
-  >
-    My Bookings
-  </Link>
-</div>
-</main>
+        <Legend />
+
+        <div className="flex justify-center mt-6">
+          <Link
+            href="/book/my-bookings"
+            className="px-4 py-2 rounded-full jqs-glass font-semibold hover:brightness-[1.05] transition"
+          >
+            My Bookings
+          </Link>
+        </div>
+      </div>
+    </main>
   );
-}
+} // end of export default function SchedulePageClientInner

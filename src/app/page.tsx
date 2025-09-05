@@ -1,112 +1,282 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
-import MessageBoardHighlights from '@/components/MessageBoard/MessageBoardHighlights';
+import Image from 'next/image';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from 'react';
 
+/** ------------------------------------------------
+ *  Shared styles
+ *  ------------------------------------------------ */
+const glass =
+  'jqs-glass rounded-2xl border border-white/20 bg-white/50 dark:bg-white/10 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.06)]';
+
+/** ------------------------------------------------
+ *  Hero rule pill
+ *  ------------------------------------------------ */
+function RulePill({ title, detail }: { title: string; detail: string }) {
+  return (
+    <motion.div
+      whileHover={{ scale: 1.02 }}
+      className={`rounded-full px-5 py-3 ${glass} text-center`}
+    >
+      <div className="text-sm font-semibold tracking-tight">{title}</div>
+      <div className="text-xs mt-0.5 text-neutral-700 dark:text-neutral-300">{detail}</div>
+    </motion.div>
+  );
+}
+
+/** ------------------------------------------------
+ *  Light/Dark icon without theme libs
+ *  ------------------------------------------------ */
+function DualModeIcon({
+  lightSrc,
+  darkSrc,
+  alt,
+  size = 128,
+}: {
+  lightSrc: string;
+  darkSrc: string;
+  alt: string;
+  size?: number;
+}) {
+  return (
+    <>
+      <Image
+        src={lightSrc}
+        alt={alt}
+        width={size}
+        height={size}
+        className="block dark:hidden w-24 h-24 sm:w-28 sm:h-28 object-contain"
+        priority
+      />
+      <Image
+        src={darkSrc}
+        alt={alt}
+        width={size}
+        height={size}
+        className="hidden dark:block w-24 h-24 sm:w-28 sm:h-28 object-contain"
+        priority
+      />
+    </>
+  );
+}
+
+/** ------------------------------------------------
+ *  Reusable destination card
+ *  ------------------------------------------------ */
+function IconCard({
+  title,
+  href,
+  lightIcon,
+  darkIcon,
+  blurb,
+}: {
+  title: string;
+  href: string;
+  lightIcon: string;
+  darkIcon: string;
+  blurb: string;
+}) {
+  return (
+    <Link href={href} className="group block focus:outline-none">
+      <motion.div
+        whileHover={{ y: -2, scale: 1.01 }}
+        whileTap={{ scale: 0.99 }}
+        className={`${glass} p-5 flex items-center gap-4 sm:gap-5 relative overflow-hidden`}
+      >
+        {/* sheen */}
+        <span className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity">
+          <span className="absolute -inset-1 bg-gradient-to-tr from-white/15 to-transparent" />
+        </span>
+
+        <div className="shrink-0">
+          <DualModeIcon lightSrc={lightIcon} darkSrc={darkIcon} alt={title} />
+        </div>
+        <div className="relative z-10">
+          <h3 className="text-lg font-semibold">{title}</h3>
+          <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">{blurb}</p>
+          <span className="mt-2 inline-flex items-center text-sm underline underline-offset-4 text-neutral-900/80 dark:text-neutral-100/90">
+            Open {title}
+          </span>
+        </div>
+      </motion.div>
+    </Link>
+  );
+}
+
+/** ------------------------------------------------
+ *  Lightweight photo carousel
+ *  ------------------------------------------------ */
+function PhotoCarousel() {
+  const slides = [
+    { src: '/images/buildingimages/front.jpg', alt: 'Front of James Square', w: 1535, h: 1024 },
+    { src: '/images/buildingimages/garden.jpg', alt: 'Garden at James Square', w: 1200, h: 900 },
+    { src: '/images/buildingimages/pool.jpg', alt: 'Pool at James Square', w: 1600, h: 1066 },
+    { src: '/images/buildingimages/above.jpg', alt: 'James Square from above', w: 1536, h: 1024 },
+  ];
+
+  const [idx, setIdx] = useState(0);
+  const prev = () => setIdx((i) => (i - 1 + slides.length) % slides.length);
+  const next = () => setIdx((i) => (i + 1) % slides.length);
+
+  return (
+    <section className="mx-auto max-w-6xl mt-10 sm:mt-12">
+      <div className={`${glass} p-4 sm:p-6`}>
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <h2 className="text-lg font-semibold">Around James Square</h2>
+          <div className="flex gap-2">
+            <button
+              onClick={prev}
+              className="rounded-xl border px-3 py-1.5 hover:bg-black/5 dark:hover:bg-white/5"
+              aria-label="Previous photo"
+            >
+              ←
+            </button>
+            <button
+              onClick={next}
+              className="rounded-xl border px-3 py-1.5 hover:bg-black/5 dark:hover:bg-white/5"
+              aria-label="Next photo"
+            >
+              →
+            </button>
+          </div>
+        </div>
+
+        <div className="relative overflow-hidden rounded-xl">
+          <AnimatePresence mode="popLayout" initial={false}>
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0.0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0.0, scale: 0.98 }}
+              transition={{ duration: 0.25 }}
+              className="w-full"
+            >
+              <Image
+                src={slides[idx].src}
+                alt={slides[idx].alt}
+                width={slides[idx].w}
+                height={slides[idx].h}
+                className="w-full h-[280px] sm:h-[420px] object-cover"
+                sizes="(min-width: 1024px) 1000px, 100vw"
+                priority={idx === 0}
+              />
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        <div className="mt-3 flex justify-center gap-2">
+          {slides.map((_, i) => (
+            <button
+              key={`dot-${i}`}
+              onClick={() => setIdx(i)}
+              aria-label={`Go to slide ${i + 1}`}
+              className={`h-2 w-2 rounded-full transition ${
+                i === idx
+                  ? 'bg-neutral-900 dark:bg-neutral-100'
+                  : 'bg-neutral-400/40 dark:bg-white/30'
+              }`}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/** ------------------------------------------------
+ *  Page
+ *  ------------------------------------------------ */
 export default function Home() {
   return (
-    <main className="py-20 px-4">
-      {/* Welcome Section */}
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white dark:bg-neutral-900 shadow-md rounded-2xl p-8 text-center">
-          <h1 className="text-4xl font-bold mb-4 font-sans text-neutral-900 dark:text-white">
-            James Square Booking Portal
-          </h1>
-
-          <p className="text-base sm:text-lg text-neutral-700 dark:text-neutral-300 font-sans">
-            This website has been created to help residents of James Square easily book time slots for the pool, gym, and sauna facilities. Residents can sign up and reserve up to two sessions per facility per day, with bookings available in the mornings and evenings.
-          </p>
-
-          <p className="text-base sm:text-lg text-neutral-700 dark:text-neutral-300 mt-4 font-sans">
-            To ensure fair use for everyone, please note that you may not book the same time slot more than three consecutive days in a row. This helps prevent individuals from monopolising popular times.
-          </p>
-
-          <p className="text-base sm:text-lg text-neutral-700 dark:text-neutral-300 mt-4 font-sans">
-            Between 11:00 a.m. and 5:00 p.m., the facilities are open for free use without bookings. If you&apos;re hosting short-term guests within James Square, please encourage guests to use the facilities during these times to free up the booking slots for residents who actually live here.
-          </p>
-
-          <p className="text-base sm:text-lg text-neutral-700 dark:text-neutral-300 mt-4 font-sans">
-            Please only book slots you plan to use. If a pattern of repeated no-shows is detected, booking restrictions may be applied to your account.
-          </p>
-
-          <p className="text-base sm:text-lg text-neutral-700 dark:text-neutral-300 mt-4 font-sans">
-            This booking system exists to support all residents so let&apos;s keep it fair, respectful, and enjoyable for everyone at James Square.
-          </p>
-
-          <hr className="my-6 border-neutral-300 dark:border-neutral-700" />
-
-          <p className="text-base sm:text-lg text-neutral-700 dark:text-neutral-300 font-sans">
-            To book a time slot, simply head to the{' '}
-            <Link href="/book" className="underline text-blue-600 dark:text-blue-400">
-              Book Facilities
-            </Link>{' '}
-            page. You&apos;ll need to be signed up and logged in. Once you&apos;ve made a booking, it will appear on your{' '}
-            <Link href="/book/my-bookings" className="underline text-blue-600 dark:text-blue-400">
-              My Bookings
-            </Link>{' '}
-            page, where you can keep track of your reservations and easily add them to your Apple Calendar or Google Calendar.
-          </p>
-        </div>
-      </div>
-
-      {/* Responsive Image Grid */}
-      <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
-        <aside className="bg-white dark:bg-neutral-900 rounded-lg shadow p-4 space-y-2">
-          <h2 className="text-xl font-semibold">Message Board</h2>
-          <MessageBoardHighlights limit={3} />
-          <div className="text-right">
-            <Link href="/message-board" className="underline text-sm">
-              View all posts→
-            </Link>
-          </div>
-        </aside>
-        {/* Front Image */}
-        <div className="overflow-hidden rounded-lg shadow-lg transition-transform duration-300 hover:scale-105">
-          <Image
-            src="/images/buildingimages/front.jpg"
-            alt="James Square from the front"
-            width={800}
-            height={600}
-            objectFit="cover"
-          />
-        </div>
-
-        {/* Above Image */}
-        <div className="overflow-hidden rounded-lg shadow-lg transition-transform duration-300 hover:scale-105">
-          <Image
-            src="/images/buildingimages/above.jpg"
-            alt="James Square from above"
-            width={800}
-            height={600}
-            objectFit="cover"
-          />
-        </div>
-
-        {/* Garden Image */}
-        <div className="overflow-hidden rounded-lg shadow-lg transition-transform duration-300 hover:scale-105">
-          <Image
-            src="/images/buildingimages/garden.jpg"
-            alt="James Square Garden"
-            width={800}
-            height={600}
-            objectFit="cover"
-          />
-        </div>
-
-        {/* Pool Image wrapped in a Link */}
-        <Link href="/book/schedule">
-          <div className="overflow-hidden rounded-lg shadow-lg transition-transform duration-300 hover:scale-105 cursor-pointer">
+    <main className="px-4 py-10 sm:py-14">
+      {/* HERO */}
+      <section className="mx-auto max-w-6xl">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45 }}
+          className={`${glass} overflow-hidden`}
+        >
+          {/* Top image */}
+          <div className="relative">
             <Image
-              src="/images/buildingimages/pool.jpg"
-              alt="James Square Pool"
-              width={800}
-              height={600}
-              objectFit="cover"
+              src="/images/buildingimages/above.jpg"
+              alt="James Square from above"
+              width={1536}
+              height={1024}
+              priority
+              className="w-full h-[200px] sm:h-[320px] object-cover"
             />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent pointer-events-none" />
           </div>
-        </Link>
-      </div>
+
+          <div className="p-6 sm:p-10">
+            <header className="text-center">
+              <h1 className="text-3xl sm:text-4xl font-bold">
+                James <span className="text-slate-500">Square</span> Booking Portal
+              </h1>
+              <p className="mt-3 text-base sm:text-lg text-neutral-700 dark:text-neutral-300">
+                Book the pool, gym and sauna. Explore useful information about the building and the local area.
+              </p>
+              <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+                You can also use{' '}
+                <Link href="/dashboard" className="underline">
+                  My Dashboard
+                </Link>{' '}
+                to view, edit and manage bookings and your account.
+              </p>
+            </header>
+
+            {/* Rule Pills */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6">
+              <RulePill title="Bookable Windows" detail="05:30–09:30 • 17:00–23:00" />
+              <RulePill title="Daily Limit" detail="Max 2 slots per facility" />
+              <RulePill title="Free Use" detail="11:00–17:00 (no booking)" />
+            </div>
+          </div>
+        </motion.div>
+      </section>
+
+      {/* MAIN ICON GRID */}
+      <section className="mx-auto max-w-6xl mt-8 sm:mt-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <IconCard
+          title="Message Board"
+          href="/message-board"
+          lightIcon="/images/icons/message-icon-light.png"
+          darkIcon="/images/icons/message-icon-dark.png"
+          blurb="Share updates, ask questions and discuss anything related to James Square."
+        />
+
+        <IconCard
+          title="My Dashboard"
+          href="/dashboard"
+          lightIcon="/images/icons/dashboard-icon-light.png"
+          darkIcon="/images/icons/dashboard-icon-dark.png"
+          blurb="View, edit and manage your bookings. Add bookings to your calendar."
+        />
+
+        <IconCard
+          title="Book Facilities"
+          href="/book"
+          lightIcon="/images/icons/pool-icon-light.png"
+          darkIcon="/images/icons/pool-icon-dark.png"
+          blurb="Reserve time for the pool, gym or sauna."
+        />
+
+        {/* Keep this route aligned with your header */}
+        <IconCard
+          title="Useful Info"
+          href="/local"
+          lightIcon="/images/icons/info-icon-light.png"
+          darkIcon="/images/icons/info-icon-dark.png"
+          blurb="Access, bins & recycling, contacts and local picks (food, shops, coffee)."
+        />
+      </section>
+
+      {/* PHOTO CAROUSEL */}
+      <PhotoCarousel />
     </main>
   );
 }
