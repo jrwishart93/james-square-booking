@@ -1,7 +1,12 @@
-import Head from 'next/head';
+"use client";
+
 import { useEffect } from 'react';
 
-const AgreementPage = () => {
+export const metadata = {
+  title: 'Sub-Tenancy Agreement — Flat 1, 61 Caledonian Crescent',
+};
+
+export default function AgreementPage() {
   useEffect(() => {
     if (typeof document === 'undefined') return;
 
@@ -635,12 +640,8 @@ Thanks.`,
 
   return (
     <>
-      <Head>
-        <title>Sub-Tenancy Agreement — Flat 1, 61 Caledonian Crescent, Edinburgh</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="color-scheme" content="light" />
-      </Head>
-      <div className="container">
+      <main>
+        <div className="container">
         <header className="header" role="banner">
           <div style={{ display: 'flex', alignItems: 'flex-end', gap: '12px' }}>
             <div>
@@ -1071,7 +1072,8 @@ Thanks.`,
           </button>
         </div>
       </div>
-      <style jsx global>{`
+    </main>
+    <style jsx global>{`
         :root {
           --ink: #0b0c0c;
           --muted: #505a5f;
@@ -1375,6 +1377,4 @@ Thanks.`,
       `}</style>
     </>
   );
-};
-
-export default AgreementPage;
+}
