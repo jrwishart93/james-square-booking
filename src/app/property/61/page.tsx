@@ -206,7 +206,7 @@ function SignaturePad({ id, label, ariaLabel, uploadAriaLabel, value, onChange }
     const resize = () => {
       const ratio = window.devicePixelRatio || 1;
       const parentWidth =
-        canvas.parentElement?.clientWidth ?? canvas.getBoundingClientRect().width || 600;
+        (canvas.parentElement?.clientWidth ?? canvas.getBoundingClientRect().width) ?? 600;
       canvas.width = Math.floor(parentWidth * ratio);
       canvas.height = Math.floor(SIGNATURE_HEIGHT * ratio);
       canvas.style.width = `${parentWidth}px`;
