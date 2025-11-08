@@ -2,18 +2,9 @@
 
 /* eslint-disable @next/next/no-img-element */
 
+import { useEffect, useState } from "react";
 import type { ChangeEvent } from "react";
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-
-export const metadata = {
-  title: "Sub-Tenancy Agreement — Flat 1, 61 Caledonian Crescent",
-};
+import { useCallback, useMemo, useRef } from "react";
 
 const STORAGE_KEY = "property61_tenancy_v1";
 const MAX_SUB_TENANTS = 2;
@@ -393,6 +384,10 @@ export default function AgreementPage() {
   const [hydrated, setHydrated] = useState(false);
   const previewRef = useRef<HTMLElement | null>(null);
   const indicatorTimeoutRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    document.title = "Sub-Tenancy Agreement — Flat 1, 61 Caledonian Crescent";
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") {
