@@ -18,10 +18,8 @@ interface SignatureData {
   timestamp: string | null;
 }
 
-interface SubTenantDetails {
-  name: string;
-  address: string;
-}
+type SubTenant = { name: string; address: string };
+type SubTenantErrors = { name?: string; address?: string };
 
 type FormState = {
   agreeDate: string;
@@ -37,13 +35,11 @@ interface SignaturesState {
   subTenants: SignatureData[];
 }
 
-type FormErrors = Partial<Record<keyof FormState, string>> & {
-  subTenants?: { name?: string; address?: string }[];
-};
+type FormErrors = Partial<Record<keyof FormState, string>>;
 
 interface PersistedState {
   form: FormState;
-  subTenants: SubTenantDetails[];
+  subTenants: SubTenant[];
   signatures: SignaturesState;
 }
 
@@ -60,7 +56,7 @@ const createDefaultForm = (): FormState => {
   };
 };
 
-const defaultSubTenants = (): SubTenantDetails[] => [{ name: "", address: "" }];
+const defaultSubTenants = (): SubTenant[] => [{ name: "", address: "" }];
 
 const createDefaultSignature = (): SignatureData => ({ dataUrl: null, timestamp: null });
 
@@ -79,7 +75,7 @@ const sanitizeForm = (raw?: Partial<FormState>): Partial<FormState> => {
   return next;
 };
 
-const sanitizeSubTenant = (raw: unknown): SubTenantDetails => {
+const sanitizeSubTenant = (raw: unknown): SubTenant => {
   if (!raw || typeof raw !== "object") {
     return { name: "", address: "" };
   }
@@ -370,7 +366,8 @@ function SignaturePad({ id, label, ariaLabel, uploadAriaLabel, value, onChange }
 
 export default function AgreementPage() {
   const [form, setForm] = useState<FormState>(() => createDefaultForm());
-  const [subTenants, setSubTenants] = useState<SubTenantDetails[]>(() => defaultSubTenants());
+  const [subTenants, setSubTenants] = useState<SubTenant[]>(() => defaultSubTenants());
+  const [subTenantErrors, setSubTenantErrors] = useState<SubTenantErrors[]>([]);
   const [signatures, setSignatures] = useState<SignaturesState>(() => ({
     tenant: createDefaultSignature(),
     witness: createDefaultSignature(),
@@ -496,27 +493,22 @@ export default function AgreementPage() {
   );
 
   const handleSubTenantChange = useCallback(
-    (index: number, field: keyof SubTenantDetails) =>
+    (index: number, field: keyof SubTenant) =>
       (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { value } = event.target;
         setSubTenants((prev) =>
           prev.map((sub, i) => (i === index ? { ...sub, [field]: value } : sub)),
         );
-        setErrors((prev) => {
-          if (!prev.subTenants || !prev.subTenants[index]) return prev;
-          const nextSubErrors = prev.subTenants.map((item, i) => {
+        setSubTenantErrors((prev) => {
+          if (!prev[index]) return prev;
+          const next = prev.map((item, i) => {
             if (i !== index) return item;
             const clone = { ...item };
             delete clone[field];
             return clone;
           });
-          const hasErrors = nextSubErrors.some((item) => item?.name || item?.address);
-          if (!hasErrors) {
-            const next = { ...prev };
-            delete next.subTenants;
-            return next;
-          }
-          return { ...prev, subTenants: nextSubErrors };
+          const hasErrors = next.some((item) => item?.name || item?.address);
+          return hasErrors ? next : [];
         });
       },
     [],
@@ -534,17 +526,15 @@ export default function AgreementPage() {
     if (!Number.isFinite(rentValue) || rentValue < 1) {
       nextErrors.rent = "Rent must be at least £1.";
     }
-    const subErrors = subTenants.map(() => ({ name: undefined, address: undefined }));
-    if (!subTenants[0]?.name.trim()) {
+    const subErrors: SubTenantErrors[] = subTenants.map(() => ({}));
+    if (!subTenants[0]?.name?.trim()) {
       subErrors[0].name = "Please enter the sub-tenant’s full name.";
     }
-    if (!subTenants[0]?.address.trim()) {
+    if (!subTenants[0]?.address?.trim()) {
       subErrors[0].address = "Please enter the sub-tenant’s address.";
     }
     const hasSubErrors = subErrors.some((item) => item.name || item.address);
-    if (hasSubErrors) {
-      nextErrors.subTenants = subErrors;
-    }
+    setSubTenantErrors(hasSubErrors ? subErrors : []);
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
   }, [form, subTenants]);
@@ -562,6 +552,7 @@ export default function AgreementPage() {
       return;
     }
     setSubTenants((prev) => [...prev, { name: "", address: "" }]);
+    setSubTenantErrors((prev) => (prev.length ? [...prev, {}] : prev));
   };
 
   const handleRemoveSubTenant = () => {
@@ -570,6 +561,7 @@ export default function AgreementPage() {
       return;
     }
     setSubTenants((prev) => prev.slice(0, -1));
+    setSubTenantErrors((prev) => (prev.length ? prev.slice(0, -1) : prev));
   };
 
   const handleEmail = () => {
@@ -607,6 +599,7 @@ export default function AgreementPage() {
     }
     setForm(createDefaultForm());
     setSubTenants(defaultSubTenants());
+    setSubTenantErrors([]);
     setErrors({});
     setSignatures((prev) => ({
       tenant: prev.tenant,
@@ -760,7 +753,7 @@ export default function AgreementPage() {
               </span>
 
               {subTenants.map((subTenant, index) => {
-                const subError = errors.subTenants?.[index];
+                const subError = subTenantErrors[index];
                 return (
                   <div className="sub-card" key={`sub-tenant-${index}`}>
                     <h4>
