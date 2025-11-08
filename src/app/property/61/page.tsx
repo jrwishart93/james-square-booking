@@ -18,10 +18,8 @@ interface SignatureData {
   timestamp: string | null;
 }
 
-interface SubTenantDetails {
-  name: string;
-  address: string;
-}
+type SubTenant = { name: string; address: string };
+type SubTenantErrors = { name?: string; address?: string };
 
 type FormState = {
   agreeDate: string;
@@ -38,12 +36,12 @@ interface SignaturesState {
 }
 
 type FormErrors = Partial<Record<keyof FormState, string>> & {
-  subTenants?: { name?: string; address?: string }[];
+  subTenants?: SubTenantErrors[];
 };
 
 interface PersistedState {
   form: FormState;
-  subTenants: SubTenantDetails[];
+  subTenants: SubTenant[];
   signatures: SignaturesState;
 }
 
@@ -60,7 +58,7 @@ const createDefaultForm = (): FormState => {
   };
 };
 
-const defaultSubTenants = (): SubTenantDetails[] => [{ name: "", address: "" }];
+const defaultSubTenants = (): SubTenant[] => [{ name: "", address: "" }];
 
 const createDefaultSignature = (): SignatureData => ({ dataUrl: null, timestamp: null });
 
@@ -79,7 +77,7 @@ const sanitizeForm = (raw?: Partial<FormState>): Partial<FormState> => {
   return next;
 };
 
-const sanitizeSubTenant = (raw: unknown): SubTenantDetails => {
+const sanitizeSubTenant = (raw: unknown): SubTenant => {
   if (!raw || typeof raw !== "object") {
     return { name: "", address: "" };
   }
@@ -370,7 +368,7 @@ function SignaturePad({ id, label, ariaLabel, uploadAriaLabel, value, onChange }
 
 export default function AgreementPage() {
   const [form, setForm] = useState<FormState>(() => createDefaultForm());
-  const [subTenants, setSubTenants] = useState<SubTenantDetails[]>(() => defaultSubTenants());
+  const [subTenants, setSubTenants] = useState<SubTenant[]>(() => defaultSubTenants());
   const [signatures, setSignatures] = useState<SignaturesState>(() => ({
     tenant: createDefaultSignature(),
     witness: createDefaultSignature(),
@@ -496,7 +494,7 @@ export default function AgreementPage() {
   );
 
   const handleSubTenantChange = useCallback(
-    (index: number, field: keyof SubTenantDetails) =>
+    (index: number, field: keyof SubTenant) =>
       (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { value } = event.target;
         setSubTenants((prev) =>
@@ -534,7 +532,7 @@ export default function AgreementPage() {
     if (!Number.isFinite(rentValue) || rentValue < 1) {
       nextErrors.rent = "Rent must be at least £1.";
     }
-    const subErrors = subTenants.map(() => ({ name: undefined, address: undefined }));
+    const subErrors: SubTenantErrors[] = subTenants.map(() => ({}));
     if (!subTenants[0]?.name.trim()) {
       subErrors[0].name = "Please enter the sub-tenant’s full name.";
     }
