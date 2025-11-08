@@ -23,13 +23,13 @@ interface SubTenantDetails {
   address: string;
 }
 
-interface FormState {
+type FormState = {
   agreeDate: string;
   startDate: string;
-  rent: string;
+  rent: number | string;
   rentDay: string;
   witnessName: string;
-}
+};
 
 interface SignaturesState {
   tenant: SignatureData;
@@ -37,12 +37,9 @@ interface SignaturesState {
   subTenants: SignatureData[];
 }
 
-interface FormErrors {
-  agreeDate?: string;
-  startDate?: string;
-  rent?: string;
+type FormErrors = Partial<Record<keyof FormState, string>> & {
   subTenants?: { name?: string; address?: string }[];
-}
+};
 
 interface PersistedState {
   form: FormState;
