@@ -176,14 +176,14 @@ export default function OwnersVotingPage() {
   }
 
   return (
-    <GradientBG className="min-h-screen py-10">
-      <div className="max-w-5xl mx-auto px-4 md:px-6 space-y-8">
-        <header className="text-center space-y-3">
-          <p className="text-sm uppercase tracking-[0.25em] text-slate-200/80">Owners • Community</p>
-          <h1 className="text-3xl md:text-4xl font-semibold text-white">Voting Hub</h1>
-          <p className="text-slate-200/80 max-w-3xl mx-auto">
-            Ask a question, cast your vote, and review results. This section is open to all residents—
-            no owners passcode required.
+    <GradientBG className="min-h-screen py-12 md:py-16 relative overflow-hidden">
+      <div className="absolute inset-x-0 top-0 mx-auto max-w-4xl h-48 bg-slate-900/50 blur-3xl opacity-60 pointer-events-none" />
+      <div className="max-w-5xl mx-auto px-4 md:px-6 space-y-10 relative">
+        <header className="text-center space-y-3 bg-white/5 dark:bg-slate-900/40 backdrop-blur-md rounded-3xl border border-white/10 px-6 py-8 shadow-[0_20px_80px_rgba(0,0,0,0.35)]">
+          <p className="text-xs md:text-sm uppercase tracking-[0.3em] text-white/80 font-semibold">Owners • Community</p>
+          <h1 className="text-3xl md:text-4xl font-bold text-white drop-shadow">Voting Hub</h1>
+          <p className="text-slate-50/90 font-medium text-sm md:text-base leading-relaxed max-w-3xl mx-auto">
+            Ask a question, cast your vote, and review results. This section is open to all residents—no owners passcode required.
           </p>
         </header>
 
@@ -193,10 +193,10 @@ export default function OwnersVotingPage() {
           <TabButton icon={<BarChart3 size={16} />} label="Results" active={activeTab === "results"} onClick={() => setActiveTab("results")} />
         </div>
 
-        <section className="rounded-3xl bg-slate-950/60 border border-white/10 backdrop-blur-xl shadow-[0_30px_80px_rgba(0,0,0,0.45)] p-6 md:p-8">
+        <section className="rounded-3xl bg-slate-950/60 border border-white/15 backdrop-blur-xl shadow-[0_30px_80px_rgba(0,0,0,0.45)] p-6 md:p-10 space-y-8">
           {activeTab === "ask" && (
-            <form className="space-y-8" onSubmit={handleCreateQuestion}>
-              <div className="space-y-5">
+            <form className="space-y-10" onSubmit={handleCreateQuestion}>
+              <div className="space-y-6">
                 <Input
                   label="Question Title"
                   placeholder="e.g., Should we install solar panels?"
@@ -204,12 +204,12 @@ export default function OwnersVotingPage() {
                   onChange={(e) => setTitle(e.target.value)}
                   error={askErrors.title}
                 />
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1.5 ml-1">
+                <div className="space-y-2">
+                  <label className="block text-sm font-semibold text-slate-200">
                     Description <span className="text-slate-500 font-normal">(Optional)</span>
                   </label>
                   <textarea
-                    className="w-full rounded-2xl bg-white/5 border border-white/10 px-4 py-3 text-sm text-slate-50 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-400/70 focus:border-transparent backdrop-blur-md shadow-inner shadow-black/20 transition-all h-28 resize-none"
+                    className="w-full rounded-2xl bg-white/5 border border-white/15 px-4 py-3 text-sm text-slate-50 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-400/70 focus:border-transparent backdrop-blur-md shadow-inner shadow-black/20 transition-all h-32 resize-none"
                     placeholder="Add more context details..."
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
@@ -217,12 +217,12 @@ export default function OwnersVotingPage() {
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <div className="flex justify-between items-end border-b border-white/5 pb-2">
-                  <label className="block text-sm font-medium text-slate-300 ml-1">Options</label>
+              <div className="space-y-5">
+                <div className="flex justify-between items-end border-b border-white/10 pb-3">
+                  <label className="block text-sm font-semibold text-slate-200">Options</label>
                   <span className="text-xs text-slate-500 font-mono">Min 2 • Max 6</span>
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {options.map((option, index) => (
                     <div key={index} className="flex gap-2 group">
                       <Input
@@ -259,14 +259,19 @@ export default function OwnersVotingPage() {
               </div>
 
               {askSuccess && (
-                <div className="flex items-center gap-3 text-emerald-300 text-sm bg-emerald-500/10 p-4 rounded-xl border border-emerald-500/20">
+                <div className="flex items-center gap-3 text-emerald-300 text-sm bg-emerald-500/10 p-4 rounded-xl border border-emerald-500/20 shadow-inner shadow-emerald-900/30">
                   <CheckCircle2 size={18} className="shrink-0" />
                   Question published. You can switch to the Vote tab to cast the first vote.
                 </div>
               )}
 
               <div className="pt-2">
-                <Button type="submit" fullWidth isLoading={submittingQuestion}>
+                <Button
+                  type="submit"
+                  fullWidth
+                  isLoading={submittingQuestion}
+                  className="py-4 text-base shadow-[0_12px_40px_rgba(56,189,248,0.35)]"
+                >
                   Publish Question
                 </Button>
               </div>
@@ -280,7 +285,7 @@ export default function OwnersVotingPage() {
                 placeholder="Enter your name"
                 value={voterName}
                 onChange={(e) => setVoterName(e.target.value)}
-                className="bg-slate-900/50 border-indigo-500/30 focus:ring-indigo-400/50"
+                className="bg-slate-900/50 border-indigo-500/30 focus:ring-indigo-400/50 py-3"
               />
 
               {questions.length === 0 ? (
@@ -294,19 +299,25 @@ export default function OwnersVotingPage() {
                     const error = voteErrors[question.id];
                     const selected = selectedOptions[question.id] ?? null;
                     return (
-                      <div key={question.id} className="p-6 rounded-2xl bg-white/5 border border-white/10 space-y-5">
+                      <div
+                        key={question.id}
+                        className="p-6 rounded-2xl bg-white/5 border border-white/15 shadow-[0_16px_60px_rgba(0,0,0,0.3)] space-y-6"
+                      >
                         <div className="flex items-center justify-between mb-2">
-                          <h2 className="text-xl font-semibold text-white">{question.title}</h2>
-                          <span className="inline-flex px-3 py-1 text-xs font-bold uppercase bg-emerald-500/10 text-emerald-300 rounded-full border border-emerald-500/20">
-                            Active
+                          <div className="space-y-1">
+                            <p className="text-xs uppercase tracking-[0.2em] text-white/70 font-semibold">Active poll</p>
+                            <h2 className="text-xl font-bold text-white">{question.title}</h2>
+                          </div>
+                          <span className="inline-flex px-3 py-1 text-xs font-bold uppercase bg-emerald-500/15 text-emerald-200 rounded-full border border-emerald-500/30">
+                            Open
                           </span>
                         </div>
                         {question.description && (
-                          <p className="text-slate-300 text-sm leading-relaxed">{question.description}</p>
+                          <p className="text-slate-200 text-sm leading-relaxed">{question.description}</p>
                         )}
 
                         <form onSubmit={(e) => handleSubmitVote(e, question.id)} className="space-y-4">
-                          <div className="space-y-3">
+                          <div className="space-y-4">
                             {question.options.map((opt) => {
                               const isSelected = selected === opt.id;
                               return (
@@ -430,10 +441,10 @@ function TabButton({
   return (
     <button
       onClick={onClick}
-      className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition ${
+      className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition border ${
         active
-          ? "bg-white/90 text-slate-900 shadow-lg"
-          : "bg-white/5 text-slate-200 hover:bg-white/10 border border-white/10"
+          ? "bg-white text-slate-900 shadow-lg border-white underline decoration-2 underline-offset-4"
+          : "bg-white/5 text-slate-200 hover:bg-white/10 border-white/15"
       }`}
     >
       {icon}
