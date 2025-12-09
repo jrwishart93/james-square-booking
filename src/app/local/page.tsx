@@ -219,6 +219,17 @@ export default function UsefulInfoPage() {
         </div>
       </SectionCard>
 
+      {/* ---- Site-wide image disclaimer (bottom of page) ---- */}
+      <section className="mt-10">
+        <div className={`${glass} p-4`}>
+          <p className="text-xs text-[color:var(--text-muted)] leading-relaxed">
+            <strong>Image notice:</strong> All images on this website have been adapted using AI and are
+            provided for reference purposes only. Original companies, organisations, or projects shown are
+            not affiliated with or endorsed by this website.
+          </p>
+        </div>
+      </section>
+
       {/* Lightbox (reserved) */}
       <AnimatePresence>
         {lightbox && (
@@ -545,12 +556,12 @@ function Agm2025Section() {
           href="/message-board"
           aria-label="Give Feedback or Share Your Opinion on the Message Board"
           className={[
-            "mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-xl",
-            "jqs-glass border shadow-md",
-            "text-sm font-medium",
-            "hover:brightness-105 active:scale-[0.99] transition",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/30"
-          ].join(" ")}
+            'mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-xl',
+            'jqs-glass border shadow-md',
+            'text-sm font-medium',
+            'hover:brightness-105 active:scale-[0.99] transition',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/30',
+          ].join(' ')}
         >
           <span>Give Feedback / Share Your Opinion</span>
           <span aria-hidden>→</span>
@@ -696,7 +707,7 @@ function DalryProjectCard() {
 
       {/* Two concept images */}
       <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="relative w-full h-64 overflow-hidden rounded-xl jqs-glass shadow">
+        <figure className="relative w-full h-64 overflow-hidden rounded-xl jqs-glass shadow">
           <Image
             src="/images/area/dalry-concept.png"
             alt="Dalry Junction new layout concept"
@@ -705,8 +716,8 @@ function DalryProjectCard() {
             className="object-cover"
             priority
           />
-        </div>
-        <div className="relative w-full h-64 overflow-hidden rounded-xl jqs-glass shadow">
+        </figure>
+        <figure className="relative w-full h-64 overflow-hidden rounded-xl jqs-glass shadow">
           <Image
             src="/images/area/caledonian-crescent-concept.png"
             alt="Caledonian Crescent concept design"
@@ -714,8 +725,14 @@ function DalryProjectCard() {
             sizes="(min-width:1024px) 50vw, 100vw"
             className="object-cover"
           />
-        </div>
+        </figure>
       </div>
+
+      {/* Image disclaimer directly under the visuals */}
+      <p className="mt-2 text-xs text-[color:var(--text-muted)]">
+        These visuals have been AI-generated based on concept ideas from the Edinburgh Council Dalry
+        project. They are illustrative only, and the final project design may differ.
+      </p>
 
       {/* Expand / collapse */}
       <div className="mt-4">

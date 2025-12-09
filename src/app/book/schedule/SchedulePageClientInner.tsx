@@ -109,7 +109,7 @@ function renderDateSelector(
               !isActive && isToday ? 'border border-black/20 dark:border-white/20' : ''
             ].join(' ')}
             aria-current={isActive ? 'date' : undefined}
-            aria-selected={isActive || undefined}
+            aria-pressed={isActive || undefined}
             aria-label={`${display}${isToday ? ' (Today)' : ''}`}
             title={isToday ? 'Today' : undefined}
           >

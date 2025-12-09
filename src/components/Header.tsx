@@ -47,7 +47,7 @@ export default function Header() {
 
   // Close mobile nav on route change
   useEffect(() => {
-    if (open) setOpen(false);
+    setOpen(false);
   }, [pathname]);
 
   function NavLink({ href, label }: { href: string; label: string }) {
@@ -134,6 +134,7 @@ export default function Header() {
               <NavLink href="/book" label="Book Facilities" />
               <NavLink href="/dashboard" label="My Dashboard" />
               <NavLink href="/message-board" label="Message Board" />
+              {user && <NavLink href="/owners" label="Owners" />}
               <NavLink href="/local" label="Useful Info" />
               {isAdmin && <NavLink href="/admin" label="Admin" />}
 
@@ -180,6 +181,7 @@ export default function Header() {
               <NavLink href="/book" label="Book Facilities" />
               <NavLink href="/dashboard" label="My Dashboard" />
               <NavLink href="/message-board" label="Message Board" />
+              {user && <NavLink href="/owners" label="Owners" />}
               <NavLink href="/local" label="Useful Info" />
               {isAdmin && <NavLink href="/admin" label="Admin" />}
 

@@ -15,6 +15,8 @@ import {
   setDoc,
   addDoc,
 } from 'firebase/firestore';
+import OwnersPanel from './OwnersPanel';
+import AdminEmailPanel from './AdminEmailPanel';
 
 /* ---------- Types (unchanged) ---------- */
 interface UserRegistration {
@@ -416,6 +418,21 @@ export default function AdminDashboard() {
             <StatPill label="Feedback" value={feedbacks.length} />
           </div>
         </header>
+
+        <Section
+          title="Owners"
+          subtitle="Grant or revoke owner access without sharing the passcode"
+          defaultOpen
+        >
+          <OwnersPanel />
+        </Section>
+
+        <Section
+          title="Email Residents"
+          subtitle="Send announcements to selected owners or all residents"
+        >
+          <AdminEmailPanel />
+        </Section>
 
         {/* Users */}
         <Section
