@@ -1,0 +1,230 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ────────────── HELPERS ──────────────
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Admin: allow either custom claim `admin: true` OR users doc flag `isAdmin == true`
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.admin == true ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true
+      );
+    }
+
+    // Owner: allow either custom claim `owner: true` OR users doc flag `roles.owner == true`
+    function isOwner() {
+      return isSignedIn() && (
+        request.auth.token.owner == true ||
+        (
+          exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.owner == true
+        )
+      );
+    }
+
+    // ────────────── USERS (UNCHANGED LOGIC) ──────────────
+    match /users/{userId} {
+      // Anyone can read user profiles (adjust if you want privacy)
+      allow read: if true;
+
+      // A user can create their own profile
+      allow create: if isSignedIn() && request.auth.uid == userId;
+
+      // User can update/delete their own profile OR admin can manage anyone's profile
+      allow update, delete: if isSignedIn() && (
+        request.auth.uid == userId ||
+        isAdmin()
+      );
+    }
+
+    // ────────────── BOOKINGS (UNCHANGED LOGIC) ──────────────
+    match /bookings/{bookingId} {
+      // Everyone can view bookings (so guests see schedule)
+      allow read: if true;
+
+      // Logged-in user can create a booking only if `user` matches their email
+      // and the booking ID does not already exist
+      allow create: if isSignedIn()
+        && request.resource.data.user == request.auth.token.email
+        && !exists(/databases/$(database)/documents/bookings/$(bookingId));
+
+      // A user can cancel their own booking, or an admin can cancel any booking
+      allow delete: if isSignedIn() && (
+        resource.data.user == request.auth.token.email ||
+        isAdmin()
+      );
+
+      // No updates — must cancel + re-book
+      allow update: if false;
+    }
+
+    // ────────────── MAINTENANCE WINDOWS (UNCHANGED LOGIC) ──────────────
+    match /maintenanceWindows/{docId} {
+      // Everyone can see maintenance
+      allow read: if true;
+
+      // Only admins can create/update/delete
+      allow create, update, delete: if isSignedIn() && isAdmin();
+    }
+
+    // ────────────── MESSAGE BOARD POSTS (UNCHANGED LOGIC) ──────────────
+    match /messageBoard/{postId} {
+      // Public board
+      allow read: if true;
+
+      // Logged-in users can post
+      allow create: if isSignedIn();
+
+      // Author or admin can edit/delete
+      allow update, delete: if isSignedIn() && (
+        resource.data.authorId == request.auth.uid ||
+        isAdmin()
+      );
+    }
+
+    // Reactions on posts
+    match /messageBoard/{postId}/reactions/{uid} {
+      allow read: if true; // counts & my reaction
+      // user can set/update/delete only their own reaction doc
+      allow create, update, delete: if isSignedIn() && request.auth.uid == uid;
+    }
+
+    // Replies under comments
+    match /messageBoard/{postId}/comments/{commentId}/replies/{replyId} {
+      allow read: if true;
+      allow create: if isSignedIn(); // (client should include authorId == uid in data)
+      allow delete: if isSignedIn() && (
+        resource.data.authorId == request.auth.uid ||
+        isAdmin()
+      );
+      allow update: if false;
+    }
+
+    // Reports (admin will review later)
+    match /reports/{reportId} {
+      allow create: if isSignedIn(); // any signed-in user can report
+      allow read, update, delete: if isSignedIn() && isAdmin();
+    }
+
+    // ────────────── MESSAGE BOARD COMMENTS (UNCHANGED LOGIC) ──────────────
+    match /messageBoard/{postId}/comments/{commentId} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update, delete: if isSignedIn() && (
+        resource.data.authorId == request.auth.uid ||
+        isAdmin()
+      );
+    }
+
+    // ────────────── OWNERS-ONLY AREAS (NEW) ──────────────
+
+    // 1) Owners Discussions (threads + messages)
+    match /owners_discussions/{threadId} {
+      // Only owners can read the list and thread docs
+      allow read: if isOwner();
+
+      // Create a thread (owners only) with minimal shape validation
+      allow create: if isOwner()
+        && request.resource.data.keys().hasAll(['title', 'createdBy', 'createdAt'])
+        && request.resource.data.title is string
+        && request.resource.data.createdBy == request.auth.uid;
+
+      // Update: creator or admin
+      allow update: if isOwner()
+        && (resource.data.createdBy == request.auth.uid || isAdmin());
+
+      // Delete: admins only
+      allow delete: if isAdmin();
+
+      // Messages subcollection
+      match /messages/{msgId} {
+        allow read: if isOwner();
+
+        // Create: author must be caller; basic length guard
+        allow create: if isOwner()
+          && request.resource.data.keys().hasAll(['text', 'authorUid', 'createdAt'])
+          && request.resource.data.authorUid == request.auth.uid
+          && request.resource.data.text is string
+          && request.resource.data.text.size() > 0
+          && request.resource.data.text.size() <= 5000;
+
+        // Update: only original author or admin; keep authorUid immutable
+        allow update: if isOwner()
+          && (resource.data.authorUid == request.auth.uid || isAdmin())
+          && request.resource.data.authorUid == resource.data.authorUid;
+
+        // Delete: author or admin
+        allow delete: if (isOwner() && resource.data.authorUid == request.auth.uid) || isAdmin();
+      }
+    }
+
+    // 2) Owners Votes (vote docs + ballots subcollection)
+    match /owner_votes/{voteId} {
+      // Owners can see votes
+      allow read: if isOwner();
+
+      // Create/update/delete a vote: admins only, with basic shape/status checks
+      allow create, update, delete: if isAdmin()
+        && request.resource.data.keys().hasAll(['question', 'options', 'status', 'createdAt'])
+        && request.resource.data.status in ['open', 'closed'];
+
+      // Ballots: each owner writes their own ballot doc (id == uid) while vote is open
+      match /ballots/{ballotUid} {
+        allow read: if isOwner();
+
+        // Create/Update own ballot only if the parent vote is open
+        allow create, update: if isOwner()
+          && ballotUid == request.auth.uid
+          && get(/databases/$(database)/documents/owner_votes/$(voteId)).data.status == 'open'
+          && request.resource.data.keys().hasOnly(['optionId', 'castAt'])
+          && request.resource.data.optionId is string;
+
+        // Delete own ballot while open; admin can always delete
+        allow delete: if (
+            isOwner() &&
+            ballotUid == request.auth.uid &&
+            get(/databases/$(database)/documents/owner_votes/$(voteId)).data.status == 'open'
+          ) || isAdmin();
+      }
+    }
+
+    // 3) Owners Meta (keep fully private; never read/write from client)
+    match /owners_meta/{doc} {
+      allow read, write: if false;
+    }
+
+    // ────────────── PUBLIC VOTING (EVERYONE) ──────────────
+    match /voting_questions/{questionId} {
+      // Anyone can read questions/results
+      allow read: if true;
+
+      // Anyone can create; basic shape and status validation
+      allow create: if request.resource.data.keys().hasAll(['title', 'status', 'createdAt', 'options'])
+        && request.resource.data.title is string
+        && request.resource.data.status in ['open', 'closed']
+        && request.resource.data.options is list;
+
+      // Admins can update/delete questions
+      allow update, delete: if isAdmin();
+    }
+
+    match /voting_votes/{voteId} {
+      // Anyone can read votes
+      allow read: if true;
+
+      // Anyone can cast a vote (no auth required); enforce minimal shape
+      allow create: if request.resource.data.keys().hasAll(['questionId', 'optionId', 'userName', 'userNameLower', 'createdAt'])
+        && request.resource.data.questionId is string
+        && request.resource.data.optionId is string
+        && request.resource.data.userName is string
+        && request.resource.data.userNameLower is string;
+
+      // Only admins can edit/remove votes
+      allow update, delete: if isAdmin();
+    }
+  }
+}
