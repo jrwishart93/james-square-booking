@@ -1,13 +1,16 @@
 import { Question, Vote } from '../types';
 
+const hasStorage = typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
+
 const STORAGE_KEYS = {
   QUESTIONS: 'ovh_questions',
   VOTES: 'ovh_votes',
 };
 
-// --- Mock Data Seeding ---
+// --- Mock Data Seeding (client-only) ---
 
 const seedData = () => {
+  if (!hasStorage) return;
   if (localStorage.getItem(STORAGE_KEYS.QUESTIONS)) return;
 
   const now = Date.now();
@@ -59,6 +62,7 @@ export const getQuestions = async (): Promise<Question[]> => {
   // const querySnapshot = await getDocs(collection(db, "questions"));
   // return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Question));
   
+  if (!hasStorage) return [];
   const data = localStorage.getItem(STORAGE_KEYS.QUESTIONS);
   return data ? JSON.parse(data) : [];
 };
@@ -71,6 +75,8 @@ export const addQuestion = async (
   // FIREBASE MIGRATION:
   // await addDoc(collection(db, "questions"), newQuestion);
   
+  if (!hasStorage) return Promise.reject(new Error('Storage unavailable'));
+
   const questions = await getQuestions();
   const newQuestion: Question = {
     id: Date.now().toString(),
@@ -90,6 +96,7 @@ export const addQuestion = async (
 };
 
 export const deleteQuestion = async (questionId: string): Promise<void> => {
+  if (!hasStorage) return;
   const questions = await getQuestions();
   const remainingQuestions = questions.filter((q) => q.id !== questionId);
   const votes = await getVotes();
@@ -102,6 +109,7 @@ export const getVotes = async (): Promise<Vote[]> => {
   // FIREBASE MIGRATION:
   // const querySnapshot = await getDocs(collection(db, "votes"));
   
+  if (!hasStorage) return [];
   const data = localStorage.getItem(STORAGE_KEYS.VOTES);
   return data ? JSON.parse(data) : [];
 };
@@ -113,6 +121,8 @@ export const submitVote = async (
   userId: string | null = null
 ): Promise<Vote> => {
   // Check for duplicate locally (Firebase would use security rules or a transaction)
+  if (!hasStorage) return Promise.reject(new Error('Storage unavailable'));
+
   const allVotes = await getVotes();
   const hasVoted = allVotes.some(v => v.questionId === questionId && v.userName.toLowerCase() === userName.toLowerCase());
 
