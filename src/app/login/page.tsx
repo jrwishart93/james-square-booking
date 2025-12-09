@@ -1,12 +1,14 @@
-import LoginPageClient from './LoginPageClient';
+import type { Metadata, Viewport } from "next";
+import LoginPageClient from "./LoginPageClient";
 
-export const metadata = {
-  title: 'Login',
-  description: 'Sign in or register',
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-  },
+export const metadata: Metadata = {
+  title: "Login",
+  description: "Sign in or register",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function LoginPage() {

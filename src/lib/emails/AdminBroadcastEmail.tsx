@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-head-element */
 import React from 'react';
 
 interface AdminBroadcastEmailProps {
