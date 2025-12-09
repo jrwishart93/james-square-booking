@@ -1,0 +1,5 @@
+{
+  "name": "Owners Voting Hub",
+  "description": "A streamlined, mobile-friendly voting application allowing users to create questions, vote anonymously, and view real-time results.",
+  "requestFramePermissions": []
+}

@@ -186,7 +186,7 @@ const OwnersPage = () => {
             >
               <div className="flex flex-wrap gap-3">
                 <Link
-                  href="/owners/votes"
+                  href="/owners/voting"
                   className="inline-flex items-center justify-center rounded-xl px-4 py-2.5 bg-white/80 text-gray-900 hover:bg-white transition shadow-md backdrop-blur active:scale-[0.99] dark:bg-white/90"
                 >
                   View votes
@@ -312,6 +312,23 @@ const OwnersPage = () => {
             </GlassCard>
           </div>
         )}
+
+        {/* Open voting hub (no passcode required) */}
+        <GlassCard
+          className="md:col-span-2"
+          title="Community voting hub"
+          subtitle="Ask questions, vote, and review results. Open to all residents—no owners passcode required."
+          footer="Responses are stored locally for now and can move to Firestore later."
+        >
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="/owners/voting"
+              className="inline-flex items-center justify-center rounded-xl px-4 py-2.5 bg-white/80 text-gray-900 hover:bg-white transition shadow-md backdrop-blur active:scale-[0.99] dark:bg-white/90"
+            >
+              Go to voting hub
+            </Link>
+          </div>
+        </GlassCard>
       </div>
     </GradientBG>
   );
