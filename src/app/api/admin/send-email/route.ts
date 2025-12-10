@@ -8,7 +8,6 @@ import AdminBroadcastEmail from '@/lib/emails/AdminBroadcastEmail';
 import { sanitizeHtml } from '@/lib/sanitizeHtml';
 import { adminAuth, adminDb } from '@/lib/firebase-admin';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM = process.env.EMAIL_FROM || 'James Square <no-reply@example.com>';
 
 type AdminClaims = DecodedIdToken & { isAdmin?: boolean };
@@ -21,6 +20,7 @@ type EmailPayload = {
 
 export async function POST(req: NextRequest) {
   try {
+    const body = (await req.json()) as EmailPayload;
     const authHeader = req.headers.get('authorization') || '';
     const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
     if (!token) {
@@ -36,7 +36,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const { to, subject, bodyHtml } = (await req.json()) as EmailPayload;
+    if (!process.env.RESEND_API_KEY) {
+      console.warn('RESEND_API_KEY missing – email sending is temporarily disabled.');
+
+      return NextResponse.json(
+        {
+          ok: false,
+          message: 'Email sending temporarily disabled (no API key provided).',
+          bodyReceived: body,
+        },
+        { status: 200 },
+      );
+    }
+
+    const { to, subject, bodyHtml } = body;
 
     if (!Array.isArray(to) || to.length === 0) {
       return NextResponse.json({ error: '`to` must be a non-empty array' }, { status: 400 });
@@ -49,6 +62,8 @@ export async function POST(req: NextRequest) {
     }
 
     const safeHtml = sanitizeHtml(bodyHtml);
+
+    const resend = new Resend(process.env.RESEND_API_KEY);
 
     const { data, error } = await resend.emails.send({
       from: FROM,
