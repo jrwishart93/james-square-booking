@@ -317,7 +317,7 @@ const OwnersPage = () => {
         <GlassCard
           className="md:col-span-2"
           title="Community voting hub"
-          subtitle="Ask questions, vote, and review results. Open to all residents—no owners passcode required."
+          subtitle="Ask questions, vote, and review results."
           footer="Responses are stored locally for now and can move to Firestore later."
         >
           <div className="flex flex-wrap gap-3">
