@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { User, onAuthStateChanged } from "firebase/auth";
 import {
   AlertCircle,
   BarChart3,
@@ -21,6 +22,14 @@ import {
 } from "@/app/voting/services/storageService";
 import type { Option, Question, Vote } from "@/app/voting/types";
 import GradientBG from "@/components/GradientBG";
+import { auth } from "@/lib/firebase";
+
+const deriveFirstName = (user: User | null): string => {
+  if (!user) return "";
+  const base = user.displayName?.trim() || user.email?.split("@")[0] || "";
+  const first = base.split(/[\s._-]+/).find(Boolean) || "";
+  return first ? first.charAt(0).toUpperCase() + first.slice(1) : "";
+};
 
 type Tab = "ask" | "vote" | "results";
 
@@ -44,10 +53,26 @@ export default function OwnersVotingPage() {
 
   // Vote tab state
   const [voterName, setVoterName] = useState("");
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   useEffect(() => {
     const stored = typeof window !== "undefined" ? sessionStorage.getItem("ovh_username") : null;
     if (stored) setVoterName(stored);
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      setCurrentUser(firebaseUser);
+      if (firebaseUser) {
+        const defaultName = deriveFirstName(firebaseUser);
+        if (defaultName) {
+          setVoterName(defaultName);
+          sessionStorage.setItem("ovh_username", defaultName);
+        }
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
 
   useEffect(() => {
@@ -115,6 +140,10 @@ export default function OwnersVotingPage() {
     event.preventDefault();
     const name = voterName.trim();
     const optionId = selectedOptions[questionId];
+    if (!currentUser) {
+      setVoteErrors((prev) => ({ ...prev, [questionId]: "Please sign in to vote." }));
+      return;
+    }
     if (!name) {
       setVoteErrors((prev) => ({ ...prev, [questionId]: "Please enter your name to vote." }));
       return;
@@ -126,7 +155,7 @@ export default function OwnersVotingPage() {
     setSavingVoteId(questionId);
     setVoteErrors((prev) => ({ ...prev, [questionId]: null }));
     try {
-      await submitVote(questionId, optionId, name);
+      await submitVote(questionId, optionId, name, currentUser.uid);
       sessionStorage.setItem("ovh_username", name);
       const vs = await getVotes();
       setVotes(vs);
@@ -285,8 +314,14 @@ export default function OwnersVotingPage() {
                 placeholder="Enter your name"
                 value={voterName}
                 onChange={(e) => setVoterName(e.target.value)}
+                readOnly={Boolean(currentUser)}
                 className="bg-slate-900/50 border-indigo-500/30 focus:ring-indigo-400/50 py-3"
               />
+              <p className="text-xs text-indigo-100/80 ml-1">
+                {currentUser
+                  ? "Using your account name so each vote is attributed to your login."
+                  : "Sign in and provide your name so we can record who voted."}
+              </p>
 
               {questions.length === 0 ? (
                 <div className="text-center text-slate-300 py-10">
@@ -369,7 +404,7 @@ export default function OwnersVotingPage() {
                             type="submit"
                             fullWidth
                             isLoading={savingVoteId === question.id}
-                            disabled={!selected || !voterName}
+                            disabled={!selected || !voterName || !currentUser}
                           >
                             Submit Vote
                           </Button>
