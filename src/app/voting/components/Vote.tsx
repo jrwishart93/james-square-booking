@@ -1,15 +1,27 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { User, onAuthStateChanged } from 'firebase/auth';
 import { getQuestions, getVotes, submitVote } from '../services/storageService';
+import { auth } from '@/lib/firebase';
 import { Question } from '../types';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
 import { ArrowRight, AlertCircle, Check, Loader2 } from 'lucide-react';
 
+const deriveFirstName = (user: User | null): string => {
+  if (!user) return '';
+  const base = user.displayName?.trim() || user.email?.split('@')[0] || '';
+  const first = base.split(/[\s._-]+/).find(Boolean) || '';
+  return first ? first.charAt(0).toUpperCase() + first.slice(1) : '';
+};
+
 const VotePage: React.FC = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
+
+  // Auth state
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   
   // Form State
   const [userName, setUserName] = useState('');
@@ -21,6 +33,22 @@ const VotePage: React.FC = () => {
   useEffect(() => {
     const storedName = sessionStorage.getItem('ovh_username');
     if (storedName) setUserName(storedName);
+  }, []);
+
+  // Keep auth state in sync and prefill the name from the signed-in user
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      setCurrentUser(firebaseUser);
+      if (firebaseUser) {
+        const defaultName = deriveFirstName(firebaseUser);
+        if (defaultName) {
+          setUserName(defaultName);
+          sessionStorage.setItem('ovh_username', defaultName);
+        }
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const loadNextQuestion = useCallback(async () => {
@@ -62,8 +90,7 @@ const VotePage: React.FC = () => {
 
   useEffect(() => {
     loadNextQuestion();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); 
+  }, [loadNextQuestion]);
 
   const handleNameBlur = () => {
     if (userName.trim()) {
@@ -78,6 +105,10 @@ const VotePage: React.FC = () => {
 
     setError(null);
 
+    if (!currentUser) {
+      setError("Please sign in to vote.");
+      return;
+    }
     if (!userName.trim()) {
       setError("Please enter your name to vote.");
       return;
@@ -90,7 +121,7 @@ const VotePage: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      await submitVote(currentQuestion.id, selectedOptionId, userName.trim());
+      await submitVote(currentQuestion.id, selectedOptionId, userName.trim(), currentUser.uid);
       sessionStorage.setItem('ovh_username', userName.trim());
       await loadNextQuestion();
     } catch (err: unknown) {
@@ -160,10 +191,13 @@ const VotePage: React.FC = () => {
               value={userName}
               onChange={(e) => setUserName(e.target.value)}
               onBlur={handleNameBlur}
+              readOnly={Boolean(currentUser)}
               className="bg-slate-900/50 border-indigo-500/30 focus:ring-indigo-400/50"
             />
             <p className="text-xs text-indigo-300/60 mt-2 ml-1">
-              Required to check for duplicate votes.
+              {currentUser
+                ? 'Using your account name so each ballot is tied to your login.'
+                : 'Required to check for duplicate votes.'}
             </p>
           </div>
 
@@ -212,7 +246,12 @@ const VotePage: React.FC = () => {
             </div>
           )}
 
-          <Button type="submit" fullWidth isLoading={isSubmitting} disabled={!selectedOptionId || !userName}>
+          <Button
+            type="submit"
+            fullWidth
+            isLoading={isSubmitting}
+            disabled={!selectedOptionId || !userName || !currentUser}
+          >
             Submit Vote <ArrowRight size={16} className="ml-2" />
           </Button>
         </form>
