@@ -11,31 +11,31 @@ export const Input: React.FC<InputProps> = ({ label, error, className = '', id, 
   return (
     <div className="w-full">
       {label && (
-        <label htmlFor={inputId} className="block text-sm font-medium text-slate-300 mb-1.5 ml-1">
+        <label htmlFor={inputId} className="block text-sm font-semibold text-slate-700 mb-1.5 ml-1">
           {label}
         </label>
       )}
       <input
         id={inputId}
         className={`
-          w-full rounded-2xl 
-          bg-white/5 
-          border border-white/10 
+          w-full rounded-2xl
+          bg-white
+          border border-slate-300
           px-4 py-3
-          text-sm text-slate-50
+          text-sm text-slate-900
           placeholder:text-slate-500
-          focus:outline-none 
-          focus:ring-2 focus:ring-cyan-400/70 
-          focus:border-transparent
-          backdrop-blur-md
-          shadow-inner shadow-black/20
+          focus:outline-none
+          focus:ring-2 focus:ring-cyan-500
+          focus:border-cyan-400
+          focus:ring-offset-2 focus:ring-offset-white
+          shadow-[0_1px_2px_rgba(0,0,0,0.06)]
           transition-all
-          ${error ? 'border-red-500/50 focus:ring-red-500/50' : ''} 
+          ${error ? 'border-red-400 focus:ring-red-400 focus:ring-offset-2 focus:ring-offset-white' : ''}
           ${className}
         `}
         {...props}
       />
-      {error && <p className="mt-1.5 ml-1 text-sm text-red-400">{error}</p>}
+      {error && <p className="mt-1.5 ml-1 text-sm text-red-600">{error}</p>}
     </div>
   );
 };
