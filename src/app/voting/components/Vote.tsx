@@ -140,7 +140,7 @@ const VotePage: React.FC = () => {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-full min-h-[400px]">
-        <Loader2 className="w-8 h-8 text-cyan-400 animate-spin" />
+        <Loader2 className="w-8 h-8 text-cyan-500 animate-spin" />
       </div>
     );
   }
@@ -151,27 +151,26 @@ const VotePage: React.FC = () => {
 
   return (
     <div className="max-w-xl mx-auto py-8 px-6">
-      
+
       <div className="
-        rounded-[32px] 
-        bg-slate-900/40 
-        border border-white/5 
-        backdrop-blur-xl 
+        rounded-[32px]
+        bg-white
+        border border-slate-200
         overflow-hidden
-        shadow-[0_20px_50px_rgba(0,0,0,0.3)]
+        shadow-[0_24px_70px_rgba(15,23,42,0.14)]
       ">
         {/* Header */}
-        <div className="p-8 border-b border-white/5 bg-white/5">
+        <div className="p-8 border-b border-slate-200 bg-gradient-to-r from-cyan-50 to-indigo-50">
           <div className="flex justify-between items-start mb-4">
-            <span className="inline-flex px-3 py-1 text-xs font-bold tracking-wider uppercase bg-emerald-500/10 text-emerald-400 rounded-full border border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.2)]">
+            <span className="inline-flex px-3 py-1 text-xs font-bold tracking-wider uppercase bg-emerald-50 text-emerald-700 rounded-full border border-emerald-200 shadow-[0_6px_20px_rgba(16,185,129,0.15)]">
               Active Poll
             </span>
           </div>
-          <h2 className="text-2xl font-bold text-white mb-2 leading-tight">
+          <h2 className="text-2xl font-bold text-slate-900 mb-2 leading-tight">
             {currentQuestion.title}
           </h2>
           {currentQuestion.description && (
-            <p className="text-slate-400 text-sm leading-relaxed">
+            <p className="text-slate-600 text-sm leading-relaxed">
               {currentQuestion.description}
             </p>
           )}
@@ -179,10 +178,10 @@ const VotePage: React.FC = () => {
 
         {/* Voting Form */}
         <form onSubmit={handleSubmit} className="p-8 space-y-8">
-          
+
           {/* Identity Section */}
-          <div className="bg-indigo-500/10 p-5 rounded-2xl border border-indigo-500/20 relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
+          <div className="bg-sky-50 p-5 rounded-2xl border border-sky-100 relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-4 opacity-20 pointer-events-none text-cyan-400">
               <VotePageIcon />
             </div>
             <Input
@@ -192,9 +191,9 @@ const VotePage: React.FC = () => {
               onChange={(e) => setUserName(e.target.value)}
               onBlur={handleNameBlur}
               readOnly={Boolean(currentUser)}
-              className="bg-slate-900/50 border-indigo-500/30 focus:ring-indigo-400/50"
+              className="bg-white border-slate-200 focus:ring-cyan-500"
             />
-            <p className="text-xs text-indigo-300/60 mt-2 ml-1">
+            <p className="text-xs text-slate-600 mt-2 ml-1">
               {currentUser
                 ? 'Using your account name so each ballot is tied to your login.'
                 : 'Required to check for duplicate votes.'}
@@ -203,17 +202,17 @@ const VotePage: React.FC = () => {
 
           {/* Options */}
           <div className="space-y-3">
-            <label className="block text-sm font-medium text-slate-300 ml-1">Select your choice:</label>
+            <label className="block text-sm font-semibold text-slate-800 ml-1">Select your choice:</label>
             {currentQuestion.options.map((option) => {
               const isSelected = selectedOptionId === option.id;
               return (
-                <label 
+                <label
                   key={option.id}
                   className={`
                     relative flex items-center p-4 rounded-xl border cursor-pointer transition-all duration-200 group
-                    ${isSelected 
-                      ? 'border-cyan-500/50 bg-cyan-500/10 shadow-[0_0_20px_rgba(6,182,212,0.15)]' 
-                      : 'border-white/5 bg-white/5 hover:bg-white/10 hover:border-white/10'
+                    ${isSelected
+                      ? 'border-cyan-400/70 bg-cyan-50 shadow-[0_15px_40px_rgba(6,182,212,0.18)]'
+                      : 'border-slate-200 bg-white hover:bg-slate-50 hover:border-cyan-100'
                     }
                   `}
                 >
@@ -227,11 +226,11 @@ const VotePage: React.FC = () => {
                   />
                   <div className={`
                     flex-shrink-0 w-5 h-5 rounded-full border flex items-center justify-center mr-4 transition-colors
-                    ${isSelected ? 'border-cyan-400 bg-cyan-400' : 'border-slate-500 group-hover:border-slate-400'}
+                    ${isSelected ? 'border-cyan-500 bg-cyan-500 text-white' : 'border-slate-300 group-hover:border-cyan-400'}
                   `}>
-                    {isSelected && <Check size={12} className="text-slate-900" />}
+                    {isSelected && <Check size={12} className="text-white" />}
                   </div>
-                  <span className={`font-medium text-sm ${isSelected ? 'text-white' : 'text-slate-300 group-hover:text-white'}`}>
+                  <span className={`font-medium text-sm ${isSelected ? 'text-slate-900' : 'text-slate-700 group-hover:text-slate-900'}`}>
                     {option.label}
                   </span>
                 </label>
@@ -240,7 +239,7 @@ const VotePage: React.FC = () => {
           </div>
 
           {error && (
-            <div className="flex items-center gap-3 text-red-300 text-sm bg-red-500/10 p-4 rounded-xl border border-red-500/20">
+            <div className="flex items-center gap-3 text-red-700 text-sm bg-red-50 p-4 rounded-xl border border-red-200">
               <AlertCircle size={18} className="shrink-0" />
               {error}
             </div>
@@ -258,9 +257,9 @@ const VotePage: React.FC = () => {
       </div>
 
       <div className="text-center mt-8">
-        <button 
-          onClick={() => navigate('/results')} 
-          className="text-sm text-slate-500 hover:text-slate-300 transition-colors underline decoration-slate-700 underline-offset-4"
+        <button
+          onClick={() => navigate('/results')}
+          className="text-sm text-slate-600 hover:text-cyan-700 transition-colors underline decoration-slate-300 underline-offset-4"
         >
           Skip to Results
         </button>

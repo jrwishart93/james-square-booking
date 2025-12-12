@@ -52,7 +52,7 @@ const Results: React.FC = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-full min-h-[400px]">
-        <Loader2 className="w-8 h-8 text-cyan-400 animate-spin" />
+        <Loader2 className="w-8 h-8 text-cyan-500 animate-spin" />
       </div>
     );
   }
@@ -65,20 +65,19 @@ const Results: React.FC = () => {
 
   return (
     <div className="max-w-2xl mx-auto py-8 px-6 space-y-8">
-      
+
       <div className="text-center mb-6">
-        <h1 className="text-2xl font-bold text-white">Results & Insights</h1>
-        <p className="text-slate-400">Real-time voting analytics.</p>
+        <h1 className="text-2xl font-bold text-slate-900">Results & Insights</h1>
+        <p className="text-slate-600">Real-time voting analytics.</p>
       </div>
 
       {/* Overview Chart */}
       {stats.length > 0 && stats.some(s => s.totalVotes > 0) && (
         <div className="
-          p-6 rounded-3xl 
-          bg-slate-900/40 
-          border border-white/5 
-          backdrop-blur-xl 
-          shadow-lg
+          p-6 rounded-3xl
+          bg-white
+          border border-slate-200
+          shadow-[0_24px_70px_rgba(15,23,42,0.14)]
         ">
            <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-6">Participation Overview</h3>
            <div className="h-48 w-full">
@@ -99,17 +98,17 @@ const Results: React.FC = () => {
                    allowDecimals={false} 
                    stroke="#64748b" 
                  />
-                 <Tooltip 
-                    cursor={{fill: 'rgba(255,255,255,0.05)'}}
-                    contentStyle={{
-                      backgroundColor: '#0f172a', 
-                      borderRadius: '12px', 
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      color: '#f8fafc',
-                      boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
-                    }}
-                    itemStyle={{ color: '#38bdf8' }}
-                 />
+                 <Tooltip
+                   cursor={{fill: 'rgba(148,163,184,0.15)'}}
+                   contentStyle={{
+                     backgroundColor: '#ffffff',
+                     borderRadius: '12px',
+                     border: '1px solid #e2e8f0',
+                     color: '#0f172a',
+                     boxShadow: '0 18px 40px rgba(15,23,42,0.12)'
+                   }}
+                   itemStyle={{ color: '#0891b2' }}
+                />
                  <Bar dataKey="votes" radius={[4, 4, 0, 0]}>
                     {summaryData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill="url(#barGradient)" />
@@ -131,28 +130,27 @@ const Results: React.FC = () => {
       <div className="space-y-6">
         {stats.map((stat) => (
           <div key={stat.question.id} className="
-            rounded-[28px] 
-            bg-slate-900/40 
-            border border-white/5 
-            backdrop-blur-md 
+            rounded-[28px]
+            bg-white
+            border border-slate-200
             overflow-hidden
-            hover:bg-slate-900/50 transition-colors
+            shadow-[0_20px_60px_rgba(15,23,42,0.12)] transition-transform hover:-translate-y-1
           ">
-            <div className="p-6 border-b border-white/5 bg-white/[0.02]">
-              <h2 className="text-lg font-bold text-white leading-snug">{stat.question.title}</h2>
+            <div className="p-6 border-b border-slate-200 bg-slate-50">
+              <h2 className="text-lg font-bold text-slate-900 leading-snug">{stat.question.title}</h2>
               {stat.question.description && (
-                 <p className="text-slate-400 text-sm mt-2 leading-relaxed">{stat.question.description}</p>
+                 <p className="text-slate-600 text-sm mt-2 leading-relaxed">{stat.question.description}</p>
               )}
-              <div className="mt-4 flex items-center text-xs text-slate-500 font-medium">
-                 <span className="text-cyan-400">{stat.totalVotes}</span> <span className="ml-1 mr-1">votes</span>
-                 <span className="mx-2 text-slate-700">•</span>
+              <div className="mt-4 flex items-center text-xs text-slate-600 font-medium">
+                 <span className="text-cyan-700">{stat.totalVotes}</span> <span className="ml-1 mr-1">votes</span>
+                 <span className="mx-2 text-slate-300">•</span>
                  <span>{new Date(stat.question.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
               </div>
             </div>
 
             <div className="p-6 space-y-5">
               {stat.totalVotes === 0 ? (
-                <div className="text-center py-6 text-slate-600 text-sm italic">
+                <div className="text-center py-6 text-slate-500 text-sm italic">
                   No votes recorded yet.
                 </div>
               ) : (
@@ -160,16 +158,16 @@ const Results: React.FC = () => {
                   <div key={res.option.id} className="space-y-2">
                     {/* Header: Label + Percentage */}
                     <div className="flex justify-between items-end">
-                      <span className="text-sm font-medium text-slate-300">{res.option.label}</span>
-                      <span className="text-sm font-bold text-white">{res.percentage}%</span>
+                      <span className="text-sm font-medium text-slate-700">{res.option.label}</span>
+                      <span className="text-sm font-bold text-slate-900">{res.percentage}%</span>
                     </div>
-                    
+
                     {/* Visual Bar Background */}
-                    <div className="w-full bg-slate-800/50 rounded-full h-2.5 overflow-hidden ring-1 ring-white/5">
+                    <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden ring-1 ring-slate-200">
                       {/* Visual Bar Fill */}
-                      <div 
-                        className="h-full rounded-full transition-all duration-1000 ease-out relative shadow-[0_0_15px_rgba(56,189,248,0.5)]"
-                        style={{ 
+                      <div
+                        className="h-full rounded-full transition-all duration-1000 ease-out relative shadow-[0_10px_25px_rgba(8,145,178,0.25)]"
+                        style={{
                           width: `${res.percentage}%`,
                           background: 'linear-gradient(90deg, #6366f1 0%, #06b6d4 100%)'
                         }}

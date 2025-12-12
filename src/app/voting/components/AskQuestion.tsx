@@ -77,11 +77,11 @@ const AskQuestion: React.FC = () => {
   if (success) {
     return (
       <div className="flex flex-col items-center justify-center py-16 px-6 text-center animate-fade-in h-full">
-        <div className="bg-emerald-500/10 p-5 rounded-full mb-6 border border-emerald-500/20 shadow-[0_0_40px_rgba(16,185,129,0.2)]">
-          <CheckCircle2 className="w-12 h-12 text-emerald-400" />
+        <div className="bg-emerald-50 p-5 rounded-full mb-6 border border-emerald-200 shadow-[0_16px_40px_rgba(16,185,129,0.18)]">
+          <CheckCircle2 className="w-12 h-12 text-emerald-600" />
         </div>
-        <h2 className="text-3xl font-bold text-white mb-3 tracking-tight">Question Published!</h2>
-        <p className="text-slate-400 mb-10 max-w-sm leading-relaxed">
+        <h2 className="text-3xl font-bold text-slate-900 mb-3 tracking-tight">Question Published!</h2>
+        <p className="text-slate-600 mb-10 max-w-sm leading-relaxed">
           Your question is now live. Users can find it immediately in the &quot;Vote&quot; tab.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 w-full max-w-xs">
@@ -95,17 +95,16 @@ const AskQuestion: React.FC = () => {
   return (
     <div className="max-w-xl mx-auto py-8 px-6">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white mb-2">Ask a Question</h1>
-        <p className="text-slate-400">Create a poll for other owners to vote on.</p>
+        <h1 className="text-2xl font-bold text-slate-900 mb-2">Ask a Question</h1>
+        <p className="text-slate-600">Create a poll for other owners to vote on.</p>
       </div>
 
       <div className="
-        rounded-3xl 
-        bg-slate-900/40 
-        border border-white/5 
-        backdrop-blur-sm 
+        rounded-3xl
+        bg-white
+        border border-slate-200
         p-6 md:p-8
-        shadow-xl
+        shadow-[0_24px_70px_rgba(15,23,42,0.14)]
       ">
         <form onSubmit={handleSubmit} className="space-y-8">
           <div className="space-y-5">
@@ -118,22 +117,21 @@ const AskQuestion: React.FC = () => {
             />
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5 ml-1">
+              <label className="block text-sm font-semibold text-slate-800 mb-1.5 ml-1">
                 Description <span className="text-slate-500 font-normal">(Optional)</span>
               </label>
               <textarea
                 className="
-                  w-full rounded-2xl 
-                  bg-white/5 
-                  border border-white/10 
+                  w-full rounded-2xl
+                  bg-white
+                  border border-slate-300
                   px-4 py-3
-                  text-sm text-slate-50
+                  text-sm text-slate-900
                   placeholder:text-slate-500
-                  focus:outline-none 
-                  focus:ring-2 focus:ring-cyan-400/70 
-                  focus:border-transparent
-                  backdrop-blur-md
-                  shadow-inner shadow-black/20
+                  focus:outline-none
+                  focus:ring-2 focus:ring-cyan-500
+                  focus:border-cyan-400
+                  shadow-[0_1px_2px_rgba(0,0,0,0.06)]
                   transition-all
                   h-28 resize-none
                 "
@@ -145,8 +143,8 @@ const AskQuestion: React.FC = () => {
           </div>
 
           <div className="space-y-4">
-            <div className="flex justify-between items-end border-b border-white/5 pb-2">
-              <label className="block text-sm font-medium text-slate-300 ml-1">Options</label>
+            <div className="flex justify-between items-end border-b border-slate-200 pb-2">
+              <label className="block text-sm font-semibold text-slate-800 ml-1">Options</label>
               <span className="text-xs text-slate-500 font-mono">Min 2 • Max 6</span>
             </div>
             
@@ -163,7 +161,7 @@ const AskQuestion: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => removeOptionField(index)}
-                      className="p-3 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-colors"
+                      className="p-3 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors"
                       aria-label="Remove option"
                     >
                       <Trash2 size={18} />
@@ -173,16 +171,16 @@ const AskQuestion: React.FC = () => {
               ))}
             </div>
 
-            {errors.options && <p className="text-sm text-red-400 ml-1">{errors.options}</p>}
+            {errors.options && <p className="text-sm text-red-600 ml-1">{errors.options}</p>}
 
             {options.length < 6 && (
               <button
                 type="button"
                 onClick={addOptionField}
                 className="
-                  flex items-center text-sm font-medium 
-                  text-cyan-400 hover:text-cyan-300 
-                  transition-colors mt-2 px-2 py-1 rounded-lg hover:bg-cyan-500/10
+                  flex items-center text-sm font-medium
+                  text-cyan-700 hover:text-cyan-900
+                  transition-colors mt-2 px-2 py-1 rounded-lg hover:bg-cyan-50
                 "
               >
                 <Plus size={16} className="mr-1.5" /> Add Another Option
