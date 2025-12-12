@@ -40,12 +40,21 @@ html, body {
 body {
   color: hsl(var(--fg));
   background:
-    radial-gradient(1200px 800px at 20% -10%, hsl(213 94% 98%), transparent 60%),
-    radial-gradient(1200px 800px at 120% 20%, hsl(250 95% 97%), transparent 55%),
-    radial-gradient(1200px 800px at -20% 120%, hsl(195 95% 96%), transparent 55%),
-    linear-gradient(hsl(var(--bg)), hsl(var(--bg)));
+    radial-gradient(1400px 900px at 10% -10%, #f6f7f8 0%, transparent 55%),
+    radial-gradient(1400px 900px at 110% 0%, #eceff1 0%, transparent 55%),
+    linear-gradient(180deg, #f9fafb 0%, #ffffff 60%, #f3f5f7 100%);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background:
+      radial-gradient(1200px 800px at 20% -10%, hsl(213 94% 98% / 0.08), transparent 60%),
+      radial-gradient(1200px 800px at 120% 20%, hsl(250 95% 97% / 0.08), transparent 55%),
+      radial-gradient(1200px 800px at -20% 120%, hsl(195 95% 96% / 0.08), transparent 55%),
+      linear-gradient(hsl(var(--bg)), hsl(var(--bg)));
+  }
 }
 
 /* Optional: soft neutral gradient background for “glass” pages */
