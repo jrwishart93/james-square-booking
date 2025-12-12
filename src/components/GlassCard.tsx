@@ -13,6 +13,8 @@ type GlassCardProps = {
   children: ReactNode;
   className?: string;
   as?: 'section' | 'div';
+  titleClassName?: string;
+  subtitleClassName?: string;
 };
 
 export const GlassCard = ({
@@ -22,6 +24,8 @@ export const GlassCard = ({
   children,
   className,
   as = 'section',
+  titleClassName,
+  subtitleClassName,
 }: GlassCardProps) => {
   const prefersReducedMotion = useReducedMotion();
   const MotionComponent: ElementType = as === 'div' ? motion.div : motion.section;
@@ -43,8 +47,12 @@ export const GlassCard = ({
       <div className="relative z-10 space-y-5">
         {(title || subtitle) && (
           <header className="space-y-1">
-            {title && <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">{title}</h2>}
-            {subtitle && <p className="text-sm text-slate-600 dark:text-slate-300">{subtitle}</p>}
+            {title && (
+              <h2 className={cx('text-xl font-semibold text-slate-900 dark:text-slate-100', titleClassName)}>{title}</h2>
+            )}
+            {subtitle && (
+              <p className={cx('text-sm text-slate-600 dark:text-slate-300', subtitleClassName)}>{subtitle}</p>
+            )}
           </header>
         )}
 

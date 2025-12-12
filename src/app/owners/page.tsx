@@ -9,11 +9,8 @@ const OwnersPage = () => {
   return (
     <GradientBG className="relative isolate min-h-screen w-screen -ml-[calc((100vw-100%)/2)] -mr-[calc((100vw-100%)/2)] px-4 md:px-8 py-12">
       <div className="relative mx-auto max-w-5xl px-2 sm:px-4 md:px-0 space-y-10">
-        <header className="space-y-3 text-center md:text-left">
-          <p className="text-sm uppercase tracking-[0.3em] text-slate-600/80 dark:text-slate-300/70">
-            Owners Area
-          </p>
-          <h1 className="text-3xl md:text-4xl font-semibold text-slate-900 dark:text-white">
+        <header className="pt-5 md:pt-6 space-y-4 md:space-y-5 text-center md:text-left">
+          <h1 className="text-3xl md:text-4xl font-semibold text-neutral-900 dark:text-white">
             Owners Area
           </h1>
           <p className="max-w-3xl text-sm md:text-base text-slate-600 dark:text-slate-300">
@@ -26,7 +23,11 @@ const OwnersPage = () => {
         </header>
 
         <div className="grid gap-6 md:grid-cols-2">
-          <GlassCard title="Secure owners access" subtitle="A private password-protected area for owners is on the way.">
+          <GlassCard
+            title="Secure owners access"
+            subtitle="A private password-protected area for owners is on the way."
+            titleClassName="text-slate-800/80 dark:text-slate-100/90"
+          >
             <div className="inline-flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-800 shadow dark:bg-white/80 dark:text-slate-900">
               <span className="h-2 w-2 rounded-full bg-yellow-500" aria-hidden />
               Coming soon
@@ -43,10 +44,12 @@ const OwnersPage = () => {
             title="Community voting hub"
             subtitle="Ask questions, vote, and review results."
             footer="Open to all owners."
+            titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100"
+            className="before:inset-x-0 before:h-[3px] before:bg-[linear-gradient(90deg,rgba(15,23,42,0.08),rgba(15,23,42,0))]"
           >
             <Link
               href="/owners/voting"
-              className="inline-flex items-center justify-center rounded-xl px-4 py-2.5 bg-white/80 text-gray-900 hover:bg-white transition shadow-md backdrop-blur active:scale-[0.99] dark:bg-white/90"
+              className="inline-flex items-center justify-center rounded-full px-5 py-2.5 text-sm font-semibold text-slate-900 bg-white/90 backdrop-blur-lg shadow-[0_6px_18px_rgba(0,0,0,0.08)] border border-black/5 transition-transform transition-shadow duration-200 hover:-translate-y-0.5 hover:scale-[1.01] hover:shadow-[0_10px_28px_rgba(0,0,0,0.12)] active:translate-y-[1px] active:shadow-[0_4px_12px_rgba(0,0,0,0.08)] dark:bg-white/85 dark:text-slate-900 dark:border-white/20"
             >
               Go to voting hub
             </Link>
