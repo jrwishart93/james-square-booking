@@ -32,10 +32,11 @@ export const GlassCard = ({
       animate={{ opacity: 1, y: 0 }}
       transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.35, ease: 'easeOut' }}
       className={cx(
-        'relative overflow-hidden rounded-2xl border border-white/20 dark:border-white/10',
-        'bg-white/10 dark:bg-white/5 backdrop-blur-xl shadow-[0_20px_45px_-25px_rgba(15,23,42,0.5)]',
-        "p-6 md:p-8 before:absolute before:inset-x-6 before:top-0 before:h-px before:bg-white/40 before:content-['']",
-        "after:pointer-events-none after:absolute after:inset-0 after:bg-[linear-gradient(180deg,rgba(255,255,255,0.18),transparent_35%)] after:opacity-60 after:content-['']",
+        'relative overflow-hidden rounded-3xl border backdrop-blur-2xl',
+        'bg-white/70 shadow-[0_8px_24px_rgba(0,0,0,0.08)] border-white/70',
+        'dark:bg-white/5 dark:border-white/10 dark:shadow-[0_20px_45px_-25px_rgba(15,23,42,0.5)]',
+        "p-6 md:p-8 before:absolute before:inset-x-6 before:top-0 before:h-px before:bg-white/50 before:content-['']",
+        "after:pointer-events-none after:absolute after:inset-0 after:bg-[linear-gradient(180deg,rgba(255,255,255,0.22),transparent_35%)] after:opacity-70 after:content-['']",
         className,
       )}
     >

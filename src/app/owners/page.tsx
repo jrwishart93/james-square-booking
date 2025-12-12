@@ -7,8 +7,8 @@ import GradientBG from '@/components/GradientBG';
 
 const OwnersPage = () => {
   return (
-    <GradientBG className="min-h-screen py-10">
-      <div className="relative max-w-5xl mx-auto px-4 md:px-6 pt-10 md:pt-14 pb-12 space-y-10">
+    <GradientBG className="relative isolate min-h-screen w-screen -ml-[calc((100vw-100%)/2)] -mr-[calc((100vw-100%)/2)] px-4 md:px-8 py-12">
+      <div className="relative mx-auto max-w-5xl px-2 sm:px-4 md:px-0 space-y-10">
         <header className="space-y-3 text-center md:text-left">
           <p className="text-sm uppercase tracking-[0.3em] text-slate-600/80 dark:text-slate-300/70">
             Owners Area
