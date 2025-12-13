@@ -1,15 +1,15 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
 import Image from 'next/image';
 
+import { FacilityCard } from '@/components/FacilityCard';
 import Button from '@/components/ui/Button';
 
 const FACILITIES = [
-  { name: 'Pool', icon: '/images/icons/pool-icon.png' },
-  { name: 'Gym', icon: '/images/icons/gym-icon.png' },
-  { name: 'Sauna', icon: '/images/icons/sauna-icon.png' },
+  { title: 'Pool', href: '/book/pool', imageSrc: '/images/icons/pool-icon.png' },
+  { title: 'Gym', href: '/book/gym', imageSrc: '/images/icons/gym-icon.png' },
+  { title: 'Sauna', href: '/book/sauna', imageSrc: '/images/icons/sauna-icon.png' },
 ];
 
 export default function HomePage() {
@@ -28,31 +28,9 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="mt-10 flex flex-col md:flex-row justify-center gap-6">
-        {FACILITIES.map(({ name, icon }) => (
-          <div
-            key={name}
-            className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 text-center flex-1"
-          >
-            <div className="flex justify-center mb-4">
-              <div className="w-24 h-24 relative rounded-full overflow-hidden border border-gray-200 dark:border-gray-700">
-                <Image
-                  src={icon}
-                  alt={`${name} icon`}
-                  fill
-                  className="object-cover filter dark:invert"
-                />
-              </div>
-            </div>
-            <h2 className="text-2xl font-semibold mb-4 text-black dark:text-white">
-              {name}
-            </h2>
-            <Link href={`/book/schedule?expanded=${name.toLowerCase()}`}>
-              <button className="w-full py-3 bg-black text-white rounded-lg text-lg font-medium hover:bg-gray-900 transition duration-300">
-                Book {name}
-              </button>
-            </Link>
-          </div>
+      <div className="mt-10 grid grid-cols-1 gap-5 sm:gap-6 md:grid-cols-2 xl:grid-cols-3">
+        {FACILITIES.map((facility) => (
+          <FacilityCard key={facility.title} {...facility} />
         ))}
       </div>
 
