@@ -134,6 +134,7 @@ function renderDateSelector(
 export default function SchedulePageClientInner() {
   const searchParams = useSearchParams();
   const expandedParam = searchParams.get('expanded')?.toLowerCase();
+  const facilityParam = searchParams.get('facility')?.toLowerCase();
 
   const [expandedFacilities, setExpandedFacilities] = useState<Record<string, boolean>>(
     expandedParam ? { [expandedParam]: true } : {}
@@ -218,6 +219,22 @@ export default function SchedulePageClientInner() {
     });
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (!facilityParam) return;
+
+    const validFacilities = ['pool', 'gym', 'sauna'];
+    if (!validFacilities.includes(facilityParam)) return;
+
+    setExpandedFacilities((prev) => ({ ...prev, [facilityParam]: true }));
+
+    requestAnimationFrame(() => {
+      document.getElementById(`facility-${facilityParam}`)?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    });
+  }, [facilityParam]);
 
   function handleToggleExpand(facility: string) {
     const key = facility.toLowerCase();
@@ -429,7 +446,12 @@ export default function SchedulePageClientInner() {
     );
     if (closedWindow) {
       return (
-        <motion.div layout key={facility} className="jqs-glass p-6 transition-all">
+        <motion.div
+          layout
+          key={facility}
+          id={`facility-${facility.toLowerCase()}`}
+          className="jqs-glass p-6 transition-all"
+        >
           <h2 className="text-xl font-semibold mb-4 text-center">
             {facility}
           </h2>
@@ -512,7 +534,12 @@ export default function SchedulePageClientInner() {
     const displayedSlots = isExpanded ? scheduleSlots : [];
 
     return (
-      <motion.div layout key={facility} className="jqs-glass p-4 transition-all">
+      <motion.div
+        layout
+        key={facility}
+        id={`facility-${facility.toLowerCase()}`}
+        className="jqs-glass p-4 transition-all"
+      >
         <h2 className="text-xl font-semibold mb-3 text-center">{facility}</h2>
 
         {isExpanded && (
