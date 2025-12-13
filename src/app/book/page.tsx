@@ -2,14 +2,24 @@
 
 import React from 'react';
 import Image from 'next/image';
+import { ChevronDown } from 'lucide-react';
 
 import { FacilityCard } from '@/components/FacilityCard';
 import Button from '@/components/ui/Button';
+import GlassCard from '@/components/ui/GlassCard';
 
 const FACILITIES = [
   { title: 'Pool', href: '/book/pool', imageSrc: '/images/icons/pool-icon.png' },
   { title: 'Gym', href: '/book/gym', imageSrc: '/images/icons/gym-icon.png' },
   { title: 'Sauna', href: '/book/sauna', imageSrc: '/images/icons/sauna-icon.png' },
+];
+
+const OPENING_TIMES = [
+  { label: 'Facilities open daily', time: '05:30–23:00' },
+  { label: 'Cleaning (Mon–Fri)', time: '09:30–11:00', note: 'Limited lane access during quick cleans.' },
+  { label: 'Extended cleaning (every other Tue)', time: '09:00–12:30', note: 'Pool closed while deep cleaning takes place.' },
+  { label: 'No booking required', time: '11:00–17:00', note: 'Drop in freely during daytime off-peak.' },
+  { label: 'Booking required', time: '05:30–09:30 and 17:00–23:00', note: 'Secure a slot for early morning and evening peaks.' },
 ];
 
 export default function HomePage() {
@@ -33,43 +43,57 @@ export default function HomePage() {
           <FacilityCard key={facility.title} {...facility} />
         ))}
       </div>
+      <div className="mt-16">
+        <GlassCard title="Opening times &amp; rules" className="text-base">
+          <details className="group">
+            <summary
+              className="list-none flex w-full items-center justify-between gap-3 rounded-xl border border-white/40 bg-white/70 px-4 py-3 text-slate-900 shadow-sm transition hover:border-white/60 hover:bg-white/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:border-white/20 dark:hover:bg-white/10 dark:focus-visible:ring-offset-gray-900 [&::-webkit-details-marker]:hidden"
+            >
+              <span className="font-semibold">Open daily 05:30–23:00</span>
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/60 text-slate-700 transition duration-200 group-open:rotate-180 dark:bg-white/10 dark:text-white">
+                <ChevronDown className="h-4 w-4" aria-hidden />
+              </span>
+            </summary>
 
-      {/* Opening Times and Rules Image */}
-      <div className="mt-16 flex flex-col md:flex-row gap-12 text-gray-700 dark:text-gray-300 text-base">
-        <div className="md:w-1/2 text-center md:text-left">
-          <h2 className="text-3xl font-bold underline mb-6 text-black dark:text-white">
-            Opening Times
-          </h2>
-          <p className="font-semibold">Facilities open daily from:</p>
-          <p className="mb-4">5:30 a.m. to 11:00 p.m.</p>
+            <div className="mt-6 space-y-6 text-slate-700 dark:text-white/80">
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Opening Times</h3>
 
-          <p className="font-semibold">Cleaning hours (Mon–Fri):</p>
-          <p className="mb-4">9:30 a.m. – 11:00 a.m.</p>
+                <div className="space-y-4">
+                  {OPENING_TIMES.map((item) => (
+                    <div
+                      key={item.label}
+                      className="rounded-lg border border-white/50 bg-white/70 px-4 py-3 shadow-sm backdrop-blur sm:flex sm:items-baseline sm:justify-between sm:gap-4 dark:border-white/10 dark:bg-white/5"
+                    >
+                      <div className="space-y-1">
+                        <p className="text-sm font-medium text-slate-700 dark:text-white/70">{item.label}</p>
+                        {item.note && <p className="text-xs text-slate-500 dark:text-white/50">{item.note}</p>}
+                      </div>
+                      <p className="mt-2 text-base font-semibold tabular-nums text-slate-900 sm:mt-0 dark:text-white">
+                        {item.time}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-          <p className="font-semibold">Extended cleaning every other Tuesday:</p>
-          <p className="mb-4">9:00 a.m. – 12:30 p.m.</p>
+              <div className="h-px bg-gradient-to-r from-transparent via-white/40 to-transparent dark:via-white/10" />
 
-          <p className="font-semibold">No booking required between:</p>
-          <p className="mb-4">11:00 a.m. – 5:00 p.m.</p>
-
-          <p className="font-semibold">Booking required from:</p>
-          <p>
-            5:30 a.m. – 9:30 a.m.
-            <br />
-            5:00 p.m. – 11:00 p.m.
-          </p>
-        </div>
-
-        <div className="md:w-1/2 text-center md:text-left">
-          {/* Removed the "Rules" title. Only the image is displayed now */}
-          <Image
-            src="/images/icons/poolrules.png"
-            alt="Pool Rules"
-            width={500}
-            height={700}
-            className="mx-auto"
-          />
-        </div>
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Pool rules</h3>
+                <div className="mx-auto max-w-2xl">
+                  <Image
+                    src="/images/icons/poolrules.png"
+                    alt="Pool Rules"
+                    width={800}
+                    height={900}
+                    className="h-auto max-h-[460px] w-full rounded-xl border border-white/50 object-contain shadow-md dark:border-white/10"
+                  />
+                </div>
+              </div>
+            </div>
+          </details>
+        </GlassCard>
       </div>
 
     </main>
