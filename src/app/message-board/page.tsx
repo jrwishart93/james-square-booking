@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { ThumbsDown, ThumbsUp } from 'lucide-react';
 import { auth, db } from '@/lib/firebase';
 import {
   collection,
@@ -364,29 +365,37 @@ function PostCard({ post, currentUser }: { post: Post; currentUser: User | null 
           )}
         </div>
 
-        <div className="flex items-start gap-2">
+        <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-white/60">
           {/* Reactions */}
           <button
             onClick={() => toggleReaction('like')}
-            className={`px-2 py-1 rounded border ${
-              myReaction === 'like' ? 'bg-black/80 text-white' : ''
+            className={`inline-flex items-center gap-1 rounded-full px-2 py-1 transition-colors ${
+              myReaction === 'like'
+                ? 'text-slate-700 bg-black/5 dark:text-white dark:bg-white/10'
+                : 'hover:text-slate-700 hover:bg-black/5 dark:hover:text-white dark:hover:bg-white/10'
             }`}
             aria-label="Like"
             title="Like"
           >
-            👍 {likeCount}
+            <ThumbsUp className="h-4 w-4" />
+            <span>{likeCount}</span>
           </button>
           <button
             onClick={() => toggleReaction('dislike')}
-            className={`px-2 py-1 rounded border ${
-              myReaction === 'dislike' ? 'bg-black/80 text-white' : ''
+            className={`inline-flex items-center gap-1 rounded-full px-2 py-1 transition-colors ${
+              myReaction === 'dislike'
+                ? 'text-slate-700 bg-black/5 dark:text-white dark:bg-white/10'
+                : 'hover:text-slate-700 hover:bg-black/5 dark:hover:text-white dark:hover:bg-white/10'
             }`}
             aria-label="Dislike"
             title="Dislike"
           >
-            👎 {dislikeCount}
+            <ThumbsDown className="h-4 w-4" />
+            <span>{dislikeCount}</span>
           </button>
-          <MoreMenu onReport={onReport} />
+          <div className="pl-1">
+            <MoreMenu onReport={onReport} />
+          </div>
         </div>
       </div>
 
