@@ -16,7 +16,7 @@ import Image from 'next/image';
 import Button from '@/components/ui/Button';
 import GlassCard from '@/components/ui/GlassCard';
 import SegmentedControl from '@/components/ui/SegmentedControl';
-import { Calendar, CalendarDays, CalendarX2, Clock3, MapPin, User } from 'lucide-react';
+import { Calendar, CalendarDays, CalendarX2, Clock3, MapPin, User as UserIcon } from 'lucide-react';
 
 interface Booking {
   id: string;
@@ -334,7 +334,7 @@ export default function MyDashboardPage() {
           <GlassCard
             title={
               <span className="flex items-center gap-3">
-                <User className="h-5 w-5 text-slate-700 dark:text-white/80" aria-hidden />
+                <UserIcon className="h-5 w-5 text-slate-700 dark:text-white/80" aria-hidden />
                 <span className="text-lg font-semibold text-slate-900 dark:text-white">My Profile</span>
               </span>
             }
