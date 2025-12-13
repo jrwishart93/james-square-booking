@@ -1,0 +1,176 @@
+:root {
+  /* Liquid Glass tokens (light) */
+  --glass-bg: hsla(0, 0%, 100%, 0.72);
+  --glass-border: hsla(215, 30%, 62%, 0.25);
+  --glass-shadow: 0 22px 60px rgba(15, 23, 42, 0.12);
+  --glass-highlight: hsla(0, 0%, 100%, 0.22);
+
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --muted: #475569;
+
+  --btn-primary-bg: linear-gradient(135deg, #2563eb, #1d4ed8);
+  --btn-primary-text: #f8fafc;
+  --btn-secondary-bg: hsla(0, 0%, 100%, 0.62);
+  --btn-secondary-text: #0f172a;
+  --btn-ghost-text: #1d4ed8;
+  --btn-ring: #7dd3fc;
+
+  --surface-blur: 18px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Liquid Glass tokens (dark) */
+    --glass-bg: hsla(220, 26%, 17%, 0.65);
+    --glass-border: hsla(215, 25%, 85%, 0.18);
+    --glass-shadow: 0 28px 70px rgba(0, 0, 0, 0.45);
+    --glass-highlight: hsla(0, 0%, 100%, 0.12);
+
+    --text-primary: #e9edf5;
+    --text-secondary: #cbd5e1;
+    --muted: #94a3b8;
+
+    --btn-primary-bg: linear-gradient(135deg, #7dd3fc, #60a5fa);
+    --btn-primary-text: #0b1220;
+    --btn-secondary-bg: hsla(220, 26%, 23%, 0.75);
+    --btn-secondary-text: #e9edf5;
+    --btn-ghost-text: #93c5fd;
+    --btn-ring: #7dd3fc;
+
+    --surface-blur: 20px;
+  }
+}
+
+/* Utilities */
+.glass-surface {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 1.5rem;
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(var(--surface-blur));
+  -webkit-backdrop-filter: blur(var(--surface-blur));
+}
+
+.glass-outline {
+  background: color-mix(in oklab, var(--glass-bg) 65%, transparent);
+  border-radius: 1.5rem;
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    0 1px 0 var(--glass-highlight),
+    0 14px 38px rgba(15, 23, 42, 0.12);
+}
+
+.segmented-control {
+  display: inline-flex;
+  gap: 0.35rem;
+  padding: 0.35rem;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--glass-bg) 70%, transparent);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.segmented-control__option {
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  padding: 0.5rem 0.95rem;
+  transition: transform 150ms ease, box-shadow 180ms ease, color 180ms ease, background 180ms ease, border-color 180ms ease;
+}
+
+.segmented-control__option.is-active {
+  background: var(--glass-bg);
+  color: var(--text-primary);
+  border-color: color-mix(in oklab, var(--glass-border) 70%, transparent);
+  box-shadow:
+    0 12px 32px rgba(15, 23, 42, 0.16),
+    inset 0 1px 0 var(--glass-highlight);
+}
+
+.segmented-control__option:focus-visible {
+  outline: 2px solid var(--btn-ring);
+  outline-offset: 2px;
+}
+
+.liquid-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.15rem;
+  border-radius: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  transition: transform 150ms ease, box-shadow 180ms ease, background 200ms ease, color 200ms ease;
+  border: 1px solid transparent;
+  text-decoration: none;
+  line-height: 1.2;
+}
+
+.liquid-button:focus-visible {
+  outline: 2px solid var(--btn-ring);
+  outline-offset: 3px;
+}
+
+.liquid-button--primary {
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  box-shadow: 0 18px 38px rgba(37, 99, 235, 0.28), 0 8px 18px rgba(15, 23, 42, 0.18);
+}
+
+.liquid-button--primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 22px 46px rgba(37, 99, 235, 0.32), 0 10px 22px rgba(15, 23, 42, 0.2);
+}
+
+.liquid-button--primary:active {
+  transform: translateY(0);
+  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.26), inset 0 1px 0 var(--glass-highlight);
+}
+
+.liquid-button--secondary {
+  background: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
+  border-color: var(--glass-border);
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.12);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.liquid-button--secondary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.16);
+}
+
+.liquid-button--secondary:active {
+  transform: translateY(0);
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.12);
+}
+
+.liquid-button--ghost {
+  background: transparent;
+  color: var(--btn-ghost-text);
+  border-color: transparent;
+}
+
+.liquid-button--ghost:hover {
+  background: color-mix(in oklab, var(--btn-secondary-bg) 40%, transparent);
+  transform: translateY(-0.5px);
+}
+
+.liquid-button--ghost:active {
+  transform: translateY(0);
+  background: color-mix(in oklab, var(--btn-secondary-bg) 55%, transparent);
+}
+
+.liquid-button[disabled] {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
