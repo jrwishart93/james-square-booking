@@ -102,20 +102,20 @@ function MoreMenu({ onReport }: { onReport: () => void }) {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="p-1 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+        className="p-1 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:text-slate-100 dark:hover:bg-slate-800"
         aria-label="More options"
         title="More options"
       >
         ⋯
       </button>
       {open && (
-        <div className="absolute right-0 mt-1 w-32 rounded-md border border-slate-200 bg-white shadow-lg">
+        <div className="absolute right-0 mt-1 w-32 rounded-md border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-900">
           <button
             onClick={() => {
               setOpen(false);
               onReport();
             }}
-            className="w-full px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
+            className="w-full px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 dark:text-slate-100 dark:hover:bg-slate-800"
           >
             Report
           </button>
@@ -398,11 +398,11 @@ function PostCard({ post, currentUser }: { post: Post; currentUser: User | null 
           className="w-full my-2 px-2 py-1 rounded border min-h-[80px] leading-relaxed"
         />
       ) : (
-        <p className="my-2 whitespace-pre-wrap leading-relaxed text-slate-900">{post.body}</p>
+        <p className="my-2 whitespace-pre-wrap leading-relaxed text-slate-900 dark:text-slate-100">{post.body}</p>
       )}
 
       {/* Meta */}
-      <p className="text-xs text-slate-500 mb-3 leading-relaxed">By {post.authorName || 'Unknown'}</p>
+      <p className="text-xs text-slate-500 dark:text-slate-400 mb-3 leading-relaxed">By {post.authorName || 'Unknown'}</p>
 
       {/* Actions */}
       <div className="flex gap-2">
@@ -528,7 +528,9 @@ function Comments({ postId, currentUser }: { postId: string; currentUser: User |
   return (
     <div className="mt-4 space-y-4">
       <div className="flex items-center justify-between gap-2">
-        <h4 className="font-semibold text-lg leading-tight">Comments ({list.length})</h4>
+        <h4 className="font-semibold text-lg leading-tight text-slate-900 dark:text-slate-50">
+          Comments ({list.length})
+        </h4>
       </div>
 
       <ul className="space-y-4">
@@ -540,13 +542,15 @@ function Comments({ postId, currentUser }: { postId: string; currentUser: User |
               <div className="flex flex-col gap-3">
                 <div className="flex items-start justify-between gap-3">
                   <div className="space-y-1">
-                    <p className="text-sm font-medium text-slate-900 leading-tight">{c.authorName || 'Unknown'}</p>
-                    <p className="text-xs text-slate-500 leading-relaxed">{createdLabel}</p>
+                    <p className="text-sm font-medium text-slate-900 dark:text-slate-100 leading-tight">
+                      {c.authorName || 'Unknown'}
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{createdLabel}</p>
                   </div>
                   <MoreMenu onReport={() => reportComment(c)} />
                 </div>
 
-                <p className="whitespace-pre-wrap leading-relaxed text-slate-900">{c.body}</p>
+                <p className="whitespace-pre-wrap leading-relaxed text-slate-900 dark:text-slate-100">{c.body}</p>
 
                 <div className="flex flex-wrap gap-2 pt-1 text-xs">
                   {mine && (
@@ -667,23 +671,28 @@ function Replies({
   }
 
   return (
-    <div className="mt-3 rounded-xl border border-slate-200 bg-white/70 p-3 sm:p-4 space-y-3">
-      <h5 className="font-medium text-sm leading-tight">Replies ({list.length})</h5>
+    <div className="mt-3 rounded-xl border border-slate-200 bg-white/70 p-3 sm:p-4 space-y-3 dark:border-slate-700 dark:bg-slate-900/80">
+      <h5 className="font-medium text-sm leading-tight text-slate-900 dark:text-slate-50">Replies ({list.length})</h5>
       <ul className="space-y-3">
         {list.map((r) => {
           const mine = currentUser?.uid === r.authorId;
           const createdLabel = formatTimestampLabel(r.createdAt);
           return (
-            <li key={r.id} className="slot px-3 py-3 rounded-xl border border-slate-200/70 bg-white">
+            <li
+              key={r.id}
+              className="slot px-3 py-3 rounded-xl border border-slate-200/70 bg-white dark:border-slate-700 dark:bg-slate-900"
+            >
               <div className="flex flex-col gap-2">
                 <div className="flex items-start justify-between gap-3">
                   <div className="space-y-1">
-                    <p className="text-sm font-medium text-slate-900 leading-tight">{r.authorName || 'Unknown'}</p>
-                    <p className="text-xs text-slate-500 leading-relaxed">{createdLabel}</p>
+                    <p className="text-sm font-medium text-slate-900 dark:text-slate-100 leading-tight">
+                      {r.authorName || 'Unknown'}
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{createdLabel}</p>
                   </div>
                   <MoreMenu onReport={() => reportReply(r)} />
                 </div>
-                <p className="whitespace-pre-wrap leading-relaxed text-slate-900">{r.body}</p>
+                <p className="whitespace-pre-wrap leading-relaxed text-slate-900 dark:text-slate-100">{r.body}</p>
                 <div className="flex flex-wrap gap-2 pt-1 text-xs">
                   {mine && (
                     <button
