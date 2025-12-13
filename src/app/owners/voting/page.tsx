@@ -206,12 +206,12 @@ export default function OwnersVotingPage() {
 
   return (
     <GradientBG className="min-h-screen py-12 md:py-16 relative overflow-hidden">
-      <div className="absolute inset-x-0 top-0 mx-auto max-w-4xl h-48 bg-slate-900/50 blur-3xl opacity-60 pointer-events-none" />
+      <div className="absolute inset-x-0 top-0 mx-auto max-w-4xl h-48 bg-white/50 dark:bg-slate-900/50 blur-3xl opacity-60 pointer-events-none" />
       <div className="max-w-5xl mx-auto px-4 md:px-6 space-y-10 relative">
-        <header className="text-center space-y-3 bg-white/5 dark:bg-slate-900/40 backdrop-blur-md rounded-3xl border border-white/10 px-6 py-8 shadow-[0_20px_80px_rgba(0,0,0,0.35)]">
-          <p className="text-xs md:text-sm uppercase tracking-[0.3em] text-white/80 font-semibold">Owners • Community</p>
-          <h1 className="text-3xl md:text-4xl font-bold text-white drop-shadow">Voting Hub</h1>
-          <p className="text-slate-50/90 font-medium text-sm md:text-base leading-relaxed max-w-3xl mx-auto">
+        <header className="text-center space-y-3 bg-white/70 dark:bg-slate-900/40 backdrop-blur-md rounded-3xl border border-black/10 dark:border-white/10 px-6 py-8 shadow-[0_20px_80px_rgba(0,0,0,0.25)]">
+          <p className="text-xs md:text-sm uppercase tracking-[0.3em] font-semibold text-slate-700 dark:text-white/80">Owners • Community</p>
+          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-slate-900 dark:text-white">Voting Hub</h1>
+          <p className="text-slate-700 dark:text-white/80 font-medium text-sm md:text-base leading-relaxed max-w-3xl mx-auto">
             Ask a question, cast your vote, and review results. This section is open to all residents—no owners passcode required.
           </p>
         </header>
@@ -222,7 +222,7 @@ export default function OwnersVotingPage() {
           <TabButton icon={<BarChart3 size={16} />} label="Results" active={activeTab === "results"} onClick={() => setActiveTab("results")} />
         </div>
 
-        <section className="rounded-3xl bg-slate-950/60 border border-white/15 backdrop-blur-xl shadow-[0_30px_80px_rgba(0,0,0,0.45)] p-6 md:p-10 space-y-8">
+        <section className="rounded-3xl border shadow-xl backdrop-blur-xl bg-white/70 border-black/10 text-slate-900 dark:bg-white/10 dark:border-white/15 dark:text-white p-6 md:p-10 space-y-8">
           {activeTab === "ask" && (
             <form className="space-y-10" onSubmit={handleCreateQuestion}>
               <div className="space-y-6">
@@ -234,11 +234,11 @@ export default function OwnersVotingPage() {
                   error={askErrors.title}
                 />
                 <div className="space-y-2">
-                  <label className="block text-sm font-semibold text-slate-200">
-                    Description <span className="text-slate-500 font-normal">(Optional)</span>
+                  <label className="block text-sm font-semibold text-slate-900 dark:text-slate-200">
+                    Description <span className="text-slate-500 font-normal dark:text-slate-400">(Optional)</span>
                   </label>
                   <textarea
-                    className="w-full rounded-2xl bg-white/5 border border-white/15 px-4 py-3 text-sm text-slate-50 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-400/70 focus:border-transparent backdrop-blur-md shadow-inner shadow-black/20 transition-all h-32 resize-none"
+                    className="w-full rounded-2xl bg-white/80 border border-black/10 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-400/70 focus:border-transparent focus:ring-offset-2 focus:ring-offset-white dark:bg-white/5 dark:border-white/15 dark:text-slate-50 dark:placeholder:text-slate-500 dark:focus:ring-offset-0 backdrop-blur-md shadow-inner shadow-black/10 dark:shadow-black/20 transition-all h-32 resize-none"
                     placeholder="Add more context details..."
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
@@ -247,9 +247,9 @@ export default function OwnersVotingPage() {
               </div>
 
               <div className="space-y-5">
-                <div className="flex justify-between items-end border-b border-white/10 pb-3">
-                  <label className="block text-sm font-semibold text-slate-200">Options</label>
-                  <span className="text-xs text-slate-500 font-mono">Min 2 • Max 6</span>
+                <div className="flex justify-between items-end border-b border-black/10 dark:border-white/10 pb-3">
+                  <label className="block text-sm font-semibold text-slate-900 dark:text-slate-200">Options</label>
+                  <span className="text-xs text-slate-500 font-mono dark:text-slate-400">Min 2 • Max 6</span>
                 </div>
                 <div className="space-y-4">
                   {options.map((option, index) => (
@@ -266,7 +266,7 @@ export default function OwnersVotingPage() {
                         <button
                           type="button"
                           onClick={() => handleRemoveOption(index)}
-                          className="p-3 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-colors"
+                          className="p-3 text-slate-500 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-colors dark:text-slate-400"
                           aria-label="Remove option"
                         >
                           ×
@@ -275,12 +275,14 @@ export default function OwnersVotingPage() {
                     </div>
                   ))}
                 </div>
-                {askErrors.options && <p className="text-sm text-red-400 ml-1">{askErrors.options}</p>}
+                {askErrors.options && (
+                  <p className="text-sm text-red-600 dark:text-red-300 ml-1">{askErrors.options}</p>
+                )}
                 {options.length < 6 && (
                   <button
                     type="button"
                     onClick={handleAddOption}
-                    className="flex items-center text-sm font-medium text-cyan-400 hover:text-cyan-300 transition-colors mt-2 px-2 py-1 rounded-lg hover:bg-cyan-500/10"
+                    className="flex items-center text-sm font-medium text-cyan-700 hover:text-cyan-600 dark:text-cyan-300 dark:hover:text-cyan-200 transition-colors mt-2 px-2 py-1 rounded-lg hover:bg-cyan-500/10"
                   >
                     + Add Another Option
                   </button>
@@ -288,7 +290,7 @@ export default function OwnersVotingPage() {
               </div>
 
               {askSuccess && (
-                <div className="flex items-center gap-3 text-emerald-300 text-sm bg-emerald-500/10 p-4 rounded-xl border border-emerald-500/20 shadow-inner shadow-emerald-900/30">
+                <div className="flex items-center gap-3 text-sm bg-emerald-500/10 p-4 rounded-xl border border-emerald-500/20 shadow-inner shadow-emerald-900/20 text-emerald-800 dark:text-emerald-200">
                   <CheckCircle2 size={18} className="shrink-0" />
                   Question published. You can switch to the Vote tab to cast the first vote.
                 </div>
@@ -315,16 +317,16 @@ export default function OwnersVotingPage() {
                 value={voterName}
                 onChange={(e) => setVoterName(e.target.value)}
                 readOnly={Boolean(currentUser)}
-                className="bg-slate-900/50 border-indigo-500/30 focus:ring-indigo-400/50 py-3"
+                className="bg-white/80 border-black/10 focus:ring-indigo-400/70 focus:ring-offset-2 focus:ring-offset-white dark:bg-slate-900/50 dark:border-indigo-500/30 dark:focus:ring-offset-0 py-3"
               />
-              <p className="text-xs text-indigo-100/80 ml-1">
+              <p className="text-xs text-slate-600 dark:text-indigo-100/80 ml-1">
                 {currentUser
                   ? "Using your account name so each vote is attributed to your login."
                   : "Sign in and provide your name so we can record who voted."}
               </p>
 
               {questions.length === 0 ? (
-                <div className="text-center text-slate-300 py-10">
+                <div className="text-center text-slate-600 dark:text-slate-300 py-10">
                   <p>No open questions right now. Switch to the Ask tab to create one.</p>
                 </div>
               ) : (
@@ -336,19 +338,19 @@ export default function OwnersVotingPage() {
                     return (
                       <div
                         key={question.id}
-                        className="p-6 rounded-2xl bg-white/5 border border-white/15 shadow-[0_16px_60px_rgba(0,0,0,0.3)] space-y-6"
+                        className="p-6 rounded-2xl bg-white border border-black/10 shadow-[0_16px_40px_rgba(0,0,0,0.08)] space-y-6 dark:bg-white/5 dark:border-white/15 dark:shadow-[0_16px_60px_rgba(0,0,0,0.3)]"
                       >
                         <div className="flex items-center justify-between mb-2">
                           <div className="space-y-1">
-                            <p className="text-xs uppercase tracking-[0.2em] text-white/70 font-semibold">Active poll</p>
-                            <h2 className="text-xl font-bold text-white">{question.title}</h2>
+                            <p className="text-xs uppercase tracking-[0.2em] text-slate-600 font-semibold dark:text-white/70">Active poll</p>
+                            <h2 className="text-xl font-bold text-slate-900 dark:text-white">{question.title}</h2>
                           </div>
-                          <span className="inline-flex px-3 py-1 text-xs font-bold uppercase bg-emerald-500/15 text-emerald-200 rounded-full border border-emerald-500/30">
+                          <span className="inline-flex px-3 py-1 text-xs font-bold uppercase bg-emerald-500/10 text-emerald-700 rounded-full border border-emerald-500/30 dark:text-emerald-200 dark:bg-emerald-500/15">
                             Open
                           </span>
                         </div>
                         {question.description && (
-                          <p className="text-slate-200 text-sm leading-relaxed">{question.description}</p>
+                          <p className="text-slate-700 text-sm leading-relaxed dark:text-slate-200">{question.description}</p>
                         )}
 
                         <form onSubmit={(e) => handleSubmitVote(e, question.id)} className="space-y-4">
@@ -360,8 +362,8 @@ export default function OwnersVotingPage() {
                                   key={opt.id}
                                   className={`relative flex items-center p-4 rounded-xl border cursor-pointer transition-all duration-200 group ${
                                     isSelected
-                                      ? "border-cyan-500/50 bg-cyan-500/10 shadow-[0_0_20px_rgba(6,182,212,0.15)]"
-                                      : "border-white/5 bg-white/5 hover:bg-white/10 hover:border-white/10"
+                                      ? "border-cyan-500/60 bg-cyan-50 shadow-[0_0_24px_rgba(6,182,212,0.12)] dark:bg-cyan-500/10 dark:border-cyan-500/50"
+                                      : "border-black/10 bg-white/80 hover:bg-white dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10"
                                   }`}
                                 >
                                   <input
@@ -375,15 +377,17 @@ export default function OwnersVotingPage() {
                                   <span
                                     className={`flex-shrink-0 w-5 h-5 rounded-full border flex items-center justify-center mr-4 transition-colors ${
                                       isSelected
-                                        ? "border-cyan-400 bg-cyan-400"
-                                        : "border-slate-500 group-hover:border-slate-400"
+                                        ? "border-cyan-500 bg-cyan-500"
+                                        : "border-slate-400 group-hover:border-slate-500 dark:border-slate-500"
                                     }`}
                                   >
-                                    {isSelected && <CheckCircle2 size={12} className="text-slate-900" />}
+                                    {isSelected && <CheckCircle2 size={12} className="text-white" />}
                                   </span>
                                   <span
                                     className={`font-medium text-sm ${
-                                      isSelected ? "text-white" : "text-slate-300 group-hover:text-white"
+                                      isSelected
+                                        ? "text-slate-900 dark:text-white"
+                                        : "text-slate-700 group-hover:text-slate-900 dark:text-slate-300 dark:group-hover:text-white"
                                     }`}
                                   >
                                     {opt.label}
@@ -394,7 +398,7 @@ export default function OwnersVotingPage() {
                           </div>
 
                           {error && (
-                            <div className="flex items-center gap-3 text-sm bg-red-500/10 p-4 rounded-xl border border-red-500/20 text-red-200">
+                            <div className="flex items-center gap-3 text-sm bg-red-500/10 p-4 rounded-xl border border-red-500/20 text-red-700 dark:text-red-200">
                               <AlertCircle size={18} className="shrink-0" />
                               {error}
                             </div>
@@ -419,26 +423,31 @@ export default function OwnersVotingPage() {
           {activeTab === "results" && (
             <div className="space-y-6">
               {questionResults.length === 0 ? (
-                <p className="text-slate-300">No questions yet.</p>
+                <p className="text-slate-600 dark:text-slate-300">No questions yet.</p>
               ) : (
                 questionResults.map(({ question, results, totalVotes }) => (
-                  <div key={question.id} className="p-6 rounded-2xl bg-white/5 border border-white/10 space-y-4">
+                  <div
+                    key={question.id}
+                    className="p-6 rounded-2xl bg-white border border-black/10 space-y-4 shadow-[0_12px_30px_rgba(0,0,0,0.08)] dark:bg-white/5 dark:border-white/10 dark:shadow-none"
+                  >
                     <div className="flex items-center justify-between gap-3">
                       <div>
-                        <p className="text-xs uppercase tracking-[0.2em] text-slate-400">{question.status}</p>
-                        <h3 className="text-xl font-semibold text-white">{question.title}</h3>
-                        {question.description && <p className="text-slate-300 text-sm">{question.description}</p>}
+                        <p className="text-xs uppercase tracking-[0.2em] text-slate-600 dark:text-slate-400">{question.status}</p>
+                        <h3 className="text-xl font-semibold text-slate-900 dark:text-white">{question.title}</h3>
+                        {question.description && (
+                          <p className="text-slate-700 text-sm dark:text-slate-300">{question.description}</p>
+                        )}
                       </div>
                       <div className="flex items-center gap-3">
-                        <div className="text-right text-sm text-slate-400">
-                          <div className="font-semibold text-white">{totalVotes}</div>
+                        <div className="text-right text-sm text-slate-600 dark:text-slate-400">
+                          <div className="font-semibold text-slate-900 dark:text-white">{totalVotes}</div>
                           <div>votes</div>
                         </div>
                         <button
                           type="button"
                           onClick={() => handleDeleteQuestion(question.id)}
                           disabled={deletingId === question.id}
-                          className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-white/20 text-slate-200 hover:bg-white/10 transition disabled:opacity-50"
+                          className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-black/10 text-slate-700 hover:bg-slate-100 transition disabled:opacity-50 dark:border-white/20 dark:text-slate-200 dark:hover:bg-white/10"
                           aria-label="Delete question"
                         >
                           {deletingId === question.id ? "…" : "×"}
@@ -473,14 +482,17 @@ function TabButton({
   active: boolean;
   onClick: () => void;
 }) {
+  const base =
+    "inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition border backdrop-blur";
+  const inactive = "bg-white/50 border-black/10 text-slate-700 hover:bg-white/70";
+  const activeStyles = "bg-white border-black/15 text-slate-900 shadow-md";
+  const darkInactive = "dark:bg-white/10 dark:border-white/15 dark:text-white/80 dark:hover:bg-white/15";
+  const darkActive = "dark:bg-white/20 dark:border-white/20 dark:text-white dark:shadow-none";
+
   return (
     <button
       onClick={onClick}
-      className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition border ${
-        active
-          ? "bg-white text-slate-900 shadow-lg border-white underline decoration-2 underline-offset-4"
-          : "bg-white/5 text-slate-200 hover:bg-white/10 border-white/15"
-      }`}
+      className={`${base} ${active ? activeStyles : inactive} ${active ? darkActive : darkInactive}`}
     >
       {icon}
       {label}
@@ -491,13 +503,13 @@ function TabButton({
 function ResultRow({ option, count, percentage }: { option: Option; count: number; percentage: number }) {
   return (
     <div className="space-y-1">
-      <div className="flex justify-between text-sm text-slate-200">
+      <div className="flex justify-between text-sm text-slate-800 dark:text-slate-200">
         <span>{option.label}</span>
-        <span className="text-slate-400">
+        <span className="text-slate-500 dark:text-slate-400">
           {count} vote{count === 1 ? "" : "s"} • {Number.isFinite(percentage) ? percentage : 0}%
         </span>
       </div>
-      <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+      <div className="h-2 rounded-full bg-slate-200 overflow-hidden dark:bg-white/10">
         <div
           className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-indigo-500 transition-all"
           style={{ width: `${Number.isFinite(percentage) ? percentage : 0}%` }}
