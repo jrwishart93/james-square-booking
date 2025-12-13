@@ -4,6 +4,8 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 
+import Button from '@/components/ui/Button';
+
 const FACILITIES = [
   { name: 'Pool', icon: '/images/icons/pool-icon.png' },
   { name: 'Gym', icon: '/images/icons/gym-icon.png' },
@@ -12,26 +14,21 @@ const FACILITIES = [
 
 export default function HomePage() {
   return (
-    <main className="max-w-4xl mx-auto py-20 px-6 font-sans bg-white dark:bg-gray-900">
-      <h1 className="text-4xl font-bold mb-8 text-center text-black dark:text-white">
-        Book Facilities
-      </h1>
-
-      {/* Buttons Container: View Availability and My Dashboard */}
-      <div className="text-center mb-8 flex justify-center gap-4">
-        <Link href="/book/schedule">
-          <button className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-300">
-            View Availability
-          </button>
-        </Link>
-        <Link href="/dashboard">
-          <button className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-300">
-            My Dashboard
-          </button>
-        </Link>
+    <main className="max-w-4xl mx-auto py-16 px-6 font-sans bg-white dark:bg-gray-900">
+      <div className="flex flex-col items-center text-center gap-3">
+        <h1 className="text-4xl font-bold text-black dark:text-white">Choose a facility</h1>
+        <p className="text-base text-gray-600 dark:text-gray-300">Select a space to view schedules and book your spot.</p>
+        <div className="w-full max-w-xl flex items-center justify-center gap-3 rounded-2xl border border-black/5 bg-white/70 px-4 py-2 shadow-sm backdrop-blur dark:border-white/10 dark:bg-gray-800/60">
+          <Button variant="ghost" href="/book/schedule" className="text-sm sm:text-base">
+            View availability
+          </Button>
+          <Button variant="secondary" href="/dashboard" className="text-sm sm:text-base">
+            My dashboard
+          </Button>
+        </div>
       </div>
 
-      <div className="flex flex-col md:flex-row justify-center gap-6">
+      <div className="mt-10 flex flex-col md:flex-row justify-center gap-6">
         {FACILITIES.map(({ name, icon }) => (
           <div
             key={name}
@@ -97,14 +94,6 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Lower Navigation Button */}
-      <div className="flex justify-center mt-6">
-        <Link href="/dashboard">
-          <button className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition">
-            My Dashboard
-          </button>
-        </Link>
-      </div>
     </main>
   );
 }
