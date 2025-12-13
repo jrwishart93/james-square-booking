@@ -66,9 +66,13 @@
   gap: 0.35rem;
   padding: 0.35rem;
   border-radius: 999px;
-  background: color-mix(in oklab, var(--glass-bg) 70%, transparent);
-  border: 1px solid var(--glass-border);
-  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+  background: linear-gradient(
+    120deg,
+    color-mix(in oklab, var(--glass-bg) 85%, transparent),
+    color-mix(in oklab, var(--glass-bg) 70%, transparent)
+  );
+  border: 1px solid color-mix(in oklab, var(--glass-border) 82%, transparent);
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
 }
@@ -79,11 +83,16 @@
   color: var(--text-secondary);
   font-weight: 600;
   padding: 0.5rem 0.95rem;
+  line-height: 1.45;
   transition: transform 150ms ease, box-shadow 180ms ease, color 180ms ease, background 180ms ease, border-color 180ms ease;
 }
 
 .segmented-control__option.is-active {
-  background: var(--glass-bg);
+  background: linear-gradient(
+    150deg,
+    color-mix(in oklab, var(--glass-bg) 95%, transparent),
+    color-mix(in oklab, var(--glass-bg) 78%, transparent)
+  );
   color: var(--text-primary);
   border-color: color-mix(in oklab, var(--glass-border) 70%, transparent);
   box-shadow:
