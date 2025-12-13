@@ -94,6 +94,37 @@ async function createReportDoc(data: Omit<ReportPayload, 'createdAt'>): Promise<
   } as ReportPayload);
 }
 
+function MoreMenu({ onReport }: { onReport: () => void }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="p-1 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+        aria-label="More options"
+        title="More options"
+      >
+        ⋯
+      </button>
+      {open && (
+        <div className="absolute right-0 mt-1 w-32 rounded-md border border-slate-200 bg-white shadow-lg">
+          <button
+            onClick={() => {
+              setOpen(false);
+              onReport();
+            }}
+            className="w-full px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
+          >
+            Report
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function formatTimestampLabel(value?: unknown): string {
   if (value && typeof value === 'object' && 'toDate' in (value as Record<string, unknown>)) {
     const date = (value as { toDate?: () => Date }).toDate?.();
@@ -321,17 +352,19 @@ function PostCard({ post, currentUser }: { post: Post; currentUser: User | null 
     <li className="glass p-4 sm:p-5 rounded-2xl border space-y-3">
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
-        {editing ? (
-          <input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="w-full px-2 py-1 rounded border"
-          />
-        ) : (
-          <h3 className="text-lg font-semibold leading-snug">{post.title}</h3>
-        )}
+        <div className="flex-1 min-w-0">
+          {editing ? (
+            <input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full px-2 py-1 rounded border"
+            />
+          ) : (
+            <h3 className="text-lg font-semibold leading-snug">{post.title}</h3>
+          )}
+        </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-start gap-2">
           {/* Reactions */}
           <button
             onClick={() => toggleReaction('like')}
@@ -353,6 +386,7 @@ function PostCard({ post, currentUser }: { post: Post; currentUser: User | null 
           >
             👎 {dislikeCount}
           </button>
+          <MoreMenu onReport={onReport} />
         </div>
       </div>
 
@@ -405,10 +439,7 @@ function PostCard({ post, currentUser }: { post: Post; currentUser: User | null 
               </button>
             </>
           )
-        ) : null}
-        <button onClick={onReport} className="px-3 py-1 rounded border">
-          Report
-        </button>
+          ) : null}
       </div>
 
       {/* Comments */}
@@ -507,11 +538,12 @@ function Comments({ postId, currentUser }: { postId: string; currentUser: User |
           return (
             <li key={c.id} className="glass p-4 sm:p-5 rounded-2xl border">
               <div className="flex flex-col gap-3">
-                <div className="flex items-start gap-3">
+                <div className="flex items-start justify-between gap-3">
                   <div className="space-y-1">
                     <p className="text-sm font-medium text-slate-900 leading-tight">{c.authorName || 'Unknown'}</p>
                     <p className="text-xs text-slate-500 leading-relaxed">{createdLabel}</p>
                   </div>
+                  <MoreMenu onReport={() => reportComment(c)} />
                 </div>
 
                 <p className="whitespace-pre-wrap leading-relaxed text-slate-900">{c.body}</p>
@@ -525,12 +557,6 @@ function Comments({ postId, currentUser }: { postId: string; currentUser: User |
                       Delete
                     </button>
                   )}
-                  <button
-                    onClick={() => reportComment(c)}
-                    className="px-2 py-1 rounded border"
-                  >
-                    Report
-                  </button>
                 </div>
 
                 <div className="border-t border-slate-200 pt-3">
@@ -655,6 +681,7 @@ function Replies({
                     <p className="text-sm font-medium text-slate-900 leading-tight">{r.authorName || 'Unknown'}</p>
                     <p className="text-xs text-slate-500 leading-relaxed">{createdLabel}</p>
                   </div>
+                  <MoreMenu onReport={() => reportReply(r)} />
                 </div>
                 <p className="whitespace-pre-wrap leading-relaxed text-slate-900">{r.body}</p>
                 <div className="flex flex-wrap gap-2 pt-1 text-xs">
@@ -666,12 +693,6 @@ function Replies({
                       Delete
                     </button>
                   )}
-                  <button
-                    onClick={() => reportReply(r)}
-                    className="px-2 py-1 rounded border"
-                  >
-                    Report
-                  </button>
                 </div>
               </div>
             </li>
