@@ -195,13 +195,12 @@ export default function MyDashboardPage() {
   const bookingView = showUpcoming ? 'upcoming' : 'past';
 
   return (
-    <div className="relative min-h-screen">
-      <div className="pointer-events-none absolute inset-0 -z-10 opacity-90">
-        <div className="absolute inset-0 bg-[radial-gradient(1100px_780px_at_12%_-10%,rgba(99,138,255,0.08),transparent),radial-gradient(1100px_760px_at_110%_0%,rgba(125,211,252,0.07),transparent)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(1200px_800px_at_50%_110%,rgba(255,255,255,0.4),transparent)] dark:bg-[radial-gradient(1000px_780px_at_20%_120%,rgba(76,106,255,0.08),transparent)]" />
+    <div className="relative min-h-screen overflow-hidden bg-[linear-gradient(180deg,#f6f8fb_0%,#e7edf6_100%)] text-[color:var(--text-primary)] dark:bg-[linear-gradient(180deg,#070d1a_0%,#0a1426_58%,#060b18_100%)]">
+      <div className="pointer-events-none absolute inset-0 -z-10 opacity-95">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_18%,rgba(255,255,255,0.75),transparent_38%),radial-gradient(circle_at_85%_12%,rgba(221,234,255,0.55),transparent_36%),radial-gradient(circle_at_50%_115%,rgba(184,206,238,0.28),transparent_48%)] dark:bg-[radial-gradient(circle_at_18%_12%,rgba(66,106,165,0.18),transparent_42%),radial-gradient(circle_at_82%_18%,rgba(37,99,235,0.12),transparent_40%),radial-gradient(circle_at_50%_118%,rgba(21,94,149,0.24),transparent_50%)]" />
       </div>
 
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-10 space-y-8 text-[color:var(--text-primary)]">
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-12 space-y-8 leading-relaxed">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-2 text-center sm:text-left">
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--muted)]">Welcome back</p>
