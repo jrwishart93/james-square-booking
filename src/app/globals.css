@@ -1,17 +1,18 @@
 @import "tailwindcss";
+@import "../styles/glass.css";
 
 /* ===== App Theme (light/dark) ===== */
 :root {
-  --bg: 235 80% 98%;
-  --fg: 220 14% 10%;
-  --card: 0 0% 100% / 0.6;
-  --ring: 213 94% 68%;
-  --border: 0 0% 100% / 0.35;
+  --bg: 215 42% 97%;
+  --fg: 222 47% 10%;
+  --card: 0 0% 100% / 0.7;
+  --ring: 200 98% 60%;
+  --border: 215 30% 62% / 0.22;
 
   /* Glass + status tokens */
-  --glass: 0 0% 100% / 0.55;
-  --glass-strong: 0 0% 100% / 0.72;
-  --glass-border: 0 0% 0% / 0.10;
+  --glass: 0 0% 100% / 0.68;
+  --glass-strong: 0 0% 100% / 0.82;
+  --glass-border: 215 30% 62% / 0.24;
 
   --status-emerald: 145 63% 49%;  /* #2ECC71 - your booking */
   --status-slate:   204 8% 52%;   /* #7F8C8D - booked by another */
@@ -21,15 +22,15 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: 220 18% 8%;
-    --fg: 0 0% 100%;
-    --card: 0 0% 8% / 0.5;
-    --ring: 213 94% 68%;
-    --border: 0 0% 100% / 0.08;
+    --bg: 220 26% 10%;
+    --fg: 210 40% 98%;
+    --card: 220 26% 14% / 0.72;
+    --ring: 200 98% 70%;
+    --border: 215 25% 85% / 0.14;
 
-    --glass: 0 0% 9% / 0.55;       /* darker glass */
-    --glass-strong: 0 0% 9% / 0.75; /* stronger glass */
-    --glass-border: 0 0% 100% / 0.08;
+    --glass: 220 26% 17% / 0.65;       /* darker glass */
+    --glass-strong: 220 26% 20% / 0.78; /* stronger glass */
+    --glass-border: 215 25% 85% / 0.14;
   }
 }
 
@@ -38,22 +39,22 @@ html, body {
   min-height: 100%;
 }
 body {
-  color: hsl(var(--fg));
+  color: var(--text-primary);
   background:
-    radial-gradient(1400px 900px at 10% -10%, #f6f7f8 0%, transparent 55%),
-    radial-gradient(1400px 900px at 110% 0%, #eceff1 0%, transparent 55%),
-    linear-gradient(180deg, #f9fafb 0%, #ffffff 60%, #f3f5f7 100%);
+    radial-gradient(1200px 880px at 15% -10%, hsla(210 40% 95% / 0.85), transparent 55%),
+    radial-gradient(1200px 880px at 120% 0%, hsla(210 45% 92% / 0.7), transparent 50%),
+    linear-gradient(180deg, #f8fafc 0%, #eef2f7 30%, #ffffff 80%);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 @media (prefers-color-scheme: dark) {
   body {
+    color: var(--text-primary);
     background:
-      radial-gradient(1200px 800px at 20% -10%, hsl(213 94% 98% / 0.08), transparent 60%),
-      radial-gradient(1200px 800px at 120% 20%, hsl(250 95% 97% / 0.08), transparent 55%),
-      radial-gradient(1200px 800px at -20% 120%, hsl(195 95% 96% / 0.08), transparent 55%),
-      linear-gradient(hsl(var(--bg)), hsl(var(--bg)));
+      radial-gradient(1200px 900px at 20% -20%, hsl(218 70% 75% / 0.08), transparent 55%),
+      radial-gradient(1200px 900px at 120% 10%, hsl(200 80% 70% / 0.08), transparent 55%),
+      linear-gradient(180deg, #0c111a 0%, #0d1420 45%, #0b1018 100%);
   }
 }
 

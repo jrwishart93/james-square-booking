@@ -12,8 +12,10 @@ import {
 } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { DateTime } from 'luxon';
-import Link from 'next/link';
 import Image from 'next/image';
+import Button from '@/components/ui/Button';
+import GlassCard from '@/components/ui/GlassCard';
+import SegmentedControl from '@/components/ui/SegmentedControl';
 
 interface Booking {
   id: string;
@@ -45,8 +47,8 @@ const propertyOptions = [
   '61/1', '61/2', '61/3', '61/4', '61/5', '61/6', '61/7', '61/8',
   '65/1', '65/2'
 ];
+
 export default function MyDashboardPage() {
-  // The user state is now explicitly typed as Firebase User or null.
   const [user, setUser] = useState<User | null>(null);
   const [editing, setEditing] = useState(false);
   const [email, setEmail] = useState('');
@@ -55,7 +57,6 @@ export default function MyDashboardPage() {
   const [feedback, setFeedback] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [bookings, setBookings] = useState<Booking[]>([]);
-  // Reintroduced sortBy as a state variable to allow toggling between sorting by 'date' or 'facility'.
   const [sortBy, setSortBy] = useState<'date' | 'facility'>('date');
   const [showUpcoming, setShowUpcoming] = useState(true);
   const [loading, setLoading] = useState(true);
@@ -83,7 +84,7 @@ export default function MyDashboardPage() {
 
   useEffect(() => {
     const fetchBookings = async () => {
-      if (!user?.email) return; // Added email existence check
+      if (!user?.email) return;
       try {
         const q = query(collection(db, 'bookings'), where('user', '==', user.email));
         const snap = await getDocs(q);
@@ -95,12 +96,11 @@ export default function MyDashboardPage() {
         }));
         setBookings(bookingsList);
       } catch (error) {
-        console.error("Error fetching bookings:", error);
+        console.error('Error fetching bookings:', error);
       }
     };
     fetchBookings();
   }, [user]);
-  
 
   const cancelBooking = async (bookingId: string) => {
     if (!window.confirm('Are you sure you want to cancel this booking?')) return;
@@ -184,218 +184,205 @@ export default function MyDashboardPage() {
   const sortedBookings = filteredBookings.sort((a, b) => {
     if (sortBy === 'facility') {
       return a.facility.localeCompare(b.facility) || a.date.localeCompare(b.date) || a.time.localeCompare(b.time);
-    } else {
-      return a.date.localeCompare(b.date) || a.time.localeCompare(b.time);
     }
+    return a.date.localeCompare(b.date) || a.time.localeCompare(b.time);
   });
 
-  if (loading)
-    return <div className="py-12 text-center text-gray-600 dark:text-gray-300">Loading...</div>;
+  if (loading) {
+    return <div className="py-12 text-center text-[color:var(--text-secondary)]">Loading...</div>;
+  }
+
+  const bookingView = showUpcoming ? 'upcoming' : 'past';
 
   return (
-    <main className="max-w-4xl mx-auto py-12 px-4 text-gray-800 dark:text-gray-100">
-      <div className="text-center mb-6">
-        <Link href="/book/schedule">
-          <button className="px-6 py-3 bg-green-700 text-white rounded-xl hover:bg-green-800 transition duration-300 shadow-md">
-            Make New Booking
-          </button>
-        </Link>
+    <div className="relative min-h-screen">
+      <div className="pointer-events-none absolute inset-0 -z-10 opacity-90">
+        <div className="absolute inset-0 bg-[radial-gradient(1100px_780px_at_12%_-10%,rgba(99,138,255,0.08),transparent),radial-gradient(1100px_760px_at_110%_0%,rgba(125,211,252,0.07),transparent)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(1200px_800px_at_50%_110%,rgba(255,255,255,0.4),transparent)] dark:bg-[radial-gradient(1000px_780px_at_20%_120%,rgba(76,106,255,0.08),transparent)]" />
       </div>
 
-      <div className="mb-6 p-4 rounded-lg bg-gray-100 dark:bg-neutral-800">
-  <h1
-    className="
-      text-4xl md:text-5xl font-extrabold text-center
-      text-gray-900 dark:text-white
-      dark:drop-shadow-lg
-    "
-  >
-    🧑‍💻 My Dashboard
-  </h1>
-</div>
-      {/* Sort controls */}
-      <div className="flex justify-center items-center mb-4">
-        <span className="mr-2 font-medium">Sort by:</span>
-        <button
-          onClick={() => setSortBy('date')}
-          className={`px-4 py-1 border rounded ${sortBy === 'date' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'}`}
-        >
-          Date
-        </button>
-        <button
-          onClick={() => setSortBy('facility')}
-          className={`ml-2 px-4 py-1 border rounded ${sortBy === 'facility' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'}`}
-        >
-          Facility
-        </button>
-      </div>
-
-      <div className="grid md:grid-cols-2 gap-8">
-        {/* Bookings Section */}
-        <div className="bg-white dark:bg-neutral-900 shadow-md rounded-2xl p-6">
-          <div className="text-center mb-6">
-            <h2 className="text-2xl font-semibold mb-4">
-              🗓️ {showUpcoming ? 'Upcoming Bookings' : 'Past Bookings'}
-            </h2>
-            <div className="inline-flex gap-2 justify-center">
-              <button
-                onClick={() => setShowUpcoming(true)}
-                className={`text-sm px-4 py-1.5 rounded-lg font-medium transition shadow-sm 
-                  ${showUpcoming ? 'bg-slate-600 text-white' : 'bg-slate-100 text-gray-800 dark:bg-slate-700 dark:text-white'} 
-                  hover:bg-slate-500 dark:hover:bg-slate-600`}
-              >
-                Upcoming
-              </button>
-              <button
-                onClick={() => setShowUpcoming(false)}
-                className={`text-sm px-4 py-1.5 rounded-lg font-medium transition shadow-sm 
-                  ${!showUpcoming ? 'bg-slate-600 text-white' : 'bg-slate-100 text-gray-800 dark:bg-slate-700 dark:text-white'} 
-                  hover:bg-slate-500 dark:hover:bg-slate-600`}
-              >
-                Past
-              </button>
-            </div>
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-10 space-y-8 text-[color:var(--text-primary)]">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-2 text-center sm:text-left">
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--muted)]">Welcome back</p>
+            <h1 className="text-3xl sm:text-4xl font-extrabold leading-tight drop-shadow-sm">🧑‍💻 My Dashboard</h1>
+            <p className="text-[color:var(--text-secondary)] leading-relaxed">
+              Keep on top of your bookings and account details with the new Liquid Glass look.
+            </p>
           </div>
-
-          {sortedBookings.length === 0 ? (
-            <p className="text-center">No {showUpcoming ? 'upcoming' : 'past'} bookings.</p>
-          ) : (
-            <ul className="space-y-6">
-              {sortedBookings.map((booking) => (
-                <li
-                  key={booking.id}
-                  className="bg-white dark:bg-neutral-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-5 shadow-sm flex flex-col md:flex-row md:justify-between items-center"
-                >
-                  <div className="flex items-center mb-4 md:mb-0">
-                    <Image
-                      src={facilityIcons[booking.facility]}
-                      alt={`${booking.facility} icon`}
-                      width={48}
-                      height={48}
-                      className="w-12 h-12 mr-4"
-                    />
-                    <div>
-                      <p className="font-semibold text-lg">📍 {booking.facility}</p>
-                      <p className="text-sm">
-                        📅 {DateTime.fromISO(booking.date).toLocaleString(DateTime.DATE_MED)}
-                      </p>
-                      <p className="text-sm">🕒 {booking.time}</p>
-                    </div>
-                  </div>
-                  {showUpcoming && (
-                    <div className="flex gap-3">
-                      <button
-                        className="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm transition shadow-md"
-                        onClick={() => addToCalendar(booking)}
-                      >
-                        Add to Calendar
-                      </button>
-                      <button
-                        className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm transition shadow-md"
-                        onClick={() => cancelBooking(booking.id)}
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  )}
-                </li>
-              ))}
-            </ul>
-          )}
+          <div className="flex flex-wrap justify-center gap-3">
+            <Button variant="primary" href="/book/schedule">
+              Make New Booking
+            </Button>
+          </div>
         </div>
 
-        {/* Profile Section */}
-        <div className="bg-white dark:bg-neutral-900 shadow-md rounded-2xl p-6">
-          <h2 className="text-2xl font-semibold mb-4">👤 My Profile</h2>
-          <div className="space-y-4">
-            {editing ? (
-              <>
-                <div>
-                  <label className="block text-sm font-medium">Email</label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full mt-1 px-4 py-2 border rounded-xl bg-gray-50 dark:bg-neutral-700"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium">Username</label>
-                  <input
-                    type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    className="w-full mt-1 px-4 py-2 border rounded-xl bg-gray-50 dark:bg-neutral-700"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium">Property</label>
-                  <select
-                    value={property}
-                    onChange={(e) => setProperty(e.target.value)}
-                    className="w-full mt-1 px-4 py-2 border rounded-xl bg-gray-50 dark:bg-neutral-700"
-                  >
-                    <option value="">Select Property</option>
-                    {propertyOptions.map((opt) => (
-                      <option key={opt} value={opt}>
-                        {opt}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="flex gap-4">
-                  <button onClick={updateProfile} className="bg-blue-700 text-white px-4 py-2 rounded-xl">
-                    Save
-                  </button>
-                  <button onClick={() => setEditing(false)} className="bg-gray-300 dark:bg-gray-600 px-4 py-2 rounded-xl">
-                    Cancel
-                  </button>
-                </div>
-              </>
-            ) : (
-              <>
-                <p>
-                  <strong>Email:</strong> {email}
-                </p>
-                <p>
-                  <strong>Username:</strong> {username}
-                </p>
-                <p>
-                  <strong>Property:</strong> {property}
-                </p>
-                <div className="flex gap-4">
-                  <button onClick={() => setEditing(true)} className="bg-blue-700 text-white px-4 py-2 rounded-xl">
-                    Edit Profile
-                  </button>
-                  <button onClick={() => setShowModal(true)} className="text-sm text-blue-600 dark:text-blue-400 underline mt-2">
-                    Reset Password
-                  </button>
-                </div>
-              </>
-            )}
-            {feedback && <p className="text-sm text-green-600 dark:text-green-400">{feedback}</p>}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <SegmentedControl
+            ariaLabel="Show upcoming or past bookings"
+            options={[
+              { label: 'Upcoming', value: 'upcoming' },
+              { label: 'Past', value: 'past' },
+            ]}
+            value={bookingView}
+            onChange={(value) => setShowUpcoming(value === 'upcoming')}
+          />
+          <div className="flex flex-wrap gap-3">
+            <SegmentedControl
+              ariaLabel="Sort bookings"
+              options={[
+                { label: 'Date', value: 'date' },
+                { label: 'Facility', value: 'facility' },
+              ]}
+              value={sortBy}
+              onChange={(value) => setSortBy(value as 'date' | 'facility')}
+            />
           </div>
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-2">
+          <GlassCard
+            title={`🗓️ ${showUpcoming ? 'Upcoming Bookings' : 'Past Bookings'}`}
+            subtitle="Premium glass surfaces keep every booking easy to scan."
+          >
+            {sortedBookings.length === 0 ? (
+              <p className="text-center text-[color:var(--text-secondary)]">
+                No {showUpcoming ? 'upcoming' : 'past'} bookings.
+              </p>
+            ) : (
+              <ul className="space-y-4">
+                {sortedBookings.map((booking) => (
+                  <li
+                    key={booking.id}
+                    className="glass-outline glass-surface rounded-2xl border border-transparent px-4 py-4 sm:px-5 shadow-[0_12px_28px_rgba(15,23,42,0.12)] dark:shadow-[0_18px_40px_rgba(0,0,0,0.45)]"
+                  >
+                    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                      <div className="flex items-start gap-4">
+                        <Image
+                          src={facilityIcons[booking.facility]}
+                          alt={`${booking.facility} icon`}
+                          width={48}
+                          height={48}
+                          className="h-12 w-12 rounded-xl bg-white/60 p-2 dark:bg-white/10"
+                        />
+                        <div className="space-y-1 leading-relaxed">
+                          <p className="text-lg font-semibold">📍 {booking.facility}</p>
+                          <p className="text-sm text-[color:var(--text-secondary)]">
+                            📅 {DateTime.fromISO(booking.date).toLocaleString(DateTime.DATE_MED)}
+                          </p>
+                          <p className="text-sm text-[color:var(--text-secondary)]">🕒 {booking.time}</p>
+                        </div>
+                      </div>
+                      {showUpcoming && (
+                        <div className="flex flex-wrap gap-3">
+                          <Button variant="secondary" onClick={() => addToCalendar(booking)}>
+                            Add to Calendar
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            className="text-red-600 dark:text-red-300"
+                            onClick={() => cancelBooking(booking.id)}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </GlassCard>
+
+          <GlassCard title="👤 My Profile" subtitle="Update your info to keep your bookings in sync.">
+            <div className="space-y-4 text-[color:var(--text-primary)]">
+              {editing ? (
+                <>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-[color:var(--text-secondary)]">Email</label>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full rounded-xl border border-[color:var(--glass-border)] bg-white/70 px-4 py-2.5 text-[color:var(--text-primary)] shadow-inner focus:outline-none focus:ring-2 focus:ring-[color:var(--btn-ring)] dark:bg-white/10"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-[color:var(--text-secondary)]">Username</label>
+                    <input
+                      type="text"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      className="w-full rounded-xl border border-[color:var(--glass-border)] bg-white/70 px-4 py-2.5 text-[color:var(--text-primary)] shadow-inner focus:outline-none focus:ring-2 focus:ring-[color:var(--btn-ring)] dark:bg-white/10"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-[color:var(--text-secondary)]">Property</label>
+                    <select
+                      value={property}
+                      onChange={(e) => setProperty(e.target.value)}
+                      className="w-full rounded-xl border border-[color:var(--glass-border)] bg-white/70 px-4 py-2.5 text-[color:var(--text-primary)] shadow-inner focus:outline-none focus:ring-2 focus:ring-[color:var(--btn-ring)] dark:bg-white/10"
+                    >
+                      <option value="">Select Property</option>
+                      {propertyOptions.map((opt) => (
+                        <option key={opt} value={opt}>
+                          {opt}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex flex-wrap gap-3">
+                    <Button onClick={updateProfile}>Save</Button>
+                    <Button variant="secondary" onClick={() => setEditing(false)}>
+                      Cancel
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="space-y-1 leading-relaxed text-[color:var(--text-secondary)]">
+                    <p>
+                      <strong className="text-[color:var(--text-primary)]">Email:</strong> {email}
+                    </p>
+                    <p>
+                      <strong className="text-[color:var(--text-primary)]">Username:</strong> {username}
+                    </p>
+                    <p>
+                      <strong className="text-[color:var(--text-primary)]">Property:</strong> {property}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-3">
+                    <Button onClick={() => setEditing(true)} variant="secondary">
+                      Edit Profile
+                    </Button>
+                    <Button variant="ghost" onClick={() => setShowModal(true)}>
+                      Reset Password
+                    </Button>
+                  </div>
+                </>
+              )}
+              {feedback && <p className="text-sm text-emerald-600 dark:text-emerald-300">{feedback}</p>}
+            </div>
+          </GlassCard>
         </div>
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white dark:bg-neutral-800 p-6 rounded-xl shadow-lg w-full max-w-md">
-            <h3 className="text-lg font-semibold mb-4">Confirm Password Reset</h3>
-            <p className="mb-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-6 sm:px-0">
+          <div className="glass-surface glass-outline w-full max-w-md p-6">
+            <h3 className="text-lg font-semibold">Confirm Password Reset</h3>
+            <p className="mt-2 text-[color:var(--text-secondary)] leading-relaxed">
               Are you sure you want to receive a password reset link at <strong>{user?.email}</strong>?
             </p>
-            <div className="flex justify-end gap-4">
-              <button onClick={() => setShowModal(false)} className="px-4 py-2 bg-gray-300 dark:bg-gray-600 rounded-xl">
+            <div className="mt-6 flex flex-wrap justify-end gap-3">
+              <Button variant="secondary" onClick={() => setShowModal(false)}>
                 Cancel
-              </button>
-              <button onClick={sendPasswordReset} className="px-4 py-2 bg-blue-700 text-white rounded-xl">
-                Send Email
-              </button>
+              </Button>
+              <Button onClick={sendPasswordReset}>Send Email</Button>
             </div>
           </div>
         </div>
       )}
-    </main>
+    </div>
   );
 }
