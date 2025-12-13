@@ -16,6 +16,7 @@ import Image from 'next/image';
 import Button from '@/components/ui/Button';
 import GlassCard from '@/components/ui/GlassCard';
 import SegmentedControl from '@/components/ui/SegmentedControl';
+import { Calendar, CalendarDays, CalendarX2, Clock3, MapPin, User } from 'lucide-react';
 
 interface Booking {
   id: string;
@@ -156,7 +157,7 @@ export default function MyDashboardPage() {
       }
 
       await firebaseUpdateProfile(user, { displayName: username });
-      setFeedback('✅ Profile updated successfully.');
+      setFeedback('Profile updated successfully.');
       setEditing(false);
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -164,7 +165,7 @@ export default function MyDashboardPage() {
       } else {
         console.error('An unknown error occurred:', error);
       }
-      setFeedback('❌ Failed to update profile.');
+      setFeedback('Failed to update profile.');
     }
   };
 
@@ -172,9 +173,9 @@ export default function MyDashboardPage() {
     if (!user?.email) return;
     try {
       await sendPasswordResetEmail(auth, user.email);
-      setFeedback('✅ Password reset link sent to your email.');
+      setFeedback('Password reset link sent to your email.');
     } catch {
-      setFeedback('❌ Failed to send reset email.');
+      setFeedback('Failed to send reset email.');
     }
     setShowModal(false);
   };
@@ -205,7 +206,7 @@ export default function MyDashboardPage() {
           <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[color:var(--muted)]">My dashboard</p>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4">
             <div className="space-y-2">
-              <h1 className="text-3xl sm:text-4xl font-extrabold leading-tight drop-shadow-sm">🧑‍💻 My Dashboard</h1>
+              <h1 className="text-3xl sm:text-4xl font-extrabold leading-tight drop-shadow-sm">My Dashboard</h1>
               <p className="text-[color:var(--text-secondary)] leading-relaxed">
                 Keep on top of your bookings and account details.
               </p>
@@ -232,7 +233,14 @@ export default function MyDashboardPage() {
 
         <div className="grid gap-6 lg:grid-cols-2">
           <GlassCard
-            title={`${showUpcoming ? 'Upcoming' : 'Past'} Bookings`}
+            title={
+              <span className="flex items-center gap-3">
+                <Calendar className="h-5 w-5 text-slate-700 dark:text-white/80" aria-hidden />
+                <span className="text-lg font-semibold text-slate-900 dark:text-white">
+                  {`${showUpcoming ? 'Upcoming' : 'Past'} Bookings`}
+                </span>
+              </span>
+            }
             subtitle="See what’s scheduled at a glance."
             action={
               sortedBookings.length > 0 && (
@@ -254,7 +262,7 @@ export default function MyDashboardPage() {
             {sortedBookings.length === 0 ? (
               <div className="glass-outline glass-surface flex flex-col items-center gap-3 rounded-2xl border border-dashed border-[color:var(--glass-border)] px-6 py-8 text-center">
                 <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[color:var(--btn-bg)]/10 text-lg">
-                  🗓️
+                  <CalendarX2 className="h-6 w-6 text-[color:var(--text-primary)]" aria-hidden />
                 </div>
                 <div className="space-y-1">
                   <p className="text-base font-semibold text-[color:var(--text-primary)]">
@@ -282,11 +290,24 @@ export default function MyDashboardPage() {
                           className="h-12 w-12 rounded-xl bg-white/60 p-2 dark:bg-white/10"
                         />
                         <div className="space-y-1 leading-relaxed">
-                          <p className="text-lg font-semibold">📍 {booking.facility}</p>
-                          <p className="text-sm text-[color:var(--text-secondary)]">
-                            📅 {DateTime.fromISO(booking.date).toLocaleString(DateTime.DATE_MED)}
+                          <p className="text-lg font-semibold">
+                            <span className="flex items-center gap-2">
+                              <MapPin className="h-4 w-4 text-[color:var(--text-secondary)]" aria-hidden />
+                              {booking.facility}
+                            </span>
                           </p>
-                          <p className="text-sm text-[color:var(--text-secondary)]">🕒 {booking.time}</p>
+                          <p className="text-sm text-[color:var(--text-secondary)]">
+                            <span className="flex items-center gap-2">
+                              <CalendarDays className="h-4 w-4 text-[color:var(--text-secondary)]" aria-hidden />
+                              {DateTime.fromISO(booking.date).toLocaleString(DateTime.DATE_MED)}
+                            </span>
+                          </p>
+                          <p className="text-sm text-[color:var(--text-secondary)]">
+                            <span className="flex items-center gap-2">
+                              <Clock3 className="h-4 w-4 text-[color:var(--text-secondary)]" aria-hidden />
+                              {booking.time}
+                            </span>
+                          </p>
                         </div>
                       </div>
                       {showUpcoming && (
@@ -310,7 +331,15 @@ export default function MyDashboardPage() {
             )}
           </GlassCard>
 
-          <GlassCard title="👤 Profile" subtitle="Keep your details up to date.">
+          <GlassCard
+            title={
+              <span className="flex items-center gap-3">
+                <User className="h-5 w-5 text-slate-700 dark:text-white/80" aria-hidden />
+                <span className="text-lg font-semibold text-slate-900 dark:text-white">My Profile</span>
+              </span>
+            }
+            subtitle="Keep your details up to date."
+          >
             <div className="space-y-3 text-[color:var(--text-primary)]">
               {editing ? (
                 <>
