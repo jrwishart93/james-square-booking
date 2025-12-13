@@ -29,7 +29,7 @@ interface Message {
 }
 
 const AccessDenied = () => (
-  <div className="max-w-3xl mx-auto p-6">
+  <div className="w-full px-4 py-6 sm:px-6 sm:max-w-4xl sm:mx-auto">
     <p className="text-lg font-medium text-red-600">Access denied. Owners only.</p>
   </div>
 );
@@ -231,14 +231,20 @@ const OwnersDiscussionDetailPage = () => {
     }
 
     return (
-      <ul className="space-y-3">
+      <ul className="space-y-4">
         {messages.map((message) => (
-          <li key={message.id} className="rounded-md border border-gray-200 p-3">
-            <p className="text-gray-800">{message.text}</p>
-            <p className="mt-1 text-xs text-gray-500">
-              {message.createdAtLabel}
-              {message.authorUid ? ` · ${message.authorUid}` : ''}
-            </p>
+          <li key={message.id} className="rounded-xl border border-gray-200 bg-white p-4 sm:p-5">
+            <div className="flex flex-col gap-2">
+              <div className="flex items-start justify-between gap-3">
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-gray-900 leading-tight">
+                    {message.authorUid || 'Unknown author'}
+                  </p>
+                  <p className="text-xs text-gray-500 leading-relaxed">{message.createdAtLabel}</p>
+                </div>
+              </div>
+              <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">{message.text}</p>
+            </div>
           </li>
         ))}
       </ul>
@@ -247,7 +253,7 @@ const OwnersDiscussionDetailPage = () => {
 
   if (loading || isChecking) {
     return (
-      <div className="max-w-3xl mx-auto p-6">
+      <div className="w-full px-4 py-6 sm:px-6 sm:max-w-4xl sm:mx-auto">
         <p className="text-gray-600">Checking access...</p>
       </div>
     );
@@ -259,14 +265,14 @@ const OwnersDiscussionDetailPage = () => {
 
   if (!threadId) {
     return (
-      <div className="max-w-3xl mx-auto p-6">
+      <div className="w-full px-4 py-6 sm:px-6 sm:max-w-4xl sm:mx-auto">
         <p className="text-red-600">Thread id is missing.</p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-3xl mx-auto p-6 space-y-4">
+    <div className="w-full px-4 py-6 sm:px-6 sm:max-w-4xl sm:mx-auto space-y-5">
       <div className="flex items-center gap-3 text-sm">
         <Link href="/owners/discussions" className="underline">
           ← Back to discussions
@@ -281,9 +287,14 @@ const OwnersDiscussionDetailPage = () => {
 
       {threadState === 'success' && thread && (
         <>
-          <h1 className="text-3xl font-semibold">{thread.title}</h1>
-          <section className="space-y-4">
-            <div>{renderMessages}</div>
+          <h1 className="text-3xl font-semibold leading-snug">{thread.title}</h1>
+          <section className="space-y-5">
+            <div className="border-t border-gray-200 pt-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold leading-tight">Messages</h2>
+              </div>
+              {renderMessages}
+            </div>
 
             <form onSubmit={handleSendMessage} className="space-y-3">
               <div className="space-y-1">
@@ -296,7 +307,7 @@ const OwnersDiscussionDetailPage = () => {
                   onChange={(event) => setMessageText(event.target.value)}
                   maxLength={MAX_MESSAGE_LENGTH}
                   rows={4}
-                  className="w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm leading-relaxed focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   placeholder="Share an update or question..."
                   disabled={isSending}
                   required

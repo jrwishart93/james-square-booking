@@ -94,6 +94,17 @@ async function createReportDoc(data: Omit<ReportPayload, 'createdAt'>): Promise<
   } as ReportPayload);
 }
 
+function formatTimestampLabel(value?: unknown): string {
+  if (value && typeof value === 'object' && 'toDate' in (value as Record<string, unknown>)) {
+    const date = (value as { toDate?: () => Date }).toDate?.();
+    if (date instanceof Date && !Number.isNaN(date.getTime())) {
+      return date.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+    }
+  }
+
+  return 'Unknown time';
+}
+
 /* ============================
    Page
 ============================ */
@@ -162,11 +173,11 @@ export default function MessageBoardPage() {
   }
 
   return (
-    <main className="max-w-3xl mx-auto py-8 px-4">
-      <h1 className="text-3xl font-bold mb-4 text-center">Message Board</h1>
+    <main className="w-full px-4 py-8 sm:px-6 sm:max-w-4xl sm:mx-auto">
+      <h1 className="text-3xl font-bold mb-4 text-center leading-tight">Message Board</h1>
 
       {/* Create box */}
-      <div className="glass p-4 mb-6 rounded-2xl border">
+      <div className="glass p-4 sm:p-5 mb-6 rounded-2xl border">
         {!user ? (
           <p className="text-sm">
             You&apos;re not signed in.{' '}
@@ -181,13 +192,13 @@ export default function MessageBoardPage() {
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
               placeholder="Post title"
-              className="w-full mb-2 px-3 py-2 rounded border"
+              className="w-full mb-2 px-3 py-2 rounded border leading-relaxed"
             />
             <textarea
               value={newBody}
               onChange={(e) => setNewBody(e.target.value)}
               placeholder="Say something…"
-              className="w-full mb-3 px-3 py-2 rounded border min-h-[100px]"
+              className="w-full mb-3 px-3 py-2 rounded border min-h-[100px] leading-relaxed"
             />
             <button
               onClick={createPost}
@@ -307,9 +318,9 @@ function PostCard({ post, currentUser }: { post: Post; currentUser: User | null 
   }
 
   return (
-    <li className="glass p-4 rounded-2xl border">
+    <li className="glass p-4 sm:p-5 rounded-2xl border space-y-3">
       {/* Header */}
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex items-start justify-between gap-3">
         {editing ? (
           <input
             value={title}
@@ -317,7 +328,7 @@ function PostCard({ post, currentUser }: { post: Post; currentUser: User | null 
             className="w-full px-2 py-1 rounded border"
           />
         ) : (
-          <h3 className="text-lg font-semibold">{post.title}</h3>
+          <h3 className="text-lg font-semibold leading-snug">{post.title}</h3>
         )}
 
         <div className="flex items-center gap-2">
@@ -350,14 +361,14 @@ function PostCard({ post, currentUser }: { post: Post; currentUser: User | null 
         <textarea
           value={body}
           onChange={(e) => setBody(e.target.value)}
-          className="w-full my-2 px-2 py-1 rounded border min-h-[80px]"
+          className="w-full my-2 px-2 py-1 rounded border min-h-[80px] leading-relaxed"
         />
       ) : (
-        <p className="my-2 whitespace-pre-wrap">{post.body}</p>
+        <p className="my-2 whitespace-pre-wrap leading-relaxed text-slate-900">{post.body}</p>
       )}
 
       {/* Meta */}
-      <p className="text-xs text-slate-500 mb-3">By {post.authorName || 'Unknown'}</p>
+      <p className="text-xs text-slate-500 mb-3 leading-relaxed">By {post.authorName || 'Unknown'}</p>
 
       {/* Actions */}
       <div className="flex gap-2">
@@ -401,7 +412,9 @@ function PostCard({ post, currentUser }: { post: Post; currentUser: User | null 
       </div>
 
       {/* Comments */}
-      <Comments postId={post.id} currentUser={currentUser} />
+      <div className="mt-4 border-t border-slate-200 pt-4">
+        <Comments postId={post.id} currentUser={currentUser} />
+      </div>
     </li>
   );
 }
@@ -482,54 +495,63 @@ function Comments({ postId, currentUser }: { postId: string; currentUser: User |
   }
 
   return (
-    <div className="mt-4">
-      <h4 className="font-semibold mb-2">Comments</h4>
+    <div className="mt-4 space-y-4">
+      <div className="flex items-center justify-between gap-2">
+        <h4 className="font-semibold text-lg leading-tight">Comments ({list.length})</h4>
+      </div>
 
-      <ul className="space-y-3">
+      <ul className="space-y-4">
         {list.map((c) => {
           const mine = currentUser?.uid === c.authorId;
+          const createdLabel = formatTimestampLabel(c.createdAt);
           return (
-            <li key={c.id} className="glass p-3 rounded-2xl border">
-              <div className="flex justify-between items-start gap-3">
-                <div className="flex-1">
-                  <p className="whitespace-pre-wrap">{c.body}</p>
-                  <p className="text-xs text-slate-500 mt-1">By {c.authorName || 'Unknown'}</p>
+            <li key={c.id} className="glass p-4 sm:p-5 rounded-2xl border">
+              <div className="flex flex-col gap-3">
+                <div className="flex items-start gap-3">
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-slate-900 leading-tight">{c.authorName || 'Unknown'}</p>
+                    <p className="text-xs text-slate-500 leading-relaxed">{createdLabel}</p>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
+
+                <p className="whitespace-pre-wrap leading-relaxed text-slate-900">{c.body}</p>
+
+                <div className="flex flex-wrap gap-2 pt-1 text-xs">
                   {mine && (
                     <button
                       onClick={() => deleteComment(c.id)}
-                      className="text-xs px-2 py-1 rounded bg-red-600 text-white hover:bg-red-700"
+                      className="px-2 py-1 rounded bg-red-600 text-white hover:bg-red-700"
                     >
                       Delete
                     </button>
                   )}
                   <button
                     onClick={() => reportComment(c)}
-                    className="text-xs px-2 py-1 rounded border"
+                    className="px-2 py-1 rounded border"
                   >
                     Report
                   </button>
                 </div>
-              </div>
 
-              {/* Replies */}
-              <Replies postId={postId} comment={c} currentUser={currentUser} />
+                <div className="border-t border-slate-200 pt-3">
+                  <Replies postId={postId} comment={c} currentUser={currentUser} />
+                </div>
+              </div>
             </li>
           );
         })}
       </ul>
 
-      <div className="mt-3 flex gap-2">
+      <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
         <input
           value={body}
           onChange={(e) => setBody(e.target.value)}
           placeholder="Add a comment…"
-          className="flex-1 px-3 py-2 rounded border"
+          className="flex-1 px-3 py-2 rounded border leading-relaxed"
         />
         <button
           onClick={addComment}
-          className="px-3 py-2 rounded-xl bg-black/80 text-white hover:bg-black"
+          className="w-full sm:w-auto px-3 py-2 rounded-xl bg-black/80 text-white hover:bg-black"
         >
           Comment
         </button>
@@ -619,51 +641,54 @@ function Replies({
   }
 
   return (
-    <div className="mt-3 pl-3 border-l">
-      <h5 className="font-medium mb-2 text-sm">Replies</h5>
-      <ul className="space-y-2">
+    <div className="mt-3 rounded-xl border border-slate-200 bg-white/70 p-3 sm:p-4 space-y-3">
+      <h5 className="font-medium text-sm leading-tight">Replies ({list.length})</h5>
+      <ul className="space-y-3">
         {list.map((r) => {
           const mine = currentUser?.uid === r.authorId;
+          const createdLabel = formatTimestampLabel(r.createdAt);
           return (
-            <li
-              key={r.id}
-              className="slot px-3 py-2 rounded-xl flex items-start justify-between gap-3"
-            >
-              <div className="flex-1">
-                <p className="whitespace-pre-wrap">{r.body}</p>
-                <p className="text-xs text-slate-500 mt-1">By {r.authorName || 'Unknown'}</p>
-              </div>
-              <div className="flex items-center gap-2">
-                {mine && (
+            <li key={r.id} className="slot px-3 py-3 rounded-xl border border-slate-200/70 bg-white">
+              <div className="flex flex-col gap-2">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-slate-900 leading-tight">{r.authorName || 'Unknown'}</p>
+                    <p className="text-xs text-slate-500 leading-relaxed">{createdLabel}</p>
+                  </div>
+                </div>
+                <p className="whitespace-pre-wrap leading-relaxed text-slate-900">{r.body}</p>
+                <div className="flex flex-wrap gap-2 pt-1 text-xs">
+                  {mine && (
+                    <button
+                      onClick={() => deleteReply(r.id)}
+                      className="px-2 py-1 rounded bg-red-600 text-white hover:bg-red-700"
+                    >
+                      Delete
+                    </button>
+                  )}
                   <button
-                    onClick={() => deleteReply(r.id)}
-                    className="text-xs px-2 py-1 rounded bg-red-600 text-white hover:bg-red-700"
+                    onClick={() => reportReply(r)}
+                    className="px-2 py-1 rounded border"
                   >
-                    Delete
+                    Report
                   </button>
-                )}
-                <button
-                  onClick={() => reportReply(r)}
-                  className="text-xs px-2 py-1 rounded border"
-                >
-                  Report
-                </button>
+                </div>
               </div>
             </li>
           );
         })}
       </ul>
 
-      <div className="mt-2 flex gap-2">
+      <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center">
         <input
           value={body}
           onChange={(e) => setBody(e.target.value)}
           placeholder="Write a reply…"
-          className="flex-1 px-3 py-2 rounded border"
+          className="flex-1 px-3 py-2 rounded border leading-relaxed"
         />
         <button
           onClick={addReply}
-          className="px-3 py-2 rounded-xl bg-black/80 text-white hover:bg-black"
+          className="w-full sm:w-auto px-3 py-2 rounded-xl bg-black/80 text-white hover:bg-black"
         >
           Reply
         </button>
