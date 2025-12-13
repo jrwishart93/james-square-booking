@@ -200,23 +200,25 @@ export default function MyDashboardPage() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_18%,rgba(255,255,255,0.75),transparent_38%),radial-gradient(circle_at_85%_12%,rgba(221,234,255,0.55),transparent_36%),radial-gradient(circle_at_50%_115%,rgba(184,206,238,0.28),transparent_48%)] dark:bg-[radial-gradient(circle_at_18%_12%,rgba(66,106,165,0.18),transparent_42%),radial-gradient(circle_at_82%_18%,rgba(37,99,235,0.12),transparent_40%),radial-gradient(circle_at_50%_118%,rgba(21,94,149,0.24),transparent_50%)]" />
       </div>
 
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-12 space-y-8 leading-relaxed">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-2 text-center sm:text-left">
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--muted)]">Welcome back</p>
-            <h1 className="text-3xl sm:text-4xl font-extrabold leading-tight drop-shadow-sm">🧑‍💻 My Dashboard</h1>
-            <p className="text-[color:var(--text-secondary)] leading-relaxed">
-              Keep on top of your bookings and account details with the new Liquid Glass look.
-            </p>
-          </div>
-          <div className="flex flex-wrap justify-center gap-3">
-            <Button variant="primary" href="/book/schedule">
-              Make New Booking
-            </Button>
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-10 space-y-6 leading-relaxed">
+        <div className="flex flex-col gap-3 text-center sm:text-left">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[color:var(--muted)]">My dashboard</p>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4">
+            <div className="space-y-2">
+              <h1 className="text-3xl sm:text-4xl font-extrabold leading-tight drop-shadow-sm">🧑‍💻 My Dashboard</h1>
+              <p className="text-[color:var(--text-secondary)] leading-relaxed">
+                Keep on top of your bookings and account details.
+              </p>
+            </div>
+            <div className="sm:mb-1">
+              <Button variant="primary" href="/book/schedule" className="w-full sm:w-auto">
+                Make New Booking
+              </Button>
+            </div>
           </div>
         </div>
 
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap items-center gap-3">
           <SegmentedControl
             ariaLabel="Show upcoming or past bookings"
             options={[
@@ -226,28 +228,43 @@ export default function MyDashboardPage() {
             value={bookingView}
             onChange={(value) => setShowUpcoming(value === 'upcoming')}
           />
-          <div className="flex flex-wrap gap-3">
-            <SegmentedControl
-              ariaLabel="Sort bookings"
-              options={[
-                { label: 'Date', value: 'date' },
-                { label: 'Facility', value: 'facility' },
-              ]}
-              value={sortBy}
-              onChange={(value) => setSortBy(value as 'date' | 'facility')}
-            />
-          </div>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
           <GlassCard
-            title={`🗓️ ${showUpcoming ? 'Upcoming Bookings' : 'Past Bookings'}`}
-            subtitle="Premium glass surfaces keep every booking easy to scan."
+            title={`${showUpcoming ? 'Upcoming' : 'Past'} Bookings`}
+            subtitle="See what’s scheduled at a glance."
+            action={
+              sortedBookings.length > 0 && (
+                <div className="flex items-center gap-2 text-xs font-medium text-[color:var(--text-secondary)]">
+                  <span className="hidden sm:inline">Sort by</span>
+                  <SegmentedControl
+                    ariaLabel="Sort bookings"
+                    options={[
+                      { label: 'Date', value: 'date' },
+                      { label: 'Facility', value: 'facility' },
+                    ]}
+                    value={sortBy}
+                    onChange={(value) => setSortBy(value as 'date' | 'facility')}
+                  />
+                </div>
+              )
+            }
           >
             {sortedBookings.length === 0 ? (
-              <p className="text-center text-[color:var(--text-secondary)]">
-                No {showUpcoming ? 'upcoming' : 'past'} bookings.
-              </p>
+              <div className="glass-outline glass-surface flex flex-col items-center gap-3 rounded-2xl border border-dashed border-[color:var(--glass-border)] px-6 py-8 text-center">
+                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[color:var(--btn-bg)]/10 text-lg">
+                  🗓️
+                </div>
+                <div className="space-y-1">
+                  <p className="text-base font-semibold text-[color:var(--text-primary)]">
+                    No {showUpcoming ? 'upcoming' : 'past'} bookings yet
+                  </p>
+                  <p className="text-sm text-[color:var(--text-secondary)]">
+                    Use “Make New Booking” above to reserve your next visit.
+                  </p>
+                </div>
+              </div>
             ) : (
               <ul className="space-y-4">
                 {sortedBookings.map((booking) => (
@@ -293,12 +310,12 @@ export default function MyDashboardPage() {
             )}
           </GlassCard>
 
-          <GlassCard title="👤 My Profile" subtitle="Update your info to keep your bookings in sync.">
-            <div className="space-y-4 text-[color:var(--text-primary)]">
+          <GlassCard title="👤 Profile" subtitle="Keep your details up to date.">
+            <div className="space-y-3 text-[color:var(--text-primary)]">
               {editing ? (
                 <>
-                  <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-[color:var(--text-secondary)]">Email</label>
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-semibold uppercase tracking-wide text-[color:var(--muted)]">Email</label>
                     <input
                       type="email"
                       value={email}
@@ -306,8 +323,8 @@ export default function MyDashboardPage() {
                       className="w-full rounded-xl border border-[color:var(--glass-border)] bg-white/70 px-4 py-2.5 text-[color:var(--text-primary)] shadow-inner focus:outline-none focus:ring-2 focus:ring-[color:var(--btn-ring)] dark:bg-white/10"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-[color:var(--text-secondary)]">Username</label>
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-semibold uppercase tracking-wide text-[color:var(--muted)]">Username</label>
                     <input
                       type="text"
                       value={username}
@@ -315,8 +332,8 @@ export default function MyDashboardPage() {
                       className="w-full rounded-xl border border-[color:var(--glass-border)] bg-white/70 px-4 py-2.5 text-[color:var(--text-primary)] shadow-inner focus:outline-none focus:ring-2 focus:ring-[color:var(--btn-ring)] dark:bg-white/10"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-[color:var(--text-secondary)]">Property</label>
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-semibold uppercase tracking-wide text-[color:var(--muted)]">Property</label>
                     <select
                       value={property}
                       onChange={(e) => setProperty(e.target.value)}
@@ -330,9 +347,11 @@ export default function MyDashboardPage() {
                       ))}
                     </select>
                   </div>
-                  <div className="flex flex-wrap gap-3">
-                    <Button onClick={updateProfile}>Save</Button>
-                    <Button variant="secondary" onClick={() => setEditing(false)}>
+                  <div className="flex flex-wrap gap-2">
+                    <Button onClick={updateProfile} className="min-w-[120px]">
+                      Save
+                    </Button>
+                    <Button variant="secondary" onClick={() => setEditing(false)} className="min-w-[120px]">
                       Cancel
                     </Button>
                   </div>
@@ -340,21 +359,27 @@ export default function MyDashboardPage() {
               ) : (
                 <>
                   <div className="space-y-1 leading-relaxed text-[color:var(--text-secondary)]">
-                    <p>
-                      <strong className="text-[color:var(--text-primary)]">Email:</strong> {email}
+                    <p className="text-sm">
+                      <span className="text-[color:var(--muted)]">Email</span>
+                      <br />
+                      <span className="text-base text-[color:var(--text-primary)]">{email}</span>
                     </p>
-                    <p>
-                      <strong className="text-[color:var(--text-primary)]">Username:</strong> {username}
+                    <p className="text-sm">
+                      <span className="text-[color:var(--muted)]">Username</span>
+                      <br />
+                      <span className="text-base text-[color:var(--text-primary)]">{username}</span>
                     </p>
-                    <p>
-                      <strong className="text-[color:var(--text-primary)]">Property:</strong> {property}
+                    <p className="text-sm">
+                      <span className="text-[color:var(--muted)]">Property</span>
+                      <br />
+                      <span className="text-base text-[color:var(--text-primary)]">{property}</span>
                     </p>
                   </div>
-                  <div className="flex flex-wrap gap-3">
-                    <Button onClick={() => setEditing(true)} variant="secondary">
+                  <div className="flex flex-wrap gap-2 sm:flex-nowrap">
+                    <Button onClick={() => setEditing(true)} variant="secondary" className="flex-1 min-w-[140px]">
                       Edit Profile
                     </Button>
-                    <Button variant="ghost" onClick={() => setShowModal(true)}>
+                    <Button variant="ghost" onClick={() => setShowModal(true)} className="flex-1 min-w-[140px]">
                       Reset Password
                     </Button>
                   </div>
