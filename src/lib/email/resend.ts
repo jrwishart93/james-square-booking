@@ -10,6 +10,9 @@ function getResendClient() {
   return new Resend(apiKey);
 }
 
+const FROM_EMAIL =
+  process.env.RESEND_FROM_EMAIL ?? "James Square <onboarding@resend.dev>";
+
 function stripHtml(html: string) {
   return html
     .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
@@ -35,12 +38,18 @@ export async function sendAdminEmail({
 }) {
   const resend = getResendClient();
 
-  return resend.emails.send({
-    from: "James Square <no-reply@james-square.com>",
+  const { data, error } = await resend.emails.send({
+    from: FROM_EMAIL,
     to,
     subject,
     html,
     text: stripHtml(html),
     attachments,
   });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
 }
