@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
+import { AuthProvider } from "@/context/AuthContext";
 
 const geistSans = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
 const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono" });
@@ -45,8 +46,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`}>
-        <Header />
-        <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">{children}</main>
+        <AuthProvider>
+          <Header />
+          <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">{children}</main>
+        </AuthProvider>
       </body>
     </html>
   );

@@ -159,7 +159,7 @@ export default function AdminEmailPage() {
 
   const handleSend = async () => {
     if (!user) {
-      setStatus({ tone: 'error', message: 'You must be signed in.' });
+      setStatus({ tone: 'error', message: 'You must be signed in' });
       return;
     }
 
@@ -185,9 +185,10 @@ export default function AdminEmailPage() {
 
     try {
       setSending(true);
-      setStatus({ tone: 'idle', message: '' });
+      setStatus({ tone: 'idle', message: 'Sending…' });
 
-      const token = await user.getIdToken();
+      const token = await user.getIdToken(true);
+
       const response = await fetch('/api/admin/send-email', {
         method: 'POST',
         headers: {
@@ -203,12 +204,10 @@ export default function AdminEmailPage() {
       });
 
       if (!response.ok) {
-        const errorBody = await response.json().catch(() => null);
-        const errorMessage = errorBody?.error || 'Failed to send email.';
-        throw new Error(errorMessage);
+        throw new Error('Send failed');
       }
 
-      setStatus({ tone: 'success', message: 'Email sent successfully.' });
+      setStatus({ tone: 'success', message: 'Email sent successfully' });
       setSubject('');
       setMessage('');
       setSelectedUserEmails([]);
@@ -219,8 +218,8 @@ export default function AdminEmailPage() {
         fileInputRef.current.value = '';
       }
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to send email.';
-      setStatus({ tone: 'error', message });
+      setStatus({ tone: 'error', message: 'Failed to send email' });
+      console.error('Failed to send email', error);
     } finally {
       setSending(false);
     }

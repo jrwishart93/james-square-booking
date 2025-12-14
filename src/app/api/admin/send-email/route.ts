@@ -8,15 +8,22 @@ export const runtime = "nodejs";
 export async function POST(req: Request) {
   try {
     const authHeader = req.headers.get("authorization");
-    if (!authHeader) {
-      return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return NextResponse.json(
+        { error: "Missing auth token" },
+        { status: 401 }
+      );
     }
 
-    const token = authHeader.replace("Bearer ", "");
+    const token = authHeader.split("Bearer ")[1];
     const decoded = await getAuth(adminApp).verifyIdToken(token);
 
     if (!decoded.admin) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      return NextResponse.json(
+        { error: "Admin access required" },
+        { status: 403 }
+      );
     }
 
     const { to, subject, message, attachments } = await req.json();
