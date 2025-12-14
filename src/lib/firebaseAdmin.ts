@@ -54,7 +54,6 @@ const initFirebaseAdmin = (): App => {
   return adminApp;
 };
 
-const app = initFirebaseAdmin();
-
-export const adminAuth = getAuth(app);
-export const adminDb = getFirestore(app);
+export const adminApp = initFirebaseAdmin();
+export const adminAuth = getAuth(adminApp);
+export const adminDb = getFirestore(adminApp);

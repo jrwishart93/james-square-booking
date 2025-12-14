@@ -1,9 +1,15 @@
 import { User } from 'firebase/auth';
 
+type AttachmentPayload = {
+  filename: string;
+  content: string;
+};
+
 interface Payload {
-  to: string[];
+  to: string | string[];
   subject: string;
-  bodyHtml: string;
+  message: string;
+  attachments?: AttachmentPayload[];
 }
 
 export async function sendAdminEmail(user: User, payload: Payload) {
