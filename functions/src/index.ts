@@ -18,8 +18,15 @@ if (!getApps().length) {
   initializeApp();
 }
 
-const resendApiKey = process.env.RESEND_API_KEY ?? config().resend?.api_key;
-const resendClient = resendApiKey ? new Resend(resendApiKey) : null;
+function getResendClient() {
+  const apiKey = process.env.RESEND_API_KEY ?? config().resend?.api_key;
+
+  if (!apiKey) {
+    return null;
+  }
+
+  return new Resend(apiKey);
+}
 
 export const sendBookingReminders = onSchedule(
   {
@@ -60,6 +67,8 @@ export const sendBookingReminders = onSchedule(
         time: data.time ?? 'Unknown time',
       });
     });
+
+    const resendClient = getResendClient();
 
     if (!resendClient) {
       logger.warn('Resend API key is not configured; skipping reminder emails.');

@@ -18,8 +18,13 @@ const metrics_1 = require("./metrics");
 if (!(0, app_1.getApps)().length) {
     (0, app_1.initializeApp)();
 }
-const resendApiKey = process.env.RESEND_API_KEY ?? (0, firebase_functions_1.config)().resend?.api_key;
-const resendClient = resendApiKey ? new resend_1.Resend(resendApiKey) : null;
+function getResendClient() {
+    const apiKey = process.env.RESEND_API_KEY ?? (0, firebase_functions_1.config)().resend?.api_key;
+    if (!apiKey) {
+        return null;
+    }
+    return new resend_1.Resend(apiKey);
+}
 exports.sendBookingReminders = (0, scheduler_1.onSchedule)({
     schedule: '0 7 * * *',
     timeZone: 'Europe/London',
@@ -52,6 +57,7 @@ exports.sendBookingReminders = (0, scheduler_1.onSchedule)({
             time: data.time ?? 'Unknown time',
         });
     });
+    const resendClient = getResendClient();
     if (!resendClient) {
         firebase_functions_1.logger.warn('Resend API key is not configured; skipping reminder emails.');
         return;
