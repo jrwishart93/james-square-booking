@@ -23,20 +23,24 @@ export async function sendAdminEmail({
   to,
   subject,
   html,
-  from = "James Square <no-reply@james-square.com>",
+  attachments,
 }: {
   to: string | string[];
   subject: string;
   html: string;
-  from?: string;
+  attachments?: {
+    filename: string;
+    content: string;
+  }[];
 }) {
   const resend = getResendClient();
 
   return resend.emails.send({
-    from,
+    from: "James Square <no-reply@james-square.com>",
     to,
     subject,
     html,
     text: stripHtml(html),
+    attachments,
   });
 }

@@ -90,7 +90,7 @@ const AdminEmailPanel = () => {
     try {
       setSending(true);
       setStatus({ tone: 'idle', message: 'Sending...' });
-      await sendAdminEmail(user, { to: recipients, subject: subject.trim(), bodyHtml });
+      await sendAdminEmail(user, { to: recipients, subject: subject.trim(), message: bodyHtml });
       setStatus({ tone: 'success', message: 'Email sent successfully.' });
       setSelected({});
     } catch (error) {
