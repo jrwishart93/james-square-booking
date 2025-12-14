@@ -1,13 +1,15 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
+import Tabs from '@/components/Tabs';
 
 /* -------------------------------------------------
    Helpers / Types
 -------------------------------------------------- */
 type LightboxItem = { src: string; alt: string } | null;
+type TabId = 'about' | 'area';
 const glass =
   'jqs-glass rounded-2xl border border-white/20 bg-white/50 dark:bg-white/10 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.06)]';
 
@@ -16,20 +18,46 @@ const glass =
 -------------------------------------------------- */
 export default function UsefulInfoPage() {
   const [lightbox, setLightbox] = useState<LightboxItem>(null);
-
-  const anchors = useMemo(
+  const tabs = useMemo(
     () => [
-      { id: 'factor-info', label: 'Factor Info' },
-      { id: 'voi-ebikes', label: 'Voi E-bikes' },
-      { id: 'dalry-project', label: 'Dalry Project' },
-      { id: 'world-buffet', label: 'World Buffet' },
-      { id: 'bins', label: 'Bins' },
-      { id: 'restaurants', label: 'Restaurants' },
-      { id: 'groceries', label: 'Groceries' },
-      { id: 'coffee', label: 'Coffee' },
+      { id: 'about', label: 'About James Square' },
+      { id: 'area', label: 'Local Area' },
     ],
     []
   );
+
+  const anchorsByTab = useMemo(
+    () => ({
+      about: [
+        { id: 'factor-info', label: 'Factor Info' },
+        { id: 'bins', label: 'Bins' },
+      ],
+      area: [
+        { id: 'voi-ebikes', label: 'Voi E-bikes' },
+        { id: 'dalry-project', label: 'Dalry Project' },
+        { id: 'world-buffet', label: 'World Buffet' },
+        { id: 'restaurants', label: 'Restaurants' },
+        { id: 'groceries', label: 'Groceries' },
+        { id: 'coffee', label: 'Coffee' },
+      ],
+    }),
+    []
+  );
+
+  const [activeTab, setActiveTab] = useState<TabId>('about');
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem('useful-info-tab');
+    if (saved === 'about' || saved === 'area') {
+      setActiveTab(saved);
+    }
+  }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem('useful-info-tab', activeTab);
+  }, [activeTab]);
+
+  const anchors = anchorsByTab[activeTab];
 
   return (
     <main className="relative max-w-6xl mx-auto py-10 px-4">
@@ -57,173 +85,200 @@ export default function UsefulInfoPage() {
           Useful Information
         </h1>
         <p className="mt-3 text-[color:var(--text-muted)] max-w-2xl mx-auto">
-          Welcome to the James Square Useful Information page. This page covers access to the pool,
-          gym and sauna, how waste and recycling works, who to contact if something goes wrong,
-          what’s good nearby, and updates on local projects.
+          Use these tabs to quickly find building guidance for James Square or explore nearby
+          transport, food, and projects in the local area.
         </p>
+
+        <Tabs tabs={tabs} activeTab={activeTab} onTabChange={(id) => setActiveTab(id as TabId)} className="mt-6" />
       </section>
 
-      {/* ---------------- Factor Info (loads immediately) ---------------- */}
-      <SectionCard id="factor-info" title="Factor Information" initial>
-        <div className="flex flex-col md:flex-row items-start gap-6">
-          {/* Left: text */}
-          <div className="flex-1 space-y-4">
-            <p>
-              <strong>Fior Asset &amp; Property</strong> manages the overall upkeep of James Square,
-              including communal areas, landscaping, cleaning, and the shared facilities
-              (pool, gym, sauna).
+      <div className="space-y-10">
+        {activeTab === 'about' && (
+          <div
+            id="about-panel"
+            role="tabpanel"
+            aria-labelledby="about-tab"
+            className="space-y-10"
+          >
+            <p className="text-[color:var(--text-muted)] max-w-3xl mx-auto text-center">
+              Welcome to the James Square Useful Information page. This page covers access to the pool,
+              gym and sauna, how waste and recycling works, who to contact if something goes wrong,
+              what’s good nearby, and updates on local projects.
             </p>
 
-            {/* General enquiries */}
-            <div className="rounded-xl border p-4 bg-white/40 dark:bg-white/10 backdrop-blur">
-              <h3 className="font-semibold">General enquiries</h3>
-              <p>
-                Email:{' '}
-                <a
-                  href="mailto:info@fiorassetandproperty.com"
-                  className="underline font-medium"
-                >
-                  info@fiorassetandproperty.com
-                </a>
-              </p>
-              <p>
-                Phone:{' '}
-                <a href="tel:+443334440586" className="underline font-medium">
-                  0333 444 0586
-                </a>
-              </p>
-              <p>
-                Mobile:{' '}
-                <a href="tel:+447548910618" className="underline font-medium">
-                  07548 910618
-                </a>
-              </p>
-            </div>
+            {/* ---------------- Factor Info (loads immediately) ---------------- */}
+            <SectionCard id="factor-info" title="Factor Information" initial>
+              <div className="flex flex-col md:flex-row items-start gap-6">
+                {/* Left: text */}
+                <div className="flex-1 space-y-4">
+                  <p>
+                    <strong>Fior Asset &amp; Property</strong> manages the overall upkeep of James Square,
+                    including communal areas, landscaping, cleaning, and the shared facilities
+                    (pool, gym, sauna).
+                  </p>
 
-            <div className="grid gap-3 md:grid-cols-2">
-              <div className="rounded-xl border p-4 bg-white/40 dark:bg-white/10 backdrop-blur">
-                <h3 className="font-semibold">Director</h3>
-                <p className="font-medium">Pedrom Aghabala</p>
-                <a
-                  href="mailto:pedrom@fiorassetandproperty.com"
-                  className="underline break-all"
-                >
-                  pedrom@fiorassetandproperty.com
-                </a>
-              </div>
-              <div className="rounded-xl border p-4 bg-white/40 dark:bg-white/10 backdrop-blur">
-                <h3 className="font-semibold">Manager (property queries)</h3>
-                <p className="font-medium">Matthew</p>
-                <a
-                  href="mailto:matthew@fiorassetandproperty.com"
-                  className="underline break-all"
-                >
-                  matthew@fiorassetandproperty.com
-                </a>
-              </div>
-            </div>
+                  {/* General enquiries */}
+                  <div className="rounded-xl border p-4 bg-white/40 dark:bg-white/10 backdrop-blur">
+                    <h3 className="font-semibold">General enquiries</h3>
+                    <p>
+                      Email:{' '}
+                      <a
+                        href="mailto:info@fiorassetandproperty.com"
+                        className="underline font-medium"
+                      >
+                        info@fiorassetandproperty.com
+                      </a>
+                    </p>
+                    <p>
+                      Phone:{' '}
+                      <a href="tel:+443334440586" className="underline font-medium">
+                        0333 444 0586
+                      </a>
+                    </p>
+                    <p>
+                      Mobile:{' '}
+                      <a href="tel:+447548910618" className="underline font-medium">
+                        07548 910618
+                      </a>
+                    </p>
+                  </div>
 
-            <div className="rounded-xl border p-4 bg-white/40 dark:bg-white/10 backdrop-blur">
-              <h3 className="font-semibold">Address</h3>
-              <address className="not-italic">
-                Fior Asset &amp; Property<br />
-                24 Canning Street<br />
-                Edinburgh EH3 8EG
-              </address>
-            </div>
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <div className="rounded-xl border p-4 bg-white/40 dark:bg-white/10 backdrop-blur">
+                      <h3 className="font-semibold">Director</h3>
+                      <p className="font-medium">Pedrom Aghabala</p>
+                      <a
+                        href="mailto:pedrom@fiorassetandproperty.com"
+                        className="underline break-all"
+                      >
+                        pedrom@fiorassetandproperty.com
+                      </a>
+                    </div>
+                    <div className="rounded-xl border p-4 bg-white/40 dark:bg-white/10 backdrop-blur">
+                      <h3 className="font-semibold">Manager (property queries)</h3>
+                      <p className="font-medium">Matthew</p>
+                      <a
+                        href="mailto:matthew@fiorassetandproperty.com"
+                        className="underline break-all"
+                      >
+                        matthew@fiorassetandproperty.com
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border p-4 bg-white/40 dark:bg-white/10 backdrop-blur">
+                    <h3 className="font-semibold">Address</h3>
+                    <address className="not-italic">
+                      Fior Asset &amp; Property<br />
+                      24 Canning Street<br />
+                      Edinburgh EH3 8EG
+                    </address>
+                  </div>
+                </div>
+
+                {/* Right: logo */}
+                <div className="relative w-32 h-16 md:w-48 md:h-24 shrink-0">
+                  <Image
+                    src="/images/logo/fior-logo.png"
+                    alt="Fior Asset & Property logo"
+                    fill
+                    sizes="192px"
+                    className="object-contain"
+                    priority
+                  />
+                </div>
+              </div>
+            </SectionCard>
+
+            {/* ---------------- Bins & Waste (3-card grid) ---------------- */}
+            <SectionCard id="bins" title="Bins & Waste">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {BINS.map((bin, i) => (
+                  <motion.div
+                    key={`bin-${bin.title}`}
+                    className="flex flex-col overflow-hidden rounded-xl jqs-glass shadow-md"
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.08 }}
+                  >
+                    <div className="relative h-40 md:h-48 w-full overflow-hidden rounded-t-xl">
+                      <Image
+                        src={bin.img}
+                        alt={bin.title}
+                        fill
+                        sizes="(min-width:1024px) 300px, 100vw"
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="p-4 flex flex-col flex-1 gap-2">
+                      <h3 className="font-semibold">{bin.title}</h3>
+                      <p className="text-sm">{bin.text}</p>
+                      {bin.extra && <div className="text-sm">{bin.extra}</div>}
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </SectionCard>
+
+            {/* ---- Site-wide image disclaimer (bottom of page) ---- */}
+            <section className="mt-2">
+              <div className={`${glass} p-4`}>
+                <p className="text-xs text-[color:var(--text-muted)] leading-relaxed">
+                  <strong>Image notice:</strong> All images on this website have been adapted using AI and are
+                  provided for reference purposes only. Original companies, organisations, or projects shown are
+                  not affiliated with or endorsed by this website.
+                </p>
+              </div>
+            </section>
           </div>
+        )}
 
-          {/* Right: logo */}
-          <div className="relative w-32 h-16 md:w-48 md:h-24 shrink-0">
-            <Image
-              src="/images/logo/fior-logo.png"
-              alt="Fior Asset & Property logo"
-              fill
-              sizes="192px"
-              className="object-contain"
-              priority
-            />
+        {activeTab === 'area' && (
+          <div
+            id="area-panel"
+            role="tabpanel"
+            aria-labelledby="area-tab"
+            className="space-y-10"
+          >
+            {/* ---------------- Voi E-bikes (image shows fully) ---------------- */}
+            <VoiEbikesCard />
+
+            {/* ---------------- Dalry: Living Well Locally ---------------- */}
+            <DalryProjectCard />
+
+            {/* ---------------- Hot World Cuisine ---------------- */}
+            <WorldBuffetCard />
+
+            {/* ---------------- Restaurants ---------------- */}
+            <SectionCard id="restaurants" title="Restaurants">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {RESTAURANTS.map((r) => (
+                  <VenueCard key={`rest-${r.name}`} {...r} />
+                ))}
+              </div>
+            </SectionCard>
+
+            {/* ---------------- Groceries ---------------- */}
+            <SectionCard id="groceries" title="Groceries">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {GROCERIES.map((g) => (
+                  <VenueCard key={`groc-${g.name}`} {...g} />
+                ))}
+              </div>
+            </SectionCard>
+
+            {/* ---------------- Coffee ---------------- */}
+            <SectionCard id="coffee" title="Coffee">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {COFFEE.map((c) => (
+                  <VenueCard key={`coffee-${c.name}`} {...c} />
+                ))}
+              </div>
+            </SectionCard>
           </div>
-        </div>
-      </SectionCard>
-
-      {/* ---------------- Voi E-bikes (image shows fully) ---------------- */}
-      <VoiEbikesCard />
-
-      {/* ---------------- Dalry: Living Well Locally ---------------- */}
-      <DalryProjectCard />
-
-      {/* ---------------- Hot World Cuisine ---------------- */}
-      <WorldBuffetCard />
-
-      {/* ---------------- Bins & Waste (3-card grid) ---------------- */}
-      <SectionCard id="bins" title="Bins & Waste">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {BINS.map((bin, i) => (
-            <motion.div
-              key={`bin-${bin.title}`}
-              className="flex flex-col overflow-hidden rounded-xl jqs-glass shadow-md"
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.08 }}
-            >
-              <div className="relative h-40 md:h-48 w-full overflow-hidden rounded-t-xl">
-                <Image
-                  src={bin.img}
-                  alt={bin.title}
-                  fill
-                  sizes="(min-width:1024px) 300px, 100vw"
-                  className="object-cover"
-                />
-              </div>
-              <div className="p-4 flex flex-col flex-1 gap-2">
-                <h3 className="font-semibold">{bin.title}</h3>
-                <p className="text-sm">{bin.text}</p>
-                {bin.extra && <div className="text-sm">{bin.extra}</div>}
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </SectionCard>
-
-      {/* ---------------- Restaurants ---------------- */}
-      <SectionCard id="restaurants" title="Restaurants">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {RESTAURANTS.map((r) => (
-            <VenueCard key={`rest-${r.name}`} {...r} />
-          ))}
-        </div>
-      </SectionCard>
-
-      {/* ---------------- Groceries ---------------- */}
-      <SectionCard id="groceries" title="Groceries">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {GROCERIES.map((g) => (
-            <VenueCard key={`groc-${g.name}`} {...g} />
-          ))}
-        </div>
-      </SectionCard>
-
-      {/* ---------------- Coffee ---------------- */}
-      <SectionCard id="coffee" title="Coffee">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {COFFEE.map((c) => (
-            <VenueCard key={`coffee-${c.name}`} {...c} />
-          ))}
-        </div>
-      </SectionCard>
-
-      {/* ---- Site-wide image disclaimer (bottom of page) ---- */}
-      <section className="mt-10">
-        <div className={`${glass} p-4`}>
-          <p className="text-xs text-[color:var(--text-muted)] leading-relaxed">
-            <strong>Image notice:</strong> All images on this website have been adapted using AI and are
-            provided for reference purposes only. Original companies, organisations, or projects shown are
-            not affiliated with or endorsed by this website.
-          </p>
-        </div>
-      </section>
+        )}
+      </div>
 
       {/* Lightbox (reserved) */}
       <AnimatePresence>
