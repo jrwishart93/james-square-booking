@@ -78,6 +78,7 @@ const glassPanel =
 
 function AgmSection() {
   const [agendaOpen, setAgendaOpen] = useState(false);
+  const [agm2025RecapOpen, setAgm2025RecapOpen] = useState(false);
   const [recapOpen, setRecapOpen] = useState(false);
 
   return (
@@ -166,6 +167,156 @@ function AgmSection() {
                   <li>Any other business</li>
                   <li>Meeting closure</li>
                 </ul>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        <div>
+          <ExpandButton
+            open={agm2025RecapOpen}
+            setOpen={setAgm2025RecapOpen}
+            labelWhenClosed="Read what was discussed at the 2025 AGM"
+            labelWhenOpen="Hide 2025 AGM recap"
+            controlsId="owners-agm-2025-recap"
+          />
+          <AnimatePresence initial={false}>
+            {agm2025RecapOpen && (
+              <motion.div
+                id="owners-agm-2025-recap"
+                className={`${glassPanel} mt-3 space-y-4`}
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.28 }}
+              >
+                <SectionText heading="Overview">
+                  <p>
+                    The 2025 AGM provided owners with an update on management, operations, finances, and plans for the
+                    year ahead. The meeting was chaired by Chris M with Pedrom Aghabala (Fior Asset &amp; Property) in
+                    attendance. This AGM was significant due to changes in factoring arrangements, major plant and
+                    leisure repairs, and renewed decisions around long-term roof funding.
+                  </p>
+                </SectionText>
+
+                <SectionText heading="Attendance and apologies">
+                  <p>
+                    A wide cross-section of owners joined from multiple blocks. Apologies were received from several
+                    owners who could not attend. Ground rules for respectful discussion were outlined at the start of
+                    the meeting.
+                  </p>
+                </SectionText>
+
+                <SectionText heading="Committee and factor update">
+                  <ul className="list-disc ms-5 space-y-1">
+                    <li>Chris Magowan advised he would step down as Chair due to frustration with factoring arrangements.</li>
+                    <li>Trinity Factors were removed after widespread dissatisfaction; Fior Asset &amp; Property were appointed.</li>
+                    <li>
+                      Trinity resigned abruptly with little notice. Fior secured alternative insurance and stabilised the
+                      transition despite minimal handover support.
+                    </li>
+                    <li>
+                      An attempted automatic insurance renewal of nearly £70,000 by Trinity was challenged and voided by
+                      Fior, preventing owners from being charged.
+                    </li>
+                    <li>
+                      Owners highlighted unanswered correspondence, delayed documentation, roof fund administration
+                      issues, and late circulation of the AGM notice. Pedrom apologised for communication delays,
+                      explaining a serious health issue had taken him out of work for several months.
+                    </li>
+                  </ul>
+                </SectionText>
+
+                <SectionText heading="Leisure facilities and major repairs">
+                  <ul className="list-disc ms-5 space-y-1">
+                    <li>
+                      Sauna: misuse damaged the previous unit. A new infrared sauna has been installed and is proving
+                      more durable and efficient.
+                    </li>
+                    <li>
+                      Swimming pool pump: the main pump failed, forcing reliance on an expensive electric backup. A new
+                      pump was installed for £9,800, including substantial installation work.
+                    </li>
+                  </ul>
+                </SectionText>
+
+                <SectionText heading="Pool booking system">
+                  <p>
+                    The previous booking system was corrupted and non-functional. A resident presented a new booking
+                    website (James-Square.com), which owners welcomed for its flexibility. Fior will circulate the link
+                    and guidance to all owners.
+                  </p>
+                </SectionText>
+
+                <SectionText heading="Roof fund and long-term repairs">
+                  <ul className="list-disc ms-5 space-y-1">
+                    <li>
+                      Roof fund collections were paused after Trinity refunded much of the money previously collected
+                      and delayed providing accurate figures.
+                    </li>
+                    <li>
+                      At transfer only £15,462.85 remained; a £2,000 contribution from a selling owner brought the total
+                      to £17,462.85.
+                    </li>
+                    <li>
+                      Owners agreed that roof repairs have been voted on previously and reaffirmed the commitment to the
+                      project despite the impact of uncertainty on property sales.
+                    </li>
+                    <li>Decision: roof fund collections will restart with the new budget invoices at the original contribution levels.</li>
+                  </ul>
+                </SectionText>
+
+                <SectionText heading="Financial review">
+                  <ul className="list-disc ms-5 space-y-1">
+                    <li>Annual accounts showed savings across most categories, particularly payroll.</li>
+                    <li>
+                      Savings were partly due to the sad passing of the second caretaker/cleaner, leaving Jimmy as the
+                      sole employee. Owners praised his work and requested clearer communication about his duties.
+                    </li>
+                    <li>
+                      Fior will issue a detailed follow-up letter covering annual expenditure, income per category,
+                      debtors and historic debt, current balances, and roof fund balances.
+                    </li>
+                  </ul>
+                </SectionText>
+
+                <SectionText heading="Communication improvements">
+                  <p>Owners unanimously agreed that communication must improve. Fior will issue quarterly written updates.</p>
+                </SectionText>
+
+                <SectionText heading="Pool safety and windows">
+                  <ul className="list-disc ms-5 space-y-1">
+                    <li>
+                      Sun-blocking coverings on pool windows reduced algae but raised safety concerns. Owners voted to
+                      uncover the bottom half of four windows as a compromise.
+                    </li>
+                    <li>A faulty pool door lock was replaced with a safer mechanism.</li>
+                  </ul>
+                </SectionText>
+
+                <SectionText heading="Planned works">
+                  <ul className="list-disc ms-5 space-y-1">
+                    <li>Landscaping beside the main entrance steps.</li>
+                    <li>New carpets and decoration in Block 57 and the terrace.</li>
+                    <li>AOV (smoke vent) systems in Blocks 45 and 51.</li>
+                    <li>Smaller works will proceed; larger projects will be discussed with relevant blocks.</li>
+                    <li>New fire servicing contractor resolved several historic issues but flagged wiring concerns; quotes will follow.</li>
+                  </ul>
+                </SectionText>
+
+                <SectionText heading="Budget and owner credits">
+                  <p>
+                    The proposed budget was reviewed line by line and agreed, with invoices to be issued shortly after the
+                    minutes. A £19,371 budget saving was identified, and owners voted on how it should be treated.
+                  </p>
+                </SectionText>
+
+                <SectionText heading="Closing">
+                  <p>
+                    Pedrom confirmed that all agreed actions would be implemented, with minutes, accounts, and invoices to
+                    follow promptly. The meeting closed at 10:50 pm.
+                  </p>
+                </SectionText>
               </motion.div>
             )}
           </AnimatePresence>
