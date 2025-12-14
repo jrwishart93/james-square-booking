@@ -11,7 +11,7 @@ import { getFirestore } from 'firebase-admin/firestore';
 
 type ServiceAccount = Parameters<typeof cert>[0];
 
-let adminApp: App | null = null;
+let adminAppInstance: App | null = null;
 
 const resolveServiceAccount = (): ServiceAccount | undefined => {
   const credentials = process.env.FIREBASE_ADMIN_CREDENTIALS;
@@ -28,32 +28,33 @@ const resolveServiceAccount = (): ServiceAccount | undefined => {
 };
 
 const initFirebaseAdmin = (): App => {
-  if (adminApp) return adminApp;
+  if (adminAppInstance) return adminAppInstance;
   if (getApps().length) {
-    adminApp = getApp();
-    return adminApp;
+    adminAppInstance = getApp();
+    return adminAppInstance;
   }
 
   const serviceAccount = resolveServiceAccount();
 
   if (serviceAccount) {
-    adminApp = initializeApp({
+    adminAppInstance = initializeApp({
       credential: cert(serviceAccount),
     });
   } else {
     try {
-      adminApp = initializeApp({
+      adminAppInstance = initializeApp({
         credential: applicationDefault(),
       });
     } catch (error) {
       console.warn('Falling back to default Firebase Admin initialization', error);
-      adminApp = initializeApp();
+      adminAppInstance = initializeApp();
     }
   }
 
-  return adminApp;
+  return adminAppInstance;
 };
+const adminApp = initFirebaseAdmin();
 
-export const adminApp = initFirebaseAdmin();
+export { adminApp };
 export const adminAuth = getAuth(adminApp);
 export const adminDb = getFirestore(adminApp);
