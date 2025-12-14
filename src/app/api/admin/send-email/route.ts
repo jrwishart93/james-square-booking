@@ -42,6 +42,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Admin email error:", error);
-    return NextResponse.json({ error: "Email failed to send" }, { status: 500 });
+    const message =
+      error instanceof Error ? error.message : "Email failed to send";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
