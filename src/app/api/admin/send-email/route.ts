@@ -1,12 +1,14 @@
+export const runtime = 'nodejs';
+
 import React from 'react';
 import { NextRequest, NextResponse } from 'next/server';
-import { Resend } from 'resend';
 import type { DecodedIdToken } from 'firebase-admin/auth';
 import { FieldValue } from 'firebase-admin/firestore';
 
 import AdminBroadcastEmail from '@/lib/emails/AdminBroadcastEmail';
 import { sanitizeHtml } from '@/lib/sanitizeHtml';
 import { adminAuth, adminDb } from '@/lib/firebase-admin';
+import { sendAdminEmail } from '@/lib/email/resend';
 
 const FROM = process.env.EMAIL_FROM || 'James Square <no-reply@example.com>';
 
@@ -63,9 +65,7 @@ export async function POST(req: NextRequest) {
 
     const safeHtml = sanitizeHtml(bodyHtml);
 
-    const resend = new Resend(process.env.RESEND_API_KEY);
-
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await sendAdminEmail({
       from: FROM,
       to,
       subject,
