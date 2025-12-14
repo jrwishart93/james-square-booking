@@ -1,111 +1,45 @@
-import React from 'react';
-import { NextRequest, NextResponse } from 'next/server';
-import { Resend } from 'resend';
-import type { DecodedIdToken } from 'firebase-admin/auth';
-import { FieldValue } from 'firebase-admin/firestore';
+import { NextResponse } from "next/server";
+import { sendAdminEmail } from "@/lib/email/resend";
+import { getAuth } from "firebase-admin/auth";
+import { adminApp } from "@/lib/firebase/admin";
 
-import AdminBroadcastEmail from '@/lib/emails/AdminBroadcastEmail';
-import { sanitizeHtml } from '@/lib/sanitizeHtml';
-import { adminAuth, adminDb } from '@/lib/firebase-admin';
-
-const FROM = process.env.EMAIL_FROM || 'James Square <no-reply@example.com>';
-
-type AdminClaims = DecodedIdToken & { isAdmin?: boolean };
-
-type EmailPayload = {
-  to: string[];
-  subject: string;
-  bodyHtml: string;
-};
-
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   try {
-    const body = (await req.json()) as EmailPayload;
-    const authHeader = req.headers.get('authorization') || '';
-    const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
-    if (!token) {
-      return NextResponse.json({ error: 'Missing auth token' }, { status: 401 });
+    const authHeader = req.headers.get("authorization");
+    if (!authHeader) {
+      return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
     }
 
-    const decoded: DecodedIdToken = await adminAuth.verifyIdToken(token);
-    const claims = decoded as AdminClaims;
-    const uid = decoded.uid;
+    const token = authHeader.replace("Bearer ", "");
+    const decoded = await getAuth(adminApp).verifyIdToken(token);
 
-    const isAdmin = claims.isAdmin === true;
-    if (!isAdmin) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    if (!decoded.admin) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    if (!process.env.RESEND_API_KEY) {
-      console.warn('RESEND_API_KEY missing – email sending is temporarily disabled.');
+    const { to, subject, message } = await req.json();
 
-      return NextResponse.json(
-        {
-          ok: false,
-          message: 'Email sending temporarily disabled (no API key provided).',
-          bodyReceived: body,
-        },
-        { status: 200 },
-      );
+    if (!to || !subject || !message) {
+      return NextResponse.json({ error: "Missing fields" }, { status: 400 });
     }
 
-    const { to, subject, bodyHtml } = body;
-
-    if (!Array.isArray(to) || to.length === 0) {
-      return NextResponse.json({ error: '`to` must be a non-empty array' }, { status: 400 });
-    }
-    if (!subject || !String(subject).trim()) {
-      return NextResponse.json({ error: '`subject` is required' }, { status: 400 });
-    }
-    if (!bodyHtml || !String(bodyHtml).trim()) {
-      return NextResponse.json({ error: '`bodyHtml` is required' }, { status: 400 });
-    }
-
-    const safeHtml = sanitizeHtml(bodyHtml);
-
-    const resend = new Resend(process.env.RESEND_API_KEY);
-
-    const { data, error } = await resend.emails.send({
-      from: FROM,
+    await sendAdminEmail({
       to,
       subject,
-      react: React.createElement(AdminBroadcastEmail, { subject, bodyHtml: safeHtml }),
+      html: `
+        <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+          ${message}
+          <hr style="margin: 24px 0;" />
+          <p style="font-size: 12px; color: #666;">
+            James Square Residents Portal
+          </p>
+        </div>
+      `,
     });
 
-    if (error) {
-      try {
-        await adminDb.collection('adminEmails').add({
-          uid,
-          to,
-          subject,
-          bodyHtml: safeHtml,
-          success: false,
-          error: String((error as Error)?.message || error),
-          createdAt: FieldValue.serverTimestamp(),
-        });
-      } catch {
-        /* ignore log failure */
-      }
-      return NextResponse.json({ error: String((error as Error)?.message || error) }, { status: 500 });
-    }
-
-    try {
-      await adminDb.collection('adminEmails').add({
-        uid,
-        to,
-        subject,
-        bodyHtml: safeHtml,
-        success: true,
-        providerId: data?.id ?? null,
-        createdAt: FieldValue.serverTimestamp(),
-      });
-    } catch {
-      /* ignore log failure */
-    }
-
-    return NextResponse.json({ ok: true, id: data?.id ?? null });
-  } catch (e: unknown) {
-    const message = e instanceof Error ? e.message : 'Unexpected error';
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Admin email error:", error);
+    return NextResponse.json({ error: "Email failed" }, { status: 500 });
   }
 }

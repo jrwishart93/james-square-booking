@@ -5,7 +5,6 @@ import { collection, getDocs, orderBy, query } from 'firebase/firestore';
 
 import { useAuth } from '@/context/AuthContext';
 import { db } from '@/lib/firebase';
-import { sendAdminEmail } from '@/lib/sendAdminEmail';
 
 type AdminUser = {
   id: string;
@@ -90,9 +89,29 @@ const AdminEmailPanel = () => {
     try {
       setSending(true);
       setStatus({ tone: 'idle', message: 'Sending...' });
-      await sendAdminEmail(user, { to: recipients, subject: subject.trim(), bodyHtml });
-      setStatus({ tone: 'success', message: 'Email sent successfully.' });
-      setSelected({});
+
+      const token = await user.getIdToken();
+
+      const res = await fetch('/api/admin/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          to: recipients,
+          subject,
+          message: bodyHtml,
+        }),
+      });
+
+      if (res.ok) {
+        setStatus({ tone: 'success', message: 'Email sent successfully.' });
+        setBodyHtml('');
+        setSelected({});
+      } else {
+        setStatus({ tone: 'error', message: 'Failed to send email' });
+      }
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to send email.';
       setStatus({ tone: 'error', message });
