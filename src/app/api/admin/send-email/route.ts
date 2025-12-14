@@ -10,6 +10,15 @@ import { adminAuth, adminDb } from '@/lib/firebase-admin';
 
 const FROM = process.env.EMAIL_FROM || 'James Square <no-reply@example.com>';
 
+function stripHtml(html: string) {
+  return html
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+    .replace(/<[^>]+>/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 type AdminClaims = DecodedIdToken & { isAdmin?: boolean };
 
 type EmailPayload = {
@@ -70,6 +79,7 @@ export async function POST(req: NextRequest) {
       to,
       subject,
       react: React.createElement(AdminBroadcastEmail, { subject, bodyHtml: safeHtml }),
+      text: stripHtml(safeHtml),
     });
 
     if (error) {
