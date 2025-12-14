@@ -273,6 +273,14 @@ export default function Home() {
           darkIcon="/images/icons/info-icon-dark.png"
           blurb="Access, bins & recycling, contacts and local picks (food, shops, coffee)."
         />
+
+        <IconCard
+          title="Owners’ Voting"
+          href="/voting"
+          lightIcon="/icons/vote-light.svg"
+          darkIcon="/icons/vote-dark.svg"
+          blurb="Vote on proposed ideas, building improvements and shared decisions."
+        />
       </section>
 
       {/* PHOTO CAROUSEL */}
