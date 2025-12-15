@@ -30,6 +30,7 @@ export default function UsefulInfoPage() {
     () => ({
       about: [
         { id: 'factor-info', label: 'Factor Info' },
+        { id: 'caretaker', label: 'Caretaker' },
         { id: 'bins', label: 'Bins' },
       ],
       area: [
@@ -186,6 +187,38 @@ export default function UsefulInfoPage() {
                     className="object-contain"
                     priority
                   />
+                </div>
+              </div>
+            </SectionCard>
+
+            {/* ---------------- Caretaker ---------------- */}
+            <SectionCard id="caretaker" title="Caretaker">
+              <div className="space-y-4">
+                <p>
+                  James Square has a resident caretaker, Jimmy, who works most weekday mornings and early
+                  afternoons.
+                </p>
+
+                <p>
+                  Jimmy is responsible for the running and maintenance of the pool systems, general maintenance
+                  of communal areas, and can assist with the replacement or purchase of key fobs and main
+                  entrance door keys.
+                </p>
+
+                <div className="space-y-2">
+                  <p className="font-semibold">Office location</p>
+                  <p>
+                    Jimmy’s office is located at 65A, between the main entrance and the path to Telfer Subway,
+                    accessed via a small set of stairs. There is a ring doorbell on the front of the door.
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <p className="font-semibold">Please note</p>
+                  <p>
+                    Jimmy is not responsible for issues within private dwellings, the delivery or handling of
+                    packages, or short-term let enquiries.
+                  </p>
                 </div>
               </div>
             </SectionCard>
