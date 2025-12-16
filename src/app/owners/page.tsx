@@ -73,7 +73,6 @@ const glassPanel =
   'rounded-2xl border border-white/40 bg-white/65 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5';
 
 function AgmSection() {
-  const [agendaOpen, setAgendaOpen] = useState(false);
   const [agm2025RecapOpen, setAgm2025RecapOpen] = useState(false);
   const [recapOpen, setRecapOpen] = useState(false);
 
@@ -106,68 +105,6 @@ function AgmSection() {
       </div>
 
       <div className="space-y-4">
-        <div>
-          <ExpandButton
-            open={agendaOpen}
-            setOpen={setAgendaOpen}
-            labelWhenClosed="View full 2025 AGM agenda"
-            labelWhenOpen="Hide 2025 AGM agenda"
-            controlsId="owners-agm-2025-agenda"
-          />
-          <AnimatePresence initial={false}>
-            {agendaOpen && (
-              <motion.div
-                id="owners-agm-2025-agenda"
-                className={`${glassPanel} mt-3 text-sm text-slate-800 dark:text-slate-100`}
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.28 }}
-              >
-                <ul className="list-disc space-y-1 ms-5">
-                  <li>Introductions &amp; Apologies</li>
-                  <li>Ground Rules</li>
-                  <li>Chairperson’s report on 2024–25 activities</li>
-                  <li>
-                    Financial report
-                    <ul className="list-disc space-y-1 ms-5 mt-1">
-                      <li>Budget vs actual spend</li>
-                      <li>Current account balance</li>
-                      <li>Roof/render fund balance</li>
-                      <li>Debts</li>
-                    </ul>
-                  </li>
-                  <li>Election of Committee Members and Block Representatives</li>
-                  <li>Pool booking system</li>
-                  <li>Pool window privacy</li>
-                  <li>
-                    JSPA objectives for 2025–26
-                    <ul className="list-disc space-y-1 ms-5 mt-1">
-                      <li>Air source heat pump</li>
-                      <li>Pool ceiling repair</li>
-                      <li>Fire alarm system repair</li>
-                      <li>Block 57 carpet and redecoration</li>
-                      <li>Block 55 entrance</li>
-                      <li>Block 45 entrance</li>
-                      <li>Block 45/51 lift floor</li>
-                      <li>Conservatory carpet replacement</li>
-                      <li>Roof/render fund restart</li>
-                      <li>Block 45/51 AOVs (automatic opening vents)</li>
-                      <li>Repainting of solar reflective paint on roof</li>
-                      <li>Broken pool windows</li>
-                      <li>Caledonian Crescent entrance steps and fascia</li>
-                      <li>Bushes beside front entrance</li>
-                      <li>Painting of the walls around the car park</li>
-                    </ul>
-                  </li>
-                  <li>Any other business</li>
-                  <li>Meeting closure</li>
-                </ul>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
         <div>
           <ExpandButton
             open={agm2025RecapOpen}
