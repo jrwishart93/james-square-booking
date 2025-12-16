@@ -7,6 +7,18 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { GlassCard } from '@/components/GlassCard';
 import GradientBG from '@/components/GradientBG';
 
+const SGM_DESCRIPTION = `A Special General Meeting will be held at 1800 hours (6:00pm) on Wednesday 21 January 2026.
+All owners are encouraged to save the date.
+Further correspondence will be issued in due course, including additional details and a link to join the meeting online.`;
+const SGM_START = '20260121T180000';
+const SGM_END = '20260121T190000';
+const SGM_ICS_FILENAME = 'james-square-sgm-2026.ics';
+const SGM_GOOGLE_CALENDAR_LINK = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
+  'James Square – Special General Meeting',
+)}&dates=${SGM_START}/${SGM_END}&details=${encodeURIComponent(SGM_DESCRIPTION)}&location=${encodeURIComponent(
+  'Online meeting',
+)}&ctz=Europe/London`;
+
 const OwnersPage = () => {
   return (
     <GradientBG className="relative isolate min-h-screen w-screen -ml-[calc((100vw-100%)/2)] -mr-[calc((100vw-100%)/2)] px-4 md:px-8 py-12">
@@ -60,6 +72,8 @@ const OwnersPage = () => {
             </GlassCard>
           </div>
 
+          <SgmSection />
+
           <AgmSection />
         </div>
       </div>
@@ -71,6 +85,115 @@ export default OwnersPage;
 
 const glassPanel =
   'rounded-2xl border border-white/40 bg-white/65 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5';
+
+function SgmSection() {
+  const [calendarOptionsOpen, setCalendarOptionsOpen] = useState(false);
+
+  const downloadIcs = () => {
+    const dtStamp = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    const description = SGM_DESCRIPTION.replace(/\n/g, '\\n');
+
+    const icsContent = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//James Square//Owners Portal//EN',
+      'CALSCALE:GREGORIAN',
+      'X-WR-TIMEZONE:Europe/London',
+      'BEGIN:VEVENT',
+      'UID:james-square-sgm-2026@jamessquare',
+      `DTSTAMP:${dtStamp}`,
+      `DTSTART;TZID=Europe/London:${SGM_START}`,
+      `DTEND;TZID=Europe/London:${SGM_END}`,
+      'SUMMARY:James Square – Special General Meeting',
+      'LOCATION:Online meeting',
+      `DESCRIPTION:${description}`,
+      'END:VEVENT',
+      'END:VCALENDAR',
+    ].join('\r\n');
+
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = SGM_ICS_FILENAME;
+    link.click();
+
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <GlassCard
+      title="Special General Meeting – Save the Date"
+      subtitle="Wednesday 21 January 2026 • 6:00pm (online)"
+      titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100"
+    >
+      <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+        A Special General Meeting will be held at 1800 hours (6:00pm) on Wednesday 21 January 2026. All owners are
+        encouraged to save the date. Further correspondence will be issued in due course, including additional details
+        and a link to join the meeting online.
+      </p>
+
+      <div className={glassPanel}>
+        <dl className="grid grid-cols-1 gap-3 text-sm text-slate-800 dark:text-slate-100 sm:grid-cols-3">
+          <div>
+            <dt className="font-semibold">Date</dt>
+            <dd>Wednesday 21 January 2026</dd>
+          </div>
+          <div>
+            <dt className="font-semibold">Time</dt>
+            <dd>1800–1900 hours (UK time)</dd>
+          </div>
+          <div>
+            <dt className="font-semibold">Format</dt>
+            <dd>Online meeting</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div className="space-y-3">
+        <button
+          type="button"
+          onClick={() => setCalendarOptionsOpen((open) => !open)}
+          aria-expanded={calendarOptionsOpen}
+          aria-controls="sgm-calendar-options"
+          className="inline-flex items-center justify-center rounded-full px-5 py-2.5 text-sm font-semibold text-white bg-slate-900 shadow-[0_6px_18px_rgba(0,0,0,0.18)] transition-transform transition-shadow duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_28px_rgba(0,0,0,0.2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:bg-white dark:text-slate-900"
+        >
+          Add to calendar
+        </button>
+
+        <AnimatePresence initial={false}>
+          {calendarOptionsOpen && (
+            <motion.div
+              id="sgm-calendar-options"
+              className="flex flex-col gap-2 overflow-hidden md:flex-row"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <button
+                type="button"
+                onClick={downloadIcs}
+                className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-2 text-sm font-medium text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
+              >
+                Add to Apple Calendar
+              </button>
+              <Link
+                href={SGM_GOOGLE_CALENDAR_LINK}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-2 text-sm font-medium text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
+              >
+                Add to Google Calendar
+              </Link>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </GlassCard>
+  );
+}
 
 function AgmSection() {
   const [agm2025RecapOpen, setAgm2025RecapOpen] = useState(false);
