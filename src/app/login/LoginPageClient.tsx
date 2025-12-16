@@ -8,7 +8,9 @@ import {
   signInWithEmailAndPassword,
   onAuthStateChanged,
 } from 'firebase/auth';
-import { collection, doc, getDoc, getDocs, query, where, setDoc } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, query, serverTimestamp, where, setDoc } from 'firebase/firestore';
+
+type ResidentType = 'owner' | 'renter' | 'stl_guest';
 
 export default function LoginPageClient() {
   // In registration mode we use separate inputs for email and username,
@@ -21,6 +23,7 @@ export default function LoginPageClient() {
   const [username, setUsername] = useState(''); // For registration mode.
   const [email, setEmail] = useState(''); // For registration mode.
   const [property, setProperty] = useState('');
+  const [residentType, setResidentType] = useState<ResidentType | ''>('');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const [message, setMessage] = useState('');
@@ -76,16 +79,32 @@ export default function LoginPageClient() {
           setMessage('You must agree to the facility rules and terms to register.');
           return;
         }
+        if (!residentType) {
+          setMessage('Please select Owner, Renter, or Holiday Guest (STL).');
+          return;
+        }
         // Registration: Create user with email and password, then store additional info.
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
-        await setDoc(doc(db, 'users', user.uid), {
-          email,
-          username: username.toLowerCase().trim(),
-          fullName,
-          property,
-          createdAt: new Date().toISOString(),
-        });
+        const residentTypeLabel =
+          residentType === 'owner'
+            ? 'Owner'
+            : residentType === 'renter'
+              ? 'Renter'
+              : 'Holiday Guest (STL)';
+        await setDoc(
+          doc(db, 'users', user.uid),
+          {
+            email,
+            username: username.toLowerCase().trim(),
+            fullName,
+            property,
+            residentType,
+            residentTypeLabel,
+            createdAt: serverTimestamp(),
+          },
+          { merge: true }
+        );
         setMessage('Registration successful! Redirecting to dashboard...');
         setIsRedirecting(true);
         setTimeout(() => {
@@ -200,6 +219,44 @@ export default function LoginPageClient() {
                 </option>
               ))}
             </select>
+            <div className="mt-4">
+              <label className="block text-sm font-medium mb-2">You are registering as</label>
+
+              <div className="space-y-2">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="residentType"
+                    value="owner"
+                    checked={residentType === 'owner'}
+                    onChange={() => setResidentType('owner')}
+                  />
+                  <span>Owner</span>
+                </label>
+
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="residentType"
+                    value="renter"
+                    checked={residentType === 'renter'}
+                    onChange={() => setResidentType('renter')}
+                  />
+                  <span>Renter</span>
+                </label>
+
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="residentType"
+                    value="stl_guest"
+                    checked={residentType === 'stl_guest'}
+                    onChange={() => setResidentType('stl_guest')}
+                  />
+                  <span>Holiday Guest (STL)</span>
+                </label>
+              </div>
+            </div>
             {/* Confirmation checkbox */}
             <label className="flex items-center mt-4">
               <input
@@ -224,15 +281,15 @@ export default function LoginPageClient() {
       </form>
 
       {!isRegistering && (
-  <div className="mt-2 text-center">
-    <Link
-      href="/reset-password"
-      className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
-    >
-      Forgot your password?
-    </Link>
-  </div>
-)}
+        <div className="mt-2 text-center">
+          <Link
+            href="/reset-password"
+            className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+          >
+            Forgot your password?
+          </Link>
+        </div>
+      )}
 
       <button
         onClick={() => setIsRegistering(!isRegistering)}

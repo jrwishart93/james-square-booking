@@ -25,7 +25,9 @@ interface UserRegistration {
   fullName: string;
   username: string;
   property: string;
-  createdAt: string;
+  createdAt?: string | Date | { toDate: () => Date };
+  residentType?: string;
+  residentTypeLabel?: string;
   isFlagged?: boolean;
   isAdmin?: boolean;
   disabled?: boolean;
@@ -371,6 +373,30 @@ export default function AdminDashboard() {
 
   const toggleDebugMode = () => setDebugMode((prev) => !prev);
 
+  const formatDate = (dateValue: UserRegistration['createdAt']) => {
+    if (!dateValue) return 'Unknown';
+
+    if (typeof dateValue === 'string' || dateValue instanceof Date) {
+      return new Date(dateValue).toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: '2-digit',
+      });
+    }
+
+    const timestamp = dateValue as { toDate?: () => Date };
+
+    if (typeof timestamp.toDate === 'function') {
+      return timestamp.toDate().toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: '2-digit',
+      });
+    }
+
+    return 'Unknown';
+  };
+
   /* ---------- Derived stats (unchanged) ---------- */
   const bookingStats = bookings.reduce((stats: { [key: string]: number }, booking) => {
     stats[booking.facility] = (stats[booking.facility] || 0) + 1;
@@ -455,6 +481,7 @@ export default function AdminDashboard() {
                         'Full Name',
                         'Username',
                         'Property',
+                        'Type',
                         'Registered',
                         'Flagged',
                         'Admin',
@@ -500,11 +527,10 @@ export default function AdminDashboard() {
                             />
                           </td>
                           <td className="px-3 py-2">
-                            {new Date(user.createdAt).toLocaleDateString('en-GB', {
-                              day: '2-digit',
-                              month: '2-digit',
-                              year: '2-digit',
-                            })}
+                            {user.residentTypeLabel || 'Unknown'}
+                          </td>
+                          <td className="px-3 py-2">
+                            {formatDate(user.createdAt)}
                           </td>
                           <td className="px-3 py-2">{user.isFlagged ? 'Yes' : 'No'}</td>
                           <td className="px-3 py-2">{user.isAdmin ? 'Yes' : 'No'}</td>
@@ -527,12 +553,9 @@ export default function AdminDashboard() {
                           <td className="px-3 py-2">{user.fullName}</td>
                           <td className="px-3 py-2">{user.username}</td>
                           <td className="px-3 py-2">{user.property}</td>
+                          <td className="px-3 py-2">{user.residentTypeLabel || 'Unknown'}</td>
                           <td className="px-3 py-2">
-                            {new Date(user.createdAt).toLocaleDateString('en-GB', {
-                              day: '2-digit',
-                              month: '2-digit',
-                              year: '2-digit',
-                            })}
+                            {formatDate(user.createdAt)}
                           </td>
                           <td className="px-3 py-2">{user.isFlagged ? 'Yes' : 'No'}</td>
                           <td className="px-3 py-2">{user.isAdmin ? 'Yes' : 'No'}</td>
@@ -566,11 +589,10 @@ export default function AdminDashboard() {
                     <p><strong>Name:</strong> {user.fullName}</p>
                     <p><strong>Username:</strong> {user.username}</p>
                     <p><strong>Property:</strong> {user.property}</p>
+                    <p><strong>Type:</strong> {user.residentTypeLabel || 'Unknown'}</p>
                     <p>
                       <strong>Registered:</strong>{' '}
-                      {new Date(user.createdAt).toLocaleDateString('en-GB', {
-                        day: '2-digit', month: '2-digit', year: '2-digit'
-                      })}
+                      {formatDate(user.createdAt)}
                     </p>
                     <p><strong>Flagged:</strong> {user.isFlagged ? 'Yes' : 'No'}</p>
                     <p><strong>Admin:</strong> {user.isAdmin ? 'Yes' : 'No'}</p>
