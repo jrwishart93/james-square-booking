@@ -18,6 +18,11 @@ const nextConfig: NextConfig = {
         destination: '/book/schedule?facility=sauna',
         permanent: true,
       },
+      {
+        source: '/useful-info',
+        destination: '/local',
+        permanent: true,
+      },
     ];
   },
 };
