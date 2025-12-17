@@ -1,51 +1,89 @@
 import React, { useEffect, useState } from 'react';
+import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { getQuestions } from '../services/storageService';
 import { QuestionStats } from '../types';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { Loader2 } from 'lucide-react';
+import { db } from '@/lib/firebase';
 
 const Results: React.FC = () => {
   const [stats, setStats] = useState<QuestionStats[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let unsubscribers: Array<() => void> = [];
+    let isMounted = true;
+
     const fetchData = async () => {
+      setLoading(true);
       try {
         const questions = await getQuestions();
+        if (!isMounted) return;
 
-        const computedStats = questions.map((q) => {
-          const totals = q.voteTotals ?? {};
-          const total = Object.values(totals).reduce((sum, count) => sum + count, 0);
+        if (questions.length === 0) {
+          setStats([]);
+          setLoading(false);
+          return;
+        }
 
-          const results = q.options
-            .map((opt) => {
-              const count = totals[opt.id] ?? 0;
-              return {
-                option: opt,
-                count,
-                percentage: total === 0 ? 0 : Math.round((count / Math.max(total, 1)) * 100),
-              };
-            })
-            .sort((a, b) => b.count - a.count);
+        unsubscribers = questions.map((question) => {
+          const votesQuery = query(
+            collection(db, 'voting_votes'),
+            where('questionId', '==', question.id),
+          );
 
-          return {
-            question: q,
-            totalVotes: total,
-            results,
-          };
+          return onSnapshot(
+            votesQuery,
+            (snapshot) => {
+              console.log('Votes returned:', snapshot.docs.map((d) => d.data()));
+
+              const counts = snapshot.docs.reduce<Record<string, number>>((acc, doc) => {
+                const data = doc.data() as Record<string, unknown>;
+                const optionId = typeof data.optionId === 'string' ? data.optionId : null;
+                if (!optionId) return acc;
+                acc[optionId] = (acc[optionId] ?? 0) + 1;
+                return acc;
+              }, {});
+
+              const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
+
+              const results = question.options
+                .map((opt) => {
+                  const count = counts[opt.id] ?? 0;
+                  return {
+                    option: opt,
+                    count,
+                    percentage: total === 0 ? 0 : Math.round((count / Math.max(total, 1)) * 100),
+                  };
+                })
+                .sort((a, b) => b.count - a.count);
+
+              setStats((prev) => {
+                const filtered = prev.filter((item) => item.question.id !== question.id);
+                const next = [...filtered, { question, totalVotes: total, results }];
+                next.sort((a, b) => b.question.createdAt - a.question.createdAt);
+                return next;
+              });
+              setLoading(false);
+            },
+            (error) => {
+              console.error(error);
+              setLoading(false);
+            },
+          );
         });
-
-        computedStats.sort((a, b) => b.question.createdAt - a.question.createdAt);
-
-        setStats(computedStats);
       } catch (err) {
         console.error(err);
-      } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
     fetchData();
+
+    return () => {
+      isMounted = false;
+      unsubscribers.forEach((unsub) => unsub());
+    };
   }, []);
 
   if (loading) {
