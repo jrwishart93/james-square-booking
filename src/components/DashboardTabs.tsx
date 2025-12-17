@@ -89,18 +89,18 @@ export default function DashboardTabs({ user: providedUser, isOwner, isAdmin }: 
   return (
     <nav aria-label="Dashboard navigation" className="mb-6">
       <div className="relative overflow-hidden rounded-2xl border border-white/60 bg-white/80 p-1 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5">
-        <ul className="flex flex-nowrap items-stretch gap-1 overflow-x-auto pb-1 text-sm font-semibold text-[color:var(--text-secondary)] sm:pb-0">
+        <ul className="grid grid-cols-2 gap-2 pb-1 text-sm font-semibold text-[color:var(--text-secondary)] sm:flex sm:flex-nowrap sm:items-stretch sm:gap-1 sm:pb-0">
           {visibleTabs.map((tab) => {
             const prefixes = tab.matchPrefixes ?? [tab.href];
             const isActive = prefixes.some((prefix) => pathname?.startsWith(prefix));
 
             return (
-              <li key={tab.href} className="flex-none">
+              <li key={tab.href} className="w-full flex-none sm:w-auto">
                 <Link
                   href={tab.href}
                   aria-current={isActive ? 'page' : undefined}
                   className={[
-                    'group relative inline-flex min-w-[120px] items-center justify-center gap-2 rounded-xl px-4 py-2 transition',
+                    'group relative inline-flex w-full min-w-0 items-center justify-center gap-2 rounded-xl px-3 py-2 transition sm:w-auto sm:min-w-[120px] sm:px-4',
                     'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black/60 dark:focus-visible:outline-white/80',
                     isActive
                       ? 'bg-white text-slate-900 shadow-sm dark:bg-white/10 dark:text-white'
