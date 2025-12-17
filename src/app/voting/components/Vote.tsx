@@ -2,7 +2,8 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
-import { getQuestions, submitVote } from '../services/storageService';
+import { FirebaseError } from 'firebase/app';
+import { getQuestions, hasExistingVoteForFlat, normalizeFlat, submitVote } from '../services/storageService';
 import { auth, db } from '@/lib/firebase';
 import { Question } from '../types';
 import { Button } from './ui/Button';
@@ -30,13 +31,16 @@ const VotePage: React.FC = () => {
   const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isCheckingExistingVote, setIsCheckingExistingVote] = useState(false);
+  const [hasAlreadyVoted, setHasAlreadyVoted] = useState(false);
+  const [duplicateMessage, setDuplicateMessage] = useState<string | null>(null);
 
   // Load username from session storage if available (UX convenience)
   useEffect(() => {
     const storedName = sessionStorage.getItem('ovh_username');
     if (storedName) setUserName(storedName);
     const storedFlat = sessionStorage.getItem('ovh_flat');
-    if (storedFlat) setFlat(storedFlat);
+    if (storedFlat) setFlat(normalizeFlat(storedFlat));
   }, []);
 
   // Keep auth state in sync and prefill the name from the signed-in user
@@ -70,8 +74,9 @@ const VotePage: React.FC = () => {
               ? data.flat
               : '';
         if (propertyNumber) {
-          setFlat(propertyNumber);
-          sessionStorage.setItem('ovh_flat', propertyNumber);
+          const normalizedProperty = normalizeFlat(propertyNumber);
+          setFlat(normalizedProperty);
+          sessionStorage.setItem('ovh_flat', normalizedProperty);
         }
       } catch (profileError) {
         console.error('Failed to load property number for voting', profileError);
@@ -92,6 +97,8 @@ const VotePage: React.FC = () => {
         setCurrentQuestion(nextQ);
         setSelectedOptionId(null); // Reset selection
         setError(null);
+        setHasAlreadyVoted(false);
+        setDuplicateMessage(null);
       } else {
         // No more questions to vote on
         navigate('/results');
@@ -111,27 +118,65 @@ const VotePage: React.FC = () => {
   const handleNameBlur = () => {
     if (userName.trim()) {
       sessionStorage.setItem('ovh_username', userName.trim());
-      loadNextQuestion(); 
     }
   };
 
   const handleFlatBlur = () => {
     if (flat.trim()) {
-      sessionStorage.setItem('ovh_flat', flat.trim());
+      const normalized = normalizeFlat(flat);
+      setFlat(normalized);
+      sessionStorage.setItem('ovh_flat', normalized);
     }
   };
+
+  useEffect(() => {
+    if (!currentQuestion) return;
+
+    const normalizedFlat = normalizeFlat(flat);
+
+    if (!normalizedFlat) {
+      setHasAlreadyVoted(false);
+      setDuplicateMessage(null);
+      setIsCheckingExistingVote(false);
+      return;
+    }
+
+    let isActive = true;
+    setIsCheckingExistingVote(true);
+    setDuplicateMessage(null);
+
+    const checkVote = async () => {
+      try {
+        const alreadyVoted = await hasExistingVoteForFlat(currentQuestion.id, normalizedFlat);
+        if (!isActive) return;
+        setHasAlreadyVoted(alreadyVoted);
+        setDuplicateMessage(alreadyVoted ? 'This flat has already submitted a vote for this question.' : null);
+      } catch (checkError) {
+        if (!isActive) return;
+        console.error('Failed to check existing vote', checkError);
+        setDuplicateMessage('Please confirm your flat number before submitting your vote.');
+      } finally {
+        if (isActive) setIsCheckingExistingVote(false);
+      }
+    };
+
+    void checkVote();
+
+    return () => {
+      isActive = false;
+    };
+  }, [currentQuestion, flat]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentQuestion) return;
 
+    const trimmedName = userName.trim();
+    const normalizedFlat = normalizeFlat(flat);
+
     setError(null);
 
-    if (!currentUser) {
-      setError("Please sign in to vote.");
-      return;
-    }
-    if (!userName.trim()) {
+    if (!trimmedName) {
       setError("Please enter your name to vote.");
       return;
     }
@@ -139,30 +184,65 @@ const VotePage: React.FC = () => {
       setError("Please select an option.");
       return;
     }
-    if (!flat.trim()) {
+    if (!normalizedFlat) {
       setError("Please enter your flat number to vote.");
+      return;
+    }
+
+    if (hasAlreadyVoted) {
+      setError('This flat has already submitted a vote for this question.');
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      await submitVote(currentQuestion.id, selectedOptionId, userName.trim(), flat.trim(), currentUser.uid);
-      sessionStorage.setItem('ovh_username', userName.trim());
-      sessionStorage.setItem('ovh_flat', flat.trim());
+      console.log('Submitting vote:', {
+        questionId: currentQuestion.id,
+        optionId: selectedOptionId,
+        flat: normalizedFlat,
+      });
+
+      await submitVote(currentQuestion.id, selectedOptionId, trimmedName, normalizedFlat, currentUser?.uid ?? null);
+      sessionStorage.setItem('ovh_username', trimmedName);
+      sessionStorage.setItem('ovh_flat', normalizedFlat);
       await loadNextQuestion();
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "An error occurred while submitting.";
-      if (message.toLowerCase().includes('already voted')) {
-        setError(message);
-        setTimeout(() => loadNextQuestion(), 1500);
-      } else {
-        setError(message);
+      let message = 'Unable to submit your vote right now. Please try again.';
+
+      if (err instanceof FirebaseError) {
+        if (err.code === 'permission-denied') {
+          message = 'Please confirm your flat number before submitting your vote.';
+        } else {
+          message = err.message;
+        }
+      } else if (err instanceof Error) {
+        message = err.message;
       }
+
+      if (message.toLowerCase().includes('already voted')) {
+        message = 'This flat has already submitted a vote for this question.';
+        setHasAlreadyVoted(true);
+        setDuplicateMessage(message);
+      }
+
+      setError(message);
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  const normalizedFlat = normalizeFlat(flat);
+  const trimmedName = userName.trim();
+  const canSubmit = Boolean(
+    selectedOptionId &&
+    trimmedName &&
+    normalizedFlat &&
+    normalizedFlat.length > 0 &&
+    !isSubmitting &&
+    !hasAlreadyVoted &&
+    !isCheckingExistingVote,
+  );
 
   if (isLoading) {
     return (
@@ -175,6 +255,9 @@ const VotePage: React.FC = () => {
   if (!currentQuestion) {
     return null; // Redirect handled in useEffect
   }
+
+  const displayMessage = error ?? duplicateMessage;
+  const flatLocked = Boolean(selectedOptionId);
 
   return (
     <div className="max-w-xl mx-auto py-8 px-6">
@@ -225,11 +308,35 @@ const VotePage: React.FC = () => {
                 label="Flat number"
                 placeholder="e.g. 3F2"
                 value={flat}
-                onChange={(e) => setFlat(e.target.value)}
+                onChange={(e) => {
+                  if (flatLocked) return;
+                  const normalizedValue = normalizeFlat(e.target.value);
+                  setFlat(normalizedValue);
+                  setHasAlreadyVoted(false);
+                  setDuplicateMessage(null);
+                  if (error) setError(null);
+                }}
                 onBlur={handleFlatBlur}
+                readOnly={flatLocked}
                 className="bg-white border-slate-200 focus:ring-cyan-500"
               />
             </div>
+            {flatLocked && normalizedFlat && (
+              <div className="flex items-center justify-between text-xs text-slate-600 mt-2 ml-1">
+                <span>You are voting on behalf of Flat {normalizedFlat}.</span>
+                <button
+                  type="button"
+                  className="text-cyan-700 font-semibold hover:underline"
+                  onClick={() => {
+                    setSelectedOptionId(null);
+                    setHasAlreadyVoted(false);
+                    setDuplicateMessage(null);
+                  }}
+                >
+                  Change flat
+                </button>
+              </div>
+            )}
             <p className="text-xs text-slate-600 mt-2 ml-1">
               {currentUser
                 ? 'Using your account name so each ballot is tied to your login.'
@@ -275,10 +382,10 @@ const VotePage: React.FC = () => {
             })}
           </div>
 
-          {error && (
+          {displayMessage && (
             <div className="flex items-center gap-3 text-red-700 text-sm bg-red-50 p-4 rounded-xl border border-red-200">
               <AlertCircle size={18} className="shrink-0" />
-              {error}
+              {displayMessage}
             </div>
           )}
 
@@ -286,7 +393,7 @@ const VotePage: React.FC = () => {
             type="submit"
             fullWidth
             isLoading={isSubmitting}
-            disabled={!selectedOptionId || !userName || !flat || !currentUser}
+            disabled={!canSubmit}
           >
             Submit Vote <ArrowRight size={16} className="ml-2" />
           </Button>

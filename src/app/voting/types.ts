@@ -19,7 +19,8 @@ export interface Vote {
   id: string;
   questionId: string;
   optionId: string;
-  voterName: string;
+  userName: string;
+  userNameLower?: string;
   flat: string;
   userId?: string | null; // Prepared for Firebase Auth
   createdAt: number;

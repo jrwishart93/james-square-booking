@@ -18,6 +18,7 @@ import {
   addQuestion,
   deleteQuestion,
   getQuestions,
+  normalizeFlat,
   submitVote,
 } from "@/app/voting/services/storageService";
 import type { Option, Question } from "@/app/voting/types";
@@ -59,7 +60,7 @@ export default function OwnersVotingPage() {
     const stored = typeof window !== "undefined" ? sessionStorage.getItem("ovh_username") : null;
     if (stored) setVoterName(stored);
     const storedFlat = typeof window !== "undefined" ? sessionStorage.getItem("ovh_flat") : null;
-    if (storedFlat) setFlat(storedFlat);
+    if (storedFlat) setFlat(normalizeFlat(storedFlat));
   }, []);
 
   useEffect(() => {
@@ -92,9 +93,10 @@ export default function OwnersVotingPage() {
               ? data.flat
               : "";
         if (propertyNumber) {
-          setFlat(propertyNumber);
+          const normalizedProperty = normalizeFlat(propertyNumber);
+          setFlat(normalizedProperty);
           if (typeof window !== "undefined") {
-            sessionStorage.setItem("ovh_flat", propertyNumber);
+            sessionStorage.setItem("ovh_flat", normalizedProperty);
           }
         }
       } catch (profileError) {
@@ -173,7 +175,7 @@ export default function OwnersVotingPage() {
   const handleSubmitVote = async (event: React.FormEvent, questionId: string) => {
     event.preventDefault();
     const name = voterName.trim();
-    const flatValue = flat.trim();
+    const flatValue = normalizeFlat(flat);
     const optionId = selectedOptions[questionId];
     if (!currentUser) {
       setVoteErrors((prev) => ({ ...prev, [questionId]: "Please sign in to vote." }));
@@ -366,8 +368,8 @@ export default function OwnersVotingPage() {
                 label="Flat number"
                 placeholder="e.g., 3F2"
                 value={flat}
-                onChange={(e) => setFlat(e.target.value)}
-                onBlur={(e) => sessionStorage.setItem("ovh_flat", e.target.value)}
+                onChange={(e) => setFlat(normalizeFlat(e.target.value))}
+                onBlur={(e) => sessionStorage.setItem("ovh_flat", normalizeFlat(e.target.value))}
                 className="bg-white/80 border-black/10 focus:ring-indigo-400/70 focus:ring-offset-2 focus:ring-offset-white dark:bg-slate-900/50 dark:border-indigo-500/30 dark:focus:ring-offset-0 py-3"
               />
               <p className="text-xs text-slate-600 dark:text-indigo-100/80 ml-1">

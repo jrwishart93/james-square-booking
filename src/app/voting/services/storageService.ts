@@ -20,6 +20,8 @@ const normalizeOption = (label: string, index: number) => ({
   label,
 });
 
+export const normalizeFlat = (value: string): string => value.trim().toUpperCase();
+
 const mapQuestionDoc = (snap: { id: string; data: () => Record<string, unknown> }): Question => {
   const data = snap.data();
   const createdAtTs = (data.createdAt as { toMillis?: () => number })?.toMillis?.();
@@ -114,11 +116,24 @@ export const getVotes = async (questionId?: string): Promise<Vote[]> => {
   return votesSnap.docs.map((snap) => {
     const data = snap.data() as Record<string, unknown>;
     const createdAtTs = (data.createdAt as { toMillis?: () => number })?.toMillis?.();
+    const userName =
+      typeof data.userName === 'string'
+        ? data.userName
+        : typeof data.voterName === 'string'
+          ? data.voterName
+          : 'Unknown';
+    const userNameLower =
+      typeof data.userNameLower === 'string'
+        ? data.userNameLower
+        : typeof userName === 'string'
+          ? userName.toLowerCase()
+          : undefined;
     return {
       id: snap.id,
       questionId: typeof data.questionId === 'string' ? data.questionId : '',
       optionId: typeof data.optionId === 'string' ? data.optionId : '',
-      voterName: typeof data.voterName === 'string' ? data.voterName : 'Unknown',
+      userName,
+      userNameLower,
       flat: typeof data.flat === 'string' ? data.flat : 'Unknown',
       userId: typeof data.userId === 'string' ? data.userId : null,
       createdAt: createdAtTs ?? Date.now(),
@@ -129,12 +144,12 @@ export const getVotes = async (questionId?: string): Promise<Vote[]> => {
 export const submitVote = async (
   questionId: string,
   optionId: string,
-  voterName: string,
+  userName: string,
   flat: string,
   userId: string | null = null,
 ): Promise<Vote> => {
-  const trimmedName = voterName.trim();
-  const trimmedFlat = flat.trim();
+  const trimmedName = userName.trim();
+  const trimmedFlat = normalizeFlat(flat);
 
   if (!trimmedName) {
     throw new Error('Please provide your name to vote.');
@@ -147,9 +162,10 @@ export const submitVote = async (
   const payload = {
     questionId,
     optionId,
-    voterName: trimmedName,
+    userName: trimmedName,
+    userNameLower: trimmedName.toLowerCase(),
     flat: trimmedFlat,
-    userId,
+    userId: userId ?? null,
     createdAt: serverTimestamp(),
   };
 
@@ -159,9 +175,25 @@ export const submitVote = async (
     id: ref.id,
     questionId,
     optionId,
-    voterName: trimmedName,
+    userName: trimmedName,
+    userNameLower: trimmedName.toLowerCase(),
     flat: trimmedFlat,
     userId,
     createdAt: Date.now(),
   };
+};
+
+export const hasExistingVoteForFlat = async (questionId: string, flat: string): Promise<boolean> => {
+  const normalizedFlat = normalizeFlat(flat);
+
+  if (!normalizedFlat) return false;
+
+  const voteQuery = query(
+    collection(db, VOTES_COLLECTION),
+    where('questionId', '==', questionId),
+    where('flat', '==', normalizedFlat),
+  );
+
+  const snapshot = await getDocs(voteQuery);
+  return !snapshot.empty;
 };

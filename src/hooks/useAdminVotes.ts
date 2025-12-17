@@ -9,12 +9,19 @@ import { db } from '@/lib/firebase';
 const mapVote = (snap: { id: string; data: () => Record<string, unknown> }): Vote => {
   const data = snap.data() as Record<string, unknown>;
   const createdAtTs = (data.createdAt as { toMillis?: () => number })?.toMillis?.();
+  const userName =
+    typeof data.userName === 'string'
+      ? data.userName
+      : typeof data.voterName === 'string'
+        ? data.voterName
+        : 'Unknown';
 
   return {
     id: snap.id,
     questionId: typeof data.questionId === 'string' ? data.questionId : '',
     optionId: typeof data.optionId === 'string' ? data.optionId : '',
-    voterName: typeof data.voterName === 'string' ? data.voterName : 'Unknown',
+    userName,
+    userNameLower: typeof data.userNameLower === 'string' ? data.userNameLower : userName.toLowerCase(),
     flat: typeof data.flat === 'string' ? data.flat : 'Unknown',
     userId: typeof data.userId === 'string' ? data.userId : null,
     createdAt: createdAtTs ?? Date.now(),
@@ -64,4 +71,3 @@ export const useAdminVotes = (questionId?: string) => {
 
   return { votes, totalsByOption, loading, error };
 };
-

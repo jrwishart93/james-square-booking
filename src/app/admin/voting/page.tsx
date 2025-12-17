@@ -157,7 +157,7 @@ export default function AdminVotingAuditPage() {
 
     const header = ['Voter name', 'Flat', 'Option', 'Cast at'];
     const rows = filteredVotes.map((vote) => [
-      vote.voterName,
+      vote.userName,
       vote.flat,
       optionLabelMap[vote.optionId] ?? vote.optionId,
       formatDateTime(vote.createdAt),
@@ -376,7 +376,7 @@ export default function AdminVotingAuditPage() {
                   ) : (
                     filteredVotes.map((vote) => (
                       <tr key={vote.id} className="hover:bg-slate-50">
-                        <td className="px-4 py-3 text-slate-900 font-medium">{vote.voterName}</td>
+                        <td className="px-4 py-3 text-slate-900 font-medium">{vote.userName}</td>
                         <td className="px-4 py-3 text-slate-700">{vote.flat}</td>
                         <td className="px-4 py-3 text-slate-700">
                           {optionLabelMap[vote.optionId] ?? vote.optionId}
