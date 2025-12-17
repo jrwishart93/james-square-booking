@@ -25,7 +25,11 @@ const tabs: TabConfig[] = [
   { label: 'Book Facilities', href: '/book' },
   { label: 'Useful Info', href: '/useful-info', matchPrefixes: ['/useful-info', '/local'] },
   { label: 'Owners', href: '/owners', requiresOwner: true },
-  { label: 'Voting', href: '/voting' },
+  {
+    label: 'Voting',
+    href: 'https://www.james-square.com/owners/voting',
+    matchPrefixes: ['/owners/voting', '/voting'],
+  },
 ];
 
 export default function DashboardTabs({ user: providedUser, isOwner, isAdmin }: DashboardTabsProps) {
