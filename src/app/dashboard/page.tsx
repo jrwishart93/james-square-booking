@@ -50,6 +50,13 @@ const propertyOptions = [
   '65/1', '65/2'
 ];
 
+const mapResidentTypeToRole = (residentType?: string) => {
+  if (residentType === 'owner') return 'Owner';
+  if (residentType === 'renter') return 'Renter';
+  if (residentType === 'stl_guest') return 'Short-term holiday guest';
+  return '';
+};
+
 export default function MyDashboardPage() {
   const [user, setUser] = useState<User | null>(null);
   const [editing, setEditing] = useState(false);
@@ -62,6 +69,9 @@ export default function MyDashboardPage() {
   const [sortBy, setSortBy] = useState<'date' | 'facility'>('date');
   const [showUpcoming, setShowUpcoming] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [userRole, setUserRole] = useState('');
+  const [savingRole, setSavingRole] = useState(false);
+  const [roleError, setRoleError] = useState('');
   const router = useRouter();
 
   useEffect(() => {
@@ -73,8 +83,18 @@ export default function MyDashboardPage() {
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           const data = docSnap.data();
+          const existingRole = (data as { userRole?: string }).userRole || '';
+          const derivedRole =
+            existingRole.trim() ||
+            ((data as { residentTypeLabel?: string }).residentTypeLabel?.trim() ?? '') ||
+            mapResidentTypeToRole((data as { residentType?: string }).residentType);
           setUsername((data as { username?: string }).username || '');
           setProperty((data as { property?: string }).property || '');
+          setUserRole(derivedRole);
+
+          if (!existingRole && derivedRole) {
+            await updateDoc(docRef, { userRole: derivedRole });
+          }
         }
       } else {
         router.push('/login');
@@ -167,6 +187,22 @@ export default function MyDashboardPage() {
         console.error('An unknown error occurred:', error);
       }
       setFeedback('Failed to update profile.');
+    }
+  };
+
+  const handleRoleSelection = async (roleValue: string) => {
+    if (!user) return;
+    setSavingRole(true);
+    setRoleError('');
+    try {
+      await updateDoc(doc(db, 'users', user.uid), { userRole: roleValue });
+      setUserRole(roleValue);
+      setFeedback('Role saved successfully.');
+    } catch (error) {
+      console.error('Failed to save user role:', error);
+      setRoleError('Failed to save role. Please try again.');
+    } finally {
+      setSavingRole(false);
     }
   };
 
@@ -408,6 +444,13 @@ export default function MyDashboardPage() {
                       <br />
                       <span className="text-base text-[color:var(--text-primary)]">{property}</span>
                     </p>
+                    {userRole ? (
+                      <p className="text-sm">
+                        <span className="text-[color:var(--muted)]">Role at James Square</span>
+                        <br />
+                        <span className="text-base text-[color:var(--text-primary)]">{userRole}</span>
+                      </p>
+                    ) : null}
                   </div>
                   <div className="flex flex-wrap gap-2 sm:flex-nowrap">
                     <Button onClick={() => setEditing(true)} variant="secondary" className="flex-1 min-w-[140px]">
@@ -418,6 +461,34 @@ export default function MyDashboardPage() {
                     </Button>
                   </div>
                 </>
+              )}
+              {!userRole && (
+                <div className="mt-4 rounded-2xl border border-[color:var(--glass-border)] bg-white/60 p-4 text-left shadow-inner dark:bg-white/5">
+                  <p className="text-sm font-semibold text-[color:var(--text-primary)]">
+                    Please select your role at James Square
+                  </p>
+                  <div className="mt-3 space-y-2 text-[color:var(--text-primary)]">
+                    {[
+                      'Owner',
+                      'Renter',
+                      'Short-term holiday guest',
+                    ].map((roleOption) => (
+                      <label key={roleOption} className="flex items-center gap-3 text-sm">
+                        <input
+                          type="radio"
+                          name="userRole"
+                          value={roleOption}
+                          checked={userRole === roleOption}
+                          onChange={() => handleRoleSelection(roleOption)}
+                          disabled={savingRole}
+                          className="h-4 w-4 accent-[color:var(--btn-bg)]"
+                        />
+                        <span>{roleOption}</span>
+                      </label>
+                    ))}
+                  </div>
+                  {roleError && <p className="mt-2 text-sm text-red-600 dark:text-red-400">{roleError}</p>}
+                </div>
               )}
               {feedback && <p className="text-sm text-emerald-600 dark:text-emerald-300">{feedback}</p>}
             </div>
