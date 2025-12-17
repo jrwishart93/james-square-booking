@@ -403,27 +403,29 @@ export default function OwnersVotingPage() {
 
             {activeTab === "vote" && (
               <div className="space-y-6">
-                <Input
-                  label="Who is voting?"
-                  placeholder="Enter your name"
-                  value={voterName}
-                  onChange={(e) => setVoterName(e.target.value)}
-                  readOnly={Boolean(currentUser)}
-                  className="bg-white/80 border-black/10 focus:ring-indigo-400/70 focus:ring-offset-2 focus:ring-offset-white dark:bg-slate-900/50 dark:border-indigo-500/30 dark:focus:ring-offset-0 py-3"
-                />
-                <Input
-                  label="Flat number"
-                  placeholder="e.g., 3F2"
-                  value={flat}
-                  onChange={(e) => setFlat(normalizeFlat(e.target.value))}
-                  onBlur={(e) => sessionStorage.setItem("ovh_flat", normalizeFlat(e.target.value))}
-                  className="bg-white/80 border-black/10 focus:ring-indigo-400/70 focus:ring-offset-2 focus:ring-offset-white dark:bg-slate-900/50 dark:border-indigo-500/30 dark:focus:ring-offset-0 py-3"
-                />
-                <p className="text-xs text-slate-600 dark:text-indigo-100/80 ml-1">
-                  {isAuthenticated
-                    ? "Using your account name so each vote is attributed to your login. Your flat is captured for the audit log."
-                    : VIEW_ONLY_MESSAGE}
-                </p>
+                {isAuthenticated && (
+                  <>
+                    <Input
+                      label="Who is voting?"
+                      placeholder="Enter your name"
+                      value={voterName}
+                      onChange={(e) => setVoterName(e.target.value)}
+                      readOnly={Boolean(currentUser)}
+                      className="bg-white/80 border-black/10 focus:ring-indigo-400/70 focus:ring-offset-2 focus:ring-offset-white dark:bg-slate-900/50 dark:border-indigo-500/30 dark:focus:ring-offset-0 py-3"
+                    />
+                    <Input
+                      label="Flat number"
+                      placeholder="e.g., 3F2"
+                      value={flat}
+                      onChange={(e) => setFlat(normalizeFlat(e.target.value))}
+                      onBlur={(e) => sessionStorage.setItem("ovh_flat", normalizeFlat(e.target.value))}
+                      className="bg-white/80 border-black/10 focus:ring-indigo-400/70 focus:ring-offset-2 focus:ring-offset-white dark:bg-slate-900/50 dark:border-indigo-500/30 dark:focus:ring-offset-0 py-3"
+                    />
+                    <p className="text-xs text-slate-600 dark:text-indigo-100/80 ml-1">
+                      Using your account name so each vote is attributed to your login. Your flat is captured for the audit log.
+                    </p>
+                  </>
+                )}
 
                 {!isAuthenticated && (
                   <div className="flex flex-col gap-3 rounded-2xl border border-black/10 bg-white/80 p-4 shadow-sm dark:border-white/15 dark:bg-white/5 sm:flex-row sm:items-center sm:justify-between">
