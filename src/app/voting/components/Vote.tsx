@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, onAuthStateChanged } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 import { getQuestions, submitVote } from '../services/storageService';
-import { auth } from '@/lib/firebase';
+import { auth, db } from '@/lib/firebase';
 import { Question } from '../types';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
@@ -53,6 +54,32 @@ const VotePage: React.FC = () => {
 
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    const loadPropertyNumber = async () => {
+      if (!currentUser) return;
+      try {
+        const profileRef = doc(db, 'users', currentUser.uid);
+        const profileSnap = await getDoc(profileRef);
+        if (!profileSnap.exists()) return;
+        const data = profileSnap.data() as Record<string, unknown>;
+        const propertyNumber =
+          typeof data.property === 'string'
+            ? data.property
+            : typeof data.flat === 'string'
+              ? data.flat
+              : '';
+        if (propertyNumber) {
+          setFlat(propertyNumber);
+          sessionStorage.setItem('ovh_flat', propertyNumber);
+        }
+      } catch (profileError) {
+        console.error('Failed to load property number for voting', profileError);
+      }
+    };
+
+    void loadPropertyNumber();
+  }, [currentUser]);
 
   const loadNextQuestion = useCallback(async () => {
     setIsLoading(true);

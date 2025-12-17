@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { User, onAuthStateChanged } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
 import {
   AlertCircle,
   BarChart3,
@@ -21,7 +22,7 @@ import {
 } from "@/app/voting/services/storageService";
 import type { Option, Question } from "@/app/voting/types";
 import GradientBG from "@/components/GradientBG";
-import { auth } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
 
 const deriveFirstName = (user: User | null): string => {
   if (!user) return "";
@@ -75,6 +76,34 @@ export default function OwnersVotingPage() {
 
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    const loadPropertyNumber = async () => {
+      if (!currentUser) return;
+      try {
+        const profileRef = doc(db, "users", currentUser.uid);
+        const profileSnap = await getDoc(profileRef);
+        if (!profileSnap.exists()) return;
+        const data = profileSnap.data() as Record<string, unknown>;
+        const propertyNumber =
+          typeof data.property === "string"
+            ? data.property
+            : typeof data.flat === "string"
+              ? data.flat
+              : "";
+        if (propertyNumber) {
+          setFlat(propertyNumber);
+          if (typeof window !== "undefined") {
+            sessionStorage.setItem("ovh_flat", propertyNumber);
+          }
+        }
+      } catch (profileError) {
+        console.error("Failed to load property number for owners voting", profileError);
+      }
+    };
+
+    void loadPropertyNumber();
+  }, [currentUser]);
 
   useEffect(() => {
     const load = async () => {
