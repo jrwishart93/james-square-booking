@@ -43,14 +43,17 @@ export default function AdminVotingAuditPage() {
     if (authLoading) return;
     if (!user) {
       router.replace('/');
+      setCheckingAdmin(false);
       return;
     }
 
     let isMounted = true;
     const verify = async () => {
       try {
-        const snap = await getDoc(doc(db, 'users', user.uid));
-        const allowed = snap.exists() && snap.data().isAdmin === true;
+        const [snap, tokenResult] = await Promise.all([getDoc(doc(db, 'users', user.uid)), user.getIdTokenResult(true)]);
+        const hasClaim = Boolean(tokenResult.claims.admin || tokenResult.claims.isAdmin);
+        const hasFlag = snap.exists() && snap.data().isAdmin === true;
+        const allowed = hasClaim || hasFlag;
         if (isMounted) {
           setIsAdmin(allowed);
           if (!allowed) router.replace('/');
