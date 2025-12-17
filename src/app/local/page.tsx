@@ -29,6 +29,7 @@ export default function UsefulInfoPage() {
   const anchorsByTab = useMemo(
     () => ({
       about: [
+        { id: 'pool-access', label: 'Swimming Pool Access' },
         { id: 'factor-info', label: 'Factor Info' },
         { id: 'caretaker', label: 'Caretaker' },
         { id: 'bins', label: 'Bins' },
@@ -106,6 +107,64 @@ export default function UsefulInfoPage() {
               gym and sauna, how waste and recycling works, who to contact if something goes wrong,
               what’s good nearby, and updates on local projects.
             </p>
+
+            {/* ---------------- Swimming Pool Access ---------------- */}
+            <SectionCard id="pool-access" title="Swimming Pool Access" initial>
+              <div className="space-y-6">
+                <p>
+                  The swimming pool, gym and sauna area is located at the North West side of James Square and
+                  can be accessed in two ways.
+                </p>
+
+                <div className="grid gap-4 md:grid-cols-[1.1fr_0.9fr] items-start">
+                  <div className="space-y-4">
+                    <p>
+                      Residents accessing the pool from within the main building should follow the internal
+                      signage, which will guide you through the appropriate internal door.
+                    </p>
+                    <p>
+                      There is also a separate external entrance for everyone else. From the car park, head
+                      towards the main gates and you will find the pool entrance door under the archway near to
+                      the electric gates.
+                    </p>
+                  </div>
+
+                  <figure className="relative w-full h-64 overflow-hidden rounded-xl jqs-glass shadow-md bg-white/40 dark:bg-white/10">
+                    <Image
+                      src="/images/buildingimages/pool_from_outside.png"
+                      alt="External view of the pool entrance at James Square"
+                      fill
+                      sizes="(min-width:1024px) 460px, 100vw"
+                      className="object-cover"
+                    />
+                  </figure>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2 items-start">
+                  <figure className="relative w-full h-56 overflow-hidden rounded-xl jqs-glass shadow-md bg-white/40 dark:bg-white/10">
+                    <Image
+                      src="/images/buildingimages/pool_door.png"
+                      alt="Pool entrance door and keypad access at James Square"
+                      fill
+                      sizes="(min-width:1024px) 420px, 100vw"
+                      className="object-cover"
+                    />
+                  </figure>
+
+                  <div className="space-y-3">
+                    <p>
+                      If you are new to the development, please make sure you have both a valid key fob and the
+                      access code, as these are required to enter the pool area.
+                    </p>
+                    <p>
+                      If you need a key fob or the access code, please contact either your landlord or the
+                      previous resident or owner in the first instance. If you still need assistance, contact the
+                      factor and or Jimmy, the caretaker, who can assist with access arrangements.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </SectionCard>
 
             {/* ---------------- Factor Info (loads immediately) ---------------- */}
             <SectionCard id="factor-info" title="Factor Information" initial>
