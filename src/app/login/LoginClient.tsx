@@ -14,7 +14,7 @@ import { collection, doc, getDoc, getDocs, query, serverTimestamp, where, setDoc
 
 type ResidentType = 'owner' | 'renter' | 'stl_guest';
 
-export default function LoginPageClient() {
+export default function LoginClient() {
   const searchParams = useSearchParams();
   // In registration mode we use separate inputs for email and username,
   // while login mode uses one field for email or username.
