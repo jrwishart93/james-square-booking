@@ -13,6 +13,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { DateTime } from 'luxon';
 import Image from 'next/image';
+import DashboardTabs from '@/components/DashboardTabs';
 import Button from '@/components/ui/Button';
 import GlassCard from '@/components/ui/GlassCard';
 import SegmentedControl from '@/components/ui/SegmentedControl';
@@ -199,6 +200,10 @@ export default function MyDashboardPage() {
     <div className="relative min-h-screen overflow-hidden bg-[linear-gradient(180deg,#f6f8fb_0%,#e7edf6_100%)] text-[color:var(--text-primary)] dark:bg-[linear-gradient(180deg,#070d1a_0%,#0a1426_58%,#060b18_100%)]">
       <div className="pointer-events-none absolute inset-0 -z-10 opacity-95">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_18%,rgba(255,255,255,0.75),transparent_38%),radial-gradient(circle_at_85%_12%,rgba(221,234,255,0.55),transparent_36%),radial-gradient(circle_at_50%_115%,rgba(184,206,238,0.28),transparent_48%)] dark:bg-[radial-gradient(circle_at_18%_12%,rgba(66,106,165,0.18),transparent_42%),radial-gradient(circle_at_82%_18%,rgba(37,99,235,0.12),transparent_40%),radial-gradient(circle_at_50%_118%,rgba(21,94,149,0.24),transparent_50%)]" />
+      </div>
+
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-4">
+        <DashboardTabs user={user} />
       </div>
 
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-10 space-y-6 leading-relaxed">
