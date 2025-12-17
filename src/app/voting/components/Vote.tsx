@@ -176,6 +176,11 @@ const VotePage: React.FC = () => {
 
     setError(null);
 
+    if (!currentUser) {
+      setError('Please log in to vote.');
+      return;
+    }
+
     if (!trimmedName) {
       setError("Please enter your name to vote.");
       return;
@@ -203,7 +208,7 @@ const VotePage: React.FC = () => {
         flat: normalizedFlat,
       });
 
-      await submitVote(currentQuestion.id, selectedOptionId, trimmedName, normalizedFlat, currentUser?.uid ?? null);
+      await submitVote(currentQuestion.id, selectedOptionId, trimmedName, normalizedFlat, currentUser.uid);
       sessionStorage.setItem('ovh_username', trimmedName);
       sessionStorage.setItem('ovh_flat', normalizedFlat);
       await loadNextQuestion();
@@ -239,6 +244,7 @@ const VotePage: React.FC = () => {
     trimmedName &&
     normalizedFlat &&
     normalizedFlat.length > 0 &&
+    currentUser &&
     !isSubmitting &&
     !hasAlreadyVoted &&
     !isCheckingExistingVote,

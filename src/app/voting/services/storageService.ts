@@ -146,10 +146,14 @@ export const submitVote = async (
   optionId: string,
   userName: string,
   flat: string,
-  userId: string | null = null,
+  userId: string,
 ): Promise<Vote> => {
   const trimmedName = userName.trim();
   const trimmedFlat = normalizeFlat(flat);
+
+  if (!userId) {
+    throw new Error('You need to be signed in to cast a vote.');
+  }
 
   if (!trimmedName) {
     throw new Error('Please provide your name to vote.');
@@ -163,9 +167,10 @@ export const submitVote = async (
     questionId,
     optionId,
     userName: trimmedName,
+    voterName: trimmedName,
     userNameLower: trimmedName.toLowerCase(),
     flat: trimmedFlat,
-    userId: userId ?? null,
+    userId,
     createdAt: serverTimestamp(),
   };
 

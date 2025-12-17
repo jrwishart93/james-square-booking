@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import TermsModal from '@/components/TermsModal';
 import { auth, db } from '@/lib/firebase';
 import {
@@ -14,6 +15,7 @@ import { collection, doc, getDoc, getDocs, query, serverTimestamp, where, setDoc
 type ResidentType = 'owner' | 'renter' | 'stl_guest';
 
 export default function LoginPageClient() {
+  const searchParams = useSearchParams();
   // In registration mode we use separate inputs for email and username,
   // while login mode uses one field for email or username.
   const [identifier, setIdentifier] = useState(''); // For login: Email or Username
@@ -70,6 +72,14 @@ export default function LoginPageClient() {
     });
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    const registerParam = searchParams.get('register');
+    const modeParam = searchParams.get('mode');
+    if (registerParam === '1' || registerParam === 'true' || modeParam === 'register') {
+      setIsRegistering(true);
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
