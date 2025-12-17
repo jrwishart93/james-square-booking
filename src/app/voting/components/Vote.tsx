@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, onAuthStateChanged } from 'firebase/auth';
-import { getQuestions, getVotes, submitVote } from '../services/storageService';
+import { getQuestions, submitVote } from '../services/storageService';
 import { auth } from '@/lib/firebase';
 import { Question } from '../types';
 import { Button } from './ui/Button';
@@ -25,6 +25,7 @@ const VotePage: React.FC = () => {
   
   // Form State
   const [userName, setUserName] = useState('');
+  const [flat, setFlat] = useState('');
   const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,6 +34,8 @@ const VotePage: React.FC = () => {
   useEffect(() => {
     const storedName = sessionStorage.getItem('ovh_username');
     if (storedName) setUserName(storedName);
+    const storedFlat = sessionStorage.getItem('ovh_flat');
+    if (storedFlat) setFlat(storedFlat);
   }, []);
 
   // Keep auth state in sync and prefill the name from the signed-in user
@@ -54,23 +57,9 @@ const VotePage: React.FC = () => {
   const loadNextQuestion = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [questions, allVotes] = await Promise.all([
-        getQuestions(),
-        getVotes()
-      ]);
-
+      const questions = await getQuestions();
       const openQuestions = questions.filter(q => q.status === 'open');
-      
-      let nextQ: Question | null = null;
-
-      if (!userName) {
-        if (openQuestions.length > 0) nextQ = openQuestions[0];
-      } else {
-        const userVotes = allVotes.filter(v => v.userName.toLowerCase() === userName.toLowerCase());
-        const votedQuestionIds = new Set(userVotes.map(v => v.questionId));
-        
-        nextQ = openQuestions.find(q => !votedQuestionIds.has(q.id)) || null;
-      }
+      const nextQ = openQuestions[0] ?? null;
 
       if (nextQ) {
         setCurrentQuestion(nextQ);
@@ -86,7 +75,7 @@ const VotePage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [userName, navigate]);
+  }, [navigate]);
 
   useEffect(() => {
     loadNextQuestion();
@@ -96,6 +85,12 @@ const VotePage: React.FC = () => {
     if (userName.trim()) {
       sessionStorage.setItem('ovh_username', userName.trim());
       loadNextQuestion(); 
+    }
+  };
+
+  const handleFlatBlur = () => {
+    if (flat.trim()) {
+      sessionStorage.setItem('ovh_flat', flat.trim());
     }
   };
 
@@ -117,12 +112,17 @@ const VotePage: React.FC = () => {
       setError("Please select an option.");
       return;
     }
+    if (!flat.trim()) {
+      setError("Please enter your flat number to vote.");
+      return;
+    }
 
     setIsSubmitting(true);
 
     try {
-      await submitVote(currentQuestion.id, selectedOptionId, userName.trim(), currentUser.uid);
+      await submitVote(currentQuestion.id, selectedOptionId, userName.trim(), flat.trim(), currentUser.uid);
       sessionStorage.setItem('ovh_username', userName.trim());
+      sessionStorage.setItem('ovh_flat', flat.trim());
       await loadNextQuestion();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "An error occurred while submitting.";
@@ -193,10 +193,20 @@ const VotePage: React.FC = () => {
               readOnly={Boolean(currentUser)}
               className="bg-white border-slate-200 focus:ring-cyan-500"
             />
+            <div className="mt-4">
+              <Input
+                label="Flat number"
+                placeholder="e.g. 3F2"
+                value={flat}
+                onChange={(e) => setFlat(e.target.value)}
+                onBlur={handleFlatBlur}
+                className="bg-white border-slate-200 focus:ring-cyan-500"
+              />
+            </div>
             <p className="text-xs text-slate-600 mt-2 ml-1">
               {currentUser
                 ? 'Using your account name so each ballot is tied to your login.'
-                : 'Required to check for duplicate votes.'}
+                : 'Your name and flat are stored so the committee can audit the ballots.'}
             </p>
           </div>
 
@@ -249,7 +259,7 @@ const VotePage: React.FC = () => {
             type="submit"
             fullWidth
             isLoading={isSubmitting}
-            disabled={!selectedOptionId || !userName || !currentUser}
+            disabled={!selectedOptionId || !userName || !flat || !currentUser}
           >
             Submit Vote <ArrowRight size={16} className="ml-2" />
           </Button>

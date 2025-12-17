@@ -17,10 +17,9 @@ import {
   addQuestion,
   deleteQuestion,
   getQuestions,
-  getVotes,
   submitVote,
 } from "@/app/voting/services/storageService";
-import type { Option, Question, Vote } from "@/app/voting/types";
+import type { Option, Question } from "@/app/voting/types";
 import GradientBG from "@/components/GradientBG";
 import { auth } from "@/lib/firebase";
 
@@ -36,7 +35,6 @@ type Tab = "ask" | "vote" | "results";
 export default function OwnersVotingPage() {
   const [activeTab, setActiveTab] = useState<Tab>("vote");
   const [questions, setQuestions] = useState<Question[]>([]);
-  const [votes, setVotes] = useState<Vote[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [savingVoteId, setSavingVoteId] = useState<string | null>(null);
@@ -53,11 +51,14 @@ export default function OwnersVotingPage() {
 
   // Vote tab state
   const [voterName, setVoterName] = useState("");
+  const [flat, setFlat] = useState("");
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   useEffect(() => {
     const stored = typeof window !== "undefined" ? sessionStorage.getItem("ovh_username") : null;
     if (stored) setVoterName(stored);
+    const storedFlat = typeof window !== "undefined" ? sessionStorage.getItem("ovh_flat") : null;
+    if (storedFlat) setFlat(storedFlat);
   }, []);
 
   useEffect(() => {
@@ -78,23 +79,28 @@ export default function OwnersVotingPage() {
   useEffect(() => {
     const load = async () => {
       setLoading(true);
-      const [qs, vs] = await Promise.all([getQuestions(), getVotes()]);
-      setQuestions(qs);
-      setVotes(vs);
-      setLoading(false);
-      if (voterName.trim()) {
-        const userVotes = vs.filter(
-          (v) => v.userName.toLowerCase() === voterName.trim().toLowerCase(),
-        );
-        const initialSelections: Record<string, string> = {};
-        userVotes.forEach((v) => {
-          initialSelections[v.questionId] = v.optionId;
-        });
-        setSelectedOptions(initialSelections);
+      try {
+        const qs = await getQuestions();
+        setQuestions(qs);
+
+        const storedSelections =
+          typeof window !== "undefined" ? sessionStorage.getItem("ovh_vote_choices") : null;
+        if (storedSelections) {
+          try {
+            const parsed = JSON.parse(storedSelections) as Record<string, string>;
+            setSelectedOptions(parsed);
+          } catch {
+            // Ignore malformed cache
+          }
+        }
+      } catch (error) {
+        console.error("Failed to load voting data", error);
+      } finally {
+        setLoading(false);
       }
     };
     load();
-  }, [voterName]);
+  }, []);
 
   const validateAsk = () => {
     const errs: { title?: string; options?: string } = {};
@@ -121,9 +127,8 @@ export default function OwnersVotingPage() {
     try {
       const filled = options.filter((o) => o.trim().length > 0);
       await addQuestion(title.trim(), description.trim(), filled);
-      const [qs, vs] = await Promise.all([getQuestions(), getVotes()]);
+      const qs = await getQuestions();
       setQuestions(qs);
-      setVotes(vs);
       setAskSuccess(true);
       setTitle("");
       setDescription("");
@@ -139,6 +144,7 @@ export default function OwnersVotingPage() {
   const handleSubmitVote = async (event: React.FormEvent, questionId: string) => {
     event.preventDefault();
     const name = voterName.trim();
+    const flatValue = flat.trim();
     const optionId = selectedOptions[questionId];
     if (!currentUser) {
       setVoteErrors((prev) => ({ ...prev, [questionId]: "Please sign in to vote." }));
@@ -148,6 +154,10 @@ export default function OwnersVotingPage() {
       setVoteErrors((prev) => ({ ...prev, [questionId]: "Please enter your name to vote." }));
       return;
     }
+    if (!flatValue) {
+      setVoteErrors((prev) => ({ ...prev, [questionId]: "Flat number is required to vote." }));
+      return;
+    }
     if (!optionId) {
       setVoteErrors((prev) => ({ ...prev, [questionId]: "Please select an option." }));
       return;
@@ -155,10 +165,14 @@ export default function OwnersVotingPage() {
     setSavingVoteId(questionId);
     setVoteErrors((prev) => ({ ...prev, [questionId]: null }));
     try {
-      await submitVote(questionId, optionId, name, currentUser.uid);
+      await submitVote(questionId, optionId, name, flatValue, currentUser.uid);
       sessionStorage.setItem("ovh_username", name);
-      const vs = await getVotes();
-      setVotes(vs);
+      sessionStorage.setItem("ovh_flat", flatValue);
+      const updatedSelections = { ...selectedOptions, [questionId]: optionId };
+      setSelectedOptions(updatedSelections);
+      sessionStorage.setItem("ovh_vote_choices", JSON.stringify(updatedSelections));
+      const refreshedQuestions = await getQuestions();
+      setQuestions(refreshedQuestions);
       setVoteErrors((prev) => ({ ...prev, [questionId]: "Vote recorded" }));
     } catch (error) {
       const message = error instanceof Error ? error.message : "An error occurred while submitting.";
@@ -174,9 +188,8 @@ export default function OwnersVotingPage() {
     setDeletingId(questionId);
     try {
       await deleteQuestion(questionId);
-      const [qs, vs] = await Promise.all([getQuestions(), getVotes()]);
+      const qs = await getQuestions();
       setQuestions(qs);
-      setVotes(vs);
     } catch (error) {
       console.error("Failed to delete question", error);
     } finally {
@@ -186,15 +199,16 @@ export default function OwnersVotingPage() {
 
   const questionResults = useMemo(() => {
     return questions.map((q) => {
-      const relevant = votes.filter((v) => v.questionId === q.id);
-      const total = relevant.length || 1;
+      const totals = q.voteTotals ?? {};
+      const totalVotes = Object.values(totals).reduce((sum, count) => sum + count, 0);
+      const safeTotal = Math.max(totalVotes, 1);
       const results = q.options.map((opt) => {
-        const count = relevant.filter((v) => v.optionId === opt.id).length;
-        return { option: opt, count, percentage: Math.round((count / total) * 100) };
+        const count = totals[opt.id] ?? 0;
+        return { option: opt, count, percentage: Math.round((count / safeTotal) * 100) };
       });
-      return { question: q, totalVotes: relevant.length, results };
+      return { question: q, totalVotes, results };
     });
-  }, [questions, votes]);
+  }, [questions]);
 
   if (loading) {
     return (
@@ -319,10 +333,18 @@ export default function OwnersVotingPage() {
                 readOnly={Boolean(currentUser)}
                 className="bg-white/80 border-black/10 focus:ring-indigo-400/70 focus:ring-offset-2 focus:ring-offset-white dark:bg-slate-900/50 dark:border-indigo-500/30 dark:focus:ring-offset-0 py-3"
               />
+              <Input
+                label="Flat number"
+                placeholder="e.g., 3F2"
+                value={flat}
+                onChange={(e) => setFlat(e.target.value)}
+                onBlur={(e) => sessionStorage.setItem("ovh_flat", e.target.value)}
+                className="bg-white/80 border-black/10 focus:ring-indigo-400/70 focus:ring-offset-2 focus:ring-offset-white dark:bg-slate-900/50 dark:border-indigo-500/30 dark:focus:ring-offset-0 py-3"
+              />
               <p className="text-xs text-slate-600 dark:text-indigo-100/80 ml-1">
                 {currentUser
-                  ? "Using your account name so each vote is attributed to your login."
-                  : "Sign in and provide your name so we can record who voted."}
+                  ? "Using your account name so each vote is attributed to your login. Your flat is captured for the audit log."
+                  : "Sign in and provide your name and flat so we can record who voted."}
               </p>
 
               {questions.length === 0 ? (
@@ -408,7 +430,7 @@ export default function OwnersVotingPage() {
                             type="submit"
                             fullWidth
                             isLoading={savingVoteId === question.id}
-                            disabled={!selected || !voterName || !currentUser}
+                            disabled={!selected || !voterName || !flat || !currentUser}
                           >
                             Submit Vote
                           </Button>

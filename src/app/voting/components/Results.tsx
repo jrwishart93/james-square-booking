@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getQuestions, getVotes } from '../services/storageService';
+import { getQuestions } from '../services/storageService';
 import { QuestionStats } from '../types';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { Loader2 } from 'lucide-react';
@@ -11,31 +11,30 @@ const Results: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [questions, votes] = await Promise.all([
-          getQuestions(),
-          getVotes()
-        ]);
+        const questions = await getQuestions();
 
-        const computedStats = questions.map(q => {
-          const qVotes = votes.filter(v => v.questionId === q.id);
-          const total = qVotes.length;
+        const computedStats = questions.map((q) => {
+          const totals = q.voteTotals ?? {};
+          const total = Object.values(totals).reduce((sum, count) => sum + count, 0);
 
-          const results = q.options.map(opt => {
-            const count = qVotes.filter(v => v.optionId === opt.id).length;
-            return {
-              option: opt,
-              count,
-              percentage: total === 0 ? 0 : Math.round((count / total) * 100)
-            };
-          }).sort((a, b) => b.count - a.count);
+          const results = q.options
+            .map((opt) => {
+              const count = totals[opt.id] ?? 0;
+              return {
+                option: opt,
+                count,
+                percentage: total === 0 ? 0 : Math.round((count / Math.max(total, 1)) * 100),
+              };
+            })
+            .sort((a, b) => b.count - a.count);
 
           return {
             question: q,
             totalVotes: total,
-            results
+            results,
           };
         });
-        
+
         computedStats.sort((a, b) => b.question.createdAt - a.question.createdAt);
 
         setStats(computedStats);
