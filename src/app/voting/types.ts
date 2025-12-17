@@ -12,13 +12,15 @@ export interface Question {
   options: Option[];
   status: QuestionStatus;
   createdAt: number;
+  voteTotals?: Record<string, number>;
 }
 
 export interface Vote {
   id: string;
   questionId: string;
   optionId: string;
-  userName: string;
+  voterName: string;
+  flat: string;
   userId?: string | null; // Prepared for Firebase Auth
   createdAt: number;
 }

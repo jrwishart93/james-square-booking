@@ -206,22 +206,27 @@ service cloud.firestore {
       allow create: if request.resource.data.keys().hasAll(['title', 'status', 'createdAt', 'options'])
         && request.resource.data.title is string
         && request.resource.data.status in ['open', 'closed']
-        && request.resource.data.options is list;
+        && request.resource.data.options is list
+        && (!('voteTotals' in request.resource.data) || request.resource.data.voteTotals is map);
 
       // Admins can update/delete questions
       allow update, delete: if isAdmin();
     }
 
     match /voting_votes/{voteId} {
-      // Anyone can read votes
-      allow read: if true;
+      // Only admins can read or query full vote documents
+      allow read: if isAdmin();
 
       // Anyone can cast a vote (no auth required); enforce minimal shape
-      allow create: if request.resource.data.keys().hasAll(['questionId', 'optionId', 'userName', 'userNameLower', 'createdAt'])
+      allow create: if request.resource.data.keys().hasOnly(['questionId', 'optionId', 'voterName', 'flat', 'userId', 'createdAt'])
+        && request.resource.data.keys().hasAll(['questionId', 'optionId', 'voterName', 'flat', 'createdAt'])
         && request.resource.data.questionId is string
         && request.resource.data.optionId is string
-        && request.resource.data.userName is string
-        && request.resource.data.userNameLower is string;
+        && request.resource.data.voterName is string
+        && request.resource.data.flat is string
+        && request.resource.data.flat.size() > 0
+        && request.resource.data.createdAt is timestamp
+        && (!('userId' in request.resource.data) || request.resource.data.userId is string || request.resource.data.userId == null);
 
       // Only admins can edit/remove votes
       allow update, delete: if isAdmin();

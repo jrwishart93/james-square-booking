@@ -7,6 +7,7 @@
 import { getApps, initializeApp } from 'firebase-admin/app';
 import { FieldValue, getFirestore } from 'firebase-admin/firestore';
 import { config, logger } from 'firebase-functions';
+import { onDocumentCreated } from 'firebase-functions/v2/firestore';
 import { onSchedule } from 'firebase-functions/v2/scheduler';
 import { DateTime } from 'luxon';
 import { Resend } from 'resend';
@@ -132,3 +133,28 @@ export const summarizeMonthlyUsage = onSchedule(
       );
   },
 );
+
+export const updateVotingTotals = onDocumentCreated('voting_votes/{voteId}', async (event) => {
+  const vote = event.data?.data() as { questionId?: string; optionId?: string } | undefined;
+
+  if (!vote?.questionId || !vote?.optionId) {
+    logger.warn('Skipping vote totals update due to missing fields', vote);
+    return;
+  }
+
+  const db = getFirestore();
+  const questionRef = db.collection('voting_questions').doc(vote.questionId);
+
+  await db.runTransaction(async (tx) => {
+    const questionSnap = await tx.get(questionRef);
+    if (!questionSnap.exists) {
+      logger.warn(`Question ${vote.questionId} missing when attempting to increment totals`);
+      return;
+    }
+
+    tx.update(questionRef, {
+      [`voteTotals.${vote.optionId}`]: FieldValue.increment(1),
+      lastVoteAt: FieldValue.serverTimestamp(),
+    });
+  });
+});

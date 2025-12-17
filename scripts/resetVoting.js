@@ -49,6 +49,10 @@ async function resetVoting() {
     status: "open",
     createdAt: new Date(),
     options,
+    voteTotals: options.reduce((totals, option) => {
+      totals[option.id] = 0;
+      return totals;
+    }, {}),
   });
 
   console.log("✅ Voting collections reset and seeded with the single question.");

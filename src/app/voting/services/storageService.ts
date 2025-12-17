@@ -42,6 +42,13 @@ const mapQuestionDoc = (snap: { id: string; data: () => Record<string, unknown> 
     })
     .filter(Boolean) as { id: string; label: string }[];
 
+  const voteTotalsRaw = (data.voteTotals ?? {}) as Record<string, unknown>;
+  const voteTotals = options.reduce<Record<string, number>>((totals, option) => {
+    const value = voteTotalsRaw?.[option.id];
+    totals[option.id] = typeof value === 'number' ? value : 0;
+    return totals;
+  }, {});
+
   return {
     id: snap.id,
     title: typeof data.title === 'string' ? data.title : 'Untitled question',
@@ -49,6 +56,7 @@ const mapQuestionDoc = (snap: { id: string; data: () => Record<string, unknown> 
     status: typeof data.status === 'string' && data.status.toLowerCase() === 'open' ? 'open' : 'closed',
     createdAt: createdAtTs ?? Date.now(),
     options,
+    voteTotals,
   };
 };
 
@@ -63,12 +71,17 @@ export const addQuestion = async (
   description: string,
   options: string[],
 ): Promise<Question> => {
+  const optionObjects = options.map((label, idx) => normalizeOption(label, idx));
   const payload = {
     title,
     description,
     status: 'open',
     createdAt: serverTimestamp(),
-    options: options.map((label, idx) => normalizeOption(label, idx)),
+    options: optionObjects,
+    voteTotals: optionObjects.reduce<Record<string, number>>((totals, option) => {
+      totals[option.id] = 0;
+      return totals;
+    }, {}),
   };
   const ref = await addDoc(collection(db, QUESTIONS_COLLECTION), payload);
   const [newQuestion] = await getQuestions();
@@ -80,6 +93,7 @@ export const addQuestion = async (
     status: 'open',
     createdAt: Date.now(),
     options: payload.options,
+    voteTotals: payload.voteTotals,
   };
 };
 
@@ -91,8 +105,12 @@ export const deleteQuestion = async (questionId: string): Promise<void> => {
   await batch.commit();
 };
 
-export const getVotes = async (): Promise<Vote[]> => {
-  const votesSnap = await getDocs(collection(db, VOTES_COLLECTION));
+export const getVotes = async (questionId?: string): Promise<Vote[]> => {
+  const voteQuery = questionId
+    ? query(collection(db, VOTES_COLLECTION), where('questionId', '==', questionId), orderBy('createdAt', 'desc'))
+    : query(collection(db, VOTES_COLLECTION), orderBy('createdAt', 'desc'));
+
+  const votesSnap = await getDocs(voteQuery);
   return votesSnap.docs.map((snap) => {
     const data = snap.data() as Record<string, unknown>;
     const createdAtTs = (data.createdAt as { toMillis?: () => number })?.toMillis?.();
@@ -100,7 +118,8 @@ export const getVotes = async (): Promise<Vote[]> => {
       id: snap.id,
       questionId: typeof data.questionId === 'string' ? data.questionId : '',
       optionId: typeof data.optionId === 'string' ? data.optionId : '',
-      userName: typeof data.userName === 'string' ? data.userName : 'Unknown',
+      voterName: typeof data.voterName === 'string' ? data.voterName : 'Unknown',
+      flat: typeof data.flat === 'string' ? data.flat : 'Unknown',
       userId: typeof data.userId === 'string' ? data.userId : null,
       createdAt: createdAtTs ?? Date.now(),
     };
@@ -110,29 +129,26 @@ export const getVotes = async (): Promise<Vote[]> => {
 export const submitVote = async (
   questionId: string,
   optionId: string,
-  userName: string,
+  voterName: string,
+  flat: string,
   userId: string | null = null,
 ): Promise<Vote> => {
-  const trimmedName = userName.trim();
-  const nameLower = trimmedName.toLowerCase();
+  const trimmedName = voterName.trim();
+  const trimmedFlat = flat.trim();
 
-  const existing = await getDocs(
-    query(
-      collection(db, VOTES_COLLECTION),
-      where('questionId', '==', questionId),
-      where('userNameLower', '==', nameLower),
-    ),
-  );
+  if (!trimmedName) {
+    throw new Error('Please provide your name to vote.');
+  }
 
-  if (!existing.empty) {
-    throw new Error('You have already voted on this question.');
+  if (!trimmedFlat) {
+    throw new Error('Please provide your flat number to vote.');
   }
 
   const payload = {
     questionId,
     optionId,
-    userName: trimmedName,
-    userNameLower: nameLower,
+    voterName: trimmedName,
+    flat: trimmedFlat,
     userId,
     createdAt: serverTimestamp(),
   };
@@ -143,20 +159,9 @@ export const submitVote = async (
     id: ref.id,
     questionId,
     optionId,
-    userName: trimmedName,
+    voterName: trimmedName,
+    flat: trimmedFlat,
     userId,
     createdAt: Date.now(),
   };
-};
-
-export const hasUserVoted = async (questionId: string, userName: string): Promise<boolean> => {
-  const nameLower = userName.trim().toLowerCase();
-  const existing = await getDocs(
-    query(
-      collection(db, VOTES_COLLECTION),
-      where('questionId', '==', questionId),
-      where('userNameLower', '==', nameLower),
-    ),
-  );
-  return !existing.empty;
 };
