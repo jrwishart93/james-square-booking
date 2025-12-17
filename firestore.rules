@@ -214,19 +214,23 @@ service cloud.firestore {
     }
 
     match /voting_votes/{voteId} {
-      // Only admins can read or query full vote documents
-      allow read: if isAdmin();
+      // Anyone can read votes to power public results (names are not surfaced in UI)
+      allow read: if true;
 
-      // Anyone can cast a vote (no auth required); enforce minimal shape
-      allow create: if request.resource.data.keys().hasOnly(['questionId', 'optionId', 'voterName', 'flat', 'userId', 'createdAt'])
-        && request.resource.data.keys().hasAll(['questionId', 'optionId', 'voterName', 'flat', 'createdAt'])
+      // Only authenticated users can cast a vote, and it must be tied to their UID
+      allow create: if isSignedIn()
+        && request.resource.data.keys().hasOnly(['questionId', 'optionId', 'userName', 'userNameLower', 'voterName', 'flat', 'userId', 'createdAt'])
+        && request.resource.data.keys().hasAll(['questionId', 'optionId', 'userName', 'flat', 'userId', 'createdAt'])
         && request.resource.data.questionId is string
         && request.resource.data.optionId is string
-        && request.resource.data.voterName is string
+        && request.resource.data.userName is string
+        && (!('userNameLower' in request.resource.data) || request.resource.data.userNameLower is string)
+        && (!('voterName' in request.resource.data) || request.resource.data.voterName is string)
         && request.resource.data.flat is string
         && request.resource.data.flat.size() > 0
-        && request.resource.data.createdAt is timestamp
-        && (!('userId' in request.resource.data) || request.resource.data.userId is string || request.resource.data.userId == null);
+        && request.resource.data.userId is string
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.createdAt is timestamp;
 
       // Only admins can edit/remove votes
       allow update, delete: if isAdmin();
