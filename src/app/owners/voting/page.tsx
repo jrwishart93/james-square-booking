@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { User, onAuthStateChanged } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
+import { collection, doc, getDoc, onSnapshot, query, where } from "firebase/firestore";
 import {
   AlertCircle,
   BarChart3,
@@ -37,6 +37,7 @@ type Tab = "ask" | "vote" | "results";
 export default function OwnersVotingPage() {
   const [activeTab, setActiveTab] = useState<Tab>("vote");
   const [questions, setQuestions] = useState<Question[]>([]);
+  const [voteCounts, setVoteCounts] = useState<Record<string, Record<string, number>>>({});
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [savingVoteId, setSavingVoteId] = useState<string | null>(null);
@@ -132,6 +133,41 @@ export default function OwnersVotingPage() {
     };
     load();
   }, []);
+
+  useEffect(() => {
+    if (questions.length === 0) {
+      setVoteCounts({});
+      return;
+    }
+
+    const votesRef = collection(db, "voting_votes");
+    setVoteCounts({});
+    const unsubscribers = questions.map((question) => {
+      const votesQuery = query(votesRef, where("questionId", "==", question.id));
+      return onSnapshot(
+        votesQuery,
+        (snapshot) => {
+          console.log("Votes returned:", snapshot.docs.map((d) => d.data()));
+          const counts = snapshot.docs.reduce<Record<string, number>>((acc, doc) => {
+            const data = doc.data() as Record<string, unknown>;
+            const optionId = typeof data.optionId === "string" ? data.optionId : null;
+            if (!optionId) return acc;
+            acc[optionId] = (acc[optionId] ?? 0) + 1;
+            return acc;
+          }, {});
+
+          setVoteCounts((prev) => ({ ...prev, [question.id]: counts }));
+        },
+        (error) => {
+          console.error("Failed to load votes for question", error);
+        },
+      );
+    });
+
+    return () => {
+      unsubscribers.forEach((unsub) => unsub());
+    };
+  }, [questions]);
 
   const validateAsk = () => {
     const errs: { title?: string; options?: string } = {};
@@ -230,7 +266,7 @@ export default function OwnersVotingPage() {
 
   const questionResults = useMemo(() => {
     return questions.map((q) => {
-      const totals = q.voteTotals ?? {};
+      const totals = voteCounts[q.id] ?? {};
       const totalVotes = Object.values(totals).reduce((sum, count) => sum + count, 0);
       const safeTotal = Math.max(totalVotes, 1);
       const results = q.options.map((opt) => {
@@ -239,7 +275,7 @@ export default function OwnersVotingPage() {
       });
       return { question: q, totalVotes, results };
     });
-  }, [questions]);
+  }, [questions, voteCounts]);
 
   if (loading) {
     return (
