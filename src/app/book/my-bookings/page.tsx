@@ -18,9 +18,9 @@ interface Booking {
 }
 
 const facilityIcons: Record<string, string> = {
-  Pool: '/images/icons/pool-icon.png',
-  Gym: '/images/icons/gym-icon.png',
-  Sauna: '/images/icons/sauna-icon.png',
+  Pool: '/images/icons/simple-pool-icon.png',
+  Gym: '/images/icons/simple-gym-icon.png',
+  Sauna: '/images/icons/simple-sauna-icon.png',
 };
 
 export default function MyBookingsPage() {
@@ -160,10 +160,10 @@ export default function MyBookingsPage() {
                 <div className="flex items-center mb-4 md:mb-0">
                   <Image
                     src={facilityIcons[booking.facility]}
-                    alt={`${booking.facility} icon`}
+                    alt={booking.facility}
                     width={48}
                     height={48}
-                    className="w-12 h-12 mr-4"
+                    className="h-12 w-12 mr-4 rounded-xl bg-white/70 dark:bg-white/10"
                   />
                   <div>
                     <p className="font-semibold text-lg">📍 {booking.facility}</p>

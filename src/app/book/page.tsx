@@ -9,9 +9,9 @@ import Button from '@/components/ui/Button';
 import GlassCard from '@/components/ui/GlassCard';
 
 const FACILITIES = [
-  { title: 'Pool', href: '/book/schedule?facility=pool', imageSrc: '/images/icons/pool-icon.png' },
-  { title: 'Gym', href: '/book/schedule?facility=gym', imageSrc: '/images/icons/gym-icon.png' },
-  { title: 'Sauna', href: '/book/schedule?facility=sauna', imageSrc: '/images/icons/sauna-icon.png' },
+  { title: 'Pool', href: '/book/schedule?facility=pool', imageSrc: '/images/icons/simple-pool-icon.png' },
+  { title: 'Gym', href: '/book/schedule?facility=gym', imageSrc: '/images/icons/simple-gym-icon.png' },
+  { title: 'Sauna', href: '/book/schedule?facility=sauna', imageSrc: '/images/icons/simple-sauna-icon.png' },
 ];
 
 const OPENING_TIMES = [
