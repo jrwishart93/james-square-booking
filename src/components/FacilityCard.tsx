@@ -15,10 +15,10 @@ export function FacilityCard({ title, href, imageSrc, description }: FacilityCar
       className="group block focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-black dark:focus-visible:ring-white"
     >
       <article className="h-full overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg dark:border-white/10 dark:bg-gray-800">
-        <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-50 dark:bg-gray-900">
+        <div className="relative aspect-[4/3] w-full overflow-hidden bg-white/80 dark:bg-white/10">
           <Image
             src={imageSrc}
-            alt={`${title} illustration`}
+            alt={title}
             fill
             sizes="(min-width: 1280px) 400px, (min-width: 768px) 50vw, 100vw"
             className="h-full w-full object-contain p-6 transition duration-300 group-hover:scale-105"
