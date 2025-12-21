@@ -28,9 +28,9 @@ interface Booking {
 
 // Map facility names to icon paths
 const facilityIcons: Record<string, string> = {
-  Pool: '/images/icons/pool-icon.png',
-  Gym: '/images/icons/gym-icon.png',
-  Sauna: '/images/icons/sauna-icon.png',
+  Pool: '/images/icons/simple-pool-icon.png',
+  Gym: '/images/icons/simple-gym-icon.png',
+  Sauna: '/images/icons/simple-sauna-icon.png',
 };
 
 // Full list of properties
@@ -325,7 +325,7 @@ export default function MyDashboardPage() {
                       <div className="flex items-start gap-4">
                         <Image
                           src={facilityIcons[booking.facility]}
-                          alt={`${booking.facility} icon`}
+                          alt={booking.facility}
                           width={48}
                           height={48}
                           className="h-12 w-12 rounded-xl bg-white/60 p-2 dark:bg-white/10"

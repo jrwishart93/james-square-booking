@@ -260,8 +260,8 @@ export default function Home() {
         <IconCard
           title="Book Facilities"
           href="/book"
-          lightIcon="/images/icons/pool-icon-light.png"
-          darkIcon="/images/icons/pool-icon-dark.png"
+          lightIcon="/images/icons/simple-pool-icon.png"
+          darkIcon="/images/icons/simple-pool-icon.png"
           blurb="Reserve time for the pool, gym or sauna."
         />
 
