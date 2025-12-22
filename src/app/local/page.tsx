@@ -9,7 +9,8 @@ import Tabs from '@/components/Tabs';
    Helpers / Types
 -------------------------------------------------- */
 type LightboxItem = { src: string; alt: string } | null;
-type TabId = 'about' | 'area';
+const TAB_IDS = ['about', 'projects', 'restaurants', 'groceries', 'coffee'] as const;
+type TabId = (typeof TAB_IDS)[number];
 const glass =
   'jqs-glass rounded-2xl border border-white/20 bg-white/50 dark:bg-white/10 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.06)]';
 
@@ -21,7 +22,10 @@ export default function UsefulInfoPage() {
   const tabs = useMemo(
     () => [
       { id: 'about', label: 'About James Square' },
-      { id: 'area', label: 'Local Area' },
+      { id: 'projects', label: 'Local Projects' },
+      { id: 'restaurants', label: 'Restaurants' },
+      { id: 'groceries', label: 'Groceries' },
+      { id: 'coffee', label: 'Coffee' },
     ],
     []
   );
@@ -34,14 +38,14 @@ export default function UsefulInfoPage() {
         { id: 'caretaker', label: 'Caretaker' },
         { id: 'bins', label: 'Bins' },
       ],
-      area: [
+      projects: [
         { id: 'voi-ebikes', label: 'Voi E-bikes' },
         { id: 'dalry-project', label: 'Dalry Project' },
         { id: 'world-buffet', label: 'Hot World Cuisine Buffet' },
-        { id: 'restaurants', label: 'Restaurants' },
-        { id: 'groceries', label: 'Groceries' },
-        { id: 'coffee', label: 'Coffee' },
       ],
+      restaurants: [{ id: 'restaurants', label: 'Restaurants' }],
+      groceries: [{ id: 'groceries', label: 'Groceries' }],
+      coffee: [{ id: 'coffee', label: 'Coffee' }],
     }),
     []
   );
@@ -50,8 +54,12 @@ export default function UsefulInfoPage() {
 
   useEffect(() => {
     const saved = window.localStorage.getItem('useful-info-tab');
-    if (saved === 'about' || saved === 'area') {
-      setActiveTab(saved);
+    if (saved === 'area') {
+      setActiveTab('projects');
+      return;
+    }
+    if (TAB_IDS.includes(saved as TabId)) {
+      setActiveTab(saved as TabId);
     }
   }, []);
 
@@ -326,11 +334,11 @@ export default function UsefulInfoPage() {
           </div>
         )}
 
-        {activeTab === 'area' && (
+        {activeTab === 'projects' && (
           <div
-            id="area-panel"
+            id="projects-panel"
             role="tabpanel"
-            aria-labelledby="area-tab"
+            aria-labelledby="projects-tab"
             className="space-y-10"
           >
             {/* ---------------- Voi E-bikes (image shows fully) ---------------- */}
@@ -341,8 +349,16 @@ export default function UsefulInfoPage() {
 
             {/* ---------------- Hot World Cuisine ---------------- */}
             <WorldBuffetCard />
+          </div>
+        )}
 
-            {/* ---------------- Restaurants ---------------- */}
+        {activeTab === 'restaurants' && (
+          <div
+            id="restaurants-panel"
+            role="tabpanel"
+            aria-labelledby="restaurants-tab"
+            className="space-y-10"
+          >
             <SectionCard id="restaurants" title="Restaurants">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {RESTAURANTS.map((r) => (
@@ -350,8 +366,16 @@ export default function UsefulInfoPage() {
                 ))}
               </div>
             </SectionCard>
+          </div>
+        )}
 
-            {/* ---------------- Groceries ---------------- */}
+        {activeTab === 'groceries' && (
+          <div
+            id="groceries-panel"
+            role="tabpanel"
+            aria-labelledby="groceries-tab"
+            className="space-y-10"
+          >
             <SectionCard id="groceries" title="Groceries">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {GROCERIES.map((g) => (
@@ -359,8 +383,16 @@ export default function UsefulInfoPage() {
                 ))}
               </div>
             </SectionCard>
+          </div>
+        )}
 
-            {/* ---------------- Coffee ---------------- */}
+        {activeTab === 'coffee' && (
+          <div
+            id="coffee-panel"
+            role="tabpanel"
+            aria-labelledby="coffee-tab"
+            className="space-y-10"
+          >
             <SectionCard id="coffee" title="Coffee">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {COFFEE.map((c) => (
