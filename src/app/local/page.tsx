@@ -723,6 +723,7 @@ function DalryProjectCard() {
 -------------------------------------------------- */
 
 function WorldBuffetCard() {
+  const [pricesOpen, setPricesOpen] = useState(false);
   return (
     <SectionCard id="world-buffet" title="Hot World Cuisine Buffet – Dalry Road" initial>
       <p className="mt-2">
@@ -733,39 +734,61 @@ function WorldBuffetCard() {
         based on current information and may change once the restaurant officially opens.
       </p>
 
-      <div className="mt-6 space-y-3">
-        <h3 className="text-lg font-semibold">Expected Opening Times &amp; Prices</h3>
+      <div className="mt-6">
+        <button
+          type="button"
+          onClick={() => setPricesOpen((open) => !open)}
+          aria-expanded={pricesOpen}
+          className="flex w-full items-center justify-between gap-3 text-left text-lg font-semibold"
+        >
+          <span>Expected Opening Times &amp; Prices</span>
+          <span className={`text-xl transition-transform ${pricesOpen ? 'rotate-180' : ''}`}>
+            ▼
+          </span>
+        </button>
 
-        <div className="space-y-4">
-          <div>
-            <p className="font-medium">Mon – Thu</p>
-            <ul className="mt-1 space-y-1 text-[color:var(--text-muted)]">
-              <li>12:00pm – 10:00pm</li>
-              <li>Adult: £21.99</li>
-            </ul>
-          </div>
+        <AnimatePresence initial={false}>
+          {pricesOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.28 }}
+              className="overflow-hidden"
+            >
+              <div className="mt-4 space-y-4">
+                <div>
+                  <p className="font-medium">Mon – Thu</p>
+                  <ul className="mt-1 space-y-1 text-[color:var(--text-muted)]">
+                    <li>12:00pm – 10:00pm</li>
+                    <li>Adult: £21.99</li>
+                  </ul>
+                </div>
 
-          <div>
-            <p className="font-medium">Fri – Sat</p>
-            <ul className="mt-1 space-y-1 text-[color:var(--text-muted)]">
-              <li>12:00pm – 10:00pm</li>
-              <li>Adult: £23.99</li>
-            </ul>
-          </div>
+                <div>
+                  <p className="font-medium">Fri – Sat</p>
+                  <ul className="mt-1 space-y-1 text-[color:var(--text-muted)]">
+                    <li>12:00pm – 10:00pm</li>
+                    <li>Adult: £23.99</li>
+                  </ul>
+                </div>
 
-          <div>
-            <p className="font-medium">Sunday</p>
-            <ul className="mt-1 space-y-1 text-[color:var(--text-muted)]">
-              <li>12:30pm – 10:00pm</li>
-              <li>Includes Sunday Roast</li>
-              <li>Adult: £23.99</li>
-            </ul>
-          </div>
+                <div>
+                  <p className="font-medium">Sunday</p>
+                  <ul className="mt-1 space-y-1 text-[color:var(--text-muted)]">
+                    <li>12:30pm – 10:00pm</li>
+                    <li>Includes Sunday Roast</li>
+                    <li>Adult: £23.99</li>
+                  </ul>
+                </div>
 
-          <p className="text-[color:var(--text-muted)]">
-            (Child under height line (145cm): are half price)
-          </p>
-        </div>
+                <p className="text-[color:var(--text-muted)]">
+                  (Child under height line (145cm): are half price)
+                </p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       <p className="mt-4 text-sm text-[color:var(--text-muted)]">
