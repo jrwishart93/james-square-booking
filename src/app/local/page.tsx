@@ -347,7 +347,7 @@ export default function UsefulInfoPage() {
                         district. Although Dalry sat on the western approach to the city and was crossed by routes
                         linking Edinburgh with the west, it remained sparsely developed for much of this period.
                       </p>
-                      <figure className="w-full overflow-hidden rounded-xl jqs-glass shadow-md bg-white/40 dark:bg-white/10">
+                      <figure className="mx-auto w-full max-w-3xl overflow-hidden rounded-xl jqs-glass shadow-md bg-white/40 dark:bg-white/10">
                         <Image
                           src="/images/area/dalry-house.jpeg"
                           alt="Dalry House and surrounding rural landscape"
@@ -381,7 +381,7 @@ export default function UsefulInfoPage() {
                         defining feature of Dalry’s western skyline.
                       </p>
                       <div className="grid gap-4">
-                        <figure className="w-full overflow-hidden rounded-xl jqs-glass shadow-md bg-white/40 dark:bg-white/10">
+                        <figure className="mx-auto w-full max-w-3xl overflow-hidden rounded-xl jqs-glass shadow-md bg-white/40 dark:bg-white/10">
                           <Image
                             src="/images/area/Caledonian_Distillery.jpg"
                             alt="Caledonian Distillery exterior"
@@ -391,7 +391,7 @@ export default function UsefulInfoPage() {
                             className="h-auto w-full object-contain"
                           />
                         </figure>
-                        <figure className="w-full overflow-hidden rounded-xl jqs-glass shadow-md bg-white/40 dark:bg-white/10">
+                        <figure className="mx-auto w-full max-w-3xl overflow-hidden rounded-xl jqs-glass shadow-md bg-white/40 dark:bg-white/10">
                           <Image
                             src="/images/area/caledonian-distillery-from-above.jpg"
                             alt="Aerial view of the Caledonian Distillery"
@@ -431,7 +431,7 @@ export default function UsefulInfoPage() {
                         civic amenity and marked the transition of the area from an industrial fringe to a fully
                         established urban district.
                       </p>
-                      <figure className="w-full overflow-hidden rounded-xl jqs-glass shadow-md bg-white/40 dark:bg-white/10">
+                      <figure className="mx-auto w-full max-w-3xl overflow-hidden rounded-xl jqs-glass shadow-md bg-white/40 dark:bg-white/10">
                         <Image
                           src="/images/area/dalry-public-baths.png"
                           alt="Dalry Public Baths building"
@@ -457,7 +457,7 @@ export default function UsefulInfoPage() {
                         had been fully absorbed into Edinburgh’s urban fabric, with little remaining trace of its
                         earlier rural character.
                       </p>
-                      <figure className="w-full overflow-hidden rounded-xl jqs-glass shadow-md bg-white/40 dark:bg-white/10">
+                      <figure className="mx-auto w-full max-w-3xl overflow-hidden rounded-xl jqs-glass shadow-md bg-white/40 dark:bg-white/10">
                         <Image
                           src="/images/area/clear-dalry-primary.png"
                           alt="Dalry Road and surrounding district"
@@ -498,7 +498,7 @@ export default function UsefulInfoPage() {
                         isolated parcels of land adjacent to streets such as Caledonian Crescent.
                       </p>
                       <div className="grid gap-4">
-                        <figure className="w-full overflow-hidden rounded-xl jqs-glass shadow-md bg-white/40 dark:bg-white/10">
+                        <figure className="mx-auto w-full max-w-3xl overflow-hidden rounded-xl jqs-glass shadow-md bg-white/40 dark:bg-white/10">
                           <Image
                             src="/images/area/clear - west approach road.JPG"
                             alt="Construction of the West Approach Road"
@@ -508,7 +508,7 @@ export default function UsefulInfoPage() {
                             className="h-auto w-full object-contain"
                           />
                         </figure>
-                        <figure className="w-full overflow-hidden rounded-xl jqs-glass shadow-md bg-white/40 dark:bg-white/10">
+                        <figure className="mx-auto w-full max-w-3xl overflow-hidden rounded-xl jqs-glass shadow-md bg-white/40 dark:bg-white/10">
                           <Image
                             src="/images/area/West Approach Road from above.png"
                             alt="West Approach Road from above"
@@ -542,7 +542,7 @@ export default function UsefulInfoPage() {
                         shared amenities such as a private swimming pool, gym, and sauna, reflecting a shift toward
                         amenity-led urban living.
                       </p>
-                      <figure className="w-full overflow-hidden rounded-xl jqs-glass shadow-md bg-white/40 dark:bg-white/10">
+                      <figure className="mx-auto w-full max-w-3xl overflow-hidden rounded-xl jqs-glass shadow-md bg-white/40 dark:bg-white/10">
                         <Image
                           src="/images/area/James-Square-old.png"
                           alt="James Square in the mid-1980s"
