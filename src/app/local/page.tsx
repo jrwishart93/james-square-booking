@@ -755,7 +755,7 @@ function DalryProjectCard() {
 -------------------------------------------------- */
 
 function WorldBuffetCard() {
-  const [pricesOpen, setPricesOpen] = useState(false);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   return (
     <SectionCard id="world-buffet" title="Hot World Cuisine Buffet – Dalry Road" initial>
       <p className="mt-2">
@@ -766,69 +766,83 @@ function WorldBuffetCard() {
         based on current information and may change once the restaurant officially opens.
       </p>
 
-      <div className="mt-6">
-        <button
-          type="button"
-          onClick={() => setPricesOpen((open) => !open)}
-          aria-expanded={pricesOpen}
-          className="flex w-full items-center justify-between gap-3 text-left text-lg font-semibold"
-        >
-          <span>Expected Opening Times &amp; Prices</span>
-          <span className={`text-xl transition-transform ${pricesOpen ? 'rotate-180' : ''}`}>
-            ▼
-          </span>
-        </button>
+      <WorldBuffetCarousel />
 
+      <div className="mt-6">
+        <ExpandButton
+          open={detailsOpen}
+          setOpen={setDetailsOpen}
+          labelWhenClosed="Read Full Details"
+          labelWhenOpen="Hide Details"
+          controlsId="world-buffet-details"
+        />
         <AnimatePresence initial={false}>
-          {pricesOpen && (
+          {detailsOpen && (
             <motion.div
+              id="world-buffet-details"
+              className="mt-4 space-y-6 border-l border-white/30 pl-4 text-[color:var(--text-muted)]"
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.28 }}
-              className="overflow-hidden"
+              transition={{ duration: 0.25 }}
             >
-              <div className="mt-4 space-y-4">
-                <div>
-                  <p className="font-medium">Mon – Thu</p>
-                  <ul className="mt-1 space-y-1 text-[color:var(--text-muted)]">
-                    <li>12:00pm – 10:00pm</li>
-                    <li>Adult: £21.99</li>
-                  </ul>
-                </div>
+              <SectionText heading="Planning and Background">
+                <ul className="list-disc ms-5 space-y-2">
+                  <li>
+                    Planning permission was granted in early 2025 for the new buffet restaurant on
+                    Dalry Road.
+                  </li>
+                  <li>
+                    The venue is expected to offer around 168 covers and create about 20 jobs in the
+                    area.
+                  </li>
+                  <li>
+                    There is already an established and successful Hot World Cuisine restaurant on
+                    Paisley Road in Glasgow, known for a wide variety of international buffet options
+                    and daily specials.
+                  </li>
+                </ul>
+              </SectionText>
 
-                <div>
-                  <p className="font-medium">Fri – Sat</p>
-                  <ul className="mt-1 space-y-1 text-[color:var(--text-muted)]">
-                    <li>12:00pm – 10:00pm</li>
-                    <li>Adult: £23.99</li>
-                  </ul>
+              <div>
+                <h3 className="text-xl md:text-2xl font-semibold text-[color:var(--text-primary)]">
+                  Expected Opening Times &amp; Prices
+                </h3>
+                <div className="mt-4 grid gap-4 md:grid-cols-3">
+                  <div className="rounded-xl border border-white/20 bg-white/50 dark:bg-white/10 p-4">
+                    <p className="font-medium text-[color:var(--text-primary)]">Mon – Thu</p>
+                    <ul className="mt-2 space-y-1">
+                      <li>12:00pm – 10:00pm</li>
+                      <li>Adult: £21.99</li>
+                    </ul>
+                  </div>
+                  <div className="rounded-xl border border-white/20 bg-white/50 dark:bg-white/10 p-4">
+                    <p className="font-medium text-[color:var(--text-primary)]">Fri – Sat</p>
+                    <ul className="mt-2 space-y-1">
+                      <li>12:00pm – 10:00pm</li>
+                      <li>Adult: £23.99</li>
+                    </ul>
+                  </div>
+                  <div className="rounded-xl border border-white/20 bg-white/50 dark:bg-white/10 p-4">
+                    <p className="font-medium text-[color:var(--text-primary)]">Sunday</p>
+                    <ul className="mt-2 space-y-1">
+                      <li>12:30pm – 10:00pm</li>
+                      <li>Includes Sunday Roast</li>
+                      <li>Adult: £23.99</li>
+                    </ul>
+                  </div>
                 </div>
-
-                <div>
-                  <p className="font-medium">Sunday</p>
-                  <ul className="mt-1 space-y-1 text-[color:var(--text-muted)]">
-                    <li>12:30pm – 10:00pm</li>
-                    <li>Includes Sunday Roast</li>
-                    <li>Adult: £23.99</li>
-                  </ul>
-                </div>
-
-                <p className="text-[color:var(--text-muted)]">
-                  (Child under height line (145cm): are half price)
+                <p className="mt-4">
+                  (Child under height line (145cm) are half price)
+                </p>
+                <p className="mt-2 text-sm">
+                  Times and prices are subject to change once the restaurant officially opens.
                 </p>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
-
-      <p className="mt-4 text-sm text-[color:var(--text-muted)]">
-        Opening times and prices are based on current information and may change once the
-        restaurant officially opens.
-      </p>
-
-      <WorldBuffetCarousel />
     </SectionCard>
   );
 }
