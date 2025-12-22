@@ -725,9 +725,7 @@ function DalryProjectCard() {
 function WorldBuffetCard() {
   return (
     <SectionCard id="world-buffet" title="Hot World Cuisine Buffet – Dalry Road" initial>
-      <WorldBuffetCarousel />
-
-      <p className="mt-4">
+      <p className="mt-2">
         It’s looking like the renovations for the new buffet restaurant at the end of our street
         are now complete, and they’re getting ready to open by the end of the year. Once open, Hot
         World Cuisine Buffet is expected to offer a large international all-you-can-eat buffet,
@@ -774,6 +772,8 @@ function WorldBuffetCard() {
         Opening times and prices are based on current information and may change once the
         restaurant officially opens.
       </p>
+
+      <WorldBuffetCarousel />
     </SectionCard>
   );
 }
@@ -817,40 +817,42 @@ function WorldBuffetCarousel() {
   };
 
   return (
-    <div className="mt-4">
-      <div
-        ref={viewportRef}
-        onScroll={handleScroll}
-        className="flex w-full overflow-x-auto snap-x snap-mandatory scroll-smooth rounded-xl jqs-glass shadow"
-      >
-        {slides.map((slide) => (
-          <div key={slide.src} className="w-full shrink-0 snap-center">
-            <Image
-              src={slide.src}
-              alt={slide.alt}
-              width={slide.width}
-              height={slide.height}
-              className="w-full h-auto object-contain"
-              sizes="(min-width: 1024px) 800px, 100vw"
-              priority={slide.src === slides[0].src}
-            />
-          </div>
-        ))}
-      </div>
+    <div className="mt-6">
+      <div className="mx-auto w-full max-w-3xl">
+        <div
+          ref={viewportRef}
+          onScroll={handleScroll}
+          className="flex w-full overflow-x-auto snap-x snap-mandatory scroll-smooth rounded-xl jqs-glass shadow"
+        >
+          {slides.map((slide) => (
+            <div key={slide.src} className="w-full shrink-0 snap-center">
+              <Image
+                src={slide.src}
+                alt={slide.alt}
+                width={slide.width}
+                height={slide.height}
+                className="w-full h-auto object-contain"
+                sizes="(min-width: 1024px) 768px, 100vw"
+                priority={slide.src === slides[0].src}
+              />
+            </div>
+          ))}
+        </div>
 
-      <div className="mt-3 flex items-center justify-center gap-2">
-        {slides.map((slide, index) => (
-          <button
-            key={`hot-world-dot-${slide.src}`}
-            onClick={() => scrollToIndex(index)}
-            aria-label={`Go to slide ${index + 1}`}
-            className={`h-2 w-2 rounded-full transition ${
-              index === idx
-                ? 'bg-neutral-900 dark:bg-neutral-100'
-                : 'bg-neutral-400/40 dark:bg-white/30'
-            }`}
-          />
-        ))}
+        <div className="mt-3 flex items-center justify-center gap-2">
+          {slides.map((slide, index) => (
+            <button
+              key={`hot-world-dot-${slide.src}`}
+              onClick={() => scrollToIndex(index)}
+              aria-label={`Go to slide ${index + 1}`}
+              className={`h-2 w-2 rounded-full transition ${
+                index === idx
+                  ? 'bg-neutral-900 dark:bg-neutral-100'
+                  : 'bg-neutral-400/40 dark:bg-white/30'
+              }`}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
