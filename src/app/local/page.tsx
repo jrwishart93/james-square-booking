@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import Tabs from '@/components/Tabs';
@@ -37,7 +37,7 @@ export default function UsefulInfoPage() {
       area: [
         { id: 'voi-ebikes', label: 'Voi E-bikes' },
         { id: 'dalry-project', label: 'Dalry Project' },
-        { id: 'world-buffet', label: 'World Buffet' },
+        { id: 'world-buffet', label: 'Hot World Cuisine Buffet' },
         { id: 'restaurants', label: 'Restaurants' },
         { id: 'groceries', label: 'Groceries' },
         { id: 'coffee', label: 'Coffee' },
@@ -723,88 +723,136 @@ function DalryProjectCard() {
 -------------------------------------------------- */
 
 function WorldBuffetCard() {
-  const [open, setOpen] = useState(false);
   return (
-    <SectionCard id="world-buffet" title="Hot World Cuisine Buffet on Dalry Road" initial>
-      <p className="text-[color:var(--text-muted)] text-sm">
-        Status: Permission granted by Council planners
+    <SectionCard id="world-buffet" title="Hot World Cuisine Buffet – Dalry Road" initial>
+      <WorldBuffetCarousel />
+
+      <p className="mt-4">
+        It’s looking like the renovations for the new buffet restaurant at the end of our street
+        are now complete, and they’re getting ready to open by the end of the year. Once open, Hot
+        World Cuisine Buffet is expected to offer a large international all-you-can-eat buffet,
+        with pricing varying depending on the day. Please note that opening times and prices are
+        based on current information and may change once the restaurant officially opens.
       </p>
 
-      <p className="mt-2">
-        An all you can eat buffet restaurant, Hot World Cuisine, has been granted permission to open
-        at 118 to 126 Dalry Road, near Fountain Park and Haymarket Station. The plan includes a bin
-        store to address odour concerns. The venue is expected to create around 20 jobs across full
-        and part time roles, and will provide 168 covers. No alcohol will be sold, served or
-        consumed on the premises. The brand already operates in Glasgow and Paisley.
+      <div className="mt-6 space-y-3">
+        <h3 className="text-lg font-semibold">Expected Opening Times &amp; Prices</h3>
+
+        <div className="space-y-4">
+          <div>
+            <p className="font-medium">Mon – Thu</p>
+            <ul className="mt-1 space-y-1 text-[color:var(--text-muted)]">
+              <li>12:00pm – 10:00pm</li>
+              <li>Adult: £21.99</li>
+            </ul>
+          </div>
+
+          <div>
+            <p className="font-medium">Fri – Sat</p>
+            <ul className="mt-1 space-y-1 text-[color:var(--text-muted)]">
+              <li>12:00pm – 10:00pm</li>
+              <li>Adult: £23.99</li>
+            </ul>
+          </div>
+
+          <div>
+            <p className="font-medium">Sunday</p>
+            <ul className="mt-1 space-y-1 text-[color:var(--text-muted)]">
+              <li>12:30pm – 10:00pm</li>
+              <li>Includes Sunday Roast</li>
+              <li>Adult: £23.99</li>
+            </ul>
+          </div>
+
+          <p className="text-[color:var(--text-muted)]">
+            (Child under height line (145cm): are half price)
+          </p>
+        </div>
+      </div>
+
+      <p className="mt-4 text-sm text-[color:var(--text-muted)]">
+        Opening times and prices are based on current information and may change once the
+        restaurant officially opens.
       </p>
-
-      <div className="relative w-full h-64 md:h-80 overflow-hidden rounded-xl jqs-glass shadow mt-4">
-        <Image
-          src="/images/area/world-buffet.jpg"
-          alt="Hot World Cuisine Dalry Road venue under construction"
-          fill
-          sizes="(min-width:1024px) 100vw, 100vw"
-          className="object-cover"
-          priority
-        />
-      </div>
-
-      {/* Expand / collapse */}
-      <div className="mt-4">
-        <ExpandButton open={open} setOpen={setOpen} controlsId="world-buffet-details" />
-        <AnimatePresence initial={false}>
-          {open && (
-            <motion.div
-              id="world-buffet-details"
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.28 }}
-              className="overflow-hidden"
-            >
-              <div className="pt-4 space-y-4">
-                <SectionText heading="Overview">
-                  Hot World Cuisine has been granted permission to open an all you can eat buffet
-                  restaurant at 118 to 126 Dalry Road. The site is close to Fountain Park and
-                  Haymarket Station. A bin store will be introduced to address odour concerns.
-                </SectionText>
-                <SectionText heading="Capacity and jobs">
-                  The restaurant will offer a total of 168 covers and is expected to create
-                  approximately 20 jobs across full and part time general staff roles.
-                </SectionText>
-                <SectionText heading="Licensing and operations">
-                  The proposal did not involve licensing requirements because no alcohol will be
-                  sold, served or consumed within the premises.
-                </SectionText>
-                <SectionText heading="Operator background">
-                  Hot World Cuisine currently operates in Glasgow and Paisley, offering a wide
-                  selection of international dishes.
-                </SectionText>
-                <SectionText heading="Location and local context">
-                  The unit sits on Dalry Road near Fountain Park and Haymarket Station with strong
-                  public transport connections.
-                </SectionText>
-                <SectionText heading="Notes for residents">
-                  Planning permission has been granted and a dedicated bin store forms part of the
-                  plan to manage odour. Construction activity is underway. No alcohol licence is
-                  being sought.
-                </SectionText>
-                <p className="pt-2">
-                  <a
-                    className="text-blue-600 hover:underline"
-                    href="https://www.facebook.com/hotworldcuisineglasgow/posts/hello-edinburgh-its-getting-hot-in-here-%EF%B8%8F-work-has-begun-on-our-newest-buffet-si/714884084221369/"
-                    target="_blank"
-                    rel="noopener"
-                  >
-                    Learn more about this venue
-                  </a>
-                </p>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
     </SectionCard>
+  );
+}
+
+function WorldBuffetCarousel() {
+  const slides = [
+    {
+      src: '/images/venues/hot-world-edi-outside.png',
+      alt: 'Hot World Cuisine Buffet exterior',
+      width: 1600,
+      height: 900,
+    },
+    {
+      src: '/images/venues/hot-world-edi-inside.png',
+      alt: 'Hot World Cuisine Buffet interior',
+      width: 1600,
+      height: 900,
+    },
+  ];
+
+  const [idx, setIdx] = useState(0);
+  const viewportRef = useRef<HTMLDivElement | null>(null);
+
+  const scrollToIndex = (nextIndex: number) => {
+    const viewport = viewportRef.current;
+    if (!viewport) {
+      setIdx(nextIndex);
+      return;
+    }
+    viewport.scrollTo({ left: viewport.clientWidth * nextIndex, behavior: 'smooth' });
+    setIdx(nextIndex);
+  };
+
+  const handleScroll = () => {
+    const viewport = viewportRef.current;
+    if (!viewport) {
+      return;
+    }
+    const nextIndex = Math.round(viewport.scrollLeft / viewport.clientWidth);
+    setIdx(nextIndex);
+  };
+
+  return (
+    <div className="mt-4">
+      <div
+        ref={viewportRef}
+        onScroll={handleScroll}
+        className="flex w-full overflow-x-auto snap-x snap-mandatory scroll-smooth rounded-xl jqs-glass shadow"
+      >
+        {slides.map((slide) => (
+          <div key={slide.src} className="w-full shrink-0 snap-center">
+            <Image
+              src={slide.src}
+              alt={slide.alt}
+              width={slide.width}
+              height={slide.height}
+              className="w-full h-auto object-contain"
+              sizes="(min-width: 1024px) 800px, 100vw"
+              priority={slide.src === slides[0].src}
+            />
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-3 flex items-center justify-center gap-2">
+        {slides.map((slide, index) => (
+          <button
+            key={`hot-world-dot-${slide.src}`}
+            onClick={() => scrollToIndex(index)}
+            aria-label={`Go to slide ${index + 1}`}
+            className={`h-2 w-2 rounded-full transition ${
+              index === idx
+                ? 'bg-neutral-900 dark:bg-neutral-100'
+                : 'bg-neutral-400/40 dark:bg-white/30'
+            }`}
+          />
+        ))}
+      </div>
+    </div>
   );
 }
 
