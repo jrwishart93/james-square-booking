@@ -51,9 +51,9 @@ export default function FacilitySelectorMobile({ options, selected, onSelect }: 
               <Image
                 src={option.iconSrc}
                 alt=""
-                width={24}
-                height={24}
-                className={cx('h-5 w-5 object-contain', isSelected ? 'opacity-100' : 'opacity-90')}
+                width={28}
+                height={28}
+                className={cx('h-6 w-6 object-contain', isSelected ? 'opacity-100' : 'opacity-90')}
               />
               <span className={cx('text-xs font-semibold uppercase tracking-[0.04em]', isSelected && 'text-slate-900 dark:text-white')}>
                 {option.label}

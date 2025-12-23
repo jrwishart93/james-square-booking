@@ -24,24 +24,24 @@ const FACILITIES: Array<{
     title: 'Pool',
     href: '/book/schedule?facility=pool',
     imageSrc: '/images/icons/simple-pool-icon.png',
-    description: 'Calm laps, coached sessions, and quiet evening slots.',
-    blurb: 'Smooth lanes, warm lighting, and early morning calm for focused swims.',
+    description: 'Indoor heated pool with onsite showers and changing rooms.',
+    blurb: 'Indoor heated pool with onsite showers and changing rooms.',
   },
   {
     key: 'gym',
     title: 'Gym',
     href: '/book/schedule?facility=gym',
     imageSrc: '/images/icons/simple-gym-icon.png',
-    description: 'Strength, conditioning, and small-group coaching.',
-    blurb: 'Strength zones, conditioning rigs, and softly lit recovery corners.',
+    description: 'Small gym equipped for free weight, resistance, and core training.',
+    blurb: 'Small gym equipped for free weight, resistance, and core training.',
   },
   {
     key: 'sauna',
     title: 'Sauna',
     href: '/book/schedule?facility=sauna',
     imageSrc: '/images/icons/simple-sauna-icon.png',
-    description: 'Reset after training with heat therapy and calm lighting.',
-    blurb: 'Soft amber glow, quiet benches, and easy booking for recovery.',
+    description: 'Infrared sauna featuring a wooden bench and external on/off controls.',
+    blurb: 'Infrared sauna featuring a wooden bench and external on/off controls.',
   },
 ];
 
@@ -90,7 +90,7 @@ export default function BookClient() {
         <div className="mt-6 rounded-2xl border border-black/5 bg-white/80 p-5 shadow-md ring-1 ring-black/5 backdrop-blur dark:border-white/10 dark:bg-gray-800/70 dark:text-white dark:ring-white/5">
           <div className="flex items-center gap-4">
             <div className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl bg-white/80 shadow-inner shadow-black/5 ring-1 ring-black/5 dark:bg-white/10 dark:shadow-none dark:ring-white/10">
-              <Image src={activeFacility.imageSrc} alt={activeFacility.title} width={32} height={32} className="h-8 w-8 object-contain" />
+              <Image src={activeFacility.imageSrc} alt={activeFacility.title} width={40} height={40} className="h-10 w-10 object-contain" />
             </div>
             <div className="flex-1 space-y-1 text-left">
               <h2 className="text-lg font-semibold text-slate-900 dark:text-white">{activeFacility.title}</h2>
