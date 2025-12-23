@@ -1,17 +1,18 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { ChevronDown } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 import { FacilityCard } from '@/components/FacilityCard';
 import Button from '@/components/ui/Button';
 import GlassCard from '@/components/ui/GlassCard';
 
 const FACILITIES = [
-  { title: 'Pool', href: '/book/schedule?facility=pool', imageSrc: '/images/icons/simple-pool-icon.png' },
-  { title: 'Gym', href: '/book/schedule?facility=gym', imageSrc: '/images/icons/simple-gym-icon.png' },
-  { title: 'Sauna', href: '/book/schedule?facility=sauna', imageSrc: '/images/icons/simple-sauna-icon.png' },
+  { title: 'Pool', slug: 'pool', href: '/book/schedule?facility=pool', imageSrc: '/images/icons/simple-pool-icon.png' },
+  { title: 'Gym', slug: 'gym', href: '/book/schedule?facility=gym', imageSrc: '/images/icons/simple-gym-icon.png' },
+  { title: 'Sauna', slug: 'sauna', href: '/book/schedule?facility=sauna', imageSrc: '/images/icons/simple-sauna-icon.png' },
 ];
 
 const OPENING_TIMES = [
@@ -23,6 +24,22 @@ const OPENING_TIMES = [
 ];
 
 export default function HomePage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const facilityParam = searchParams?.get('facility')?.toLowerCase() ?? '';
+  const [selectedFacility, setSelectedFacility] = useState(() => {
+    if (facilityParam && FACILITIES.some((facility) => facility.slug === facilityParam)) {
+      return facilityParam;
+    }
+    return FACILITIES[0]?.slug ?? '';
+  });
+
+  useEffect(() => {
+    if (facilityParam && FACILITIES.some((facility) => facility.slug === facilityParam)) {
+      setSelectedFacility(facilityParam);
+    }
+  }, [facilityParam]);
+
   return (
     <main className="max-w-4xl mx-auto py-16 px-6 font-sans bg-white dark:bg-gray-900">
       <div className="flex flex-col items-center text-center gap-3">
@@ -38,7 +55,32 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="mt-10 grid grid-cols-1 gap-5 sm:gap-6 md:grid-cols-2 xl:grid-cols-3">
+      <div className="mt-8 flex w-full flex-nowrap gap-3 md:hidden">
+        {FACILITIES.map((facility) => {
+          const isSelected = selectedFacility === facility.slug;
+
+          return (
+            <button
+              key={facility.title}
+              type="button"
+              aria-pressed={isSelected}
+              className={`min-h-[44px] flex-1 whitespace-nowrap rounded-full border-2 px-3 py-2 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-900 ${
+                isSelected
+                  ? 'border-slate-300 bg-slate-100 text-slate-900 shadow-sm dark:border-white/40 dark:bg-slate-800 dark:text-white dark:shadow-[0_0_0_1px_rgba(255,255,255,0.2)]'
+                  : 'border-slate-200 bg-transparent text-slate-700 dark:border-white/15 dark:text-white/80'
+              }`}
+              onClick={() => {
+                setSelectedFacility(facility.slug);
+                router.push(facility.href);
+              }}
+            >
+              {facility.title}
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="mt-10 hidden grid-cols-1 gap-5 sm:gap-6 md:grid md:grid-cols-2 xl:grid-cols-3">
         {FACILITIES.map((facility) => (
           <FacilityCard key={facility.title} {...facility} />
         ))}
