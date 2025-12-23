@@ -108,8 +108,8 @@ export default function BookClient() {
       </section>
 
       <div className="mt-10 hidden grid-cols-1 gap-5 sm:gap-6 md:grid md:grid-cols-2 xl:grid-cols-3">
-        {FACILITIES.map((facility) => (
-          <FacilityCard key={facility.title} {...facility} />
+        {FACILITIES.map(({ key, ...facility }) => (
+          <FacilityCard key={key} {...facility} />
         ))}
       </div>
       <div className="mt-16">
