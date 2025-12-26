@@ -59,17 +59,17 @@ export default function BookClient() {
       <div className="flex flex-col items-center text-center gap-3">
         <h1 className="text-4xl font-bold text-black dark:text-white">Choose a facility</h1>
         <p className="text-base text-gray-600 dark:text-gray-300">Select a space to view schedules and book your spot.</p>
-        <div className="w-full max-w-xl flex items-center justify-center gap-3 rounded-2xl border border-black/5 bg-white/70 px-4 py-2 shadow-sm backdrop-blur dark:border-white/10 dark:bg-gray-800/60">
-          <Button variant="ghost" href="/book/schedule" className="text-sm sm:text-base">
+        <div className="w-full max-w-xl flex flex-col gap-3 rounded-2xl border border-black/5 bg-white/70 px-4 py-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-gray-800/60 md:flex-row md:items-center md:justify-center md:gap-3 md:py-2">
+          <Button variant="primary" href="/book/schedule" className="w-full text-sm sm:text-base md:w-auto">
             View availability
           </Button>
-          <Button variant="secondary" href="/dashboard" className="text-sm sm:text-base">
+          <Button variant="secondary" href="/dashboard" className="w-full text-sm sm:text-base md:w-auto">
             My dashboard
           </Button>
         </div>
       </div>
 
-      <section className="mt-10 md:hidden">
+      <section className="mt-12 md:hidden">
         <FacilitySelectorMobile
           options={FACILITIES.map((facility) => ({
             key: facility.key,
@@ -80,13 +80,16 @@ export default function BookClient() {
         />
       </section>
 
-      <div className="mt-10 hidden grid-cols-1 gap-5 sm:gap-6 md:grid md:grid-cols-2 xl:grid-cols-3">
+      <div className="mt-12 hidden grid-cols-1 gap-5 sm:gap-6 md:grid md:grid-cols-2 xl:grid-cols-3">
         {FACILITIES.map(({ key, ...facility }) => (
           <FacilityCard key={key} {...facility} />
         ))}
       </div>
-      <div className="mt-16">
-        <GlassCard title="Opening times &amp; rules" className="text-base">
+      <div className="mt-14 md:mt-16">
+        <GlassCard
+          title="Opening times &amp; rules"
+          className="text-base shadow-none md:shadow-[0_18px_38px_rgba(15,23,42,0.12)] md:dark:shadow-[0_24px_50px_rgba(0,0,0,0.55)]"
+        >
           <details className="group">
             <summary
               className="list-none flex w-full items-center justify-between gap-3 rounded-xl border border-white/40 bg-white/70 px-4 py-3 text-slate-900 shadow-sm transition hover:border-white/60 hover:bg-white/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:border-white/20 dark:hover:bg-white/10 dark:focus-visible:ring-offset-gray-900 [&::-webkit-details-marker]:hidden"
