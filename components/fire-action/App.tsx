@@ -129,20 +129,18 @@ const App: React.FC = () => {
             </div>
 
             {/* Right Column: Video Orbit Embed */}
-            <div className="flex-1 min-h-[300px] md:min-h-[400px] lg:min-h-auto aspect-video rounded-[2rem] overflow-hidden border-4 border-white/30 shadow-2xl relative z-10 bg-black group">
-              <div className="absolute inset-0 w-full h-full pointer-events-none no-print">
+            <div className="flex-1 min-h-[240px] md:min-h-[360px] lg:min-h-auto aspect-video rounded-[2rem] overflow-hidden border-4 border-white/30 shadow-2xl relative z-10 bg-black group">
+              <div className="absolute inset-0 w-full h-full pointer-events-none no-print flex items-center justify-center">
                 <iframe 
                   src={vimeoOrbitUrl}
                   style={{ 
-                    position: 'absolute', 
-                    top: '50%', 
-                    left: '50%', 
-                    width: '100%', 
-                    height: '100%', 
-                    transform: 'translate(-50%, -50%) scale(1.15)',
-                    minWidth: '177.77vh',
-                    minHeight: '56.25vw',
-                    border: 'none'
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    border: 'none',
+                    objectFit: 'cover'
                   }} 
                   allow="autoplay; fullscreen; picture-in-picture"
                   title="Assembly Point Video Orbit"
