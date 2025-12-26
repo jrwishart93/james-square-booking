@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Step } from '../types';
+import { Step } from './types';
 
 interface StepCardProps {
   step: Step;
@@ -61,11 +61,11 @@ export const StepCard: React.FC<StepCardProps> = ({ step, index }) => {
         </div>
       </div>
       
-      <h3 className={`text-2xl font-black text-slate-800 leading-tight mb-3`}>
+      <h3 className={`text-xl md:text-2xl font-black text-slate-800 leading-tight mb-3`}>
         {step.title}
       </h3>
       
-      <p className={`text-base font-bold text-slate-500 leading-relaxed mb-6`}>
+      <p className={`text-sm md:text-base font-bold text-slate-500 leading-relaxed mb-6`}>
         {step.description}
       </p>
 

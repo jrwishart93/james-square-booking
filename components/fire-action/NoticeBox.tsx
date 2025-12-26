@@ -1,8 +1,8 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Info, AlertTriangle, ShieldCheck } from 'lucide-react';
-import { Notice } from '../types';
+import { AlertTriangle, ShieldCheck } from 'lucide-react';
+import { Notice } from './types';
 
 interface NoticeBoxProps {
   notice: Notice;
