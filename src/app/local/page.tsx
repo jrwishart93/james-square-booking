@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import Tabs from '@/components/Tabs';
+import FireAction from '@/components/fire-action/FireAction';
 
 /* -------------------------------------------------
    Helpers / Types
@@ -38,6 +39,7 @@ export default function UsefulInfoPage() {
         { id: 'factor-info', label: 'Factor Info' },
         { id: 'caretaker', label: 'Caretaker' },
         { id: 'bins', label: 'Bins' },
+        { id: 'fire-action', label: 'Fire Action' },
       ],
       projects: [
         { id: 'voi-ebikes', label: 'Voi E-bikes' },
@@ -321,6 +323,18 @@ export default function UsefulInfoPage() {
                 ))}
               </div>
             </SectionCard>
+
+            <section id="fire-action" className="mt-12 scroll-mt-24">
+              <h2 className="text-xl font-semibold mb-3">
+                Fire Action
+              </h2>
+
+              <p className="text-sm text-muted-foreground mb-4">
+                What to do in the event of a fire within James Square.
+              </p>
+
+              <FireAction />
+            </section>
 
             <SectionCard id="history" title="History of James Square and the Local Area">
               <div className="space-y-6">

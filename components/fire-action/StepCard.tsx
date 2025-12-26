@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Step } from '../types';
+import { Step } from './types';
 
 interface StepCardProps {
   step: Step;

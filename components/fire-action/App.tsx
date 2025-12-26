@@ -1,21 +1,18 @@
 
 import React, { useState } from 'react';
 import { 
-  Bell, 
-  Flame, 
   MapPin, 
   Printer, 
   ShieldAlert, 
   MessageCircle,
   Volume2,
   Navigation,
-  ExternalLink,
-  Video
+  ExternalLink
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { StepCard } from './components/StepCard';
-import { NoticeBox } from './components/NoticeBox';
-import { EmergencyAssistant } from './components/EmergencyAssistant';
+import { StepCard } from './StepCard';
+import { NoticeBox } from './NoticeBox';
+import { EmergencyAssistant } from './EmergencyAssistant';
 import { DISCOVERY_STEPS, RESPONSE_STEPS, NOTICES } from './constants';
 
 const App: React.FC = () => {
