@@ -25,8 +25,8 @@ export function FacilityCard({ title, href, imageSrc, description }: FacilityCar
             priority
           />
         </div>
-        <div className="flex items-center justify-between gap-4 px-5 py-4">
-          <div>
+        <div className="flex flex-col items-start justify-center gap-3 px-5 py-4 text-left md:items-center md:text-center">
+          <div className="space-y-1">
             <h2 className="text-lg font-semibold text-black dark:text-white">{title}</h2>
             <p className="text-sm text-gray-600 dark:text-gray-300">{description ?? 'View availability & book'}</p>
           </div>
