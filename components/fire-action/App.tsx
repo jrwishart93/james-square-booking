@@ -20,7 +20,7 @@ const App: React.FC = () => {
   const vimeoOrbitUrl = "https://player.vimeo.com/video/1149530594?autoplay=1&loop=1&background=1&quality=1080p&muted=1";
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col items-center p-4 md:p-8 lg:p-12 transition-colors duration-500">
+    <div className="w-full bg-slate-100 flex flex-col items-center p-4 md:p-8 lg:p-12 transition-colors duration-500 rounded-[2rem] shadow-inner border border-slate-200">
       {/* Main Poster Container */}
       <motion.main 
         initial={{ opacity: 0, scale: 0.98 }}
