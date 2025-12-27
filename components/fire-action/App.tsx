@@ -27,19 +27,24 @@ const App: React.FC<FireActionProps> = ({ showDetails = false }) => {
     return (
       <div className="w-full space-y-3">
         <p className="text-sm md:text-base text-[color:var(--text-muted)]">
-          Recommended assembly point is across the road from James Square on the corner of Caledonian Crescent and Orwell Terrace.
+          What to do in the event of a fire within James Square. Open the detailed guide if you need the full fire safety instructions and assembly point map.
         </p>
         <p className="text-sm md:text-base text-[color:var(--text-muted)]">
-          Find a safe and suitable location ensuring to keep a clear space for emergency services to attend ensuring you are out of harms way.
+          The recommended assembly point is across the road from James Square, at the corner of Caledonian Crescent and Orwell Terrace.
+        </p>
+        <p className="text-sm md:text-base text-[color:var(--text-muted)]">
+          The fire alarm is tested every Wednesday at around 10:00am. No action is required during the test unless the alarm continues or there are signs of fire.
         </p>
         <div className="w-full rounded-xl overflow-hidden bg-black">
           <video
-            className="w-full h-auto object-contain"
+            className="w-full h-auto rounded-xl bg-black"
             src={vimeoOrbitUrl}
             autoPlay
             loop
             muted
             playsInline
+            preload="auto"
+            poster="/images/buildingimages/front.jpg"
           />
         </div>
       </div>
@@ -163,12 +168,14 @@ const App: React.FC<FireActionProps> = ({ showDetails = false }) => {
             <div className="flex-1 w-full relative z-10">
               <div className="w-full rounded-xl overflow-hidden bg-black border-4 border-white/30 shadow-2xl">
                 <video
-                  className="w-full h-auto object-contain"
+                  className="w-full h-auto rounded-xl bg-black object-contain"
                   src={vimeoOrbitUrl}
                   autoPlay
                   loop
                   muted
                   playsInline
+                  preload="auto"
+                  poster="/images/buildingimages/front.jpg"
                 />
               </div>
             </div>
