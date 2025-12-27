@@ -20,24 +20,24 @@ const App: React.FC<FireActionProps> = ({ showDetails = false }) => {
   // User provided exact location link: https://maps.app.goo.gl/fYAyX7zCPfEcovjU6
   const assemblyPointMapsUrl = "https://maps.app.goo.gl/fYAyX7zCPfEcovjU6";
 
-if (!showDetails) {
-  return (
-    <div className="w-full space-y-3">
-      <p className="text-sm md:text-base text-[color:var(--text-muted)]">
-        What to do in the event of a fire within James Square. Open the detailed guide if you need the full fire safety instructions and assembly point map.
-      </p>
-      <p className="text-sm md:text-base text-[color:var(--text-muted)]">
-        The recommended assembly point is across the road from James Square, at the corner of Caledonian Crescent and Orwell Terrace.
-      </p>
-      <p className="text-sm md:text-base text-[color:var(--text-muted)]">
-        The fire alarm is tested every Wednesday at around 10:00am. No action is required during the test unless the alarm continues or there are signs of fire.
-      </p>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src="/images/icons/fire-point-image.png"
-        alt="Fire alarm and call point illustration"
-        className="w-full max-w-xs mx-auto my-4"
-      />
+  if (!showDetails) {
+    return (
+      <div className="w-full space-y-3">
+        <p className="text-sm md:text-base text-[color:var(--text-muted)]">
+          If you discover a fire, call for help and sound the alarm. Attempt to put the fire out only if it is safe to do so. If not, leave the building by the nearest exit and proceed to a safe location.
+        </p>
+        <p className="text-sm md:text-base text-[color:var(--text-muted)]">
+          Assembly point: Across the road from James Square, at the corner of Caledonian Crescent and Orwell Terrace.
+        </p>
+        <p className="text-sm md:text-base text-[color:var(--text-muted)]">
+          Fire alarm testing: The fire alarm is tested every Wednesday at about 10:00am. No action is required during the test unless the alarm continues or there are signs of fire.
+        </p>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/images/icons/fire-point-image.png"
+          alt="Fire alarm and call point illustration"
+          className="w-full max-w-xs mx-auto my-4"
+        />
       </div>
     );
   }
@@ -83,14 +83,14 @@ if (!showDetails) {
         </header>
 
         <div className="p-5 md:p-8 space-y-8 md:space-y-10">
+          {/* Video appears only in expanded view */}
           <iframe
-            className="w-full rounded-xl bg-black"
-            src="https://player.vimeo.com/video/1149530594?context=Vimeo%5CController%5CApi%5CResources%5CVideoController.&h=cbe1f1f8bb&s=59a9556de8fe909b185a829a77225f4a3c7d5b01_1766962864"
+            className="w-full rounded-xl bg-black mb-6"
+            src="https://player.vimeo.com/video/1149530594?context=Vimeo%5CController%5CApi%5CResources%5CVideoController.&h=cbe1f1f8bb&s=59a9556de8fe909b185a829a77225f4a3c7d5b01_1766962864&autoplay=1&muted=1&loop=1&playsinline=1"
             allow="autoplay; fullscreen; picture-in-picture"
             allowFullScreen
             loading="lazy"
             title="Fire action assembly point video"
-            style={{ aspectRatio: '16 / 9' }}
             frameBorder="0"
           />
           
@@ -162,6 +162,15 @@ if (!showDetails) {
                 >
                   GET DIRECTIONS <ExternalLink size={20} />
                 </a>
+                <iframe
+                  className="w-full rounded-xl bg-black mt-4"
+                  src="https://player.vimeo.com/video/1149530594?context=Vimeo%5CController%5CApi%5CResources%5CVideoController.&h=cbe1f1f8bb&s=59a9556de8fe909b185a829a77225f4a3c7d5b01_1766962864&autoplay=1&muted=1&loop=1&playsinline=1"
+                  allow="autoplay; fullscreen; picture-in-picture"
+                  allowFullScreen
+                  loading="lazy"
+                  title="Fire action assembly point video"
+                  frameBorder="0"
+                />
               </div>
             </div>
 
