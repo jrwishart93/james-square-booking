@@ -119,52 +119,48 @@ const App: React.FC<FireActionProps> = ({ showDetails = false }) => {
             </>
           )}
 
-          {/* Assembly Point Feature - Split Layout */}
-          <section className="bg-emerald-600 rounded-[2rem] p-6 md:p-8 shadow-2xl relative overflow-hidden flex flex-col lg:flex-row gap-6 md:gap-10 items-stretch">
+          {/* Assembly Point Feature - Centered Layout */}
+          <section className="bg-emerald-600 rounded-[2rem] p-6 md:p-8 shadow-2xl relative overflow-hidden">
             {/* Decorative Pattern Overlay */}
             <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
-            
-            {/* Left Column: Text Info */}
-            <div className="flex-1 flex flex-col items-center lg:items-start justify-center text-center lg:text-left gap-6 relative z-10">
-              <div className="bg-white text-emerald-600 p-5 rounded-3xl shadow-2xl self-center lg:self-start">
+
+            <div className="relative z-10 max-w-3xl mx-auto flex flex-col items-center text-center gap-6">
+              <div className="bg-white text-emerald-600 p-5 rounded-3xl shadow-2xl">
                 <MapPin size={40} strokeWidth={2.5} />
               </div>
-              <div className="space-y-4">
+              <div className="space-y-4 w-full">
                 <h3 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tighter">Assembly Point</h3>
                 <p className="text-xl md:text-2xl font-bold text-emerald-100 leading-tight">
                   Corner of Caledonian Crescent <br className="hidden lg:block"/> 
                   & Orwell Terrace
                 </p>
-                <div className="bg-emerald-700/50 backdrop-blur-sm border border-white/20 p-5 md:p-6 rounded-2xl">
-                   <p className="text-base font-bold text-emerald-50 leading-relaxed">
-                     Recommended assembly point is across the road from James Square on the corner of Caledonian Crescent and Orwell Terrace.
-                   </p>
-                   <p className="text-sm font-medium text-emerald-100 mt-4 leading-relaxed italic">
-                     Find a safe and suitable location ensuring to keep a clear space for emergency services to attend ensuring you are out of harms way.
-                   </p>
+                <div className="bg-emerald-700/50 backdrop-blur-sm border border-white/20 p-5 md:p-6 rounded-2xl text-left md:text-center">
+                  <p className="text-base font-bold text-emerald-50 leading-relaxed">
+                    Recommended assembly point is across the road from James Square on the corner of Caledonian Crescent and Orwell Terrace.
+                  </p>
+                  <p className="text-sm font-medium text-emerald-100 mt-4 leading-relaxed italic">
+                    Find a safe and suitable location ensuring to keep a clear space for emergency services to attend ensuring you are out of harms way.
+                  </p>
                 </div>
                 <a 
                   href={assemblyPointMapsUrl}
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 mt-4 px-8 py-4 bg-white text-emerald-700 hover:bg-emerald-50 rounded-2xl font-black text-base md:text-lg transition-all shadow-xl no-print"
+                  className="inline-flex items-center justify-center gap-2 mt-4 px-8 py-4 bg-white text-emerald-700 hover:bg-emerald-50 rounded-2xl font-black text-base md:text-lg transition-all shadow-xl no-print"
                 >
                   GET DIRECTIONS <ExternalLink size={20} />
                 </a>
-                <iframe
-                  className="w-full rounded-xl bg-black mt-4"
+                <video
+                  className="w-full h-auto rounded-xl object-cover bg-black mt-4"
                   src="https://player.vimeo.com/video/1149530594?context=Vimeo%5CController%5CApi%5CResources%5CVideoController.&h=cbe1f1f8bb&s=59a9556de8fe909b185a829a77225f4a3c7d5b01_1766962864&autoplay=1&muted=1&loop=1&playsinline=1"
-                  allow="autoplay; fullscreen; picture-in-picture"
-                  allowFullScreen
-                  loading="lazy"
-                  title="Fire action assembly point video"
-                  frameBorder="0"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="auto"
                 />
               </div>
             </div>
-
-            {/* Right Column: (empty placeholder maintained for layout symmetry) */}
-            <div className="flex-1 w-full relative z-10" />
           </section>
 
           {/* Notices Section */}
