@@ -12,7 +12,11 @@ import { StepCard } from './StepCard';
 import { NoticeBox } from './NoticeBox';
 import { DISCOVERY_STEPS, RESPONSE_STEPS, NOTICES } from './constants';
 
-const App: React.FC = () => {
+type FireActionProps = {
+  showDetails?: boolean;
+};
+
+const App: React.FC<FireActionProps> = ({ showDetails = false }) => {
   // User provided exact location link: https://maps.app.goo.gl/fYAyX7zCPfEcovjU6
   const assemblyPointMapsUrl = "https://maps.app.goo.gl/fYAyX7zCPfEcovjU6";
   
@@ -61,37 +65,41 @@ const App: React.FC = () => {
 
         <div className="p-5 md:p-8 space-y-8 md:space-y-10">
           
-          {/* Section 1: Discovery - Blue Grouping */}
-          <section className="relative p-5 md:p-6 rounded-[1.5rem] bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-inner">
-            <div className="flex items-center gap-3 md:gap-4 mb-6">
-              <div className="bg-blue-600 p-3 rounded-2xl text-white shadow-lg shrink-0">
-                <Volume2 size={24} />
-              </div>
-              <h2 className="text-2xl md:text-3xl font-black text-slate-800 dark:text-slate-100 tracking-tight uppercase">If you discover a fire:</h2>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              {DISCOVERY_STEPS.map((step, idx) => (
-                <StepCard key={step.id} step={step} index={idx} />
-              ))}
-            </div>
-          </section>
+          {showDetails && (
+            <>
+              {/* Section 1: Discovery - Blue Grouping */}
+              <section className="relative p-5 md:p-6 rounded-[1.5rem] bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-inner">
+                <div className="flex items-center gap-3 md:gap-4 mb-6">
+                  <div className="bg-blue-600 p-3 rounded-2xl text-white shadow-lg shrink-0">
+                    <Volume2 size={24} />
+                  </div>
+                  <h2 className="text-2xl md:text-3xl font-black text-slate-800 dark:text-slate-100 tracking-tight uppercase">If you discover a fire:</h2>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                  {DISCOVERY_STEPS.map((step, idx) => (
+                    <StepCard key={step.id} step={step} index={idx} />
+                  ))}
+                </div>
+              </section>
 
-          {/* Section 2: Response - Green Grouping */}
-          <section className="relative p-5 md:p-6 rounded-[1.5rem] bg-emerald-50/50 dark:bg-emerald-900/30 border border-emerald-100 dark:border-emerald-800 shadow-inner">
-            <div className="flex items-center gap-3 md:gap-4 mb-6">
-              <div className="bg-emerald-600 p-3 rounded-2xl text-white shadow-lg shrink-0">
-                <Navigation size={24} />
-              </div>
-              <h2 className="text-2xl md:text-3xl font-black text-slate-800 dark:text-slate-100 tracking-tight uppercase">On hearing the alarm:</h2>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              {RESPONSE_STEPS.map((step, idx) => (
-                <StepCard key={step.id} step={step} index={idx + 3} />
-              ))}
-            </div>
-          </section>
+              {/* Section 2: Response - Green Grouping */}
+              <section className="relative p-5 md:p-6 rounded-[1.5rem] bg-emerald-50/50 dark:bg-emerald-900/30 border border-emerald-100 dark:border-emerald-800 shadow-inner">
+                <div className="flex items-center gap-3 md:gap-4 mb-6">
+                  <div className="bg-emerald-600 p-3 rounded-2xl text-white shadow-lg shrink-0">
+                    <Navigation size={24} />
+                  </div>
+                  <h2 className="text-2xl md:text-3xl font-black text-slate-800 dark:text-slate-100 tracking-tight uppercase">On hearing the alarm:</h2>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                  {RESPONSE_STEPS.map((step, idx) => (
+                    <StepCard key={step.id} step={step} index={idx + 3} />
+                  ))}
+                </div>
+              </section>
+            </>
+          )}
 
           {/* Assembly Point Feature - Split Layout with Video Orbit */}
           <section className="bg-emerald-600 rounded-[2rem] p-6 md:p-8 shadow-2xl relative overflow-hidden flex flex-col lg:flex-row gap-6 md:gap-10 items-stretch">
@@ -130,24 +138,28 @@ const App: React.FC = () => {
 
             {/* Right Column: Video Orbit Embed */}
             <div className="flex-1 w-full relative z-10">
-              <div className="relative w-full aspect-[9/16] rounded-xl overflow-hidden border-4 border-white/30 shadow-2xl bg-black">
-                <iframe
-                  className="absolute inset-0 w-full h-full"
+              <div className="w-full rounded-xl overflow-hidden bg-black border-4 border-white/30 shadow-2xl">
+                <video
+                  className="w-full h-auto object-contain"
                   src={vimeoOrbitUrl}
-                  allow="autoplay; fullscreen; picture-in-picture"
-                  allowFullScreen
-                  title="Assembly Point Video Orbit"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  controls
                 />
               </div>
             </div>
           </section>
 
           {/* Notices Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 pt-2 md:pt-4">
-            {NOTICES.map((notice, idx) => (
-              <NoticeBox key={idx} notice={notice} />
-            ))}
-          </div>
+          {showDetails && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 pt-2 md:pt-4">
+              {NOTICES.map((notice, idx) => (
+                <NoticeBox key={idx} notice={notice} />
+              ))}
+            </div>
+          )}
         </div>
 
       {/* Footer Accent */}

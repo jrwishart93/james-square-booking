@@ -331,18 +331,16 @@ export default function UsefulInfoPage() {
                   What to do in the event of a fire within James Square. Follow these quick instructions and open the
                   detailed guide when you need the full poster and assembly point map.
                 </p>
-                <button
-                  type="button"
-                  onClick={() => setShowFireAction((prev) => !prev)}
-                  className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/40 px-4 py-2 text-sm font-medium shadow-sm transition hover:bg-white/60 dark:bg-white/10 dark:hover:bg-white/20"
-                >
-                  {showFireAction ? 'Hide Fire Action' : 'Read More'}
-                </button>
-                {showFireAction && (
-                  <div className="mt-6">
-                    <FireAction />
-                  </div>
-                )}
+                <div className="space-y-4">
+                  <FireAction showDetails={showFireAction} />
+                  <button
+                    type="button"
+                    onClick={() => setShowFireAction((prev) => !prev)}
+                    className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/40 px-4 py-2 text-sm font-medium shadow-sm transition hover:bg-white/60 dark:bg-white/10 dark:hover:bg-white/20"
+                  >
+                    {showFireAction ? 'Hide Fire Action' : 'Read More'}
+                  </button>
+                </div>
               </div>
             </SectionCard>
 
