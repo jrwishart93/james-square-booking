@@ -1,8 +1,8 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Info, AlertTriangle, ShieldCheck } from 'lucide-react';
-import { Notice } from '../types';
+import { AlertTriangle, ShieldCheck } from 'lucide-react';
+import { Notice } from './types';
 
 interface NoticeBoxProps {
   notice: Notice;
@@ -17,7 +17,9 @@ export const NoticeBox: React.FC<NoticeBoxProps> = ({ notice }) => {
       whileInView={{ opacity: 1, scale: 1 }}
       viewport={{ once: true }}
       className={`rounded-[2rem] overflow-hidden border-2 shadow-lg h-full flex flex-col ${
-        isRed ? 'bg-red-50 border-red-100' : 'bg-amber-50 border-amber-100'
+        isRed
+          ? 'bg-red-50 dark:bg-red-900/30 border-red-100 dark:border-red-800'
+          : 'bg-amber-50 dark:bg-amber-900/30 border-amber-100 dark:border-amber-700'
       }`}
     >
       <div className={`px-8 py-5 flex items-center gap-4 text-white font-black tracking-tighter text-xl ${
@@ -36,7 +38,7 @@ export const NoticeBox: React.FC<NoticeBoxProps> = ({ notice }) => {
               isRed ? 'bg-red-400' : 'bg-amber-400'
             }`} />
             <p className={`text-lg font-bold leading-snug ${
-              isRed ? 'text-red-950' : 'text-amber-950'
+              isRed ? 'text-red-950 dark:text-red-100' : 'text-amber-950 dark:text-amber-100'
             }`}>
               {item}
             </p>

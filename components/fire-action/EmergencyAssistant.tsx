@@ -53,6 +53,7 @@ export const EmergencyAssistant: React.FC<{ onClose: () => void }> = ({ onClose 
       const aiResponse = response.text || "I'm sorry, I'm having trouble connecting. Please follow the posted instructions.";
       setMessages(prev => [...prev, { role: 'assistant', content: aiResponse }]);
     } catch (error) {
+      console.error('Safety assistant error', error);
       setMessages(prev => [...prev, { role: 'assistant', content: "Error: Could not reach the safety server. Please follow printed guidelines." }]);
     } finally {
       setLoading(false);

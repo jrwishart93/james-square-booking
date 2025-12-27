@@ -17,7 +17,9 @@
     "plugins": [{ "name": "next" }],
     "baseUrl": ".",                      // ✅ minimal addition
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@/components/fire-action": ["./components/fire-action"],
+      "@/components/fire-action/*": ["./components/fire-action/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
