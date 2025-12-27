@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Step } from '../types';
+import { Step } from './types';
 
 interface StepCardProps {
   step: Step;
@@ -47,7 +47,7 @@ export const StepCard: React.FC<StepCardProps> = ({ step, index }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1, duration: 0.5 }}
-      className={`bg-white ${v.border} border-2 rounded-[2rem] p-8 flex flex-col h-full shadow-sm hover:shadow-2xl ${v.shadow} transition-all duration-300 relative group overflow-hidden`}
+      className={`bg-white dark:bg-slate-900 ${v.border} dark:border-slate-700 border-2 rounded-[2rem] p-6 flex flex-col h-full shadow-sm hover:shadow-2xl ${v.shadow} transition-all duration-300 relative group overflow-hidden`}
     >
       {/* Subtle corner accent */}
       <div className={`absolute top-0 right-0 w-16 h-16 ${v.accent} opacity-[0.03] rounded-bl-full`} />
@@ -61,11 +61,11 @@ export const StepCard: React.FC<StepCardProps> = ({ step, index }) => {
         </div>
       </div>
       
-      <h3 className={`text-2xl font-black text-slate-800 leading-tight mb-3`}>
+      <h3 className={`text-xl md:text-2xl font-black text-slate-800 dark:text-slate-100 leading-tight mb-3`}>
         {step.title}
       </h3>
       
-      <p className={`text-base font-bold text-slate-500 leading-relaxed mb-6`}>
+      <p className={`text-sm md:text-base font-bold text-slate-500 dark:text-slate-300 leading-relaxed mb-6`}>
         {step.description}
       </p>
 
