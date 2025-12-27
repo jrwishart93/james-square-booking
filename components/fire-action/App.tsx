@@ -19,9 +19,6 @@ type FireActionProps = {
 const App: React.FC<FireActionProps> = ({ showDetails = false }) => {
   // User provided exact location link: https://maps.app.goo.gl/fYAyX7zCPfEcovjU6
   const assemblyPointMapsUrl = "https://maps.app.goo.gl/fYAyX7zCPfEcovjU6";
-  
-  // Vimeo Video Orbit URL (autoplay, loop, and background mode for seamless repeat)
-  const vimeoOrbitUrl = "https://player.vimeo.com/video/1149530594?fl=pl&fe=sh&autoplay=1&loop=1&background=1&quality=1080p&muted=1";
 
 if (!showDetails) {
   return (
@@ -86,15 +83,15 @@ if (!showDetails) {
         </header>
 
         <div className="p-5 md:p-8 space-y-8 md:space-y-10">
-          <video
-            className="w-full h-auto rounded-xl bg-black"
-            src={vimeoOrbitUrl}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            poster="/images/buildingimages/front.jpg"
+          <iframe
+            className="w-full rounded-xl bg-black"
+            src="https://player.vimeo.com/video/1149530594?context=Vimeo%5CController%5CApi%5CResources%5CVideoController.&h=cbe1f1f8bb&s=59a9556de8fe909b185a829a77225f4a3c7d5b01_1766962864"
+            allow="autoplay; fullscreen; picture-in-picture"
+            allowFullScreen
+            loading="lazy"
+            title="Fire action assembly point video"
+            style={{ aspectRatio: '16 / 9' }}
+            frameBorder="0"
           />
           
           {showDetails && (
