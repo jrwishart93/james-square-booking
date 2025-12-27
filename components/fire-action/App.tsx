@@ -17,7 +17,7 @@ const App: React.FC = () => {
   const assemblyPointMapsUrl = "https://maps.app.goo.gl/fYAyX7zCPfEcovjU6";
   
   // Vimeo Video Orbit URL (autoplay, loop, and background mode for seamless repeat)
-  const vimeoOrbitUrl = "https://player.vimeo.com/video/1149530594?autoplay=1&loop=1&background=1&quality=1080p&muted=1";
+  const vimeoOrbitUrl = "https://player.vimeo.com/video/1149530594?fl=pl&fe=sh&autoplay=1&loop=1&background=1&quality=1080p&muted=1";
 
   return (
     <div className="w-full bg-slate-100 dark:bg-slate-900 flex flex-col items-center p-4 md:p-8 lg:p-12 transition-colors duration-500 rounded-[2rem] shadow-inner border border-slate-200 dark:border-slate-800">
