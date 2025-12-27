@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import Tabs from '@/components/Tabs';
+import FireAction from '@/components/fire-action/FireAction';
 
 /* -------------------------------------------------
    Helpers / Types
@@ -20,6 +21,7 @@ const glass =
 export default function UsefulInfoPage() {
   const [lightbox, setLightbox] = useState<LightboxItem>(null);
   const [showHistory, setShowHistory] = useState(false);
+  const [showFireAction, setShowFireAction] = useState(false);
   const tabs = useMemo(
     () => [
       { id: 'about', label: 'About James Square' },
@@ -38,6 +40,7 @@ export default function UsefulInfoPage() {
         { id: 'factor-info', label: 'Factor Info' },
         { id: 'caretaker', label: 'Caretaker' },
         { id: 'bins', label: 'Bins' },
+        { id: 'fire-action', label: 'Fire Action' },
       ],
       projects: [
         { id: 'voi-ebikes', label: 'Voi E-bikes' },
@@ -319,6 +322,25 @@ export default function UsefulInfoPage() {
                     </div>
                   </motion.div>
                 ))}
+              </div>
+            </SectionCard>
+
+            <SectionCard id="fire-action" title="Fire Action">
+              <div className="space-y-4">
+                <p className="text-[color:var(--text-muted)]">
+                  What to do in the event of a fire within James Square. Follow these quick instructions and open the
+                  detailed guide when you need the full poster and assembly point map.
+                </p>
+                <div className="space-y-4">
+                  <FireAction showDetails={showFireAction} />
+                  <button
+                    type="button"
+                    onClick={() => setShowFireAction((prev) => !prev)}
+                    className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/40 px-4 py-2 text-sm font-medium shadow-sm transition hover:bg-white/60 dark:bg-white/10 dark:hover:bg-white/20"
+                  >
+                    {showFireAction ? 'Hide Fire Action' : 'Read More'}
+                  </button>
+                </div>
               </div>
             </SectionCard>
 
