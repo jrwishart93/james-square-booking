@@ -23,30 +23,24 @@ const App: React.FC<FireActionProps> = ({ showDetails = false }) => {
   // Vimeo Video Orbit URL (autoplay, loop, and background mode for seamless repeat)
   const vimeoOrbitUrl = "https://player.vimeo.com/video/1149530594?fl=pl&fe=sh&autoplay=1&loop=1&background=1&quality=1080p&muted=1";
 
-  if (!showDetails) {
-    return (
-      <div className="w-full space-y-3">
-        <p className="text-sm md:text-base text-[color:var(--text-muted)]">
-          What to do in the event of a fire within James Square. Open the detailed guide if you need the full fire safety instructions and assembly point map.
-        </p>
-        <p className="text-sm md:text-base text-[color:var(--text-muted)]">
-          The recommended assembly point is across the road from James Square, at the corner of Caledonian Crescent and Orwell Terrace.
-        </p>
-        <p className="text-sm md:text-base text-[color:var(--text-muted)]">
-          The fire alarm is tested every Wednesday at around 10:00am. No action is required during the test unless the alarm continues or there are signs of fire.
-        </p>
-        <div className="w-full rounded-xl overflow-hidden bg-black">
-          <video
-            className="w-full h-auto rounded-xl bg-black"
-            src={vimeoOrbitUrl}
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="auto"
-            poster="/images/buildingimages/front.jpg"
-          />
-        </div>
+if (!showDetails) {
+  return (
+    <div className="w-full space-y-3">
+      <p className="text-sm md:text-base text-[color:var(--text-muted)]">
+        What to do in the event of a fire within James Square. Open the detailed guide if you need the full fire safety instructions and assembly point map.
+      </p>
+      <p className="text-sm md:text-base text-[color:var(--text-muted)]">
+        The recommended assembly point is across the road from James Square, at the corner of Caledonian Crescent and Orwell Terrace.
+      </p>
+      <p className="text-sm md:text-base text-[color:var(--text-muted)]">
+        The fire alarm is tested every Wednesday at around 10:00am. No action is required during the test unless the alarm continues or there are signs of fire.
+      </p>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/images/icons/fire-point-image.png"
+        alt="Fire alarm and call point illustration"
+        className="w-full max-w-xs mx-auto my-4"
+      />
       </div>
     );
   }
@@ -92,6 +86,16 @@ const App: React.FC<FireActionProps> = ({ showDetails = false }) => {
         </header>
 
         <div className="p-5 md:p-8 space-y-8 md:space-y-10">
+          <video
+            className="w-full h-auto rounded-xl bg-black"
+            src={vimeoOrbitUrl}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            poster="/images/buildingimages/front.jpg"
+          />
           
           {showDetails && (
             <>
@@ -129,7 +133,7 @@ const App: React.FC<FireActionProps> = ({ showDetails = false }) => {
             </>
           )}
 
-          {/* Assembly Point Feature - Split Layout with Video Orbit */}
+          {/* Assembly Point Feature - Split Layout */}
           <section className="bg-emerald-600 rounded-[2rem] p-6 md:p-8 shadow-2xl relative overflow-hidden flex flex-col lg:flex-row gap-6 md:gap-10 items-stretch">
             {/* Decorative Pattern Overlay */}
             <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
@@ -164,21 +168,8 @@ const App: React.FC<FireActionProps> = ({ showDetails = false }) => {
               </div>
             </div>
 
-            {/* Right Column: Video Orbit Embed */}
-            <div className="flex-1 w-full relative z-10">
-              <div className="w-full rounded-xl overflow-hidden bg-black border-4 border-white/30 shadow-2xl">
-                <video
-                  className="w-full h-auto rounded-xl bg-black object-contain"
-                  src={vimeoOrbitUrl}
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  preload="auto"
-                  poster="/images/buildingimages/front.jpg"
-                />
-              </div>
-            </div>
+            {/* Right Column: (empty placeholder maintained for layout symmetry) */}
+            <div className="flex-1 w-full relative z-10" />
           </section>
 
           {/* Notices Section */}
