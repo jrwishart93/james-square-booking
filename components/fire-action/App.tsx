@@ -23,6 +23,29 @@ const App: React.FC<FireActionProps> = ({ showDetails = false }) => {
   // Vimeo Video Orbit URL (autoplay, loop, and background mode for seamless repeat)
   const vimeoOrbitUrl = "https://player.vimeo.com/video/1149530594?fl=pl&fe=sh&autoplay=1&loop=1&background=1&quality=1080p&muted=1";
 
+  if (!showDetails) {
+    return (
+      <div className="w-full space-y-3">
+        <p className="text-sm md:text-base text-[color:var(--text-muted)]">
+          Recommended assembly point is across the road from James Square on the corner of Caledonian Crescent and Orwell Terrace.
+        </p>
+        <p className="text-sm md:text-base text-[color:var(--text-muted)]">
+          Find a safe and suitable location ensuring to keep a clear space for emergency services to attend ensuring you are out of harms way.
+        </p>
+        <div className="w-full rounded-xl overflow-hidden bg-black">
+          <video
+            className="w-full h-auto object-contain"
+            src={vimeoOrbitUrl}
+            autoPlay
+            loop
+            muted
+            playsInline
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full">
       {/* Main Poster Container */}
@@ -146,7 +169,6 @@ const App: React.FC<FireActionProps> = ({ showDetails = false }) => {
                   loop
                   muted
                   playsInline
-                  controls
                 />
               </div>
             </div>
