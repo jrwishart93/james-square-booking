@@ -131,13 +131,12 @@ const App: React.FC = () => {
             {/* Right Column: Video Orbit Embed */}
             <div className="flex-1 w-full relative z-10">
               <div className="relative w-full aspect-[9/16] rounded-xl overflow-hidden border-4 border-white/30 shadow-2xl bg-black">
-                <video
-                  className="absolute inset-0 w-full h-full object-contain"
+                <iframe
+                  className="absolute inset-0 w-full h-full"
                   src={vimeoOrbitUrl}
-                  controls
-                  playsInline
-                  muted
-                  loop
+                  allow="autoplay; fullscreen; picture-in-picture"
+                  allowFullScreen
+                  title="Assembly Point Video Orbit"
                 />
               </div>
             </div>
