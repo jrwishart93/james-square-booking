@@ -38,6 +38,11 @@
 html, body {
   min-height: 100%;
 }
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   color: var(--text-primary);
   background:
@@ -175,9 +180,17 @@ body::before {
 
 /* Reduce motion respect */
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
   .slot-available:hover,
   .jqs-slot--available:hover {
     transform: none;
     box-shadow: none;
   }
+}
+
+#winter-visitors {
+  scroll-margin-top: 120px;
 }
