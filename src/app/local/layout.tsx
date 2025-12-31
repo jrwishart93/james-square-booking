@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     type: "article",
     images: [
       {
-        url: "https://www.james-square.com/images/buildingimages/Bird-1.JPG",
+        url: "https://www.james-square.com/images/buildingimages/Bird-3.JPG",
         width: 1200,
         height: 630,
         alt: "Bohemian waxwings perched at James Square",
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Winter Visitors at James Square",
     description: "A rare visit from Bohemian waxwings spotted at James Square.",
-    images: ["https://www.james-square.com/images/buildingimages/Bird-1.JPG"],
+    images: ["https://www.james-square.com/images/buildingimages/Bird-3.JPG"],
   },
 };
 
