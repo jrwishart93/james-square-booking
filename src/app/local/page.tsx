@@ -14,6 +14,13 @@ const TAB_IDS = ['about', 'projects', 'restaurants', 'groceries', 'coffee'] as c
 type TabId = (typeof TAB_IDS)[number];
 const glass =
   'jqs-glass rounded-2xl border border-white/20 bg-white/50 dark:bg-white/10 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.06)]';
+const waxwingImages = [
+  { src: '/images/buildingimages/Bird-1.JPG', alt: 'Bohemian waxwing perched on a berry branch at James Square' },
+  { src: '/images/buildingimages/Bird-2.JPG', alt: 'Waxwing feeding among the berries near the apartments' },
+  { src: '/images/buildingimages/Bird-3.JPG', alt: 'Close view of a waxwing showing its crest and colouring' },
+  { src: '/images/buildingimages/Bird-4.JPG', alt: 'Waxwing flock resting in a berry tree at James Square' },
+  { src: '/images/buildingimages/Bird-5.JPG', alt: 'Waxwing in flight above the trees at James Square' },
+];
 
 /* -------------------------------------------------
    Page
@@ -22,6 +29,7 @@ export default function UsefulInfoPage() {
   const [lightbox, setLightbox] = useState<LightboxItem>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [showFireAction, setShowFireAction] = useState(false);
+  const [showWaxwingDetails, setShowWaxwingDetails] = useState(false);
   const tabs = useMemo(
     () => [
       { id: 'about', label: 'About James Square' },
@@ -41,6 +49,7 @@ export default function UsefulInfoPage() {
         { id: 'caretaker', label: 'Caretaker' },
         { id: 'bins', label: 'Bins' },
         { id: 'fire-action', label: 'Fire Action' },
+        { id: 'winter-visitors', label: 'Winter Visitors' },
       ],
       projects: [
         { id: 'voi-ebikes', label: 'Voi E-bikes' },
@@ -340,6 +349,94 @@ export default function UsefulInfoPage() {
                   >
                     {showFireAction ? 'Hide Fire Action' : 'Read More'}
                   </button>
+                </div>
+              </div>
+            </SectionCard>
+
+            <SectionCard id="winter-visitors" title="Winter Visitors at James Square">
+              <div className="space-y-6">
+                <div className="space-y-3">
+                  <p>
+                    This December, James Square welcomed a small flock of Bohemian waxwings. These striking birds,
+                    known for their crests and soft colouring, are only occasional visitors to the UK and are usually
+                    seen when food becomes scarce in their usual northern habitats.
+                  </p>
+                  <p>
+                    You may have noticed birdwatchers with cameras around the square. They were capturing images of the
+                    waxwings feeding on the berry trees around the buildings.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {waxwingImages.map((image) => (
+                    <figure
+                      key={image.src}
+                      className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-white/40 shadow-md transition duration-300 hover:scale-[1.01] dark:bg-white/10"
+                    >
+                      <Image
+                        src={image.src}
+                        alt={image.alt}
+                        fill
+                        sizes="(min-width:1280px) 320px, (min-width:768px) 50vw, 100vw"
+                        className="object-cover"
+                      />
+                    </figure>
+                  ))}
+                </div>
+
+                <div className="space-y-3 text-center">
+                  <p className="text-sm text-[color:var(--text-muted)]">
+                    Photographs kindly shared by members of the Lothian Birdwatch Facebook group.
+                  </p>
+                  <a
+                    href="https://www.facebook.com/share/p/1APEUb9PqS/?mibextid=wwXIfr"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center justify-center rounded-full border border-white/20 bg-white/40 px-4 py-2 text-sm font-medium shadow-sm transition hover:bg-white/60 dark:bg-white/10 dark:hover:bg-white/20"
+                  >
+                    View original post
+                  </a>
+                </div>
+
+                <div className="space-y-3 border-t border-white/30 pt-4 dark:border-white/10">
+                  <button
+                    type="button"
+                    onClick={() => setShowWaxwingDetails((prev) => !prev)}
+                    aria-expanded={showWaxwingDetails}
+                    className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/40 px-4 py-2 text-sm font-medium shadow-sm transition hover:bg-white/60 dark:bg-white/10 dark:hover:bg-white/20"
+                  >
+                    {showWaxwingDetails ? 'Hide details' : 'Read more: About Waxwings'}
+                  </button>
+
+                  <AnimatePresence initial={false}>
+                    {showWaxwingDetails && (
+                      <motion.div
+                        key="waxwing-details"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.25 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="space-y-3 pt-2 text-[color:var(--text-muted)]">
+                          <p>
+                            Waxwings are distinctive winter visitors recognised by their smooth plumage, crested heads
+                            and flashes of red and yellow on their wings.
+                          </p>
+                          <p>
+                            The birds seen at James Square were Bohemian Waxwings, a species that breeds across the
+                            northern forests of Scandinavia and Russia. During some winters, food shortages push them
+                            further south in what are known as “irruption years”.
+                          </p>
+                          <p>
+                            These movements can bring large flocks into towns and cities, where berry trees provide an
+                            important food source. Seeing them locally is considered a special and relatively rare
+                            event.
+                          </p>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               </div>
             </SectionCard>
