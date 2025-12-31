@@ -15,12 +15,158 @@ type TabId = (typeof TAB_IDS)[number];
 const glass =
   'jqs-glass rounded-2xl border border-white/20 bg-white/50 dark:bg-white/10 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.06)]';
 const waxwingImages = [
-  { src: '/images/buildingimages/Bird-1.JPG', alt: 'Bohemian waxwing perched on a berry branch at James Square' },
+  { src: '/images/buildingimages/Bird-1.JPG', alt: 'Waxwing perched on a branch at James Square' },
   { src: '/images/buildingimages/Bird-2.JPG', alt: 'Waxwing feeding among the berries near the apartments' },
   { src: '/images/buildingimages/Bird-3.JPG', alt: 'Close view of a waxwing showing its crest and colouring' },
   { src: '/images/buildingimages/Bird-4.JPG', alt: 'Waxwing flock resting in a berry tree at James Square' },
   { src: '/images/buildingimages/Bird-5.JPG', alt: 'Waxwing in flight above the trees at James Square' },
 ];
+const carouselVariants = {
+  enter: (direction: number) => ({ x: direction > 0 ? 32 : -32, opacity: 0 }),
+  center: { x: 0, opacity: 1 },
+  exit: (direction: number) => ({ x: direction > 0 ? -32 : 32, opacity: 0 }),
+};
+
+function WaxwingCarousel({ onOpenLightbox }: { onOpenLightbox?: (item: LightboxItem) => void }) {
+  const [index, setIndex] = useState(0);
+  const directionRef = useRef(0);
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
+  const total = waxwingImages.length;
+
+  const goTo = (next: number, direction: number) => {
+    directionRef.current = direction;
+    setIndex((next + total) % total);
+  };
+
+  const prev = () => goTo(index - 1, -1);
+  const next = () => goTo(index + 1, 1);
+
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    const touch = e.touches[0];
+    touchStart.current = { x: touch.clientX, y: touch.clientY };
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!touchStart.current) return;
+    const touch = e.changedTouches[0];
+    const dx = touch.clientX - touchStart.current.x;
+    const dy = touch.clientY - touchStart.current.y;
+
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+      if (dx < 0) {
+        next();
+      } else {
+        prev();
+      }
+    }
+
+    touchStart.current = null;
+  };
+
+  const currentImage = waxwingImages[index];
+
+  return (
+    <div className="mx-auto w-full max-w-5xl">
+      <div className="relative overflow-hidden rounded-2xl border border-white/20 bg-white/50 p-3 shadow-md dark:border-white/10 dark:bg-white/10">
+        <div
+          className="relative h-[260px] sm:h-[360px] overflow-hidden rounded-xl bg-gradient-to-b from-white to-white/60 dark:from-white/10 dark:to-white/5"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
+          <AnimatePresence initial={false} custom={directionRef.current}>
+            <motion.div
+              key={currentImage.src}
+              custom={directionRef.current}
+              variants={carouselVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+              className="absolute inset-0"
+            >
+              <Image
+                src={currentImage.src}
+                alt={currentImage.alt}
+                fill
+                sizes="(min-width:1280px) 720px, (min-width:768px) 80vw, 100vw"
+                className={`h-full w-full object-contain ${onOpenLightbox ? 'cursor-zoom-in' : ''}`}
+                priority={index === 0}
+                onClick={() => onOpenLightbox?.(currentImage)}
+                role={onOpenLightbox ? 'button' : undefined}
+                tabIndex={onOpenLightbox ? 0 : -1}
+                onKeyDown={(e) => {
+                  if (!onOpenLightbox) return;
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onOpenLightbox(currentImage);
+                  }
+                }}
+              />
+            </motion.div>
+          </AnimatePresence>
+
+          <div className="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-black/5 dark:ring-white/10" />
+
+          <div className="pointer-events-none absolute inset-y-0 left-0 right-0 hidden items-center justify-between px-2 md:flex">
+            <div className="h-16 w-16 bg-gradient-to-r from-white to-transparent dark:from-black/40" />
+            <div className="h-16 w-16 bg-gradient-to-l from-white to-transparent dark:from-black/40" />
+          </div>
+
+          <div className="absolute inset-y-0 left-2 right-2 hidden md:flex items-center justify-between">
+            <button
+              type="button"
+              aria-label="Previous waxwing photo"
+              onClick={prev}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/80 text-black shadow-md transition hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 dark:bg-white/20 dark:text-white"
+            >
+              ←
+            </button>
+            <button
+              type="button"
+              aria-label="Next waxwing photo"
+              onClick={next}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/80 text-black shadow-md transition hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 dark:bg-white/20 dark:text-white"
+            >
+              →
+            </button>
+          </div>
+        </div>
+
+        <div className="mt-3 flex flex-col items-center gap-2 sm:flex-row sm:justify-between">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={prev}
+              className="inline-flex items-center justify-center rounded-full border border-white/30 bg-white/70 px-3 py-1.5 text-sm font-medium shadow-sm transition hover:bg-white focus:outline-none focus-visible:ring-2 dark:border-white/10 dark:bg-white/10 dark:text-white"
+            >
+              Prev
+            </button>
+            <button
+              type="button"
+              onClick={next}
+              className="inline-flex items-center justify-center rounded-full border border-white/30 bg-white/70 px-3 py-1.5 text-sm font-medium shadow-sm transition hover:bg-white focus:outline-none focus-visible:ring-2 dark:border-white/10 dark:bg-white/10 dark:text-white"
+            >
+              Next
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {waxwingImages.map((img, i) => (
+              <button
+                key={img.src}
+                aria-label={`Go to waxwing photo ${i + 1}`}
+                onClick={() => goTo(i, i > index ? 1 : -1)}
+                className={`h-2.5 w-2.5 rounded-full transition ${
+                  i === index ? 'bg-neutral-900 dark:bg-white' : 'bg-neutral-400/50 dark:bg-white/30'
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 /* -------------------------------------------------
    Page
@@ -367,22 +513,7 @@ export default function UsefulInfoPage() {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {waxwingImages.map((image) => (
-                    <figure
-                      key={image.src}
-                      className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-white/40 shadow-md transition duration-300 hover:scale-[1.01] dark:bg-white/10"
-                    >
-                      <Image
-                        src={image.src}
-                        alt={image.alt}
-                        fill
-                        sizes="(min-width:1280px) 320px, (min-width:768px) 50vw, 100vw"
-                        className="object-cover"
-                      />
-                    </figure>
-                  ))}
-                </div>
+                <WaxwingCarousel onOpenLightbox={setLightbox} />
 
                 <div className="space-y-3 text-center">
                   <p className="text-sm text-[color:var(--text-muted)]">
