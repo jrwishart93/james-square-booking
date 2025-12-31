@@ -15,7 +15,7 @@ type TabId = (typeof TAB_IDS)[number];
 const glass =
   'jqs-glass rounded-2xl border border-white/20 bg-white/50 dark:bg-white/10 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.06)]';
 const dockGlass =
-  'border border-white/10 bg-neutral-900/70 text-white backdrop-blur-xl shadow-[0_10px_50px_rgba(0,0,0,0.35)] dark:bg-neutral-900/80';
+  'bg-neutral-900/65 text-white backdrop-blur-xl shadow-[0_8px_26px_rgba(0,0,0,0.18)]';
 const waxwingImages = [
   { src: '/images/buildingimages/Bird-1.JPG', alt: 'Waxwing perched on a branch at James Square' },
   { src: '/images/buildingimages/Bird-2.JPG', alt: 'Waxwing feeding among the berries near the apartments' },
@@ -151,7 +151,6 @@ export default function UsefulInfoPage() {
   const [showFireAction, setShowFireAction] = useState(false);
   const [showWaxwingDetails, setShowWaxwingDetails] = useState(false);
   const [activeSection, setActiveSection] = useState('pool-access');
-  const [dockVisible, setDockVisible] = useState(false);
   const [scrollingDown, setScrollingDown] = useState(false);
   const lastScrollY = useRef(0);
   const tabs = useMemo(
@@ -176,21 +175,6 @@ export default function UsefulInfoPage() {
       { id: 'history', label: 'History' },
     ],
     []
-  );
-
-  const anchorsByTab = useMemo(
-    () => ({
-      about: aboutAnchors,
-      projects: [
-        { id: 'voi-ebikes', label: 'Voi E-bikes' },
-        { id: 'dalry-project', label: 'Dalry Project' },
-        { id: 'world-buffet', label: 'Hot World Cuisine Buffet' },
-      ],
-      restaurants: [{ id: 'restaurants', label: 'Restaurants' }],
-      groceries: [{ id: 'groceries', label: 'Groceries' }],
-      coffee: [{ id: 'coffee', label: 'Coffee' }],
-    }),
-    [aboutAnchors]
   );
 
   const [activeTab, setActiveTab] = useState<TabId>('about');
@@ -245,15 +229,11 @@ export default function UsefulInfoPage() {
       const directionDown = currentY > lastScrollY.current;
       setScrollingDown(directionDown);
       lastScrollY.current = currentY;
-
-      if (currentY > 120 && !dockVisible) {
-        setDockVisible(true);
-      }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [activeTab, dockVisible]);
+  }, [activeTab]);
 
   const handleAnchorClick = (id: string) => {
     const el = document.getElementById(id);
@@ -262,27 +242,9 @@ export default function UsefulInfoPage() {
     }
   };
 
-  const anchors = anchorsByTab[activeTab];
-
   return (
     <main className="relative max-w-6xl mx-auto py-10 px-4 pb-24 lg:pb-32">
       <BackgroundOrbs />
-
-      {/* Sticky anchor nav on wide screens */}
-      <nav className="hidden lg:block fixed top-24 right-6 z-20">
-        <ul className={`${glass} p-3 space-y-1 text-sm`}>
-          {anchors.map((a) => (
-            <li key={`anchor-${a.id}`}>
-              <a
-                href={`#${a.id}`}
-                className="block rounded px-2 py-1 hover:bg-white/50 dark:hover:bg-white/20"
-              >
-                {a.label}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </nav>
 
       {/* Hero */}
       <section className="text-center mb-10 relative">
@@ -991,7 +953,7 @@ export default function UsefulInfoPage() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {activeTab === 'about' && dockVisible && (
+        {activeTab === 'about' && (
           <FloatingDock
             anchors={aboutAnchors}
             activeSection={activeSection}
@@ -1104,15 +1066,15 @@ type DockProps = {
 function FloatingDock({ anchors, activeSection, onNavigate, emphasize }: DockProps) {
   return (
     <motion.nav
-      className="fixed inset-x-0 bottom-6 z-30 hidden justify-center lg:flex"
+      className="fixed inset-x-0 bottom-4 z-30 flex justify-center px-3 sm:px-6 scale-95 sm:scale-100"
       initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: emphasize ? 1 : 0.9, y: 0 }}
+      animate={{ opacity: emphasize ? 1 : 0.92, y: 0 }}
       exit={{ opacity: 0, y: 10 }}
       transition={{ duration: 0.28 }}
       aria-label="About page quick navigation"
     >
       <div
-        className={`${dockGlass} flex items-center gap-1 rounded-full px-3 py-2 text-sm backdrop-saturate-150`}
+        className={`${dockGlass} flex items-center gap-1 rounded-full px-2.5 py-2 text-xs sm:text-sm sm:px-3 sm:py-2.5 backdrop-saturate-150`}
         role="list"
       >
         {anchors.map(({ id, label }) => {
@@ -1122,7 +1084,7 @@ function FloatingDock({ anchors, activeSection, onNavigate, emphasize }: DockPro
               key={`dock-${id}`}
               type="button"
               onClick={() => onNavigate(id)}
-              className={`relative rounded-full px-3 py-2 font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/70 ${
+              className={`relative rounded-full px-2.5 py-2 font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/70 ${
                 isActive
                   ? 'text-white'
                   : 'text-white/70 hover:text-white/90 focus-visible:text-white'
