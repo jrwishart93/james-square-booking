@@ -248,7 +248,7 @@ export default function UsefulInfoPage() {
             </p>
 
             {/* ---------------- Swimming Pool Access ---------------- */}
-            <SectionCard id="pool-access" title="Swimming Pool Access" initial>
+            <SectionCard id="pool-access" headingId="swimming-pool-access" title="Swimming Pool Access" initial>
               <div className="space-y-6">
                 <p>
                   The swimming pool, gym and sauna area is located at the North West side of James Square and
@@ -306,7 +306,7 @@ export default function UsefulInfoPage() {
             </SectionCard>
 
             {/* ---------------- Factor Info (loads immediately) ---------------- */}
-            <SectionCard id="factor-info" title="Factor Information" initial>
+            <SectionCard id="factor-info" headingId="factor-information" title="Factor Information" initial>
               <div className="flex flex-col md:flex-row items-start gap-6">
                 {/* Left: text */}
                 <div className="flex-1 space-y-4">
@@ -390,7 +390,7 @@ export default function UsefulInfoPage() {
             </SectionCard>
 
             {/* ---------------- Caretaker ---------------- */}
-            <SectionCard id="caretaker" title="Caretaker">
+            <SectionCard id="caretaker" headingId="caretaker" title="Caretaker">
               <div className="space-y-4">
                 <p>
                   James Square has a resident caretaker, Jimmy, who works most weekday mornings and early
@@ -422,7 +422,7 @@ export default function UsefulInfoPage() {
             </SectionCard>
 
             {/* ---------------- Bins & Waste (3-card grid) ---------------- */}
-            <SectionCard id="bins" title="Bins & Waste">
+            <SectionCard id="bins" headingId="bins-and-waste" title="Bins & Waste">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {BINS.map((bin, i) => (
                   <motion.div
@@ -452,7 +452,7 @@ export default function UsefulInfoPage() {
               </div>
             </SectionCard>
 
-            <SectionCard id="fire-action" title="Fire Action">
+            <SectionCard id="fire-action" headingId="fire-action" title="Fire Action">
               <div className="space-y-4">
                 <p className="text-[color:var(--text-muted)]">
                   What to do in the event of a fire within James Square. Follow these quick instructions and open the
@@ -471,7 +471,11 @@ export default function UsefulInfoPage() {
               </div>
             </SectionCard>
 
-            <SectionCard id="winter-visitors" title="Winter Visitors at James Square">
+            <SectionCard
+              id="winter-visitors"
+              headingId="winter-visitors-at-james-square"
+              title="Winter Visitors at James Square"
+            >
               <div className="space-y-4">
                 <div className="space-y-3">
                   <p>
@@ -544,7 +548,11 @@ export default function UsefulInfoPage() {
               </div>
             </SectionCard>
 
-            <SectionCard id="history" title="History of James Square and the Local Area">
+            <SectionCard
+              id="history"
+              headingId="history-of-james-square-and-the-local-area"
+              title="History of James Square and the Local Area"
+            >
               <div className="space-y-6">
                 <p className="text-[color:var(--text-muted)]">
                   A short history of Dalry’s transformation from rural estate land to the industrial hub and
@@ -842,7 +850,7 @@ export default function UsefulInfoPage() {
             aria-labelledby="restaurants-tab"
             className="space-y-10"
           >
-            <SectionCard id="restaurants" title="Restaurants">
+            <SectionCard id="restaurants" headingId="restaurants" title="Restaurants">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {RESTAURANTS.map((r) => (
                   <VenueCard key={`rest-${r.name}`} {...r} />
@@ -859,7 +867,7 @@ export default function UsefulInfoPage() {
             aria-labelledby="groceries-tab"
             className="space-y-10"
           >
-            <SectionCard id="groceries" title="Groceries">
+            <SectionCard id="groceries" headingId="groceries" title="Groceries">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {GROCERIES.map((g) => (
                   <VenueCard key={`groc-${g.name}`} {...g} />
@@ -876,7 +884,7 @@ export default function UsefulInfoPage() {
             aria-labelledby="coffee-tab"
             className="space-y-10"
           >
-            <SectionCard id="coffee" title="Coffee">
+            <SectionCard id="coffee" headingId="coffee" title="Coffee">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {COFFEE.map((c) => (
                   <VenueCard key={`coffee-${c.name}`} {...c} />
@@ -927,11 +935,13 @@ export default function UsefulInfoPage() {
 
 function SectionCard({
   id,
+  headingId,
   title,
   children,
   initial,
 }: {
   id?: string;
+  headingId?: string;
   title: string;
   children: React.ReactNode;
   initial?: boolean;
@@ -947,7 +957,9 @@ function SectionCard({
     >
       <div className={`${glass} p-5`}>
         <div className="flex items-center justify-between gap-3 mb-3">
-          <h2 className="text-2xl font-semibold">{title}</h2>
+          <h2 id={headingId} className="text-2xl font-semibold">
+            {title}
+          </h2>
         </div>
         {children}
       </div>
@@ -1016,7 +1028,7 @@ function VenueCard({
 function VoiEbikesCard() {
   const [open, setOpen] = useState(false);
   return (
-    <SectionCard id="voi-ebikes" title="Voi E-bikes Arrive in Edinburgh">
+    <SectionCard id="voi-ebikes" headingId="voi-ebikes-arrive-in-edinburgh" title="Voi E-bikes Arrive in Edinburgh">
       <p className="text-[color:var(--text-muted)] -mt-2 mb-3 text-sm">
         Trial cycle hire scheme launched September 2025
       </p>
@@ -1131,7 +1143,12 @@ function VoiEbikesCard() {
 function DalryProjectCard() {
   const [open, setOpen] = useState(false);
   return (
-    <SectionCard id="dalry-project" title="Dalry: Living Well Locally (Edinburgh Council Project)" initial>
+    <SectionCard
+      id="dalry-project"
+      headingId="dalry-living-well-locally-edinburgh-council-project"
+      title="Dalry: Living Well Locally (Edinburgh Council Project)"
+      initial
+    >
       <p className="text-[color:var(--text-muted)] text-sm">Results updated 10 January 2025</p>
 
       <p className="mt-2">
@@ -1240,7 +1257,12 @@ function DalryProjectCard() {
 function WorldBuffetCard() {
   const [detailsOpen, setDetailsOpen] = useState(false);
   return (
-    <SectionCard id="world-buffet" title="Hot World Cuisine Buffet – Dalry Road" initial>
+    <SectionCard
+      id="world-buffet"
+      headingId="hot-world-cuisine-buffet-dalry-road"
+      title="Hot World Cuisine Buffet – Dalry Road"
+      initial
+    >
       <p className="mt-2">
         It’s looking like the renovations for the new buffet restaurant at the end of our street
         are now complete, and they’re getting ready to open by the end of the year. Once open, Hot
