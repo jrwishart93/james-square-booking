@@ -66,103 +66,75 @@ function WaxwingCarousel({ onOpenLightbox }: { onOpenLightbox?: (item: LightboxI
   const currentImage = waxwingImages[index];
 
   return (
-    <div className="mx-auto w-full max-w-5xl">
-      <div className="relative overflow-hidden rounded-2xl border border-white/20 bg-white/50 p-3 shadow-md dark:border-white/10 dark:bg-white/10">
-        <div
-          className="relative h-[260px] sm:h-[360px] overflow-hidden rounded-xl bg-gradient-to-b from-white to-white/60 dark:from-white/10 dark:to-white/5"
-          onTouchStart={handleTouchStart}
-          onTouchEnd={handleTouchEnd}
-        >
-          <AnimatePresence initial={false} custom={directionRef.current}>
-            <motion.div
-              key={currentImage.src}
-              custom={directionRef.current}
-              variants={carouselVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{ duration: 0.3, ease: 'easeInOut' }}
-              className="absolute inset-0"
-            >
-              <Image
-                src={currentImage.src}
-                alt={currentImage.alt}
-                fill
-                sizes="(min-width:1280px) 720px, (min-width:768px) 80vw, 100vw"
-                className={`h-full w-full object-contain ${onOpenLightbox ? 'cursor-zoom-in' : ''}`}
-                priority={index === 0}
-                onClick={() => onOpenLightbox?.(currentImage)}
-                role={onOpenLightbox ? 'button' : undefined}
-                tabIndex={onOpenLightbox ? 0 : -1}
-                onKeyDown={(e) => {
-                  if (!onOpenLightbox) return;
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    onOpenLightbox(currentImage);
-                  }
-                }}
-              />
-            </motion.div>
-          </AnimatePresence>
+    <div className="mx-auto w-full max-w-5xl space-y-2">
+      <div
+        className="group relative h-[240px] overflow-hidden rounded-xl sm:h-[340px]"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        <AnimatePresence initial={false} custom={directionRef.current}>
+          <motion.div
+            key={currentImage.src}
+            custom={directionRef.current}
+            variants={carouselVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            className="absolute inset-0"
+          >
+            <Image
+              src={currentImage.src}
+              alt={currentImage.alt}
+              fill
+              sizes="(min-width:1280px) 720px, (min-width:768px) 80vw, 100vw"
+              className={`h-full w-full rounded-xl object-contain ${onOpenLightbox ? 'cursor-zoom-in' : ''}`}
+              priority={index === 0}
+              onClick={() => onOpenLightbox?.(currentImage)}
+              role={onOpenLightbox ? 'button' : undefined}
+              tabIndex={onOpenLightbox ? 0 : -1}
+              onKeyDown={(e) => {
+                if (!onOpenLightbox) return;
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onOpenLightbox(currentImage);
+                }
+              }}
+            />
+          </motion.div>
+        </AnimatePresence>
 
-          <div className="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-black/5 dark:ring-white/10" />
-
-          <div className="pointer-events-none absolute inset-y-0 left-0 right-0 hidden items-center justify-between px-2 md:flex">
-            <div className="h-16 w-16 bg-gradient-to-r from-white to-transparent dark:from-black/40" />
-            <div className="h-16 w-16 bg-gradient-to-l from-white to-transparent dark:from-black/40" />
-          </div>
-
-          <div className="absolute inset-y-0 left-2 right-2 hidden md:flex items-center justify-between">
-            <button
-              type="button"
-              aria-label="Previous waxwing photo"
-              onClick={prev}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/80 text-black shadow-md transition hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 dark:bg-white/20 dark:text-white"
-            >
-              ←
-            </button>
-            <button
-              type="button"
-              aria-label="Next waxwing photo"
-              onClick={next}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/80 text-black shadow-md transition hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 dark:bg-white/20 dark:text-white"
-            >
-              →
-            </button>
-          </div>
+        <div className="absolute inset-y-0 left-3 right-3 hidden items-center justify-between md:flex">
+          <button
+            type="button"
+            aria-label="Previous waxwing photo"
+            onClick={prev}
+            className="inline-flex h-9 w-9 items-center justify-center text-white/80 transition opacity-0 group-hover:opacity-100 hover:text-white focus:outline-none focus-visible:opacity-100"
+          >
+            ←
+          </button>
+          <button
+            type="button"
+            aria-label="Next waxwing photo"
+            onClick={next}
+            className="inline-flex h-9 w-9 items-center justify-center text-white/80 transition opacity-0 group-hover:opacity-100 hover:text-white focus:outline-none focus-visible:opacity-100"
+          >
+            →
+          </button>
         </div>
+      </div>
 
-        <div className="mt-3 flex flex-col items-center gap-2 sm:flex-row sm:justify-between">
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={prev}
-              className="inline-flex items-center justify-center rounded-full border border-white/30 bg-white/70 px-3 py-1.5 text-sm font-medium shadow-sm transition hover:bg-white focus:outline-none focus-visible:ring-2 dark:border-white/10 dark:bg-white/10 dark:text-white"
-            >
-              Prev
-            </button>
-            <button
-              type="button"
-              onClick={next}
-              className="inline-flex items-center justify-center rounded-full border border-white/30 bg-white/70 px-3 py-1.5 text-sm font-medium shadow-sm transition hover:bg-white focus:outline-none focus-visible:ring-2 dark:border-white/10 dark:bg-white/10 dark:text-white"
-            >
-              Next
-            </button>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {waxwingImages.map((img, i) => (
-              <button
-                key={img.src}
-                aria-label={`Go to waxwing photo ${i + 1}`}
-                onClick={() => goTo(i, i > index ? 1 : -1)}
-                className={`h-2.5 w-2.5 rounded-full transition ${
-                  i === index ? 'bg-neutral-900 dark:bg-white' : 'bg-neutral-400/50 dark:bg-white/30'
-                }`}
-              />
-            ))}
-          </div>
-        </div>
+      <div className="flex items-center justify-center gap-2">
+        {waxwingImages.map((img, i) => (
+          <button
+            key={img.src}
+            aria-label={`Go to waxwing photo ${i + 1}`}
+            onClick={() => goTo(i, i > index ? 1 : -1)}
+            className={`h-2 w-2 rounded-full transition ${
+              i === index ? 'bg-neutral-900 dark:bg-white/90' : 'bg-neutral-400/50 dark:bg-white/30'
+            }`}
+          />
+        ))}
       </div>
     </div>
   );
@@ -500,7 +472,7 @@ export default function UsefulInfoPage() {
             </SectionCard>
 
             <SectionCard id="winter-visitors" title="Winter Visitors at James Square">
-              <div className="space-y-6">
+              <div className="space-y-4">
                 <div className="space-y-3">
                   <p>
                     This December, James Square welcomed a small flock of Bohemian waxwings. These striking birds,
@@ -515,7 +487,7 @@ export default function UsefulInfoPage() {
 
                 <WaxwingCarousel onOpenLightbox={setLightbox} />
 
-                <div className="space-y-3 text-center">
+                <div className="space-y-2 text-center">
                   <p className="text-sm text-[color:var(--text-muted)]">
                     Photographs kindly shared by members of the Lothian Birdwatch Facebook group.
                   </p>
@@ -523,7 +495,7 @@ export default function UsefulInfoPage() {
                     href="https://www.facebook.com/share/p/1APEUb9PqS/?mibextid=wwXIfr"
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center justify-center rounded-full border border-white/20 bg-white/40 px-4 py-2 text-sm font-medium shadow-sm transition hover:bg-white/60 dark:bg-white/10 dark:hover:bg-white/20"
+                    className="inline-flex items-center justify-center text-sm font-medium text-[color:var(--text-muted)] underline underline-offset-4 transition hover:text-white"
                   >
                     View original post
                   </a>
