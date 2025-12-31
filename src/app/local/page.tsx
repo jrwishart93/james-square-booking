@@ -15,12 +15,130 @@ type TabId = (typeof TAB_IDS)[number];
 const glass =
   'jqs-glass rounded-2xl border border-white/20 bg-white/50 dark:bg-white/10 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.06)]';
 const waxwingImages = [
-  { src: '/images/buildingimages/Bird-1.JPG', alt: 'Bohemian waxwing perched on a berry branch at James Square' },
+  { src: '/images/buildingimages/Bird-1.JPG', alt: 'Waxwing perched on a branch at James Square' },
   { src: '/images/buildingimages/Bird-2.JPG', alt: 'Waxwing feeding among the berries near the apartments' },
   { src: '/images/buildingimages/Bird-3.JPG', alt: 'Close view of a waxwing showing its crest and colouring' },
   { src: '/images/buildingimages/Bird-4.JPG', alt: 'Waxwing flock resting in a berry tree at James Square' },
   { src: '/images/buildingimages/Bird-5.JPG', alt: 'Waxwing in flight above the trees at James Square' },
 ];
+const carouselVariants = {
+  enter: (direction: number) => ({ x: direction > 0 ? 32 : -32, opacity: 0 }),
+  center: { x: 0, opacity: 1 },
+  exit: (direction: number) => ({ x: direction > 0 ? -32 : 32, opacity: 0 }),
+};
+
+function WaxwingCarousel({ onOpenLightbox }: { onOpenLightbox?: (item: LightboxItem) => void }) {
+  const [index, setIndex] = useState(0);
+  const directionRef = useRef(0);
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
+  const total = waxwingImages.length;
+
+  const goTo = (next: number, direction: number) => {
+    directionRef.current = direction;
+    setIndex((next + total) % total);
+  };
+
+  const prev = () => goTo(index - 1, -1);
+  const next = () => goTo(index + 1, 1);
+
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    const touch = e.touches[0];
+    touchStart.current = { x: touch.clientX, y: touch.clientY };
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!touchStart.current) return;
+    const touch = e.changedTouches[0];
+    const dx = touch.clientX - touchStart.current.x;
+    const dy = touch.clientY - touchStart.current.y;
+
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+      if (dx < 0) {
+        next();
+      } else {
+        prev();
+      }
+    }
+
+    touchStart.current = null;
+  };
+
+  const currentImage = waxwingImages[index];
+
+  return (
+    <div className="mx-auto w-full max-w-5xl space-y-2">
+      <div
+        className="group relative h-[240px] overflow-hidden rounded-xl sm:h-[340px]"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        <AnimatePresence initial={false} custom={directionRef.current}>
+          <motion.div
+            key={currentImage.src}
+            custom={directionRef.current}
+            variants={carouselVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            className="absolute inset-0"
+          >
+            <Image
+              src={currentImage.src}
+              alt={currentImage.alt}
+              fill
+              sizes="(min-width:1280px) 720px, (min-width:768px) 80vw, 100vw"
+              className={`h-full w-full rounded-xl object-contain ${onOpenLightbox ? 'cursor-zoom-in' : ''}`}
+              priority={index === 0}
+              onClick={() => onOpenLightbox?.(currentImage)}
+              role={onOpenLightbox ? 'button' : undefined}
+              tabIndex={onOpenLightbox ? 0 : -1}
+              onKeyDown={(e) => {
+                if (!onOpenLightbox) return;
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onOpenLightbox(currentImage);
+                }
+              }}
+            />
+          </motion.div>
+        </AnimatePresence>
+
+        <div className="absolute inset-y-0 left-3 right-3 hidden items-center justify-between md:flex">
+          <button
+            type="button"
+            aria-label="Previous waxwing photo"
+            onClick={prev}
+            className="inline-flex h-9 w-9 items-center justify-center text-white/80 transition opacity-0 group-hover:opacity-100 hover:text-white focus:outline-none focus-visible:opacity-100"
+          >
+            ←
+          </button>
+          <button
+            type="button"
+            aria-label="Next waxwing photo"
+            onClick={next}
+            className="inline-flex h-9 w-9 items-center justify-center text-white/80 transition opacity-0 group-hover:opacity-100 hover:text-white focus:outline-none focus-visible:opacity-100"
+          >
+            →
+          </button>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-center gap-2">
+        {waxwingImages.map((img, i) => (
+          <button
+            key={img.src}
+            aria-label={`Go to waxwing photo ${i + 1}`}
+            onClick={() => goTo(i, i > index ? 1 : -1)}
+            className={`h-2 w-2 rounded-full transition ${
+              i === index ? 'bg-neutral-900 dark:bg-white/90' : 'bg-neutral-400/50 dark:bg-white/30'
+            }`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 /* -------------------------------------------------
    Page
@@ -130,7 +248,7 @@ export default function UsefulInfoPage() {
             </p>
 
             {/* ---------------- Swimming Pool Access ---------------- */}
-            <SectionCard id="pool-access" title="Swimming Pool Access" initial>
+            <SectionCard id="pool-access" headingId="swimming-pool-access" title="Swimming Pool Access" initial>
               <div className="space-y-6">
                 <p>
                   The swimming pool, gym and sauna area is located at the North West side of James Square and
@@ -188,7 +306,7 @@ export default function UsefulInfoPage() {
             </SectionCard>
 
             {/* ---------------- Factor Info (loads immediately) ---------------- */}
-            <SectionCard id="factor-info" title="Factor Information" initial>
+            <SectionCard id="factor-info" headingId="factor-information" title="Factor Information" initial>
               <div className="flex flex-col md:flex-row items-start gap-6">
                 {/* Left: text */}
                 <div className="flex-1 space-y-4">
@@ -272,7 +390,7 @@ export default function UsefulInfoPage() {
             </SectionCard>
 
             {/* ---------------- Caretaker ---------------- */}
-            <SectionCard id="caretaker" title="Caretaker">
+            <SectionCard id="caretaker" headingId="caretaker" title="Caretaker">
               <div className="space-y-4">
                 <p>
                   James Square has a resident caretaker, Jimmy, who works most weekday mornings and early
@@ -304,7 +422,7 @@ export default function UsefulInfoPage() {
             </SectionCard>
 
             {/* ---------------- Bins & Waste (3-card grid) ---------------- */}
-            <SectionCard id="bins" title="Bins & Waste">
+            <SectionCard id="bins" headingId="bins-and-waste" title="Bins & Waste">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {BINS.map((bin, i) => (
                   <motion.div
@@ -334,7 +452,7 @@ export default function UsefulInfoPage() {
               </div>
             </SectionCard>
 
-            <SectionCard id="fire-action" title="Fire Action">
+            <SectionCard id="fire-action" headingId="fire-action" title="Fire Action">
               <div className="space-y-4">
                 <p className="text-[color:var(--text-muted)]">
                   What to do in the event of a fire within James Square. Follow these quick instructions and open the
@@ -353,8 +471,12 @@ export default function UsefulInfoPage() {
               </div>
             </SectionCard>
 
-            <SectionCard id="winter-visitors" title="Winter Visitors at James Square">
-              <div className="space-y-6">
+            <SectionCard
+              id="winter-visitors"
+              headingId="winter-visitors-at-james-square"
+              title="Winter Visitors at James Square"
+            >
+              <div className="space-y-4">
                 <div className="space-y-3">
                   <p>
                     This December, James Square welcomed a small flock of Bohemian waxwings. These striking birds,
@@ -367,24 +489,9 @@ export default function UsefulInfoPage() {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {waxwingImages.map((image) => (
-                    <figure
-                      key={image.src}
-                      className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-white/40 shadow-md transition duration-300 hover:scale-[1.01] dark:bg-white/10"
-                    >
-                      <Image
-                        src={image.src}
-                        alt={image.alt}
-                        fill
-                        sizes="(min-width:1280px) 320px, (min-width:768px) 50vw, 100vw"
-                        className="object-cover"
-                      />
-                    </figure>
-                  ))}
-                </div>
+                <WaxwingCarousel onOpenLightbox={setLightbox} />
 
-                <div className="space-y-3 text-center">
+                <div className="space-y-2 text-center">
                   <p className="text-sm text-[color:var(--text-muted)]">
                     Photographs kindly shared by members of the Lothian Birdwatch Facebook group.
                   </p>
@@ -392,7 +499,7 @@ export default function UsefulInfoPage() {
                     href="https://www.facebook.com/share/p/1APEUb9PqS/?mibextid=wwXIfr"
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center justify-center rounded-full border border-white/20 bg-white/40 px-4 py-2 text-sm font-medium shadow-sm transition hover:bg-white/60 dark:bg-white/10 dark:hover:bg-white/20"
+                    className="inline-flex items-center justify-center text-sm font-medium text-[color:var(--text-muted)] underline underline-offset-4 transition hover:text-white"
                   >
                     View original post
                   </a>
@@ -441,7 +548,11 @@ export default function UsefulInfoPage() {
               </div>
             </SectionCard>
 
-            <SectionCard id="history" title="History of James Square and the Local Area">
+            <SectionCard
+              id="history"
+              headingId="history-of-james-square-and-the-local-area"
+              title="History of James Square and the Local Area"
+            >
               <div className="space-y-6">
                 <p className="text-[color:var(--text-muted)]">
                   A short history of Dalry’s transformation from rural estate land to the industrial hub and
@@ -739,7 +850,7 @@ export default function UsefulInfoPage() {
             aria-labelledby="restaurants-tab"
             className="space-y-10"
           >
-            <SectionCard id="restaurants" title="Restaurants">
+            <SectionCard id="restaurants" headingId="restaurants" title="Restaurants">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {RESTAURANTS.map((r) => (
                   <VenueCard key={`rest-${r.name}`} {...r} />
@@ -756,7 +867,7 @@ export default function UsefulInfoPage() {
             aria-labelledby="groceries-tab"
             className="space-y-10"
           >
-            <SectionCard id="groceries" title="Groceries">
+            <SectionCard id="groceries" headingId="groceries" title="Groceries">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {GROCERIES.map((g) => (
                   <VenueCard key={`groc-${g.name}`} {...g} />
@@ -773,7 +884,7 @@ export default function UsefulInfoPage() {
             aria-labelledby="coffee-tab"
             className="space-y-10"
           >
-            <SectionCard id="coffee" title="Coffee">
+            <SectionCard id="coffee" headingId="coffee" title="Coffee">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {COFFEE.map((c) => (
                   <VenueCard key={`coffee-${c.name}`} {...c} />
@@ -824,11 +935,13 @@ export default function UsefulInfoPage() {
 
 function SectionCard({
   id,
+  headingId,
   title,
   children,
   initial,
 }: {
   id?: string;
+  headingId?: string;
   title: string;
   children: React.ReactNode;
   initial?: boolean;
@@ -844,7 +957,9 @@ function SectionCard({
     >
       <div className={`${glass} p-5`}>
         <div className="flex items-center justify-between gap-3 mb-3">
-          <h2 className="text-2xl font-semibold">{title}</h2>
+          <h2 id={headingId} className="text-2xl font-semibold">
+            {title}
+          </h2>
         </div>
         {children}
       </div>
@@ -913,7 +1028,7 @@ function VenueCard({
 function VoiEbikesCard() {
   const [open, setOpen] = useState(false);
   return (
-    <SectionCard id="voi-ebikes" title="Voi E-bikes Arrive in Edinburgh">
+    <SectionCard id="voi-ebikes" headingId="voi-ebikes-arrive-in-edinburgh" title="Voi E-bikes Arrive in Edinburgh">
       <p className="text-[color:var(--text-muted)] -mt-2 mb-3 text-sm">
         Trial cycle hire scheme launched September 2025
       </p>
@@ -1028,7 +1143,12 @@ function VoiEbikesCard() {
 function DalryProjectCard() {
   const [open, setOpen] = useState(false);
   return (
-    <SectionCard id="dalry-project" title="Dalry: Living Well Locally (Edinburgh Council Project)" initial>
+    <SectionCard
+      id="dalry-project"
+      headingId="dalry-living-well-locally-edinburgh-council-project"
+      title="Dalry: Living Well Locally (Edinburgh Council Project)"
+      initial
+    >
       <p className="text-[color:var(--text-muted)] text-sm">Results updated 10 January 2025</p>
 
       <p className="mt-2">
@@ -1137,7 +1257,12 @@ function DalryProjectCard() {
 function WorldBuffetCard() {
   const [detailsOpen, setDetailsOpen] = useState(false);
   return (
-    <SectionCard id="world-buffet" title="Hot World Cuisine Buffet – Dalry Road" initial>
+    <SectionCard
+      id="world-buffet"
+      headingId="hot-world-cuisine-buffet-dalry-road"
+      title="Hot World Cuisine Buffet – Dalry Road"
+      initial
+    >
       <p className="mt-2">
         It’s looking like the renovations for the new buffet restaurant at the end of our street
         are now complete, and they’re getting ready to open by the end of the year. Once open, Hot
