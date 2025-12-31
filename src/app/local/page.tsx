@@ -14,6 +14,8 @@ const TAB_IDS = ['about', 'projects', 'restaurants', 'groceries', 'coffee'] as c
 type TabId = (typeof TAB_IDS)[number];
 const glass =
   'jqs-glass rounded-2xl border border-white/20 bg-white/50 dark:bg-white/10 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.06)]';
+const dockGlass =
+  'border border-white/10 bg-neutral-900/70 text-white backdrop-blur-xl shadow-[0_10px_50px_rgba(0,0,0,0.35)] dark:bg-neutral-900/80';
 const waxwingImages = [
   { src: '/images/buildingimages/Bird-1.JPG', alt: 'Waxwing perched on a branch at James Square' },
   { src: '/images/buildingimages/Bird-2.JPG', alt: 'Waxwing feeding among the berries near the apartments' },
@@ -148,6 +150,10 @@ export default function UsefulInfoPage() {
   const [showHistory, setShowHistory] = useState(false);
   const [showFireAction, setShowFireAction] = useState(false);
   const [showWaxwingDetails, setShowWaxwingDetails] = useState(false);
+  const [activeSection, setActiveSection] = useState('pool-access');
+  const [dockVisible, setDockVisible] = useState(false);
+  const [scrollingDown, setScrollingDown] = useState(false);
+  const lastScrollY = useRef(0);
   const tabs = useMemo(
     () => [
       { id: 'about', label: 'About James Square' },
@@ -159,16 +165,22 @@ export default function UsefulInfoPage() {
     []
   );
 
+  const aboutAnchors = useMemo(
+    () => [
+      { id: 'pool-access', label: 'Swimming Pool Access' },
+      { id: 'factor', label: 'Factor' },
+      { id: 'caretaker', label: 'Caretaker' },
+      { id: 'bins', label: 'Bins' },
+      { id: 'fire', label: 'Fire' },
+      { id: 'winter-visitors', label: 'Winter Visitors' },
+      { id: 'history', label: 'History' },
+    ],
+    []
+  );
+
   const anchorsByTab = useMemo(
     () => ({
-      about: [
-        { id: 'pool-access', label: 'Swimming Pool Access' },
-        { id: 'factor-info', label: 'Factor Info' },
-        { id: 'caretaker', label: 'Caretaker' },
-        { id: 'bins', label: 'Bins' },
-        { id: 'fire-action', label: 'Fire Action' },
-        { id: 'winter-visitors', label: 'Winter Visitors' },
-      ],
+      about: aboutAnchors,
       projects: [
         { id: 'voi-ebikes', label: 'Voi E-bikes' },
         { id: 'dalry-project', label: 'Dalry Project' },
@@ -178,7 +190,7 @@ export default function UsefulInfoPage() {
       groceries: [{ id: 'groceries', label: 'Groceries' }],
       coffee: [{ id: 'coffee', label: 'Coffee' }],
     }),
-    []
+    [aboutAnchors]
   );
 
   const [activeTab, setActiveTab] = useState<TabId>('about');
@@ -198,10 +210,62 @@ export default function UsefulInfoPage() {
     window.localStorage.setItem('useful-info-tab', activeTab);
   }, [activeTab]);
 
+  useEffect(() => {
+    if (activeTab !== 'about') return undefined;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+
+        if (visible[0]) {
+          setActiveSection(visible[0].target.id);
+        }
+      },
+      {
+        rootMargin: '-40% 0px -40% 0px',
+        threshold: [0, 0.15, 0.35, 0.5, 0.65, 0.8, 1],
+      }
+    );
+
+    aboutAnchors.forEach(({ id }) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, [aboutAnchors, activeTab]);
+
+  useEffect(() => {
+    if (activeTab !== 'about') return undefined;
+
+    const handleScroll = () => {
+      const currentY = window.scrollY;
+      const directionDown = currentY > lastScrollY.current;
+      setScrollingDown(directionDown);
+      lastScrollY.current = currentY;
+
+      if (currentY > 120 && !dockVisible) {
+        setDockVisible(true);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [activeTab, dockVisible]);
+
+  const handleAnchorClick = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   const anchors = anchorsByTab[activeTab];
 
   return (
-    <main className="relative max-w-6xl mx-auto py-10 px-4">
+    <main className="relative max-w-6xl mx-auto py-10 px-4 pb-24 lg:pb-32">
       <BackgroundOrbs />
 
       {/* Sticky anchor nav on wide screens */}
@@ -306,7 +370,7 @@ export default function UsefulInfoPage() {
             </SectionCard>
 
             {/* ---------------- Factor Info (loads immediately) ---------------- */}
-            <SectionCard id="factor-info" headingId="factor-information" title="Factor Information" initial>
+            <SectionCard id="factor" headingId="factor-information" title="Factor Information" initial>
               <div className="flex flex-col md:flex-row items-start gap-6">
                 {/* Left: text */}
                 <div className="flex-1 space-y-4">
@@ -452,7 +516,7 @@ export default function UsefulInfoPage() {
               </div>
             </SectionCard>
 
-            <SectionCard id="fire-action" headingId="fire-action" title="Fire Action">
+            <SectionCard id="fire" headingId="fire-action" title="Fire Action">
               <div className="space-y-4">
                 <p className="text-[color:var(--text-muted)]">
                   What to do in the event of a fire within James Square. Follow these quick instructions and open the
@@ -925,6 +989,17 @@ export default function UsefulInfoPage() {
           </motion.button>
         )}
       </AnimatePresence>
+
+      <AnimatePresence>
+        {activeTab === 'about' && dockVisible && (
+          <FloatingDock
+            anchors={aboutAnchors}
+            activeSection={activeSection}
+            onNavigate={handleAnchorClick}
+            emphasize={scrollingDown}
+          />
+        )}
+      </AnimatePresence>
     </main>
   );
 }
@@ -1016,6 +1091,54 @@ function VenueCard({
         </div>
       </div>
     </article>
+  );
+}
+
+type DockProps = {
+  anchors: { id: string; label: string }[];
+  activeSection: string;
+  onNavigate: (id: string) => void;
+  emphasize: boolean;
+};
+
+function FloatingDock({ anchors, activeSection, onNavigate, emphasize }: DockProps) {
+  return (
+    <motion.nav
+      className="fixed inset-x-0 bottom-6 z-30 hidden justify-center lg:flex"
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: emphasize ? 1 : 0.9, y: 0 }}
+      exit={{ opacity: 0, y: 10 }}
+      transition={{ duration: 0.28 }}
+      aria-label="About page quick navigation"
+    >
+      <div
+        className={`${dockGlass} flex items-center gap-1 rounded-full px-3 py-2 text-sm backdrop-saturate-150`}
+        role="list"
+      >
+        {anchors.map(({ id, label }) => {
+          const isActive = activeSection === id;
+          return (
+            <button
+              key={`dock-${id}`}
+              type="button"
+              onClick={() => onNavigate(id)}
+              className={`relative rounded-full px-3 py-2 font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/70 ${
+                isActive
+                  ? 'text-white'
+                  : 'text-white/70 hover:text-white/90 focus-visible:text-white'
+              }`}
+              aria-current={isActive ? 'true' : undefined}
+              aria-label={`Jump to ${label}`}
+            >
+              <span className="block leading-none">{label}</span>
+              {isActive && (
+                <span className="absolute inset-x-2 -bottom-1 block h-0.5 rounded-full bg-white/80" aria-hidden />
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </motion.nav>
   );
 }
 
