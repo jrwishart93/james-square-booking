@@ -6,6 +6,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import type { NameType, ValueType, Payload } from "recharts/types/component/DefaultTooltipContent";
 import { db } from "@/lib/firebase";
 import { getQuestions } from "../services/storageService";
+import Results3DPie from "@/app/voting/components/Results3DPie";
 
 type VoteDoc = {
   id: string;
@@ -39,6 +40,7 @@ export default function Results() {
   const [stats, setStats] = useState<QuestionStat[]>([]);
   const [votesByQuestion, setVotesByQuestion] = useState<Record<string, VoteDoc[]>>({});
   const [openQuestionId, setOpenQuestionId] = useState<string | null>(null);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
     let unsubscribers: (() => void)[] = [];
@@ -90,6 +92,15 @@ export default function Results() {
     return () => unsubscribers.forEach((u) => u());
   }, []);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const checkTheme = () => setIsDarkMode(document.documentElement.classList.contains("dark"));
+    checkTheme();
+    const observer = new MutationObserver(checkTheme);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div className="space-y-6">
       {stats.map(({ question, results, totalVotes }) => {
@@ -136,7 +147,11 @@ export default function Results() {
             </button>
 
             {openQuestionId === question.id && (
-              <MoreInfoPanel votes={votesByQuestion[question.id] ?? []} results={results} />
+              <MoreInfoPanel
+                votes={votesByQuestion[question.id] ?? []}
+                results={results}
+                theme={isDarkMode ? "dark" : "light"}
+              />
             )}
           </div>
         );
@@ -148,16 +163,27 @@ export default function Results() {
 function MoreInfoPanel({
   votes,
   results,
+  theme,
 }: {
   votes: VoteDoc[];
   results: QuestionStat["results"];
+  theme: "light" | "dark";
 }) {
   const uniqueFlats = Array.from(new Set(votes.map((v) => v.voterFlat).filter(Boolean)));
+  const pieData = results.map((r) => ({
+    name: r.option.label,
+    value: r.count,
+    percentage: r.percentage,
+  }));
 
   return (
     <div className="mt-4 space-y-4">
       <div className="text-sm">
         Turnout: <strong>{uniqueFlats.length}</strong> flats
+      </div>
+
+      <div className="mt-6">
+        <Results3DPie data={pieData} theme={theme} />
       </div>
 
       {results.map(({ option }) => {
