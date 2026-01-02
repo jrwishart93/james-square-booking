@@ -852,10 +852,12 @@ function AdvancedInsightsPanel({
                       dataKey="count"
                       content={({ x = 0, y = 0, width = 0, value }) => {
                         const numericValue = typeof value === "number" ? value : Number(value ?? 0);
+                        const safeX = (typeof x === "number" ? x : Number(x ?? 0)) + (typeof width === "number" ? width : Number(width ?? 0)) / 2;
+                        const safeY = (typeof y === "number" ? y : Number(y ?? 0)) - 10;
                         return (
                           <text
-                            x={x + width / 2}
-                            y={y - 10}
+                            x={safeX}
+                            y={safeY}
                             textAnchor="middle"
                             className="fill-slate-900 text-[11px] font-semibold dark:fill-white"
                           >
