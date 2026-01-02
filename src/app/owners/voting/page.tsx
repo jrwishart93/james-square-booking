@@ -25,6 +25,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import type { NameType, ValueType } from "recharts/types/component/DefaultTooltipContent";
 
 import { Button } from "@/app/voting/components/ui/Button";
 import { Input } from "@/app/voting/components/ui/Input";
@@ -807,8 +808,12 @@ export default function OwnersVotingPage() {
                                         labelFormatter={(label, payload) =>
                                           payload?.[0]?.payload?.fullLabel ?? String(label)
                                         }
-                                        formatter={(value: number, _name: string, item) => {
-                                          const percent = typeof item?.payload?.percentage === "number" ? item.payload.percentage : null;
+                                        formatter={(value: ValueType, _name: NameType, item) => {
+                                          if (typeof value !== "number") return ["", ""];
+                                          const percent =
+                                            typeof item?.payload?.percentage === "number"
+                                              ? item.payload.percentage
+                                              : null;
                                           const voteLabel = `${value} vote${value === 1 ? "" : "s"}`;
                                           return [`${voteLabel}${percent !== null ? ` (${percent}%)` : ""}`, "Option"];
                                         }}
@@ -870,11 +875,12 @@ export default function OwnersVotingPage() {
                                         />
                                         <Tooltip
                                           labelFormatter={(label) => `Date: ${label}`}
-                                          formatter={(value: number, key: string) =>
-                                            key === "cumulative"
+                                          formatter={(value: ValueType, key: NameType) => {
+                                            if (typeof value !== "number") return ["", ""];
+                                            return key === "cumulative"
                                               ? [value, "Total votes at this date"]
-                                              : [value, "New votes on this date"]
-                                          }
+                                              : [value, "New votes on this date"];
+                                          }}
                                           contentStyle={{
                                             backgroundColor: "#ffffff",
                                             borderRadius: 12,
