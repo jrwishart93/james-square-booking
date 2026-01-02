@@ -807,15 +807,19 @@ export default function OwnersVotingPage() {
                                         labelFormatter={(label, payload) =>
                                           payload?.[0]?.payload?.fullLabel ?? String(label)
                                         }
-                                        formatter={(value: number) => [value, "Votes"]}
-                                          contentStyle={{
-                                            backgroundColor: "#ffffff",
-                                            borderRadius: 12,
-                                            border: "1px solid rgba(15,23,42,0.12)",
-                                            color: "#0f172a",
-                                            boxShadow: "0 18px 40px rgba(15,23,42,0.12)",
-                                          }}
-                                        />
+                                        formatter={(value: number, _name: string, item) => {
+                                          const percent = typeof item?.payload?.percentage === "number" ? item.payload.percentage : null;
+                                          const voteLabel = `${value} vote${value === 1 ? "" : "s"}`;
+                                          return [`${voteLabel}${percent !== null ? ` (${percent}%)` : ""}`, "Option"];
+                                        }}
+                                        contentStyle={{
+                                          backgroundColor: "#ffffff",
+                                          borderRadius: 12,
+                                          border: "1px solid rgba(15,23,42,0.12)",
+                                          color: "#0f172a",
+                                          boxShadow: "0 18px 40px rgba(15,23,42,0.12)",
+                                        }}
+                                      />
                                       <Bar
                                         dataKey="count"
                                         radius={[10, 10, 10, 10]}
