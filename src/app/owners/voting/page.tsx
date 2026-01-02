@@ -119,6 +119,17 @@ export default function OwnersVotingPage() {
   }, [authLoading, currentUser]);
 
   useEffect(() => {
+    if (activeTab !== "results" && openMoreInfoId) {
+      setOpenMoreInfoId(null);
+      return;
+    }
+
+    if (openMoreInfoId && !questions.some((q) => q.id === openMoreInfoId)) {
+      setOpenMoreInfoId(null);
+    }
+  }, [activeTab, openMoreInfoId, questions]);
+
+  useEffect(() => {
     const load = async () => {
       setLoading(true);
       try {
