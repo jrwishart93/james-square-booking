@@ -12,6 +12,7 @@ import {
   PenSquare,
   Vote as VoteIcon,
 } from "lucide-react";
+import { Bar, BarChart, LabelList, ResponsiveContainer, Tooltip, XAxis } from "recharts";
 
 import { Button } from "@/app/voting/components/ui/Button";
 import { Input } from "@/app/voting/components/ui/Input";
@@ -50,6 +51,8 @@ export default function OwnersVotingPage() {
   const [savingVoteId, setSavingVoteId] = useState<string | null>(null);
   const [voteErrors, setVoteErrors] = useState<Record<string, string | null>>({});
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
+  const [expandedInsights, setExpandedInsights] = useState<Record<string, boolean>>({});
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
   // Ask tab state
@@ -191,6 +194,19 @@ export default function OwnersVotingPage() {
     if (options.length <= 2) return;
     setOptions((prev) => prev.filter((_, i) => i !== index));
   };
+
+  const toggleInsights = (questionId: string) => {
+    setExpandedInsights((prev) => ({ ...prev, [questionId]: !prev[questionId] }));
+  };
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const handleChange = () => setPrefersReducedMotion(mediaQuery.matches);
+    handleChange();
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, []);
 
   const handleCreateQuestion = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -601,43 +617,65 @@ export default function OwnersVotingPage() {
                 {questionResults.length === 0 ? (
                   <p className="text-slate-600 dark:text-slate-300">No questions yet.</p>
                 ) : (
-                  questionResults.map(({ question, results, totalVotes }) => (
-                    <div
-                      key={question.id}
-                      className="p-6 rounded-2xl bg-white border border-black/10 space-y-4 shadow-[0_12px_30px_rgba(0,0,0,0.08)] dark:bg-white/5 dark:border-white/10 dark:shadow-none"
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <div>
-                          <p className="text-xs uppercase tracking-[0.2em] text-slate-600 dark:text-slate-400">{question.status}</p>
-                          <h3 className="text-xl font-semibold text-slate-900 dark:text-white">{question.title}</h3>
-                          {question.description && (
-                            <p className="text-slate-700 text-sm dark:text-slate-300">{question.description}</p>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <div className="text-right text-sm text-slate-600 dark:text-slate-400">
-                            <div className="font-semibold text-slate-900 dark:text-white">{totalVotes}</div>
-                            <div>votes</div>
+                  questionResults.map(({ question, results, totalVotes }) => {
+                    const isExpanded = expandedInsights[question.id] ?? false;
+                    return (
+                      <div
+                        key={question.id}
+                        className="p-6 rounded-2xl bg-white border border-black/10 space-y-4 shadow-[0_12px_30px_rgba(0,0,0,0.08)] dark:bg-white/5 dark:border-white/10 dark:shadow-none"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="space-y-2">
+                            <div>
+                              <p className="text-xs uppercase tracking-[0.2em] text-slate-600 dark:text-slate-400">{question.status}</p>
+                              <h3 className="text-xl font-semibold text-slate-900 dark:text-white">{question.title}</h3>
+                              {question.description && (
+                                <p className="text-slate-700 text-sm dark:text-slate-300">{question.description}</p>
+                              )}
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => toggleInsights(question.id)}
+                              aria-expanded={isExpanded}
+                              className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-cyan-800 shadow-[0_10px_30px_rgba(14,165,233,0.25)] bg-gradient-to-r from-white/80 via-white/60 to-white/40 border border-cyan-500/30 hover:from-cyan-50/80 hover:to-indigo-50/60 transition-all backdrop-blur"
+                            >
+                              {isExpanded ? "Hide insights" : "Advanced insights"}
+                            </button>
                           </div>
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteQuestion(question.id)}
-                            disabled={deletingId === question.id}
-                            className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-black/10 text-slate-700 hover:bg-slate-100 transition disabled:opacity-50 dark:border-white/20 dark:text-slate-200 dark:hover:bg-white/10"
-                            aria-label="Delete question"
-                          >
-                            {deletingId === question.id ? "…" : "×"}
-                          </button>
+                          <div className="flex items-center gap-3">
+                            <div className="text-right text-sm text-slate-600 dark:text-slate-400">
+                              <div className="font-semibold text-slate-900 dark:text-white">{totalVotes}</div>
+                              <div>votes</div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteQuestion(question.id)}
+                              disabled={deletingId === question.id}
+                              className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-black/10 text-slate-700 hover:bg-slate-100 transition disabled:opacity-50 dark:border-white/20 dark:text-slate-200 dark:hover:bg-white/10"
+                              aria-label="Delete question"
+                            >
+                              {deletingId === question.id ? "…" : "×"}
+                            </button>
+                          </div>
                         </div>
-                      </div>
 
-                      <div className="space-y-3">
-                        {results.map(({ option, count, percentage }) => (
-                          <ResultRow key={option.id} option={option} count={count} percentage={percentage} />
-                        ))}
+                        <div className="space-y-3">
+                          {results.map(({ option, count, percentage }) => (
+                            <ResultRow key={option.id} option={option} count={count} percentage={percentage} />
+                          ))}
+                        </div>
+
+                        {isExpanded && (
+                          <AdvancedInsightsPanel
+                            questionId={question.id}
+                            results={results}
+                            totalVotes={totalVotes}
+                            prefersReducedMotion={prefersReducedMotion}
+                          />
+                        )}
                       </div>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
             )}
@@ -727,6 +765,142 @@ function TabButton({
       {icon}
       {label}
     </button>
+  );
+}
+
+function AdvancedInsightsPanel({
+  questionId,
+  results,
+  totalVotes,
+  prefersReducedMotion,
+}: {
+  questionId: string;
+  results: { option: Option; count: number; percentage: number }[];
+  totalVotes: number;
+  prefersReducedMotion: boolean;
+}) {
+  const gradientId = `insight-gradient-${questionId}`;
+  const barData = results.map(({ option, count, percentage }) => ({
+    id: option.id,
+    name: option.label,
+    count,
+    percentage,
+  }));
+
+  return (
+    <div className="relative overflow-hidden rounded-2xl border border-white/20 bg-white/70 p-5 shadow-[0_18px_60px_rgba(7,89,133,0.18)] backdrop-blur-xl dark:bg-white/10 dark:border-white/10">
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-indigo-500/5 to-violet-500/10" />
+      <div className="pointer-events-none absolute -top-20 -left-10 h-48 w-48 rounded-full bg-cyan-300/20 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-24 -right-12 h-56 w-56 rounded-full bg-violet-400/20 blur-3xl" />
+
+      <div className="relative space-y-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-[11px] uppercase tracking-[0.25em] text-cyan-800/80 dark:text-cyan-200/80">Advanced insights</p>
+            <p className="text-base font-semibold text-slate-900 dark:text-white">Deep dive analytics</p>
+          </div>
+          <div className="rounded-full bg-white/70 px-4 py-2 text-xs font-semibold text-slate-700 shadow-sm ring-1 ring-white/60 backdrop-blur-md dark:bg-white/10 dark:text-white/80">
+            Live · {totalVotes} vote{totalVotes === 1 ? "" : "s"}
+          </div>
+        </div>
+
+        <div className="grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] items-start">
+          <div className="relative overflow-hidden rounded-xl border border-white/40 bg-white/60 p-4 shadow-[0_25px_60px_rgba(8,47,73,0.18)] backdrop-blur-lg transition-transform duration-500 ease-out transform-gpu lg:p-6 dark:bg-white/5 dark:border-white/10">
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-cyan-200/15 via-transparent to-indigo-300/10" />
+            <div className="relative h-64 sm:h-72 transform-gpu perspective-[1400px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={barData} barSize={32} barGap={8} margin={{ top: 16, right: 12, left: 12, bottom: 10 }}>
+                  <defs>
+                    <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#67e8f9" stopOpacity={0.95} />
+                      <stop offset="55%" stopColor="#6366f1" stopOpacity={0.9} />
+                      <stop offset="100%" stopColor="#7c3aed" stopOpacity={0.9} />
+                    </linearGradient>
+                  </defs>
+                  <XAxis
+                    dataKey="name"
+                    interval={0}
+                    tickLine={false}
+                    axisLine={false}
+                    height={48}
+                    tickMargin={12}
+                    tick={{ fill: "#0f172a", fontSize: 12 }}
+                    angle={0}
+                  />
+                  <Tooltip
+                    cursor={{ fill: "rgba(59,130,246,0.08)" }}
+                    contentStyle={{
+                      background: "rgba(255,255,255,0.92)",
+                      borderRadius: "14px",
+                      border: "1px solid rgba(255,255,255,0.6)",
+                      boxShadow: "0 20px 60px rgba(15,23,42,0.12)",
+                      backdropFilter: "blur(12px)",
+                    }}
+                    labelStyle={{ color: "#0f172a", fontWeight: 700 }}
+                    itemStyle={{ color: "#312e81", fontWeight: 600 }}
+                  />
+                  <Bar
+                    dataKey="count"
+                    fill={`url(#${gradientId})`}
+                    radius={[12, 12, 18, 18]}
+                    isAnimationActive={!prefersReducedMotion}
+                    animationDuration={900}
+                    animationBegin={120}
+                    className="drop-shadow-[0_25px_40px_rgba(59,130,246,0.35)]"
+                  >
+                    <LabelList
+                      dataKey="count"
+                      content={({ x = 0, y = 0, width = 0, value }) => {
+                        const numericValue = typeof value === "number" ? value : Number(value ?? 0);
+                        return (
+                          <text
+                            x={x + width / 2}
+                            y={y - 10}
+                            textAnchor="middle"
+                            className="fill-slate-900 text-[11px] font-semibold dark:fill-white"
+                          >
+                            {numericValue} vote{numericValue === 1 ? "" : "s"}
+                          </text>
+                        );
+                      }}
+                    />
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          <div className="space-y-3 rounded-xl border border-white/30 bg-white/60 p-4 shadow-inner shadow-cyan-900/5 backdrop-blur-lg dark:bg-white/5 dark:border-white/10">
+            {results.map(({ option, count, percentage }) => (
+              <div
+                key={option.id}
+                className="rounded-lg border border-white/30 bg-white/60 p-3 shadow-[0_10px_25px_rgba(59,130,246,0.12)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_35px_rgba(99,102,241,0.16)] dark:bg-white/5 dark:border-white/10"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <span className="inline-flex h-2.5 w-2.5 rounded-full bg-gradient-to-br from-cyan-400 to-indigo-500 shadow-[0_0_0_4px_rgba(34,211,238,0.2)]" />
+                    <p className="text-sm font-semibold text-slate-900 dark:text-white">{option.label}</p>
+                  </div>
+                  <div className="text-right text-sm font-semibold text-slate-800 dark:text-white">
+                    {count} vote{count === 1 ? "" : "s"}
+                  </div>
+                </div>
+                <div className="mt-2 flex items-center justify-between text-xs text-slate-600 dark:text-slate-300">
+                  <span className="text-[color:rgba(15,23,42,0.7)] dark:text-white/70">Momentum</span>
+                  <span className="font-semibold text-indigo-600 dark:text-indigo-300">{percentage}%</span>
+                </div>
+                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-200/70 dark:bg-white/10">
+                  <div
+                    className="h-full w-full rounded-full bg-gradient-to-r from-cyan-400 via-indigo-500 to-violet-500 transition-all duration-700 ease-out"
+                    style={{ width: `${Number.isFinite(percentage) ? percentage : 0}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
