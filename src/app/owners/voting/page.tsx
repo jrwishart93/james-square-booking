@@ -973,21 +973,36 @@ function MoreInfoBreakdown({
   expanded: boolean;
   onToggle: () => void;
 }) {
-  const uniqueFlats = Array.from(
-    new Set(
-      votes
-        .map((v) => (typeof v.voterFlat === "string" ? v.voterFlat.trim() : ""))
-        .filter((v) => v.length > 0),
-    ),
-  ).sort((a, b) => a.localeCompare(b));
+  const turnoutCount = votes.length;
+
+  const flatCounts = votes.reduce<Record<string, number>>((acc, v) => {
+    const label =
+      typeof v.voterFlat === "string" && v.voterFlat.trim().length > 0
+        ? v.voterFlat.trim()
+        : "(flat unspecified)";
+    acc[label] = (acc[label] ?? 0) + 1;
+    return acc;
+  }, {});
+
+  const flatEntries = Object.entries(flatCounts).sort((a, b) => a[0].localeCompare(b[0]));
 
   const perOptionFlats = results.map(({ option }) => {
-    const flats = votes
+    const counts = votes
       .filter((v) => v.optionId === option.id)
-      .map((v) => (typeof v.voterFlat === "string" ? v.voterFlat.trim() : ""))
-      .filter((v) => v.length > 0)
-      .sort((a, b) => a.localeCompare(b));
-    return { option, flats, count: flats.length };
+      .reduce<Record<string, number>>((acc, v) => {
+        const label =
+          typeof v.voterFlat === "string" && v.voterFlat.trim().length > 0
+            ? v.voterFlat.trim()
+            : "(flat unspecified)";
+        acc[label] = (acc[label] ?? 0) + 1;
+        return acc;
+      }, {});
+
+    const entries = Object.entries(counts).sort((a, b) => a[0].localeCompare(b[0]));
+    const flatLabels = entries.map(([label]) => label);
+    const flatCount = entries.reduce((sum, [, count]) => sum + count, 0);
+
+    return { option, flatLabels, counts: entries, count: flatCount };
   });
 
   const lastUpdated = (() => {
@@ -1023,7 +1038,7 @@ function MoreInfoBreakdown({
             <div>
               <p className="text-xs uppercase tracking-[0.2em] text-slate-600 dark:text-slate-300">Detailed breakdown</p>
               <p className="text-sm text-slate-700 dark:text-slate-200">
-                Turnout: <span className="font-semibold">{uniqueFlats.length}</span> flat{uniqueFlats.length === 1 ? "" : "s"}
+                Turnout: <span className="font-semibold">{turnoutCount}</span> flat{turnoutCount === 1 ? "" : "s"}
               </p>
             </div>
 
@@ -1041,16 +1056,17 @@ function MoreInfoBreakdown({
             <>
               <div className="space-y-2">
                 <p className="text-sm font-semibold text-slate-900 dark:text-white">Flats voted</p>
-                {uniqueFlats.length === 0 ? (
+                {flatEntries.length === 0 ? (
                   <p className="text-sm text-slate-600 dark:text-slate-300">No votes recorded yet.</p>
                 ) : (
                   <div className="flex flex-wrap gap-2">
-                    {uniqueFlats.map((f) => (
+                    {flatEntries.map(([flatLabel, count]) => (
                       <span
-                        key={`${questionId}-flat-${f}`}
+                        key={`${questionId}-flat-${flatLabel}`}
                         className="rounded-full border border-black/10 bg-white/60 px-3 py-1 text-xs font-semibold text-slate-700 dark:border-white/10 dark:bg-white/5 dark:text-white/80"
                       >
-                        {f}
+                        {flatLabel}
+                        {count > 1 ? ` (${count})` : ""}
                       </span>
                     ))}
                   </div>
@@ -1059,7 +1075,7 @@ function MoreInfoBreakdown({
 
               <div className="space-y-3">
                 <p className="text-sm font-semibold text-slate-900 dark:text-white">Votes by option</p>
-                {perOptionFlats.map(({ option, flats, count }) => (
+                {perOptionFlats.map(({ option, counts, count }) => (
                   <div
                     key={option.id}
                     className="rounded-xl border border-black/10 bg-white/60 p-4 space-y-2 dark:border-white/10 dark:bg-white/5"
@@ -1073,12 +1089,13 @@ function MoreInfoBreakdown({
                       <p className="text-sm text-slate-600 dark:text-slate-300">No flats selected this option.</p>
                     ) : (
                       <div className="flex flex-wrap gap-2">
-                        {flats.map((f) => (
+                        {counts.map(([flatLabel, flatCount]) => (
                           <span
-                            key={`${option.id}-${f}`}
+                            key={`${option.id}-${flatLabel}`}
                             className="rounded-full border border-black/10 bg-white/70 px-3 py-1 text-xs font-semibold text-slate-700 dark:border-white/10 dark:bg-white/10 dark:text-white/80"
                           >
-                            {f}
+                            {flatLabel}
+                            {flatCount > 1 ? ` (${flatCount})` : ""}
                           </span>
                         ))}
                       </div>
