@@ -175,6 +175,7 @@ function MoreInfoPanel({
     value: r.count,
     percentage: r.percentage,
   }));
+  const totalVotes = results.reduce((sum, r) => sum + r.count, 0);
 
   return (
     <div className="mt-4 space-y-4">
@@ -184,6 +185,23 @@ function MoreInfoPanel({
 
       <div className="mt-6">
         <Results3DPie data={pieData} theme={theme} />
+      </div>
+
+      <div className="space-y-2">
+        {results.map(({ option, count, percentage }) => (
+          <div
+            key={option.id}
+            className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5"
+          >
+            <div className="flex items-center gap-2">
+              <span className="font-medium text-slate-900 dark:text-white">{option.label}</span>
+              <span className="text-xs text-slate-500 dark:text-slate-300">{percentage}%</span>
+            </div>
+            <div className="text-xs text-slate-600 dark:text-slate-200">
+              {count} / {totalVotes || 0} votes
+            </div>
+          </div>
+        ))}
       </div>
 
       {results.map(({ option }) => {
