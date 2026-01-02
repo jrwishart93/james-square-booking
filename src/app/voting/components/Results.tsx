@@ -181,45 +181,21 @@ function MoreInfoPanel({
   const totalVotes = results.reduce((sum, r) => sum + r.count, 0);
 
   return (
-    <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-4 dark:border-white/10 dark:bg-white/5">
-      <div>
-        <h4 className="text-sm font-semibold text-slate-900 dark:text-white">Result breakdown</h4>
-        <p className="text-xs text-slate-600 dark:text-slate-300">
-          Visual summary of how votes are distributed.
-        </p>
-      </div>
+    <div className="mt-4 space-y-3">
+      <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-200">Visual summary</h4>
 
-      <Results3DPie data={pieData} theme={theme} emphasis="secondary" totalVotes={totalVotes} turnoutFlats={uniqueFlats.length} enableParallax={false} />
+      <Results3DPie
+        data={pieData}
+        theme={theme}
+        emphasis="secondary"
+        totalVotes={totalVotes}
+        turnoutFlats={uniqueFlats.length}
+        enableParallax={false}
+      />
 
-      <div className="text-xs text-slate-600 dark:text-slate-300">
-        Turnout: <strong>{uniqueFlats.length}</strong> flat{uniqueFlats.length === 1 ? "" : "s"}
-      </div>
-
-      {results.map(({ option }) => {
-        const flats = votes
-          .filter((v) => v.optionId === option.id)
-          .map((v) => v.voterFlat)
-          .filter(Boolean);
-
-        if (flats.length === 0) return null;
-
-        return (
-          <div key={option.id} className="space-y-1">
-            <div className="flex justify-between text-sm">
-              <span>{option.label}</span>
-              <span className="text-xs text-slate-500 dark:text-slate-300">{flats.length} flat{flats.length === 1 ? "" : "s"}</span>
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-              {flats.map((f) => (
-                <span key={f} className="text-xs px-2 py-1 rounded-full bg-slate-100 dark:bg-white/10 dark:text-white">
-                  {f}
-                </span>
-              ))}
-            </div>
-          </div>
-        );
-      })}
+      <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
+        Turnout: {uniqueFlats.length} flat{uniqueFlats.length === 1 ? "" : "s"}
+      </p>
     </div>
   );
 }

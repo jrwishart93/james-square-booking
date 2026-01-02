@@ -28,87 +28,122 @@ export default function Results3DPie({
 }: Results3DPieProps) {
   const colors = theme === "dark" ? DARK_COLORS : LIGHT_COLORS;
   const isSecondary = emphasis === "secondary";
+  const resolvedTotal =
+    typeof totalVotes === "number" ? totalVotes : data.reduce((sum, item) => sum + item.value, 0);
+  const resolvedTurnout = turnoutFlats ?? undefined;
 
   return (
-    <div className="relative h-64 w-full">
-      <ResponsiveContainer width="100%" height="100%">
-        <PieChart>
-          <Pie
-            data={data}
-            dataKey="value"
-            innerRadius={isSecondary ? 46 : 52}
-            outerRadius={isSecondary ? 72 : 82}
-            startAngle={90}
-            endAngle={-270}
-            paddingAngle={1}
-            isAnimationActive
-            animationDuration={900}
-            animationBegin={150}
-          >
-            {data.map((_, index) => (
-              <Cell
-                key={`shadow-${index}`}
-                fill={theme === "dark" ? "rgba(0,0,0,0.45)" : "rgba(0,0,0,0.18)"}
-                style={{
-                  transform: "translate(3px, 6px)",
-                }}
-              />
-            ))}
-          </Pie>
+    <div
+      className="rounded-2xl p-5 bg-white/70 backdrop-blur-xl border border-slate-200 shadow-xl dark:bg-slate-900/60 dark:border-white/10 dark:shadow-[0_20px_60px_rgba(0,0,0,0.6)]"
+      aria-label={`Vote distribution donut${resolvedTurnout ? `, ${resolvedTurnout} flats` : ""}`}
+    >
+      <div className="relative h-64 w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={data}
+              dataKey="value"
+              nameKey="name"
+              innerRadius={isSecondary ? 46 : 52}
+              outerRadius={isSecondary ? 72 : 82}
+              startAngle={90}
+              endAngle={-270}
+              paddingAngle={3}
+              cornerRadius={8}
+              isAnimationActive
+              animationDuration={1400}
+              animationBegin={150}
+              label={false}
+              labelLine={false}
+            >
+              {data.map((_, index) => (
+                <Cell
+                  key={`shadow-${index}`}
+                  fill={theme === "dark" ? "rgba(0,0,0,0.45)" : "rgba(0,0,0,0.18)"}
+                  style={{
+                    transform: "translate(3px, 6px)",
+                  }}
+                />
+              ))}
+            </Pie>
 
-          <Pie
-            data={data}
-            dataKey="value"
-            innerRadius={isSecondary ? 42 : 48}
-            outerRadius={isSecondary ? 68 : 78}
-            startAngle={90}
-            endAngle={-270}
-            paddingAngle={2}
-            isAnimationActive
-            animationDuration={900}
-          >
-            {data.map((_, index) => (
-              <Cell
-                key={`slice-${index}`}
-                fill={colors[index % colors.length]}
-                style={{
-                  filter: isSecondary
-                    ? "drop-shadow(0 6px 10px rgba(0,0,0,0.18))"
-                    : theme === "dark"
-                      ? "drop-shadow(0 12px 22px rgba(0,0,0,0.35))"
-                      : "drop-shadow(0 12px 22px rgba(0,0,0,0.25))",
-                }}
-              />
-            ))}
-          </Pie>
+            <Pie
+              data={data}
+              dataKey="value"
+              nameKey="name"
+              innerRadius={isSecondary ? 42 : 48}
+              outerRadius={isSecondary ? 68 : 78}
+              startAngle={90}
+              endAngle={-270}
+              paddingAngle={3}
+              cornerRadius={8}
+              isAnimationActive
+              animationDuration={1400}
+              label={false}
+              labelLine={false}
+            >
+              {data.map((_, index) => (
+                <Cell
+                  key={`slice-${index}`}
+                  fill={colors[index % colors.length]}
+                  style={{
+                    filter: isSecondary
+                      ? "drop-shadow(0 6px 10px rgba(0,0,0,0.18))"
+                      : theme === "dark"
+                        ? "drop-shadow(0 12px 22px rgba(0,0,0,0.35))"
+                        : "drop-shadow(0 12px 22px rgba(0,0,0,0.25))",
+                  }}
+                />
+              ))}
+            </Pie>
 
-          <Tooltip
-            formatter={(value: ValueType, name: NameType, props?: Payload<ValueType, NameType>) => {
-              const votes = Number(value ?? 0);
-              const pct =
-                typeof props?.payload?.percentage === "number" ? props.payload.percentage : 0;
-              return [`${votes} votes (${pct}%)`, String(name ?? "")];
-            }}
-            contentStyle={{
-              background: theme === "dark" ? "rgba(2,6,23,0.95)" : "rgba(255,255,255,0.95)",
-              borderRadius: "12px",
-              border: "none",
-              boxShadow:
-                theme === "dark"
-                  ? "0 20px 60px rgba(0,0,0,0.7)"
-                  : "0 20px 60px rgba(15,23,42,0.25)",
-              color: theme === "dark" ? "#e5e7eb" : "#0f172a",
-            }}
-            itemStyle={{
-              color: theme === "dark" ? "#67e8f9" : "#0ea5e9",
-              fontWeight: 600,
-            }}
-            labelStyle={{
-              color: theme === "dark" ? "#cbd5f5" : "#334155",
-            }}
-          />
-        </PieChart>
-      </ResponsiveContainer>
+            <Tooltip
+              formatter={(value: ValueType, name: NameType, props?: Payload<ValueType, NameType>) => {
+                const votes = Number(value ?? 0);
+                const pct =
+                  typeof props?.payload?.percentage === "number" ? props.payload.percentage : 0;
+                return [`${votes} votes (${pct}%)`, String(name ?? "")];
+              }}
+              contentStyle={{
+                background: theme === "dark" ? "rgba(2,6,23,0.95)" : "rgba(255,255,255,0.95)",
+                borderRadius: "12px",
+                border: "none",
+                boxShadow:
+                  theme === "dark"
+                    ? "0 20px 60px rgba(0,0,0,0.7)"
+                    : "0 20px 60px rgba(15,23,42,0.25)",
+                color: theme === "dark" ? "#e5e7eb" : "#0f172a",
+              }}
+              itemStyle={{
+                color: theme === "dark" ? "#67e8f9" : "#0ea5e9",
+                fontWeight: 600,
+              }}
+              labelStyle={{
+                color: theme === "dark" ? "#cbd5f5" : "#334155",
+              }}
+            />
+
+            <text
+              x="50%"
+              y="48%"
+              textAnchor="middle"
+              className="fill-slate-900 dark:fill-white font-extrabold"
+              style={{ fontSize: "3rem" }}
+            >
+              {resolvedTotal.toLocaleString()}
+            </text>
+            <text
+              x="50%"
+              y="62%"
+              textAnchor="middle"
+              className="fill-slate-500 dark:fill-slate-300 font-medium"
+              style={{ fontSize: "1rem" }}
+            >
+              Total votes
+            </text>
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
 
       <div className="my-3 h-px bg-slate-200 dark:bg-white/10" />
 
