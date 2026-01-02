@@ -37,6 +37,7 @@ export default function Results() {
   const [votesByQuestion, setVotesByQuestion] = useState<Record<string, VoteDoc[]>>({});
   const [openQuestionId, setOpenQuestionId] = useState<string | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [animateIn, setAnimateIn] = useState(false);
 
   useEffect(() => {
     let unsubscribers: (() => void)[] = [];
@@ -97,8 +98,13 @@ export default function Results() {
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    const t = setTimeout(() => setAnimateIn(true), 100);
+    return () => clearTimeout(t);
+  }, []);
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" style={{ willChange: "transform, opacity" }}>
       {stats.map(({ question, results, totalVotes }) => {
         const isOpen = openQuestionId === question.id;
         return (
@@ -108,7 +114,7 @@ export default function Results() {
           >
             <h2 className="text-xl font-semibold text-slate-900 dark:text-white">{question.title}</h2>
             <div className="space-y-3">
-              {results.map(({ option, count, percentage }) => {
+              {results.map(({ option, count, percentage }, index) => {
                 const pct = Number.isFinite(percentage) ? percentage : 0;
                 const pctLabel = `${pct}%`;
                 return (
@@ -121,8 +127,8 @@ export default function Results() {
                     </div>
                     <div className="h-2 rounded-full bg-slate-200/80 overflow-hidden dark:bg-white/10">
                       <div
-                        className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-indigo-500 transition-all dark:shadow-[0_10px_30px_rgba(34,211,238,0.22)]"
-                        style={{ width: `${pct}%` }}
+                        className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-indigo-500 transition-[width] duration-700 ease-out dark:shadow-[0_10px_30px_rgba(34,211,238,0.22)]"
+                        style={{ width: animateIn ? `${pct}%` : "0%", transitionDelay: `${index * 120}ms` }}
                       />
                     </div>
                   </div>
@@ -152,13 +158,16 @@ export default function Results() {
               </svg>
             </button>
 
-            {isOpen && (
+            <div
+              className={`overflow-hidden transition-all duration-500 ease-out ${isOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2 pointer-events-none"}`}
+              style={{ maxHeight: isOpen ? "1200px" : "0px" }}
+            >
               <MoreInfoPanel
                 votes={votesByQuestion[question.id] ?? []}
                 results={results}
                 theme={isDarkMode ? "dark" : "light"}
               />
-            )}
+            </div>
           </div>
         );
       })}

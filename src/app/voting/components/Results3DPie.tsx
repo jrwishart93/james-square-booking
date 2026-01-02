@@ -1,6 +1,8 @@
 "use client";
 
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Sector } from "recharts";
+import type { SectorProps } from "recharts";
+import { useEffect, useState } from "react";
 
 type PieDatum = {
   name: string;
@@ -30,11 +32,22 @@ export default function Results3DPie({
   const isDark = theme === "dark";
   const colors = isDark ? DARK_COLORS : LIGHT_COLORS;
   const isSecondary = emphasis === "secondary";
+  const [activeIndex, setActiveIndex] = useState(-1);
+  const [animateIn, setAnimateIn] = useState(false);
   const resolvedTotal =
     typeof totalVotes === "number" ? totalVotes : data.reduce((sum, item) => sum + item.value, 0);
   const resolvedTurnout = turnoutFlats ?? undefined;
   const centerNumberFill = isDark ? "#67e8f9" : "#0ea5e9";
   const centerLabelFill = isDark ? "rgba(226,232,240,0.75)" : "rgba(100,116,139,0.9)";
+
+  useEffect(() => {
+    const t = setTimeout(() => setAnimateIn(true), 150);
+    return () => clearTimeout(t);
+  }, []);
+
+  const ActiveSlice = (props: SectorProps) => (
+    <Sector {...props} outerRadius={(Number(props.outerRadius) || 0) + 6} />
+  );
 
   return (
     <div
@@ -48,19 +61,24 @@ export default function Results3DPie({
               data={data}
               dataKey="value"
               nameKey="name"
-              innerRadius="68%"
-              outerRadius="88%"
+              innerRadius="66%"
+              outerRadius="86%"
               startAngle={90}
               endAngle={-270}
-              paddingAngle={2}
+              paddingAngle={3}
               cornerRadius={10}
               stroke={isDark ? "rgba(0,0,0,0.4)" : "rgba(255,255,255,0.8)"}
               strokeWidth={2}
               isAnimationActive
               animationDuration={1400}
-              animationBegin={150}
+              animationBegin={300}
+              animationEasing="ease-out"
               label={false}
               labelLine={false}
+              activeShape={ActiveSlice}
+              onMouseEnter={(_, i) => setActiveIndex(i)}
+              onMouseLeave={() => setActiveIndex(-1)}
+              activeIndex={activeIndex}
             >
               {data.map((_, index) => (
                 <Cell
@@ -77,18 +95,24 @@ export default function Results3DPie({
               data={data}
               dataKey="value"
               nameKey="name"
-              innerRadius="64%"
-              outerRadius="84%"
+              innerRadius="62%"
+              outerRadius="80%"
               startAngle={90}
               endAngle={-270}
-              paddingAngle={2}
+              paddingAngle={3}
               cornerRadius={10}
               stroke={isDark ? "rgba(0,0,0,0.4)" : "rgba(255,255,255,0.8)"}
               strokeWidth={2}
               isAnimationActive
               animationDuration={1400}
+              animationBegin={300}
+              animationEasing="ease-out"
               label={false}
               labelLine={false}
+              activeShape={ActiveSlice}
+              onMouseEnter={(_, i) => setActiveIndex(i)}
+              onMouseLeave={() => setActiveIndex(-1)}
+              activeIndex={activeIndex}
             >
               {data.map((_, index) => (
                 <Cell
@@ -122,26 +146,34 @@ export default function Results3DPie({
               }}
             />
 
-            <text
-              x="50%"
-              y="46%"
-              textAnchor="middle"
-              className="font-extrabold"
-              style={{ fontSize: "48px" }}
-              fill={centerNumberFill}
+            <g
+              style={{
+                opacity: animateIn ? 1 : 0,
+                transform: animateIn ? "translateY(0)" : "translateY(6px)",
+                transition: "opacity 600ms ease-out 900ms, transform 600ms ease-out 900ms",
+              }}
             >
-              {resolvedTotal.toLocaleString()}
-            </text>
-            <text
-              x="50%"
-              y="60%"
-              textAnchor="middle"
-              className="font-medium"
-              style={{ fontSize: "14px" }}
-              fill={centerLabelFill}
-            >
-              Total votes
-            </text>
+              <text
+                x="50%"
+                y="46%"
+                textAnchor="middle"
+                className="font-extrabold"
+                style={{ fontSize: "48px" }}
+                fill={centerNumberFill}
+              >
+                {resolvedTotal.toLocaleString()}
+              </text>
+              <text
+                x="50%"
+                y="60%"
+                textAnchor="middle"
+                className="font-medium"
+                style={{ fontSize: "14px" }}
+                fill={centerLabelFill}
+              >
+                Total votes
+              </text>
+            </g>
           </PieChart>
         </ResponsiveContainer>
       </div>
