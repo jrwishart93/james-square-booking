@@ -815,7 +815,7 @@ export default function OwnersVotingPage() {
                                         <LabelList
                                           dataKey="percentage"
                                           position="top"
-                                          formatter={(value: number) => `${value}%`}
+                                          formatter={(value) => (typeof value === "number" ? `${value}%` : "")}
                                           fill="#0f172a"
                                           fontSize={12}
                                         />
