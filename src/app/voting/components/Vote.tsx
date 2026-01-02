@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { User, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { FirebaseError } from 'firebase/app';
-import { getQuestions, hasExistingVoteForFlat, normalizeFlat, submitVote } from '../services/storageService';
+import { getExistingVoteForUser, getQuestions, normalizeFlat, submitVote } from '../services/storageService';
 import { auth, db } from '@/lib/firebase';
-import { Question } from '../types';
+import { Question, Vote } from '../types';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
 import { ArrowRight, AlertCircle, Check, Loader2 } from 'lucide-react';
@@ -32,7 +32,7 @@ const VotePage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isCheckingExistingVote, setIsCheckingExistingVote] = useState(false);
-  const [hasAlreadyVoted, setHasAlreadyVoted] = useState(false);
+  const [existingVote, setExistingVote] = useState<Vote | null>(null);
   const [duplicateMessage, setDuplicateMessage] = useState<string | null>(null);
 
   // Load username from session storage if available (UX convenience)
@@ -91,13 +91,13 @@ const VotePage: React.FC = () => {
     try {
       const questions = await getQuestions();
       const openQuestions = questions.filter(q => q.status === 'open');
-      const nextQ = openQuestions[0] ?? null;
+      const nextQ = openQuestions[0] ?? questions[0] ?? null;
 
       if (nextQ) {
         setCurrentQuestion(nextQ);
         setSelectedOptionId(null); // Reset selection
         setError(null);
-        setHasAlreadyVoted(false);
+        setExistingVote(null);
         setDuplicateMessage(null);
       } else {
         // No more questions to vote on
@@ -132,11 +132,8 @@ const VotePage: React.FC = () => {
   useEffect(() => {
     if (!currentQuestion) return;
 
-    const normalizedFlat = normalizeFlat(flat);
-
-    if (!normalizedFlat) {
-      setHasAlreadyVoted(false);
-      setDuplicateMessage(null);
+    if (!currentUser && !flat.trim()) {
+      setExistingVote(null);
       setIsCheckingExistingVote(false);
       return;
     }
@@ -145,27 +142,27 @@ const VotePage: React.FC = () => {
     setIsCheckingExistingVote(true);
     setDuplicateMessage(null);
 
-    const checkVote = async () => {
+    const loadExisting = async () => {
       try {
-        const alreadyVoted = await hasExistingVoteForFlat(currentQuestion.id, normalizedFlat);
+        const vote = await getExistingVoteForUser(currentQuestion.id, currentUser?.uid, normalizeFlat(flat));
         if (!isActive) return;
-        setHasAlreadyVoted(alreadyVoted);
-        setDuplicateMessage(alreadyVoted ? 'This flat has already submitted a vote for this question.' : null);
+        setExistingVote(vote);
+        setSelectedOptionId((prev) => prev ?? vote?.optionId ?? null);
       } catch (checkError) {
         if (!isActive) return;
-        console.error('Failed to check existing vote', checkError);
+        console.error('Failed to load existing vote', checkError);
         setDuplicateMessage('Please confirm your flat number before submitting your vote.');
       } finally {
         if (isActive) setIsCheckingExistingVote(false);
       }
     };
 
-    void checkVote();
+    void loadExisting();
 
     return () => {
       isActive = false;
     };
-  }, [currentQuestion, flat]);
+  }, [currentQuestion, flat, currentUser]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -191,11 +188,6 @@ const VotePage: React.FC = () => {
     }
     if (!normalizedFlat) {
       setError("Please enter your flat number to vote.");
-      return;
-    }
-
-    if (hasAlreadyVoted) {
-      setError('This flat has already submitted a vote for this question.');
       return;
     }
 
@@ -227,7 +219,6 @@ const VotePage: React.FC = () => {
 
       if (message.toLowerCase().includes('already voted')) {
         message = 'This flat has already submitted a vote for this question.';
-        setHasAlreadyVoted(true);
         setDuplicateMessage(message);
       }
 
@@ -246,9 +237,11 @@ const VotePage: React.FC = () => {
     normalizedFlat.length > 0 &&
     currentUser &&
     !isSubmitting &&
-    !hasAlreadyVoted &&
     !isCheckingExistingVote,
   );
+  const isClosed = currentQuestion?.status !== 'open';
+  const hasExistingVote = Boolean(existingVote);
+  const hasChangedVote = hasExistingVote && selectedOptionId !== existingVote?.optionId;
 
   if (isLoading) {
     return (
@@ -268,7 +261,7 @@ const VotePage: React.FC = () => {
   return (
     <div className="max-w-xl mx-auto py-8 px-6">
 
-      <div className="
+          <div className="
         rounded-[32px]
         bg-white
         border border-slate-200
@@ -279,7 +272,7 @@ const VotePage: React.FC = () => {
         <div className="p-8 border-b border-slate-200 bg-gradient-to-r from-cyan-50 to-indigo-50">
           <div className="flex justify-between items-start mb-4">
             <span className="inline-flex px-3 py-1 text-xs font-bold tracking-wider uppercase bg-emerald-50 text-emerald-700 rounded-full border border-emerald-200 shadow-[0_6px_20px_rgba(16,185,129,0.15)]">
-              Active Poll
+              {isClosed ? 'Closed Poll' : 'Active Poll'}
             </span>
           </div>
           <h2 className="text-2xl font-bold text-slate-900 mb-2 leading-tight">
@@ -289,6 +282,15 @@ const VotePage: React.FC = () => {
             <p className="text-slate-600 text-sm leading-relaxed">
               {currentQuestion.description}
             </p>
+          )}
+          {hasExistingVote && (
+            <div className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-2 rounded-full shadow-[0_6px_20px_rgba(16,185,129,0.12)]">
+              <Check size={14} />
+              <span>
+                You voted: <span className="text-emerald-900">{currentQuestion.options.find(o => o.id === existingVote?.optionId)?.label ?? existingVote?.optionId}</span>
+              </span>
+              {!isClosed && <span className="text-emerald-700 font-medium">• Change your answer anytime</span>}
+            </div>
           )}
         </div>
 
@@ -318,7 +320,6 @@ const VotePage: React.FC = () => {
                   if (flatLocked) return;
                   const normalizedValue = normalizeFlat(e.target.value);
                   setFlat(normalizedValue);
-                  setHasAlreadyVoted(false);
                   setDuplicateMessage(null);
                   if (error) setError(null);
                 }}
@@ -335,8 +336,8 @@ const VotePage: React.FC = () => {
                   className="text-cyan-700 font-semibold hover:underline"
                   onClick={() => {
                     setSelectedOptionId(null);
-                    setHasAlreadyVoted(false);
                     setDuplicateMessage(null);
+                    setExistingVote(null);
                   }}
                 >
                   Change flat
@@ -355,6 +356,7 @@ const VotePage: React.FC = () => {
             <label className="block text-sm font-semibold text-slate-800 ml-1">Select your choice:</label>
             {currentQuestion.options.map((option) => {
               const isSelected = selectedOptionId === option.id;
+              const isPrevSelection = existingVote?.optionId === option.id;
               return (
                 <label
                   key={option.id}
@@ -373,6 +375,7 @@ const VotePage: React.FC = () => {
                     checked={isSelected}
                     onChange={() => setSelectedOptionId(option.id)}
                     className="sr-only" 
+                    disabled={isClosed}
                   />
                   <div className={`
                     flex-shrink-0 w-5 h-5 rounded-full border flex items-center justify-center mr-4 transition-colors
@@ -383,10 +386,22 @@ const VotePage: React.FC = () => {
                   <span className={`font-medium text-sm ${isSelected ? 'text-slate-900' : 'text-slate-700 group-hover:text-slate-900'}`}>
                     {option.label}
                   </span>
+                  {isPrevSelection && (
+                    <span className="ml-auto text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 rounded-full px-3 py-1">
+                      You chose this
+                    </span>
+                  )}
                 </label>
               );
             })}
           </div>
+
+          {hasExistingVote && hasChangedVote && !isClosed && (
+            <div className="flex items-center gap-3 text-sm text-amber-700 bg-amber-50 p-4 rounded-xl border border-amber-200">
+              <AlertCircle size={18} className="shrink-0" />
+              Your vote will be updated.
+            </div>
+          )}
 
           {displayMessage && (
             <div className="flex items-center gap-3 text-red-700 text-sm bg-red-50 p-4 rounded-xl border border-red-200">
@@ -394,14 +409,20 @@ const VotePage: React.FC = () => {
               {displayMessage}
             </div>
           )}
+          {isClosed && hasExistingVote && (
+            <div className="flex items-center gap-3 text-sm text-slate-700 bg-slate-50 p-4 rounded-xl border border-slate-200">
+              <AlertCircle size={18} className="shrink-0 text-slate-500" />
+              Voting is closed for this question. Your recorded answer is shown above.
+            </div>
+          )}
 
           <Button
             type="submit"
             fullWidth
             isLoading={isSubmitting}
-            disabled={!canSubmit}
+            disabled={!canSubmit || isClosed}
           >
-            Submit Vote <ArrowRight size={16} className="ml-2" />
+            {hasExistingVote ? 'Update Vote' : 'Submit Vote'} <ArrowRight size={16} className="ml-2" />
           </Button>
         </form>
       </div>
