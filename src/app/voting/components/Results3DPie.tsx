@@ -1,7 +1,7 @@
 "use client";
 
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-import type { ValueType, Payload } from "recharts/types/component/DefaultTooltipContent";
+import type { NameType, ValueType, Payload } from "recharts/types/component/DefaultTooltipContent";
 
 type PieDatum = {
   name: string;
