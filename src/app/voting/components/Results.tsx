@@ -2,8 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-import type { NameType, ValueType, Payload } from "recharts/types/component/DefaultTooltipContent";
 import { db } from "@/lib/firebase";
 import { getQuestions } from "../services/storageService";
 import Results3DPie from "@/app/voting/components/Results3DPie";
@@ -33,8 +31,6 @@ type QuestionStat = {
   results: { option: QuestionOption; count: number; percentage: number }[];
   totalVotes: number;
 };
-
-const COLORS = ["#22d3ee", "#6366f1", "#a78bfa", "#06b6d4", "#818cf8"];
 
 export default function Results() {
   const [stats, setStats] = useState<QuestionStat[]>([]);
@@ -104,44 +100,39 @@ export default function Results() {
   return (
     <div className="space-y-6">
       {stats.map(({ question, results, totalVotes }) => {
-        const chartData = results.map((r) => ({
-          name: r.option.label,
-          value: r.count,
-          percentage: r.percentage,
-        }));
-
         return (
           <div key={question.id} className="rounded-2xl bg-white border border-slate-200 p-6 space-y-4">
             <h2 className="text-lg font-semibold">{question.title}</h2>
+            <div className="space-y-3">
+              {results.map(({ option, count, percentage }) => {
+                const pct = Number.isFinite(percentage) ? percentage : 0;
+                const pctLabel = `${pct}%`;
+                return (
+                  <div key={option.id} className="space-y-1">
+                    <div className="flex items-center justify-between text-sm text-slate-800 dark:text-slate-200">
+                      <span className="font-medium">{option.label}</span>
+                      <span className="text-slate-500 dark:text-slate-300">
+                        {count} vote{count === 1 ? "" : "s"} • {pctLabel}
+                      </span>
+                    </div>
+                    <div className="h-2 rounded-full bg-slate-200 overflow-hidden dark:bg-white/10">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-indigo-500 transition-all"
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
 
-            {totalVotes === 0 ? (
-              <p className="text-sm text-slate-500">No votes yet</p>
-            ) : (
-              <div className="h-56">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie data={chartData} dataKey="value" innerRadius={50} outerRadius={80} paddingAngle={2}>
-                      {chartData.map((_, i: number) => (
-                        <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      formatter={(v: ValueType, n: NameType, p?: Payload<ValueType, NameType>) => {
-                        const pct = typeof p?.payload?.percentage === "number" ? p.payload.percentage : 0;
-                        const votes = Number(v ?? 0);
-                        return [`${votes} votes (${pct}%)`, String(n ?? "")];
-                      }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            )}
+            <div className="text-xs text-slate-500 dark:text-slate-300">Total votes: {totalVotes}</div>
 
             <button
               type="button"
               onClick={() => setOpenQuestionId((prev) => (prev === question.id ? null : question.id))}
               aria-expanded={openQuestionId === question.id}
-              className="text-sm text-blue-600 underline"
+              className="mt-3 text-sm font-medium text-slate-500 hover:text-slate-900 underline-offset-4 hover:underline dark:text-slate-400 dark:hover:text-white"
             >
               {openQuestionId === question.id ? "Hide details" : "More info"}
             </button>
@@ -178,30 +169,18 @@ function MoreInfoPanel({
   const totalVotes = results.reduce((sum, r) => sum + r.count, 0);
 
   return (
-    <div className="mt-4 space-y-4">
-      <div className="text-sm">
-        Turnout: <strong>{uniqueFlats.length}</strong> flats
+    <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-4 dark:border-white/10 dark:bg-white/5">
+      <div>
+        <h4 className="text-sm font-semibold text-slate-900 dark:text-white">Result breakdown</h4>
+        <p className="text-xs text-slate-600 dark:text-slate-300">
+          Visual summary of how votes are distributed.
+        </p>
       </div>
 
-      <div className="mt-6">
-        <Results3DPie data={pieData} theme={theme} />
-      </div>
+      <Results3DPie data={pieData} theme={theme} emphasis="secondary" totalVotes={totalVotes} turnoutFlats={uniqueFlats.length} enableParallax={false} />
 
-      <div className="space-y-2">
-        {results.map(({ option, count, percentage }) => (
-          <div
-            key={option.id}
-            className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5"
-          >
-            <div className="flex items-center gap-2">
-              <span className="font-medium text-slate-900 dark:text-white">{option.label}</span>
-              <span className="text-xs text-slate-500 dark:text-slate-300">{percentage}%</span>
-            </div>
-            <div className="text-xs text-slate-600 dark:text-slate-200">
-              {count} / {totalVotes || 0} votes
-            </div>
-          </div>
-        ))}
+      <div className="text-xs text-slate-600 dark:text-slate-300">
+        Turnout: <strong>{uniqueFlats.length}</strong> flat{uniqueFlats.length === 1 ? "" : "s"}
       </div>
 
       {results.map(({ option }) => {
@@ -210,16 +189,18 @@ function MoreInfoPanel({
           .map((v) => v.voterFlat)
           .filter(Boolean);
 
+        if (flats.length === 0) return null;
+
         return (
           <div key={option.id} className="space-y-1">
             <div className="flex justify-between text-sm">
               <span>{option.label}</span>
-              <span>{flats.length}</span>
+              <span className="text-xs text-slate-500 dark:text-slate-300">{flats.length} flat{flats.length === 1 ? "" : "s"}</span>
             </div>
 
             <div className="flex flex-wrap gap-2">
               {flats.map((f) => (
-                <span key={f} className="text-xs px-2 py-1 rounded-full bg-slate-100">
+                <span key={f} className="text-xs px-2 py-1 rounded-full bg-slate-100 dark:bg-white/10 dark:text-white">
                   {f}
                 </span>
               ))}

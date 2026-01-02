@@ -12,13 +12,22 @@ type PieDatum = {
 type Results3DPieProps = {
   data: PieDatum[];
   theme?: "light" | "dark";
+  emphasis?: "primary" | "secondary";
+  totalVotes?: number;
+  turnoutFlats?: number;
+  enableParallax?: boolean;
 };
 
 const LIGHT_COLORS = ["#22d3ee", "#6366f1", "#a78bfa", "#06b6d4", "#818cf8"];
 const DARK_COLORS = ["#67e8f9", "#818cf8", "#c4b5fd", "#22d3ee", "#a5b4fc"];
 
-export default function Results3DPie({ data, theme = "light" }: Results3DPieProps) {
+export default function Results3DPie({
+  data,
+  theme = "light",
+  emphasis = "secondary",
+}: Results3DPieProps) {
   const colors = theme === "dark" ? DARK_COLORS : LIGHT_COLORS;
+  const isSecondary = emphasis === "secondary";
 
   return (
     <div className="relative h-64 w-full">
@@ -27,8 +36,8 @@ export default function Results3DPie({ data, theme = "light" }: Results3DPieProp
           <Pie
             data={data}
             dataKey="value"
-            innerRadius={52}
-            outerRadius={82}
+            innerRadius={isSecondary ? 46 : 52}
+            outerRadius={isSecondary ? 72 : 82}
             startAngle={90}
             endAngle={-270}
             paddingAngle={1}
@@ -50,8 +59,8 @@ export default function Results3DPie({ data, theme = "light" }: Results3DPieProp
           <Pie
             data={data}
             dataKey="value"
-            innerRadius={48}
-            outerRadius={78}
+            innerRadius={isSecondary ? 42 : 48}
+            outerRadius={isSecondary ? 68 : 78}
             startAngle={90}
             endAngle={-270}
             paddingAngle={2}
@@ -63,10 +72,11 @@ export default function Results3DPie({ data, theme = "light" }: Results3DPieProp
                 key={`slice-${index}`}
                 fill={colors[index % colors.length]}
                 style={{
-                  filter:
-                    theme === "dark"
-                      ? "drop-shadow(0 12px 22px rgba(0,0,0,0.55))"
-                      : "drop-shadow(0 10px 18px rgba(0,0,0,0.25))",
+                  filter: isSecondary
+                    ? "drop-shadow(0 6px 10px rgba(0,0,0,0.18))"
+                    : theme === "dark"
+                      ? "drop-shadow(0 12px 22px rgba(0,0,0,0.35))"
+                      : "drop-shadow(0 12px 22px rgba(0,0,0,0.25))",
                 }}
               />
             ))}
