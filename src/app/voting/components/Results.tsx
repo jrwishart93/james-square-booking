@@ -193,9 +193,9 @@ function MoreInfoPanel({
         enableParallax={false}
       />
 
-      <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
-        Turnout: {uniqueFlats.length} flat{uniqueFlats.length === 1 ? "" : "s"}
-      </p>
+      <div className="mt-3 text-xs text-slate-500 dark:text-slate-400">
+        Participation: {totalVotes} vote{totalVotes === 1 ? "" : "s"} recorded
+      </div>
     </div>
   );
 }

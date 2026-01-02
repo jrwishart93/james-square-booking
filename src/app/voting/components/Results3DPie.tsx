@@ -1,7 +1,6 @@
 "use client";
 
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-import type { NameType, ValueType, Payload } from "recharts/types/component/DefaultTooltipContent";
 
 type PieDatum = {
   name: string;
@@ -46,12 +45,12 @@ export default function Results3DPie({
               data={data}
               dataKey="value"
               nameKey="name"
-              innerRadius={isSecondary ? 46 : 52}
-              outerRadius={isSecondary ? 72 : 82}
+              innerRadius="68%"
+              outerRadius="88%"
               startAngle={90}
               endAngle={-270}
-              paddingAngle={3}
-              cornerRadius={8}
+              paddingAngle={2}
+              cornerRadius={10}
               isAnimationActive
               animationDuration={1400}
               animationBegin={150}
@@ -73,12 +72,12 @@ export default function Results3DPie({
               data={data}
               dataKey="value"
               nameKey="name"
-              innerRadius={isSecondary ? 42 : 48}
-              outerRadius={isSecondary ? 68 : 78}
+              innerRadius="64%"
+              outerRadius="84%"
               startAngle={90}
               endAngle={-270}
-              paddingAngle={3}
-              cornerRadius={8}
+              paddingAngle={2}
+              cornerRadius={10}
               isAnimationActive
               animationDuration={1400}
               label={false}
@@ -86,60 +85,51 @@ export default function Results3DPie({
             >
               {data.map((_, index) => (
                 <Cell
-                  key={`slice-${index}`}
-                  fill={colors[index % colors.length]}
-                  style={{
-                    filter: isSecondary
-                      ? "drop-shadow(0 6px 10px rgba(0,0,0,0.18))"
-                      : theme === "dark"
-                        ? "drop-shadow(0 12px 22px rgba(0,0,0,0.35))"
-                        : "drop-shadow(0 12px 22px rgba(0,0,0,0.25))",
-                  }}
-                />
-              ))}
-            </Pie>
+                key={`slice-${index}`}
+                fill={colors[index % colors.length]}
+                style={{
+                  filter: isSecondary
+                    ? "drop-shadow(0 6px 10px rgba(0,0,0,0.15))"
+                    : "drop-shadow(0 6px 10px rgba(0,0,0,0.15))",
+                }}
+              />
+            ))}
+          </Pie>
 
             <Tooltip
-              formatter={(value: ValueType, name: NameType, props?: Payload<ValueType, NameType>) => {
-                const votes = Number(value ?? 0);
-                const pct =
-                  typeof props?.payload?.percentage === "number" ? props.payload.percentage : 0;
-                return [`${votes} votes (${pct}%)`, String(name ?? "")];
-              }}
-              contentStyle={{
-                background: theme === "dark" ? "rgba(2,6,23,0.95)" : "rgba(255,255,255,0.95)",
-                borderRadius: "12px",
-                border: "none",
-                boxShadow:
-                  theme === "dark"
-                    ? "0 20px 60px rgba(0,0,0,0.7)"
-                    : "0 20px 60px rgba(15,23,42,0.25)",
-                color: theme === "dark" ? "#e5e7eb" : "#0f172a",
-              }}
-              itemStyle={{
-                color: theme === "dark" ? "#67e8f9" : "#0ea5e9",
-                fontWeight: 600,
-              }}
-              labelStyle={{
-                color: theme === "dark" ? "#cbd5f5" : "#334155",
+              content={({ active, payload }) => {
+                if (!active || !payload?.length) return null;
+                const { name, value, percentage } = payload[0].payload as {
+                  name: string;
+                  value: number;
+                  percentage: number;
+                };
+                return (
+                  <div className="rounded-xl bg-white/90 backdrop-blur-md px-4 py-2 shadow-lg border border-slate-200 text-sm dark:bg-slate-900/90 dark:border-white/10">
+                    <div className="font-semibold text-slate-900 dark:text-white">{name}</div>
+                    <div className="text-slate-600 dark:text-slate-300">
+                      {value} votes • {percentage}%
+                    </div>
+                  </div>
+                );
               }}
             />
 
             <text
               x="50%"
-              y="48%"
+              y="46%"
               textAnchor="middle"
               className="fill-slate-900 dark:fill-white font-extrabold"
-              style={{ fontSize: "3rem" }}
+              style={{ fontSize: "48px" }}
             >
               {resolvedTotal.toLocaleString()}
             </text>
             <text
               x="50%"
-              y="62%"
+              y="60%"
               textAnchor="middle"
-              className="fill-slate-500 dark:fill-slate-300 font-medium"
-              style={{ fontSize: "1rem" }}
+              className="fill-slate-500 dark:fill-slate-400 font-medium"
+              style={{ fontSize: "14px" }}
             >
               Total votes
             </text>
@@ -147,9 +137,9 @@ export default function Results3DPie({
         </ResponsiveContainer>
       </div>
 
-      <div className="my-3 h-px bg-slate-200 dark:bg-white/10" />
+      <div className="my-3 h-px bg-slate-200/60 dark:bg-white/10" />
 
-      <div className="mt-4 space-y-2">
+      <div className="mt-4 space-y-1.5">
         {data.map((item, index) => (
           <div key={item.name} className="flex items-center justify-between gap-3 text-sm">
             <div className="flex items-center gap-2 min-w-0">
