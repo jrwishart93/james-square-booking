@@ -18,7 +18,11 @@ const Results: React.FC = () => {
   const [stats, setStats] = useState<QuestionStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [questionVotes, setQuestionVotes] = useState<Record<string, VoteDoc[]>>({});
-  const [expandedMoreInfo, setExpandedMoreInfo] = useState<Record<string, boolean>>({});
+  const [openQuestionId, setOpenQuestionId] = useState<string | null>(null);
+
+  const toggleMoreInfo = (questionId: string) => {
+    setOpenQuestionId((prev) => (prev === questionId ? null : questionId));
+  };
 
   useEffect(() => {
     let unsubscribers: Array<() => void> = [];
@@ -209,11 +213,11 @@ const Results: React.FC = () => {
             </div>
 
             <div className="p-6 space-y-5">
-              {stat.totalVotes === 0 ? (
-                <div className="text-center py-6 text-slate-500 text-sm italic">
-                  No votes recorded yet.
-                </div>
-              ) : (
+                  {stat.totalVotes === 0 ? (
+                    <div className="text-center py-6 text-slate-500 text-sm italic">
+                      No votes recorded yet.
+                    </div>
+                  ) : (
                 <>
                  {stat.totalVotes === 0 ? (
                    <div className="text-center py-6 text-slate-500 text-sm italic">
@@ -225,35 +229,32 @@ const Results: React.FC = () => {
                        name: res.option.label,
                        value: res.count,
                        percentage: res.percentage,
-                     }))}
-                   />
-                 )}
+                      }))}
+                    />
+                  )}
 
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setExpandedMoreInfo((prev) => ({
-                        ...prev,
-                        [stat.question.id]: !prev[stat.question.id],
-                      }))
-                    }
-                    aria-expanded={!!expandedMoreInfo[stat.question.id]}
-                    className="
-                      mt-4
-                      text-sm font-medium
-                      text-slate-600
-                      hover:text-slate-900
-                      underline-offset-4 hover:underline
-                      dark:text-slate-300
-                      dark:hover:text-white
-                    "
-                  >
-                    {expandedMoreInfo[stat.question.id] ? 'Hide details' : 'More info'}
-                  </button>
+                  <div className="mt-4">
+                    <button
+                      type="button"
+                      onClick={() => toggleMoreInfo(stat.question.id)}
+                      aria-expanded={openQuestionId === stat.question.id}
+                      className="
+                        text-sm font-medium
+                        text-slate-600
+                        hover:text-slate-900
+                        underline-offset-4 hover:underline
+                        dark:text-slate-300
+                        dark:hover:text-white
+                      "
+                    >
+                      {openQuestionId === stat.question.id ? 'Hide details' : 'More info'}
+                    </button>
+                  </div>
 
-                  {expandedMoreInfo[stat.question.id] && (
+                  {openQuestionId === stat.question.id && (
                     <div className="mt-4">
                       <div className="h-px bg-slate-200 dark:bg-white/10 mb-4" />
+
                       <MoreInfoPanel
                         question={stat.question}
                         results={stat.results}
