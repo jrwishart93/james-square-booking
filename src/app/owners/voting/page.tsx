@@ -601,7 +601,15 @@ export default function OwnersVotingPage() {
                 {questionResults.length === 0 ? (
                   <p className="text-slate-600 dark:text-slate-300">No questions yet.</p>
                 ) : (
-                  questionResults.map(({ question, results, totalVotes }) => (
+                  questionResults.map(({ question, results, totalVotes }) => {
+                    const leadingPercentage = results.reduce(
+                      (max, { percentage }) => Math.max(max, Number.isFinite(percentage) ? percentage : 0),
+                      0,
+                    );
+                    const isVotingOpen = question.status === "open";
+                    const statusCopy = `${isVotingOpen ? "Voting open" : "Voting closed"} • ${isVotingOpen ? "Live" : "Final"} results`;
+
+                    return (
                     <div
                       key={question.id}
                       className="p-6 rounded-2xl bg-white border border-black/10 space-y-4 shadow-[0_12px_30px_rgba(0,0,0,0.08)] dark:bg-white/5 dark:border-white/10 dark:shadow-none"
@@ -613,6 +621,7 @@ export default function OwnersVotingPage() {
                           {question.description && (
                             <p className="text-slate-700 text-sm dark:text-slate-300">{question.description}</p>
                           )}
+                          <p className="mt-1 text-xs font-medium text-slate-600 dark:text-slate-400">{statusCopy}</p>
                         </div>
                         <div className="flex items-center gap-3">
                           <div className="text-right text-sm text-slate-600 dark:text-slate-400">
@@ -631,13 +640,20 @@ export default function OwnersVotingPage() {
                         </div>
                       </div>
 
-                      <div className="space-y-3">
+                      <div className="space-y-4">
                         {results.map(({ option, count, percentage }) => (
-                          <ResultRow key={option.id} option={option} count={count} percentage={percentage} />
+                          <ResultRow
+                            key={option.id}
+                            option={option}
+                            count={count}
+                            percentage={percentage}
+                            isLeader={Number.isFinite(percentage) && percentage === leadingPercentage && leadingPercentage > 0}
+                          />
                         ))}
                       </div>
                     </div>
-                  ))
+                  );
+                  })
                 )}
               </div>
             )}
@@ -730,19 +746,26 @@ function TabButton({
   );
 }
 
-function ResultRow({ option, count, percentage }: { option: Option; count: number; percentage: number }) {
+function ResultRow({
+  option,
+  count,
+  percentage,
+  isLeader,
+}: { option: Option; count: number; percentage: number; isLeader: boolean }) {
   return (
-    <div className="space-y-1">
-      <div className="flex justify-between text-sm text-slate-800 dark:text-slate-200">
-        <span>{option.label}</span>
-        <span className="text-slate-500 dark:text-slate-400">
+    <div className="space-y-2 rounded-2xl border border-black/5 bg-white/70 p-3 shadow-[0_8px_20px_rgba(0,0,0,0.05)] backdrop-blur-sm transition dark:border-white/10 dark:bg-white/5">
+      <div className="flex justify-between gap-3 text-sm text-slate-800 dark:text-slate-200">
+        <span className={`font-medium ${isLeader ? "text-slate-900 dark:text-white" : ""}`}>{option.label}</span>
+        <span className="text-slate-500 dark:text-slate-400 font-semibold">
           {count} vote{count === 1 ? "" : "s"} • {Number.isFinite(percentage) ? percentage : 0}%
         </span>
       </div>
-      <div className="h-2 rounded-full bg-slate-200 overflow-hidden dark:bg-white/10">
+      <div className="h-2 rounded-full bg-slate-200/80 overflow-hidden dark:bg-white/10">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-indigo-500 transition-all"
-          style={{ width: `${Number.isFinite(percentage) ? percentage : 0}%` }}
+          className={`h-full rounded-full bg-gradient-to-r from-slate-800/40 to-slate-700/60 transition-all dark:from-white/30 dark:to-white/40 ${
+            isLeader ? "shadow-[0_8px_24px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_24px_rgba(255,255,255,0.08)]" : ""
+          }`}
+          style={{ width: `${Number.isFinite(percentage) ? percentage : 0}%`, maxWidth: "100%" }}
         />
       </div>
     </div>
