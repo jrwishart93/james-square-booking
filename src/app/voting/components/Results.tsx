@@ -18,7 +18,7 @@ const Results: React.FC = () => {
   const [stats, setStats] = useState<QuestionStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [questionVotes, setQuestionVotes] = useState<Record<string, VoteDoc[]>>({});
-  const [expandedBreakdown, setExpandedBreakdown] = useState<Record<string, boolean>>({});
+  const [expandedMoreInfo, setExpandedMoreInfo] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     let unsubscribers: Array<() => void> = [];
@@ -230,65 +230,36 @@ const Results: React.FC = () => {
                  )}
 
                   <button
+                    type="button"
                     onClick={() =>
-                      setExpandedBreakdown((p) => ({
-                        ...p,
-                        [stat.question.id]: !p[stat.question.id],
+                      setExpandedMoreInfo((prev) => ({
+                        ...prev,
+                        [stat.question.id]: !prev[stat.question.id],
                       }))
                     }
-                    className="mt-4 text-sm font-medium text-slate-600 hover:text-slate-900 underline-offset-4 hover:underline dark:text-slate-300 dark:hover:text-white"
+                    aria-expanded={!!expandedMoreInfo[stat.question.id]}
+                    className="
+                      mt-4
+                      text-sm font-medium
+                      text-slate-600
+                      hover:text-slate-900
+                      underline-offset-4 hover:underline
+                      dark:text-slate-300
+                      dark:hover:text-white
+                    "
                   >
-                    {expandedBreakdown[stat.question.id] ? 'Hide details' : 'More info'}
+                    {expandedMoreInfo[stat.question.id] ? 'Hide details' : 'More info'}
                   </button>
 
-                  {expandedBreakdown[stat.question.id] && (
-                    <>
-                      <div className="mt-4 h-px bg-slate-200 dark:bg-white/10" />
-                      <div className="mt-4 space-y-4 pl-1">
-                        <p className="text-sm text-slate-700 dark:text-slate-200">
-                          Turnout:{' '}
-                          <span className="font-semibold">
-                            {
-                              new Set(
-                                (questionVotes[stat.question.id] ?? [])
-                                  .map((v) => v.voterFlat)
-                                  .filter(Boolean),
-                              ).size
-                            }
-                          </span>{" "}
-                          flats
-                        </p>
-
-                        {stat.results.map((res) => {
-                          const flats = (questionVotes[stat.question.id] ?? [])
-                            .filter((v) => v.optionId === res.option.id)
-                            .map((v) => v.voterFlat)
-                            .filter(Boolean)
-                            .sort();
-
-                          return (
-                            <div key={res.option.id} className="space-y-2">
-                              <div className="flex justify-between text-sm font-medium text-slate-700 dark:text-slate-200">
-                                <span>{res.option.label}</span>
-                                <span>{flats.length}</span>
-                              </div>
-                              {flats.length > 0 && (
-                                <div className="flex flex-wrap gap-2">
-                                  {flats.map((f) => (
-                                    <span
-                                      key={f}
-                                      className="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-700 dark:bg-white/10 dark:text-white/80"
-                                    >
-                                      {f}
-                                    </span>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </>
+                  {expandedMoreInfo[stat.question.id] && (
+                    <div className="mt-4">
+                      <div className="h-px bg-slate-200 dark:bg-white/10 mb-4" />
+                      <MoreInfoPanel
+                        question={stat.question}
+                        results={stat.results}
+                        votes={questionVotes[stat.question.id] ?? []}
+                      />
+                    </div>
                   )}
                 </>
               )}
@@ -383,6 +354,58 @@ function DonutResultsChart({
               </span>
             </div>
           ))}
+      </div>
+    </div>
+  );
+}
+
+function MoreInfoPanel({
+  question,
+  results,
+  votes,
+}: {
+  question: QuestionStats['question'];
+  results: QuestionStats['results'];
+  votes: VoteDoc[];
+}) {
+  const uniqueFlats = Array.from(new Set(votes.map((v) => v.voterFlat).filter(Boolean))).sort();
+
+  return (
+    <div className="mt-4 space-y-4">
+      <div className="text-sm text-slate-700 dark:text-slate-200">
+        Turnout: <span className="font-semibold">{uniqueFlats.length}</span> flat{uniqueFlats.length === 1 ? "" : "s"}
+      </div>
+
+      <div className="space-y-4">
+        {results.map(({ option }) => {
+          const flats = votes
+            .filter((v) => v.optionId === option.id)
+            .map((v) => v.voterFlat)
+            .filter(Boolean)
+            .sort() as string[];
+
+          return (
+            <div key={option.id} className="space-y-2">
+              <div className="flex justify-between text-sm font-medium text-slate-700 dark:text-slate-200">
+                <span>{option.label}</span>
+                <span>{flats.length}</span>
+              </div>
+
+              {flats.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {flats.map((flat) => (
+                    <span
+                      key={`${question.id}-${option.id}-${flat}`}
+                      className="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-700 dark:bg-white/10 dark:text-white/80"
+                    >
+                      {flat}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
