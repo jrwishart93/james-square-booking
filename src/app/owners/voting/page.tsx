@@ -156,6 +156,7 @@ export default function OwnersVotingPage() {
   useEffect(() => {
     if (questions.length === 0) {
       setVoteCounts({});
+      setQuestionVotes({});
       return;
     }
 
@@ -225,6 +226,21 @@ export default function OwnersVotingPage() {
   const toggleBreakdown = (questionId: string) => {
     setExpandedBreakdown((prev) => ({ ...prev, [questionId]: !(prev[questionId] ?? false) }));
   };
+
+  useEffect(() => {
+    setExpandedBreakdown((prev) => {
+      let changed = false;
+      const next = { ...prev };
+      questions.forEach((q) => {
+        const hasVotes = (questionVotes[q.id]?.length ?? 0) > 0;
+        if (prev[q.id] === undefined && hasVotes) {
+          next[q.id] = true;
+          changed = true;
+        }
+      });
+      return changed ? next : prev;
+    });
+  }, [questions, questionVotes]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -815,11 +831,11 @@ function AdvancedInsightsPanel({
   prefersReducedMotion: boolean;
 }) {
   const gradientId = `insight-gradient-${questionId}`;
-  const barData = results.map(({ option, count, percentage }) => ({
-    id: option.id,
-    name: option.label,
-    count,
-    percentage,
+    const barData = results.map(({ option, count, percentage }) => ({
+      id: option.id,
+      name: option.label,
+      count,
+      percentage,
   }));
 
   return (
