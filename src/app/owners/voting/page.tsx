@@ -7,6 +7,7 @@ import { collection, doc, getDoc, onSnapshot, query, where } from "firebase/fire
 import {
   AlertCircle,
   BarChart3,
+  ChevronDown,
   CheckCircle2,
   Loader2,
   PenSquare,
@@ -45,12 +46,14 @@ export default function OwnersVotingPage() {
   const [activeTab, setActiveTab] = useState<Tab>("vote");
   const [questions, setQuestions] = useState<Question[]>([]);
   const [voteCounts, setVoteCounts] = useState<Record<string, Record<string, number>>>({});
+  const [votedFlats, setVotedFlats] = useState<Record<string, string[]>>({});
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [savingVoteId, setSavingVoteId] = useState<string | null>(null);
   const [voteErrors, setVoteErrors] = useState<Record<string, string | null>>({});
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
 
   // Ask tab state
   const [title, setTitle] = useState("");
@@ -147,21 +150,37 @@ export default function OwnersVotingPage() {
 
     const votesRef = collection(db, "voting_votes");
     setVoteCounts({});
+    setVotedFlats({});
     const unsubscribers = questions.map((question) => {
       const votesQuery = query(votesRef, where("questionId", "==", question.id));
       return onSnapshot(
         votesQuery,
         (snapshot) => {
           console.log("Votes returned:", snapshot.docs.map((d) => d.data()));
-          const counts = snapshot.docs.reduce<Record<string, number>>((acc, doc) => {
+          const { counts, flats } = snapshot.docs.reduce<{
+            counts: Record<string, number>;
+            flats: Set<string>;
+          }>((acc, doc) => {
             const data = doc.data() as Record<string, unknown>;
             const optionId = typeof data.optionId === "string" ? data.optionId : null;
-            if (!optionId) return acc;
-            acc[optionId] = (acc[optionId] ?? 0) + 1;
+            const flatValue =
+              typeof data.flat === "string" && data.flat.trim().length > 0
+                ? normalizeFlat(data.flat)
+                : null;
+            if (optionId) {
+              acc.counts[optionId] = (acc.counts[optionId] ?? 0) + 1;
+            }
+            if (flatValue) {
+              acc.flats.add(flatValue);
+            }
             return acc;
-          }, {});
+          }, { counts: {}, flats: new Set<string>() });
 
           setVoteCounts((prev) => ({ ...prev, [question.id]: counts }));
+          setVotedFlats((prev) => ({
+            ...prev,
+            [question.id]: Array.from(flats).sort((a, b) => a.localeCompare(b)),
+          }));
         },
         (error) => {
           console.error("Failed to load votes for question", error);
@@ -604,26 +623,32 @@ export default function OwnersVotingPage() {
                   questionResults.map(({ question, results, totalVotes }) => (
                     <div
                       key={question.id}
-                      className="p-6 rounded-2xl bg-white border border-black/10 space-y-4 shadow-[0_12px_30px_rgba(0,0,0,0.08)] dark:bg-white/5 dark:border-white/10 dark:shadow-none"
+                      className="p-6 md:p-7 rounded-2xl bg-white border border-black/10 space-y-5 shadow-[0_12px_30px_rgba(0,0,0,0.08)] dark:bg-white/5 dark:border-white/10 dark:shadow-none"
                     >
-                      <div className="flex items-center justify-between gap-3">
-                        <div>
-                          <p className="text-xs uppercase tracking-[0.2em] text-slate-600 dark:text-slate-400">{question.status}</p>
-                          <h3 className="text-xl font-semibold text-slate-900 dark:text-white">{question.title}</h3>
-                          {question.description && (
-                            <p className="text-slate-700 text-sm dark:text-slate-300">{question.description}</p>
-                          )}
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                        <div className="space-y-3">
+                          <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.15em] text-slate-700 dark:bg-white/10 dark:text-slate-200">
+                            {question.status === "open" ? "Ongoing" : "Closed"}
+                          </div>
+                          <div className="space-y-2">
+                            <h3 className="text-xl font-semibold text-slate-900 dark:text-white">{question.title}</h3>
+                            {question.description && (
+                              <p className="text-slate-700 text-sm leading-relaxed dark:text-slate-300">
+                                {question.description}
+                              </p>
+                            )}
+                          </div>
                         </div>
-                        <div className="flex items-center gap-3">
-                          <div className="text-right text-sm text-slate-600 dark:text-slate-400">
-                            <div className="font-semibold text-slate-900 dark:text-white">{totalVotes}</div>
-                            <div>votes</div>
+                        <div className="flex items-start justify-between gap-3 sm:flex-col sm:items-end">
+                          <div className="rounded-2xl border border-black/10 bg-slate-50 px-4 py-3 text-right shadow-sm dark:border-white/10 dark:bg-white/10">
+                            <p className="text-xs uppercase tracking-[0.2em] text-slate-500 dark:text-slate-300">Total votes</p>
+                            <p className="text-3xl font-semibold text-slate-900 dark:text-white leading-tight">{totalVotes}</p>
                           </div>
                           <button
                             type="button"
                             onClick={() => handleDeleteQuestion(question.id)}
                             disabled={deletingId === question.id}
-                            className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-black/10 text-slate-700 hover:bg-slate-100 transition disabled:opacity-50 dark:border-white/20 dark:text-slate-200 dark:hover:bg-white/10"
+                            className="inline-flex items-center justify-center w-9 h-9 rounded-full border border-black/10 text-slate-700 hover:bg-slate-100 transition disabled:opacity-50 dark:border-white/20 dark:text-slate-200 dark:hover:bg-white/10"
                             aria-label="Delete question"
                           >
                             {deletingId === question.id ? "…" : "×"}
@@ -635,6 +660,56 @@ export default function OwnersVotingPage() {
                         {results.map(({ option, count, percentage }) => (
                           <ResultRow key={option.id} option={option} count={count} percentage={percentage} />
                         ))}
+                      </div>
+
+                      <div className="pt-2 border-t border-dashed border-black/10 dark:border-white/10">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setExpandedSections((prev) => ({
+                              ...prev,
+                              [question.id]: !prev[question.id],
+                            }))
+                          }
+                          aria-expanded={expandedSections[question.id] ?? false}
+                          className="flex w-full items-center justify-between gap-3 rounded-xl px-3 py-3 text-left transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 dark:hover:bg-white/5"
+                        >
+                          <div>
+                            <p className="text-sm font-semibold text-slate-900 dark:text-white">More info</p>
+                            <p className="text-xs text-slate-600 dark:text-slate-300">
+                              This shows which flats have submitted a vote. It does not show how each flat voted.
+                            </p>
+                          </div>
+                          <ChevronDown
+                            className={`h-5 w-5 text-slate-500 transition-transform ${
+                              expandedSections[question.id] ? "rotate-180" : ""
+                            }`}
+                          />
+                        </button>
+                        <div
+                          className={`overflow-hidden transition-all duration-300 ${
+                            expandedSections[question.id] ? "max-h-[520px] opacity-100" : "max-h-0 opacity-0"
+                          }`}
+                          aria-hidden={!(expandedSections[question.id] ?? false)}
+                        >
+                          <div className="mt-3 rounded-2xl border border-black/10 bg-slate-50/60 p-4 shadow-inner shadow-black/5 dark:border-white/10 dark:bg-white/5">
+                            {votedFlats[question.id]?.length ? (
+                              <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-3">
+                                {votedFlats[question.id]?.map((flatId) => (
+                                  <div
+                                    key={flatId}
+                                    className="flex items-center gap-2 rounded-xl border border-black/10 bg-white px-3 py-2 text-sm font-medium text-slate-800 shadow-sm dark:border-white/10 dark:bg-white/10 dark:text-slate-50"
+                                  >
+                                    <span className="text-xs uppercase tracking-[0.1em] text-slate-500 dark:text-slate-300">Flat</span>
+                                    <span className="font-semibold text-slate-900 dark:text-white">{flatId}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <p className="text-sm text-slate-700 dark:text-slate-200">No votes have been submitted yet.</p>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   ))
