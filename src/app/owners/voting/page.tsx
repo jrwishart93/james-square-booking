@@ -8,10 +8,23 @@ import {
   AlertCircle,
   BarChart3,
   CheckCircle2,
+  ChevronDown,
   Loader2,
   PenSquare,
   Vote as VoteIcon,
 } from "lucide-react";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  LabelList,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 import { Button } from "@/app/voting/components/ui/Button";
 import { Input } from "@/app/voting/components/ui/Input";
@@ -39,12 +52,15 @@ type Tab = "ask" | "vote" | "results";
 const VIEW_ONLY_MESSAGE = "Viewing only. Please log in or sign up to place a vote.";
 const VOTE_RECORDED_MESSAGE = "Vote recorded";
 
+type VoteTimelinePoint = { day: string; count: number; cumulative: number };
+
 export default function OwnersVotingPage() {
   const router = useRouter();
   const { user: currentUser, loading: authLoading } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>("vote");
   const [questions, setQuestions] = useState<Question[]>([]);
   const [voteCounts, setVoteCounts] = useState<Record<string, Record<string, number>>>({});
+  const [voteTimelines, setVoteTimelines] = useState<Record<string, VoteTimelinePoint[]>>({});
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [savingVoteId, setSavingVoteId] = useState<string | null>(null);
@@ -63,6 +79,7 @@ export default function OwnersVotingPage() {
   // Vote tab state
   const [voterName, setVoterName] = useState("");
   const [flat, setFlat] = useState("");
+  const [expandedDetails, setExpandedDetails] = useState<Record<string, boolean>>({});
   const isAuthenticated = Boolean(currentUser);
 
   useEffect(() => {
@@ -142,26 +159,70 @@ export default function OwnersVotingPage() {
   useEffect(() => {
     if (questions.length === 0) {
       setVoteCounts({});
+      setVoteTimelines({});
       return;
     }
 
     const votesRef = collection(db, "voting_votes");
     setVoteCounts({});
+    setVoteTimelines({});
     const unsubscribers = questions.map((question) => {
       const votesQuery = query(votesRef, where("questionId", "==", question.id));
       return onSnapshot(
         votesQuery,
         (snapshot) => {
           console.log("Votes returned:", snapshot.docs.map((d) => d.data()));
-          const counts = snapshot.docs.reduce<Record<string, number>>((acc, doc) => {
-            const data = doc.data() as Record<string, unknown>;
-            const optionId = typeof data.optionId === "string" ? data.optionId : null;
-            if (!optionId) return acc;
-            acc[optionId] = (acc[optionId] ?? 0) + 1;
-            return acc;
-          }, {});
+          const aggregated = snapshot.docs.reduce<{
+            counts: Record<string, number>;
+            timelineBuckets: Record<string, { count: number; timestamp: number; label: string }>;
+            hasTimestamps: boolean;
+          }>(
+            (acc, doc) => {
+              const data = doc.data() as Record<string, unknown>;
+              const optionId = typeof data.optionId === "string" ? data.optionId : null;
+              const createdAtRaw = data.createdAt as { toMillis?: () => number } | undefined;
+              const hasTimestamp =
+                typeof createdAtRaw?.toMillis === "function" || typeof createdAtRaw === "number";
+              const createdAt = hasTimestamp
+                ? typeof createdAtRaw?.toMillis === "function"
+                  ? createdAtRaw.toMillis()
+                  : (createdAtRaw as number)
+                : null;
 
-          setVoteCounts((prev) => ({ ...prev, [question.id]: counts }));
+              if (!optionId) return acc;
+
+              acc.counts[optionId] = (acc.counts[optionId] ?? 0) + 1;
+              if (createdAt) {
+                const day = new Date(createdAt);
+                day.setHours(0, 0, 0, 0);
+                const dayKey = day.getTime().toString();
+                const bucketLabel = day.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+
+                acc.timelineBuckets[dayKey] = acc.timelineBuckets[dayKey]
+                  ? {
+                      ...acc.timelineBuckets[dayKey],
+                      count: acc.timelineBuckets[dayKey].count + 1,
+                    }
+                  : { count: 1, timestamp: day.getTime(), label: bucketLabel };
+                acc.hasTimestamps = true;
+              }
+
+              return acc;
+            },
+            { counts: {}, timelineBuckets: {}, hasTimestamps: false },
+          );
+
+          const timeline = aggregated.hasTimestamps
+            ? Object.values(aggregated.timelineBuckets)
+                .sort((a, b) => a.timestamp - b.timestamp)
+                .reduce<VoteTimelinePoint[]>((points, bucket) => {
+                  const cumulative = (points[points.length - 1]?.cumulative ?? 0) + bucket.count;
+                  return [...points, { day: bucket.label, count: bucket.count, cumulative }];
+                }, [])
+            : [];
+
+          setVoteCounts((prev) => ({ ...prev, [question.id]: aggregated.counts }));
+          setVoteTimelines((prev) => ({ ...prev, [question.id]: timeline }));
         },
         (error) => {
           console.error("Failed to load votes for question", error);
@@ -601,43 +662,238 @@ export default function OwnersVotingPage() {
                 {questionResults.length === 0 ? (
                   <p className="text-slate-600 dark:text-slate-300">No questions yet.</p>
                 ) : (
-                  questionResults.map(({ question, results, totalVotes }) => (
-                    <div
-                      key={question.id}
-                      className="p-6 rounded-2xl bg-white border border-black/10 space-y-4 shadow-[0_12px_30px_rgba(0,0,0,0.08)] dark:bg-white/5 dark:border-white/10 dark:shadow-none"
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <div>
-                          <p className="text-xs uppercase tracking-[0.2em] text-slate-600 dark:text-slate-400">{question.status}</p>
-                          <h3 className="text-xl font-semibold text-slate-900 dark:text-white">{question.title}</h3>
-                          {question.description && (
-                            <p className="text-slate-700 text-sm dark:text-slate-300">{question.description}</p>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <div className="text-right text-sm text-slate-600 dark:text-slate-400">
-                            <div className="font-semibold text-slate-900 dark:text-white">{totalVotes}</div>
-                            <div>votes</div>
+                  questionResults.map(({ question, results, totalVotes }) => {
+                    const isExpanded = expandedDetails[question.id] ?? false;
+                    const timeline = voteTimelines[question.id] ?? [];
+                    const eligibleFromEnvRaw = process.env.NEXT_PUBLIC_ELIGIBLE_VOTERS;
+                    const eligibleFromEnv = eligibleFromEnvRaw ? Number(eligibleFromEnvRaw) : NaN;
+                    const eligibleVoters =
+                      Number.isFinite(eligibleFromEnv) && eligibleFromEnv > 0 ? eligibleFromEnv : null;
+                    const participation =
+                      eligibleVoters && eligibleVoters > 0
+                        ? Math.round((totalVotes / eligibleVoters) * 100)
+                        : null;
+                    const chartData = results.map(({ option, count, percentage }) => ({
+                      name: option.label.length > 22 ? `${option.label.slice(0, 22)}…` : option.label,
+                      fullLabel: option.label,
+                      count,
+                      percentage,
+                    }));
+
+                    return (
+                      <div
+                        key={question.id}
+                        className="p-6 rounded-2xl bg-white border border-black/10 space-y-4 shadow-[0_12px_30px_rgba(0,0,0,0.08)] dark:bg-white/5 dark:border-white/10 dark:shadow-none"
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <div>
+                            <p className="text-xs uppercase tracking-[0.2em] text-slate-600 dark:text-slate-400">
+                              {question.status}
+                            </p>
+                            <h3 className="text-xl font-semibold text-slate-900 dark:text-white">{question.title}</h3>
+                            {question.description && (
+                              <p className="text-slate-700 text-sm dark:text-slate-300">{question.description}</p>
+                            )}
                           </div>
+                          <div className="flex items-center gap-3">
+                            <div className="text-right text-sm text-slate-600 dark:text-slate-400">
+                              <div className="font-semibold text-slate-900 dark:text-white">{totalVotes}</div>
+                              <div>votes</div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteQuestion(question.id)}
+                              disabled={deletingId === question.id}
+                              className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-black/10 text-slate-700 hover:bg-slate-100 transition disabled:opacity-50 dark:border-white/20 dark:text-slate-200 dark:hover:bg-white/10"
+                              aria-label="Delete question"
+                            >
+                              {deletingId === question.id ? "…" : "×"}
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="space-y-3">
+                          {results.map(({ option, count, percentage }) => (
+                            <ResultRow key={option.id} option={option} count={count} percentage={percentage} />
+                          ))}
+                        </div>
+
+                        <div className="pt-4 mt-2 border-t border-black/10 dark:border-white/10">
                           <button
                             type="button"
-                            onClick={() => handleDeleteQuestion(question.id)}
-                            disabled={deletingId === question.id}
-                            className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-black/10 text-slate-700 hover:bg-slate-100 transition disabled:opacity-50 dark:border-white/20 dark:text-slate-200 dark:hover:bg-white/10"
-                            aria-label="Delete question"
+                            onClick={() =>
+                              setExpandedDetails((prev) => ({
+                                ...prev,
+                                [question.id]: !isExpanded,
+                              }))
+                            }
+                            aria-expanded={isExpanded}
+                            aria-controls={`question-details-${question.id}`}
+                            className="flex items-center gap-2 text-sm font-semibold text-cyan-700 hover:text-cyan-600 transition-colors dark:text-cyan-200"
                           >
-                            {deletingId === question.id ? "…" : "×"}
+                            <ChevronDown
+                              size={16}
+                              className={`transition-transform ${isExpanded ? "rotate-180" : ""}`}
+                              aria-hidden
+                            />
+                            {isExpanded ? "Hide details" : "More details"}
                           </button>
+
+                          {isExpanded && (
+                            <div
+                              id={`question-details-${question.id}`}
+                              className="mt-4 space-y-4 text-slate-700 text-sm dark:text-slate-200"
+                            >
+                              <p className="text-slate-600 dark:text-slate-300">
+                                Visual breakdown of how neighbours voted. Percentages are based on the total responses
+                                collected for this question.
+                              </p>
+
+                              <div className="grid gap-3 sm:grid-cols-3">
+                                <DetailStat label="Total votes cast" value={totalVotes.toLocaleString()} />
+                                <DetailStat
+                                  label="Eligible voters"
+                                  value={
+                                    eligibleVoters && eligibleVoters > 0
+                                      ? eligibleVoters.toLocaleString()
+                                      : "Not provided"
+                                  }
+                                />
+                                <DetailStat
+                                  label="Participation"
+                                  value={participation !== null ? `${participation}%` : "—"}
+                                  helper={
+                                    participation !== null
+                                      ? "Share of eligible voters who participated."
+                                      : "Waiting on eligible voter data."
+                                  }
+                                />
+                              </div>
+
+                              <div className="rounded-2xl border border-black/5 bg-white/60 p-4 shadow-sm dark:border-white/10 dark:bg-white/5">
+                                <div className="flex items-center justify-between">
+                                  <h4 className="text-sm font-semibold text-slate-800 dark:text-white">Votes by option</h4>
+                                  <span className="text-xs text-slate-500 dark:text-slate-400">
+                                    Labels show share of total responses.
+                                  </span>
+                                </div>
+                                <div className="h-64 mt-3">
+                                  <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(15,23,42,0.08)" />
+                                      <XAxis
+                                        dataKey="name"
+                                        tickLine={false}
+                                        axisLine={false}
+                                        interval={0}
+                                        tick={{ fill: "#475569", fontSize: 12 }}
+                                      />
+                                      <YAxis
+                                        allowDecimals={false}
+                                        tickLine={false}
+                                        axisLine={false}
+                                        tick={{ fill: "#475569", fontSize: 12 }}
+                                      />
+                                      <Tooltip
+                                        labelFormatter={(label, payload) =>
+                                          payload?.[0]?.payload?.fullLabel ?? String(label)
+                                        }
+                                        formatter={(value: number) => [value, "Votes"]}
+                                        contentStyle={{
+                                          backgroundColor: "#ffffff",
+                                          borderRadius: 12,
+                                          border: "1px solid rgba(15,23,42,0.12)",
+                                          color: "#0f172a",
+                                          boxShadow: "0 18px 40px rgba(15,23,42,0.12)",
+                                        }}
+                                      />
+                                      <Bar
+                                        dataKey="count"
+                                        radius={[8, 8, 8, 8]}
+                                        fill={`url(#optionBarGradient-${question.id})`}
+                                      >
+                                        <LabelList
+                                          dataKey="percentage"
+                                          position="top"
+                                          formatter={(value: number) => `${value}%`}
+                                          fill="#0f172a"
+                                          fontSize={12}
+                                        />
+                                      </Bar>
+                                      <defs>
+                                        <linearGradient id={`optionBarGradient-${question.id}`} x1="0" y1="0" x2="1" y2="0">
+                                          <stop offset="0%" stopColor="#06b6d4" />
+                                          <stop offset="100%" stopColor="#6366f1" />
+                                        </linearGradient>
+                                      </defs>
+                                    </BarChart>
+                                  </ResponsiveContainer>
+                                </div>
+                              </div>
+
+                              {timeline.length > 0 && (
+                                <div className="rounded-2xl border border-black/5 bg-white/60 p-4 shadow-sm dark:border-white/10 dark:bg-white/5">
+                                  <div className="flex items-center justify-between">
+                                    <h4 className="text-sm font-semibold text-slate-800 dark:text-white">Votes over time</h4>
+                                    <span className="text-xs text-slate-500 dark:text-slate-400">
+                                      Daily cumulative totals.
+                                    </span>
+                                  </div>
+                                  <div className="h-56 mt-3">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                      <LineChart data={timeline} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(15,23,42,0.08)" />
+                                        <XAxis
+                                          dataKey="day"
+                                          tickLine={false}
+                                          axisLine={false}
+                                          tick={{ fill: "#475569", fontSize: 12 }}
+                                        />
+                                        <YAxis
+                                          allowDecimals={false}
+                                          tickLine={false}
+                                          axisLine={false}
+                                          tick={{ fill: "#475569", fontSize: 12 }}
+                                        />
+                                        <Tooltip
+                                          formatter={(value: number, key: string) =>
+                                            key === "cumulative" ? [value, "Cumulative votes"] : [value, "New votes"]
+                                          }
+                                          contentStyle={{
+                                            backgroundColor: "#ffffff",
+                                            borderRadius: 12,
+                                            border: "1px solid rgba(15,23,42,0.12)",
+                                            color: "#0f172a",
+                                            boxShadow: "0 18px 40px rgba(15,23,42,0.12)",
+                                          }}
+                                        />
+                                        <Line
+                                          type="monotone"
+                                          dataKey="cumulative"
+                                          stroke="#06b6d4"
+                                          strokeWidth={3}
+                                          dot={{ r: 4, strokeWidth: 2, stroke: "#06b6d4", fill: "#ffffff" }}
+                                          activeDot={{ r: 5, strokeWidth: 2, stroke: "#6366f1", fill: "#ffffff" }}
+                                        />
+                                        <Line
+                                          type="monotone"
+                                          dataKey="count"
+                                          stroke="#6366f1"
+                                          strokeWidth={2}
+                                          strokeDasharray="5 5"
+                                          dot={{ r: 3, strokeWidth: 1.5, stroke: "#6366f1", fill: "#ffffff" }}
+                                        />
+                                      </LineChart>
+                                    </ResponsiveContainer>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
                       </div>
-
-                      <div className="space-y-3">
-                        {results.map(({ option, count, percentage }) => (
-                          <ResultRow key={option.id} option={option} count={count} percentage={percentage} />
-                        ))}
-                      </div>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
             )}
@@ -727,6 +983,16 @@ function TabButton({
       {icon}
       {label}
     </button>
+  );
+}
+
+function DetailStat({ label, value, helper }: { label: string; value: string | number; helper?: string }) {
+  return (
+    <div className="rounded-xl border border-black/5 bg-white/50 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)] dark:border-white/10 dark:bg-white/5">
+      <p className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">{label}</p>
+      <p className="text-lg font-bold text-slate-900 dark:text-white mt-1 leading-tight">{value}</p>
+      {helper && <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-snug">{helper}</p>}
+    </div>
   );
 }
 
