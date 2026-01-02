@@ -51,6 +51,11 @@ export default function OwnersVotingPage() {
   const [voteErrors, setVoteErrors] = useState<Record<string, string | null>>({});
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [openMoreInfoId, setOpenMoreInfoId] = useState<string | null>(null);
+
+  const toggleMoreInfo = (questionId: string) => {
+    setOpenMoreInfoId((prev) => (prev === questionId ? null : questionId));
+  };
 
   // Ask tab state
   const [title, setTitle] = useState("");
@@ -635,6 +640,30 @@ export default function OwnersVotingPage() {
                         {results.map(({ option, count, percentage }) => (
                           <ResultRow key={option.id} option={option} count={count} percentage={percentage} />
                         ))}
+                      </div>
+
+                      <div className="pt-2">
+                        <button
+                          type="button"
+                          onClick={() => toggleMoreInfo(question.id)}
+                          aria-expanded={openMoreInfoId === question.id}
+                          className="text-sm font-medium text-slate-600 hover:text-slate-900 underline-offset-4 hover:underline dark:text-slate-300 dark:hover:text-white"
+                        >
+                          {openMoreInfoId === question.id ? "Hide more info" : "More info"}
+                        </button>
+
+                        {openMoreInfoId === question.id && (
+                          <div className="mt-3 rounded-xl bg-slate-50 p-4 text-sm text-slate-700 border border-slate-200 dark:bg-white/5 dark:text-slate-200 dark:border-white/10">
+                            <p className="font-semibold text-slate-900 dark:text-white">What this means</p>
+                            <p className="mt-1">
+                              This section can be used to provide a clearer explanation of the outcome,
+                              next steps, or any committee notes linked to this question.
+                            </p>
+                            <p className="mt-2 text-slate-500 dark:text-slate-300">
+                              Tip: In the next task we will replace / enhance the visual summary with a professional 3D-style pie chart.
+                            </p>
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))
