@@ -109,6 +109,25 @@ export default function Results3DPie({
           />
         </PieChart>
       </ResponsiveContainer>
+
+      <div className="my-3 h-px bg-slate-200 dark:bg-white/10" />
+
+      <div className="mt-4 space-y-2">
+        {data.map((item, index) => (
+          <div key={item.name} className="flex items-center justify-between gap-3 text-sm">
+            <div className="flex items-center gap-2 min-w-0">
+              <span
+                className="h-2.5 w-2.5 rounded-full shrink-0"
+                style={{ backgroundColor: colors[index % colors.length] }}
+              />
+              <span className="truncate text-slate-700 dark:text-slate-200">{item.name}</span>
+            </div>
+            <span className="shrink-0 text-slate-500 dark:text-slate-400">
+              {item.value} • {item.percentage}%
+            </span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

@@ -100,6 +100,7 @@ export default function Results() {
   return (
     <div className="space-y-6">
       {stats.map(({ question, results, totalVotes }) => {
+        const isOpen = openQuestionId === question.id;
         return (
           <div key={question.id} className="rounded-2xl bg-white border border-slate-200 p-6 space-y-4">
             <h2 className="text-lg font-semibold">{question.title}</h2>
@@ -131,13 +132,24 @@ export default function Results() {
             <button
               type="button"
               onClick={() => setOpenQuestionId((prev) => (prev === question.id ? null : question.id))}
-              aria-expanded={openQuestionId === question.id}
-              className="mt-3 text-sm font-medium text-slate-500 hover:text-slate-900 underline-offset-4 hover:underline dark:text-slate-400 dark:hover:text-white"
+              aria-expanded={isOpen}
+              className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium backdrop-blur-md border transition-all shadow-sm hover:shadow-md active:scale-[0.98] bg-white/60 border-slate-200 text-slate-700 hover:bg-white/80 dark:bg-white/10 dark:border-white/20 dark:text-white dark:hover:bg-white/15"
             >
-              {openQuestionId === question.id ? "Hide details" : "More info"}
+              <span>{isOpen ? "Hide details" : "More info"}</span>
+              <svg
+                className={`h-3.5 w-3.5 transition-transform ${isOpen ? "rotate-180" : ""}`}
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.38a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"
+                  clipRule="evenodd"
+                />
+              </svg>
             </button>
 
-            {openQuestionId === question.id && (
+            {isOpen && (
               <MoreInfoPanel
                 votes={votesByQuestion[question.id] ?? []}
                 results={results}
