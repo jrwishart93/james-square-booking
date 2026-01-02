@@ -39,6 +39,15 @@ type Tab = "ask" | "vote" | "results";
 
 const VIEW_ONLY_MESSAGE = "Viewing only. Please log in or sign up to place a vote.";
 const VOTE_RECORDED_MESSAGE = "Vote recorded";
+const SHOW_FLATS_IN_BREAKDOWN = true;
+
+type VoteDoc = {
+  id: string;
+  questionId: string;
+  optionId: string;
+  voterFlat?: string;
+  createdAt?: unknown;
+};
 
 export default function OwnersVotingPage() {
   const router = useRouter();
@@ -46,12 +55,14 @@ export default function OwnersVotingPage() {
   const [activeTab, setActiveTab] = useState<Tab>("vote");
   const [questions, setQuestions] = useState<Question[]>([]);
   const [voteCounts, setVoteCounts] = useState<Record<string, Record<string, number>>>({});
+  const [questionVotes, setQuestionVotes] = useState<Record<string, VoteDoc[]>>({});
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [savingVoteId, setSavingVoteId] = useState<string | null>(null);
   const [voteErrors, setVoteErrors] = useState<Record<string, string | null>>({});
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
   const [expandedInsights, setExpandedInsights] = useState<Record<string, boolean>>({});
+  const [expandedBreakdown, setExpandedBreakdown] = useState<Record<string, boolean>>({});
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
@@ -165,6 +176,18 @@ export default function OwnersVotingPage() {
           }, {});
 
           setVoteCounts((prev) => ({ ...prev, [question.id]: counts }));
+
+          const docs: VoteDoc[] = snapshot.docs.map((d) => {
+            const data = d.data() as Record<string, unknown>;
+            return {
+              id: d.id,
+              questionId: typeof data.questionId === "string" ? data.questionId : question.id,
+              optionId: typeof data.optionId === "string" ? data.optionId : "",
+              voterFlat: typeof data.voterFlat === "string" ? data.voterFlat : undefined,
+              createdAt: data.createdAt,
+            };
+          });
+          setQuestionVotes((prev) => ({ ...prev, [question.id]: docs }));
         },
         (error) => {
           console.error("Failed to load votes for question", error);
@@ -197,6 +220,10 @@ export default function OwnersVotingPage() {
 
   const toggleInsights = (questionId: string) => {
     setExpandedInsights((prev) => ({ ...prev, [questionId]: !prev[questionId] }));
+  };
+
+  const toggleBreakdown = (questionId: string) => {
+    setExpandedBreakdown((prev) => ({ ...prev, [questionId]: !(prev[questionId] ?? false) }));
   };
 
   useEffect(() => {
@@ -673,6 +700,14 @@ export default function OwnersVotingPage() {
                             prefersReducedMotion={prefersReducedMotion}
                           />
                         )}
+
+                        <MoreInfoBreakdown
+                          questionId={question.id}
+                          votes={questionVotes[question.id] ?? []}
+                          results={results}
+                          expanded={expandedBreakdown[question.id] ?? false}
+                          onToggle={() => toggleBreakdown(question.id)}
+                        />
                       </div>
                     );
                   })
@@ -921,6 +956,142 @@ function ResultRow({ option, count, percentage }: { option: Option; count: numbe
           style={{ width: `${Number.isFinite(percentage) ? percentage : 0}%` }}
         />
       </div>
+    </div>
+  );
+}
+
+function MoreInfoBreakdown({
+  questionId,
+  votes,
+  results,
+  expanded,
+  onToggle,
+}: {
+  questionId: string;
+  votes: VoteDoc[];
+  results: { option: Option; count: number; percentage: number }[];
+  expanded: boolean;
+  onToggle: () => void;
+}) {
+  const uniqueFlats = Array.from(
+    new Set(
+      votes
+        .map((v) => (typeof v.voterFlat === "string" ? v.voterFlat.trim() : ""))
+        .filter((v) => v.length > 0),
+    ),
+  ).sort((a, b) => a.localeCompare(b));
+
+  const perOptionFlats = results.map(({ option }) => {
+    const flats = votes
+      .filter((v) => v.optionId === option.id)
+      .map((v) => (typeof v.voterFlat === "string" ? v.voterFlat.trim() : ""))
+      .filter((v) => v.length > 0)
+      .sort((a, b) => a.localeCompare(b));
+    return { option, flats, count: flats.length };
+  });
+
+  const lastUpdated = (() => {
+    const timestamps = votes
+      .map((v) => v.createdAt)
+      .filter(Boolean)
+      .map((t) => {
+        if (typeof t === "number") return new Date(t);
+        if (typeof t === "object" && t && typeof (t as { toDate?: () => Date }).toDate === "function") {
+          return (t as { toDate: () => Date }).toDate();
+        }
+        return null;
+      })
+      .filter((d): d is Date => d instanceof Date && !Number.isNaN(d.getTime()))
+      .sort((a, b) => b.getTime() - a.getTime());
+    return timestamps[0] ?? null;
+  })();
+
+  return (
+    <div className="mt-4">
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={expanded}
+        className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-slate-800 bg-white/70 border border-black/10 hover:bg-white transition dark:text-white dark:bg-white/10 dark:border-white/15 dark:hover:bg-white/15"
+      >
+        {expanded ? "Hide more info" : "More info"}
+      </button>
+
+      {expanded && (
+        <div className="mt-4 rounded-2xl border border-black/10 bg-white/70 p-5 space-y-4 backdrop-blur dark:bg-white/10 dark:border-white/10">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-600 dark:text-slate-300">Detailed breakdown</p>
+              <p className="text-sm text-slate-700 dark:text-slate-200">
+                Turnout: <span className="font-semibold">{uniqueFlats.length}</span> flat{uniqueFlats.length === 1 ? "" : "s"}
+              </p>
+            </div>
+
+            {lastUpdated && (
+              <div className="text-xs text-slate-600 dark:text-slate-300">
+                Last updated:{" "}
+                <span className="font-semibold">
+                  {lastUpdated.toLocaleString(undefined, { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {SHOW_FLATS_IN_BREAKDOWN ? (
+            <>
+              <div className="space-y-2">
+                <p className="text-sm font-semibold text-slate-900 dark:text-white">Flats voted</p>
+                {uniqueFlats.length === 0 ? (
+                  <p className="text-sm text-slate-600 dark:text-slate-300">No votes recorded yet.</p>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {uniqueFlats.map((f) => (
+                      <span
+                        key={`${questionId}-flat-${f}`}
+                        className="rounded-full border border-black/10 bg-white/60 px-3 py-1 text-xs font-semibold text-slate-700 dark:border-white/10 dark:bg-white/5 dark:text-white/80"
+                      >
+                        {f}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-3">
+                <p className="text-sm font-semibold text-slate-900 dark:text-white">Votes by option</p>
+                {perOptionFlats.map(({ option, flats, count }) => (
+                  <div
+                    key={option.id}
+                    className="rounded-xl border border-black/10 bg-white/60 p-4 space-y-2 dark:border-white/10 dark:bg-white/5"
+                  >
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-semibold text-slate-900 dark:text-white">{option.label}</p>
+                      <p className="text-sm font-semibold text-slate-700 dark:text-white/80">{count}</p>
+                    </div>
+
+                    {count === 0 ? (
+                      <p className="text-sm text-slate-600 dark:text-slate-300">No flats selected this option.</p>
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        {flats.map((f) => (
+                          <span
+                            key={`${option.id}-${f}`}
+                            className="rounded-full border border-black/10 bg-white/70 px-3 py-1 text-xs font-semibold text-slate-700 dark:border-white/10 dark:bg-white/10 dark:text-white/80"
+                          >
+                            {f}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <p className="text-sm text-slate-600 dark:text-slate-300">Flat-level participation is hidden.</p>
+          )}
+        </div>
+      )}
     </div>
   );
 }
