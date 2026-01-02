@@ -6,11 +6,21 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, LabelL
 import { Loader2 } from 'lucide-react';
 import { db } from '@/lib/firebase';
 
+type VoteDoc = {
+  id: string;
+  questionId: string;
+  optionId: string;
+  voterFlat?: string;
+  createdAt?: unknown;
+};
+
 const Results: React.FC = () => {
   const [stats, setStats] = useState<QuestionStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [animateKey, setAnimateKey] = useState<Record<string, number>>({});
+  const [questionVotes, setQuestionVotes] = useState<Record<string, VoteDoc[]>>({});
+  const [expandedBreakdown, setExpandedBreakdown] = useState<Record<string, boolean>>({});
 
   const toggleExpanded = (questionId: string) => {
     setExpanded((prev) => {
@@ -48,6 +58,19 @@ const Results: React.FC = () => {
             votesQuery,
             (snapshot) => {
               console.log('Votes returned:', snapshot.docs.map((d) => d.data()));
+
+              const votes: VoteDoc[] = snapshot.docs.map((d) => {
+                const data = d.data() as Record<string, unknown>;
+                return {
+                  id: d.id,
+                  questionId: typeof data.questionId === 'string' ? data.questionId : question.id,
+                  optionId: typeof data.optionId === 'string' ? data.optionId : '',
+                  voterFlat: typeof data.voterFlat === 'string' ? data.voterFlat : undefined,
+                  createdAt: data.createdAt,
+                };
+              });
+
+              setQuestionVotes((prev) => ({ ...prev, [question.id]: votes }));
 
               const counts = snapshot.docs.reduce<Record<string, number>>((acc, doc) => {
                 const data = doc.data() as Record<string, unknown>;
@@ -248,6 +271,59 @@ const Results: React.FC = () => {
                       </div>
                     </div>
                   ))}
+
+                  <button
+                    onClick={() =>
+                      setExpandedBreakdown((p) => ({
+                        ...p,
+                        [stat.question.id]: !p[stat.question.id],
+                      }))
+                    }
+                    className="mt-2 inline-flex rounded-full px-4 py-2 text-sm font-semibold bg-slate-900 text-white hover:opacity-90"
+                  >
+                    {expandedBreakdown[stat.question.id] ? 'Hide more info' : 'More info'}
+                  </button>
+
+                  {expandedBreakdown[stat.question.id] && (
+                    <div className="mt-4 rounded-xl bg-slate-50 p-4 space-y-3">
+                      <p className="text-sm font-semibold">
+                        Turnout:{' '}
+                        {
+                          new Set(
+                            (questionVotes[stat.question.id] ?? [])
+                              .map((v) => v.voterFlat)
+                              .filter(Boolean),
+                          ).size
+                        }{' '}
+                        flats
+                      </p>
+
+                      {stat.results.map((res) => {
+                        const flats = (questionVotes[stat.question.id] ?? [])
+                          .filter((v) => v.optionId === res.option.id)
+                          .map((v) => v.voterFlat)
+                          .filter(Boolean)
+                          .sort();
+
+                        return (
+                          <div key={res.option.id}>
+                            <div className="font-medium">
+                              {res.option.label} ({flats.length})
+                            </div>
+                            {flats.length > 0 && (
+                              <div className="flex flex-wrap gap-2 mt-1">
+                                {flats.map((f) => (
+                                  <span key={f} className="text-xs px-2 py-1 rounded bg-white border">
+                                    {f}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
 
                   {expanded[stat.question.id] && stat.totalVotes > 0 && (
                     <div className="px-6 pb-6">
