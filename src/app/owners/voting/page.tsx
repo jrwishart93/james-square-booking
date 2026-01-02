@@ -718,7 +718,7 @@ export default function OwnersVotingPage() {
                           ))}
                         </div>
 
-                        <div className="pt-4 mt-2 border-t border-black/10 dark:border-white/10">
+                        <div className="pt-5 mt-4 border-t border-black/10 dark:border-white/10">
                           <button
                             type="button"
                             onClick={() =>
@@ -729,7 +729,11 @@ export default function OwnersVotingPage() {
                             }
                             aria-expanded={isExpanded}
                             aria-controls={`question-details-${question.id}`}
-                            className="flex items-center gap-2 text-sm font-semibold text-cyan-700 hover:text-cyan-600 transition-colors dark:text-cyan-200"
+                            className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-cyan-400/70 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-0 ${
+                              isExpanded
+                                ? "bg-cyan-500/10 text-cyan-800 border-cyan-500/40 dark:text-cyan-100 dark:border-cyan-400/50"
+                                : "bg-white/70 text-cyan-700 border-black/10 hover:bg-white dark:bg-white/10 dark:text-cyan-100 dark:border-white/15 dark:hover:bg-white/20"
+                            }`}
                           >
                             <ChevronDown
                               size={16}
@@ -742,7 +746,7 @@ export default function OwnersVotingPage() {
                           {isExpanded && (
                             <div
                               id={`question-details-${question.id}`}
-                              className="mt-4 space-y-4 text-slate-700 text-sm dark:text-slate-200"
+                              className="mt-5 space-y-5 text-slate-700 text-sm dark:text-slate-200"
                             >
                               <p className="text-slate-600 dark:text-slate-300">
                                 Visual breakdown of how neighbours voted. Percentages are based on the total responses
@@ -770,17 +774,22 @@ export default function OwnersVotingPage() {
                                 />
                               </div>
 
-                              <div className="rounded-2xl border border-black/5 bg-white/60 p-4 shadow-sm dark:border-white/10 dark:bg-white/5">
-                                <div className="flex items-center justify-between">
-                                  <h4 className="text-sm font-semibold text-slate-800 dark:text-white">Votes by option</h4>
-                                  <span className="text-xs text-slate-500 dark:text-slate-400">
-                                    Labels show share of total responses.
-                                  </span>
+                              <div className="rounded-2xl border border-black/5 bg-white/70 p-4 shadow-sm dark:border-white/10 dark:bg-white/5 backdrop-blur">
+                                <div className="flex items-center justify-between gap-3">
+                                  <div>
+                                    <h4 className="text-sm font-semibold text-slate-800 dark:text-white">Votes by option</h4>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                                      Percent labels above each bar; hover for exact votes.
+                                    </p>
+                                  </div>
+                                  <div className="text-[10px] uppercase tracking-wide text-slate-500 font-semibold dark:text-slate-400">
+                                    Breakdown
+                                  </div>
                                 </div>
                                 <div className="h-64 mt-3">
                                   <ResponsiveContainer width="100%" height="100%">
                                     <BarChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(15,23,42,0.08)" />
+                                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(15,23,42,0.06)" />
                                       <XAxis
                                         dataKey="name"
                                         tickLine={false}
@@ -799,17 +808,17 @@ export default function OwnersVotingPage() {
                                           payload?.[0]?.payload?.fullLabel ?? String(label)
                                         }
                                         formatter={(value: number) => [value, "Votes"]}
-                                        contentStyle={{
-                                          backgroundColor: "#ffffff",
-                                          borderRadius: 12,
-                                          border: "1px solid rgba(15,23,42,0.12)",
-                                          color: "#0f172a",
-                                          boxShadow: "0 18px 40px rgba(15,23,42,0.12)",
-                                        }}
-                                      />
+                                          contentStyle={{
+                                            backgroundColor: "#ffffff",
+                                            borderRadius: 12,
+                                            border: "1px solid rgba(15,23,42,0.12)",
+                                            color: "#0f172a",
+                                            boxShadow: "0 18px 40px rgba(15,23,42,0.12)",
+                                          }}
+                                        />
                                       <Bar
                                         dataKey="count"
-                                        radius={[8, 8, 8, 8]}
+                                        radius={[10, 10, 10, 10]}
                                         fill={`url(#optionBarGradient-${question.id})`}
                                       >
                                         <LabelList
@@ -822,8 +831,8 @@ export default function OwnersVotingPage() {
                                       </Bar>
                                       <defs>
                                         <linearGradient id={`optionBarGradient-${question.id}`} x1="0" y1="0" x2="1" y2="0">
-                                          <stop offset="0%" stopColor="#06b6d4" />
-                                          <stop offset="100%" stopColor="#6366f1" />
+                                          <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.95" />
+                                          <stop offset="100%" stopColor="#6366f1" stopOpacity="0.95" />
                                         </linearGradient>
                                       </defs>
                                     </BarChart>
@@ -832,7 +841,7 @@ export default function OwnersVotingPage() {
                               </div>
 
                               {timeline.length > 0 && (
-                                <div className="rounded-2xl border border-black/5 bg-white/60 p-4 shadow-sm dark:border-white/10 dark:bg-white/5">
+                                <div className="rounded-2xl border border-black/5 bg-white/70 p-4 shadow-sm dark:border-white/10 dark:bg-white/5 backdrop-blur space-y-2">
                                   <div className="flex items-center justify-between">
                                     <h4 className="text-sm font-semibold text-slate-800 dark:text-white">Votes over time</h4>
                                     <span className="text-xs text-slate-500 dark:text-slate-400">
@@ -842,7 +851,7 @@ export default function OwnersVotingPage() {
                                   <div className="h-56 mt-3">
                                     <ResponsiveContainer width="100%" height="100%">
                                       <LineChart data={timeline} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(15,23,42,0.08)" />
+                                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(15,23,42,0.06)" />
                                         <XAxis
                                           dataKey="day"
                                           tickLine={false}
@@ -856,8 +865,11 @@ export default function OwnersVotingPage() {
                                           tick={{ fill: "#475569", fontSize: 12 }}
                                         />
                                         <Tooltip
+                                          labelFormatter={(label) => `Date: ${label}`}
                                           formatter={(value: number, key: string) =>
-                                            key === "cumulative" ? [value, "Cumulative votes"] : [value, "New votes"]
+                                            key === "cumulative"
+                                              ? [value, "Total votes at this date"]
+                                              : [value, "New votes on this date"]
                                           }
                                           contentStyle={{
                                             backgroundColor: "#ffffff",
@@ -873,7 +885,7 @@ export default function OwnersVotingPage() {
                                           stroke="#06b6d4"
                                           strokeWidth={3}
                                           dot={{ r: 4, strokeWidth: 2, stroke: "#06b6d4", fill: "#ffffff" }}
-                                          activeDot={{ r: 5, strokeWidth: 2, stroke: "#6366f1", fill: "#ffffff" }}
+                                          activeDot={{ r: 6, strokeWidth: 2, stroke: "#6366f1", fill: "#ffffff" }}
                                         />
                                         <Line
                                           type="monotone"
@@ -886,6 +898,9 @@ export default function OwnersVotingPage() {
                                       </LineChart>
                                     </ResponsiveContainer>
                                   </div>
+                                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                                    Cumulative number of votes recorded per day.
+                                  </p>
                                 </div>
                               )}
                             </div>
