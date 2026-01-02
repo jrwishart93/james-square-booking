@@ -753,17 +753,17 @@ function ResultRow({
   isLeader,
 }: { option: Option; count: number; percentage: number; isLeader: boolean }) {
   return (
-    <div className="space-y-2 rounded-2xl border border-black/5 bg-white/70 p-3 shadow-[0_8px_20px_rgba(0,0,0,0.05)] backdrop-blur-sm transition dark:border-white/10 dark:bg-white/5">
+    <div className="space-y-2 rounded-xl border border-black/5 bg-white/60 p-3 shadow-[0_8px_20px_rgba(0,0,0,0.05)] backdrop-blur-sm transition dark:border-white/10 dark:bg-white/5">
       <div className="flex justify-between gap-3 text-sm text-slate-800 dark:text-slate-200">
         <span className={`font-medium ${isLeader ? "text-slate-900 dark:text-white" : ""}`}>{option.label}</span>
-        <span className="text-slate-500 dark:text-slate-400 font-semibold">
+        <span className="text-slate-600 dark:text-slate-400 font-semibold">
           {count} vote{count === 1 ? "" : "s"} • {Number.isFinite(percentage) ? percentage : 0}%
         </span>
       </div>
-      <div className="h-2 rounded-full bg-slate-200/80 overflow-hidden dark:bg-white/10">
+      <div className="h-2 rounded-full bg-slate-200 overflow-hidden dark:bg-white/10">
         <div
-          className={`h-full rounded-full bg-gradient-to-r from-slate-800/40 to-slate-700/60 transition-all dark:from-white/30 dark:to-white/40 ${
-            isLeader ? "shadow-[0_8px_24px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_24px_rgba(255,255,255,0.08)]" : ""
+          className={`h-full rounded-full bg-gradient-to-r from-cyan-400/80 via-cyan-500/70 to-indigo-500/80 transition-all shadow-sm ${
+            isLeader ? "shadow-[0_10px_30px_rgba(56,189,248,0.35)]" : ""
           }`}
           style={{ width: `${Number.isFinite(percentage) ? percentage : 0}%`, maxWidth: "100%" }}
         />
