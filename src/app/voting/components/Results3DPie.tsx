@@ -27,7 +27,8 @@ export default function Results3DPie({
   totalVotes,
   turnoutFlats,
 }: Results3DPieProps) {
-  const colors = theme === "dark" ? DARK_COLORS : LIGHT_COLORS;
+  const isDark = theme === "dark";
+  const colors = isDark ? DARK_COLORS : LIGHT_COLORS;
   const isSecondary = emphasis === "secondary";
   const resolvedTotal =
     typeof totalVotes === "number" ? totalVotes : data.reduce((sum, item) => sum + item.value, 0);
@@ -35,10 +36,10 @@ export default function Results3DPie({
 
   return (
     <div
-      className="rounded-2xl p-5 bg-white/70 backdrop-blur-xl border border-slate-200 shadow-xl dark:bg-slate-900/60 dark:border-white/10 dark:shadow-[0_20px_60px_rgba(0,0,0,0.6)]"
+      className="rounded-2xl p-5 bg-white/70 backdrop-blur-xl border border-slate-200/60 shadow-lg dark:bg-slate-900/70 dark:border-white/10 dark:shadow-2xl"
       aria-label={`Vote distribution donut${resolvedTurnout ? `, ${resolvedTurnout} flats` : ""}`}
     >
-      <div className="relative h-64 w-full">
+      <div className="relative h-64 w-full dark:drop-shadow-[0_10px_30px_rgba(0,0,0,0.6)] dark:filter dark:brightness-110">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
@@ -51,6 +52,8 @@ export default function Results3DPie({
               endAngle={-270}
               paddingAngle={2}
               cornerRadius={10}
+              stroke={isDark ? "rgba(0,0,0,0.4)" : "rgba(255,255,255,0.8)"}
+              strokeWidth={2}
               isAnimationActive
               animationDuration={1400}
               animationBegin={150}
@@ -78,6 +81,8 @@ export default function Results3DPie({
               endAngle={-270}
               paddingAngle={2}
               cornerRadius={10}
+              stroke={isDark ? "rgba(0,0,0,0.4)" : "rgba(255,255,255,0.8)"}
+              strokeWidth={2}
               isAnimationActive
               animationDuration={1400}
               label={false}

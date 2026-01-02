@@ -133,7 +133,7 @@ export default function Results() {
               type="button"
               onClick={() => setOpenQuestionId((prev) => (prev === question.id ? null : question.id))}
               aria-expanded={isOpen}
-              className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium backdrop-blur-md border transition-all shadow-sm hover:shadow-md active:scale-[0.98] bg-white/60 border-slate-200 text-slate-700 hover:bg-white/80 dark:bg-white/10 dark:border-white/20 dark:text-white dark:hover:bg-white/15"
+              className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium backdrop-blur-md border transition-all shadow-sm hover:shadow-md active:scale-[0.98] bg-white/80 border-slate-200 text-slate-700 hover:bg-white dark:bg-slate-800/70 dark:border-white/15 dark:text-white dark:hover:bg-slate-800"
             >
               <span>{isOpen ? "Hide details" : "More info"}</span>
               <svg
@@ -181,7 +181,7 @@ function MoreInfoPanel({
   const totalVotes = results.reduce((sum, r) => sum + r.count, 0);
 
   return (
-    <div className="mt-4 space-y-3">
+    <div className="mt-4 space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 shadow-sm dark:border-white/10 dark:bg-white/5">
       <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-200">Visual summary</h4>
 
       <Results3DPie
