@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import type { NameType, ValueType, Payload } from "recharts/types/component/DefaultTooltipContent";
 import { db } from "@/lib/firebase";
 import { getQuestions } from "../services/storageService";
 
@@ -114,10 +115,11 @@ export default function Results() {
                       ))}
                     </Pie>
                     <Tooltip
-                      formatter={(v: unknown, n: unknown, p: { payload: { percentage?: number } }) => [
-                        `${v} votes (${p.payload.percentage ?? 0}%)`,
-                        n as string,
-                      ]}
+                      formatter={(v: ValueType, n: NameType, p?: Payload<ValueType, NameType>) => {
+                        const pct = typeof p?.payload?.percentage === "number" ? p.payload.percentage : 0;
+                        const votes = Number(v ?? 0);
+                        return [`${votes} votes (${pct}%)`, String(n ?? "")];
+                      }}
                     />
                   </PieChart>
                 </ResponsiveContainer>
