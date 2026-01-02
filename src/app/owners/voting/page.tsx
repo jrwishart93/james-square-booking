@@ -7,7 +7,6 @@ import { collection, doc, getDoc, onSnapshot, query, where } from "firebase/fire
 import {
   AlertCircle,
   BarChart3,
-  ChevronDown,
   CheckCircle2,
   Loader2,
   PenSquare,
@@ -53,7 +52,7 @@ export default function OwnersVotingPage() {
   const [voteErrors, setVoteErrors] = useState<Record<string, string | null>>({});
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
   const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
+  const [detailTabs, setDetailTabs] = useState<Record<string, "summary" | "more-info">>({});
 
   // Ask tab state
   const [title, setTitle] = useState("");
@@ -656,43 +655,44 @@ export default function OwnersVotingPage() {
                         </div>
                       </div>
 
-                      <div className="space-y-3">
-                        {results.map(({ option, count, percentage }) => (
-                          <ResultRow key={option.id} option={option} count={count} percentage={percentage} />
-                        ))}
-                      </div>
+                      <div className="space-y-4">
+                        <div className="inline-flex items-center gap-2 rounded-full bg-slate-100/70 p-1 text-xs font-semibold text-slate-700 dark:bg-white/10 dark:text-slate-200">
+                          {(["summary", "more-info"] as const).map((tabKey) => {
+                            const active = (detailTabs[question.id] ?? "summary") === tabKey;
+                            return (
+                              <button
+                                key={tabKey}
+                                type="button"
+                                onClick={() =>
+                                  setDetailTabs((prev) => ({
+                                    ...prev,
+                                    [question.id]: tabKey,
+                                  }))
+                                }
+                                className={`rounded-full px-3 py-1 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 ${
+                                  active
+                                    ? "bg-white shadow-sm dark:bg-white/20"
+                                    : "text-slate-600 hover:bg-white/60 dark:text-slate-300 dark:hover:bg-white/5"
+                                }`}
+                                aria-pressed={active}
+                              >
+                                {tabKey === "summary" ? "Summary" : "More info"}
+                              </button>
+                            );
+                          })}
+                        </div>
 
-                      <div className="pt-2 border-t border-dashed border-black/10 dark:border-white/10">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setExpandedSections((prev) => ({
-                              ...prev,
-                              [question.id]: !prev[question.id],
-                            }))
-                          }
-                          aria-expanded={expandedSections[question.id] ?? false}
-                          className="flex w-full items-center justify-between gap-3 rounded-xl px-3 py-3 text-left transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 dark:hover:bg-white/5"
-                        >
-                          <div>
-                            <p className="text-sm font-semibold text-slate-900 dark:text-white">More info</p>
-                            <p className="text-xs text-slate-600 dark:text-slate-300">
+                        {(detailTabs[question.id] ?? "summary") === "summary" ? (
+                          <div className="space-y-3">
+                            {results.map(({ option, count, percentage }) => (
+                              <ResultRow key={option.id} option={option} count={count} percentage={percentage} />
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="rounded-2xl border border-black/10 bg-slate-50/60 p-4 shadow-inner shadow-black/5 dark:border-white/10 dark:bg-white/5">
+                            <p className="text-xs text-slate-600 dark:text-slate-300 mb-3">
                               This shows which flats have submitted a vote. It does not show how each flat voted.
                             </p>
-                          </div>
-                          <ChevronDown
-                            className={`h-5 w-5 text-slate-500 transition-transform ${
-                              expandedSections[question.id] ? "rotate-180" : ""
-                            }`}
-                          />
-                        </button>
-                        <div
-                          className={`overflow-hidden transition-all duration-300 ${
-                            expandedSections[question.id] ? "max-h-[520px] opacity-100" : "max-h-0 opacity-0"
-                          }`}
-                          aria-hidden={!(expandedSections[question.id] ?? false)}
-                        >
-                          <div className="mt-3 rounded-2xl border border-black/10 bg-slate-50/60 p-4 shadow-inner shadow-black/5 dark:border-white/10 dark:bg-white/5">
                             {votedFlats[question.id]?.length ? (
                               <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-3">
                                 {votedFlats[question.id]?.map((flatId) => (
@@ -700,7 +700,9 @@ export default function OwnersVotingPage() {
                                     key={flatId}
                                     className="flex items-center gap-2 rounded-xl border border-black/10 bg-white px-3 py-2 text-sm font-medium text-slate-800 shadow-sm dark:border-white/10 dark:bg-white/10 dark:text-slate-50"
                                   >
-                                    <span className="text-xs uppercase tracking-[0.1em] text-slate-500 dark:text-slate-300">Flat</span>
+                                    <span className="text-xs uppercase tracking-[0.1em] text-slate-500 dark:text-slate-300">
+                                      Flat
+                                    </span>
                                     <span className="font-semibold text-slate-900 dark:text-white">{flatId}</span>
                                   </div>
                                 ))}
@@ -709,7 +711,7 @@ export default function OwnersVotingPage() {
                               <p className="text-sm text-slate-700 dark:text-slate-200">No votes have been submitted yet.</p>
                             )}
                           </div>
-                        </div>
+                        )}
                       </div>
                     </div>
                   ))
