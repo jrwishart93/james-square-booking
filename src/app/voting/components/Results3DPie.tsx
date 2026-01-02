@@ -33,6 +33,8 @@ export default function Results3DPie({
   const resolvedTotal =
     typeof totalVotes === "number" ? totalVotes : data.reduce((sum, item) => sum + item.value, 0);
   const resolvedTurnout = turnoutFlats ?? undefined;
+  const centerNumberFill = isDark ? "rgba(255,255,255,0.95)" : "rgba(15,23,42,0.95)";
+  const centerLabelFill = isDark ? "rgba(226,232,240,0.75)" : "rgba(100,116,139,0.9)";
 
   return (
     <div
@@ -124,8 +126,9 @@ export default function Results3DPie({
               x="50%"
               y="46%"
               textAnchor="middle"
-              className="fill-slate-900 dark:fill-white font-extrabold"
+              className="font-extrabold"
               style={{ fontSize: "48px" }}
+              fill={centerNumberFill}
             >
               {resolvedTotal.toLocaleString()}
             </text>
@@ -133,8 +136,9 @@ export default function Results3DPie({
               x="50%"
               y="60%"
               textAnchor="middle"
-              className="fill-slate-500 dark:fill-slate-400 font-medium"
+              className="font-medium"
               style={{ fontSize: "14px" }}
+              fill={centerLabelFill}
             >
               Total votes
             </text>

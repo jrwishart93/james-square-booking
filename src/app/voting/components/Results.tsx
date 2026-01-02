@@ -102,8 +102,11 @@ export default function Results() {
       {stats.map(({ question, results, totalVotes }) => {
         const isOpen = openQuestionId === question.id;
         return (
-          <div key={question.id} className="rounded-2xl bg-white border border-slate-200 p-6 space-y-4">
-            <h2 className="text-lg font-semibold">{question.title}</h2>
+          <div
+            key={question.id}
+            className="rounded-2xl border p-6 space-y-4 bg-white border-slate-200 shadow-[0_12px_30px_rgba(0,0,0,0.08)] dark:bg-slate-900/60 dark:border-white/10 dark:shadow-[0_18px_60px_rgba(0,0,0,0.55)] backdrop-blur-xl"
+          >
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white">{question.title}</h2>
             <div className="space-y-3">
               {results.map(({ option, count, percentage }) => {
                 const pct = Number.isFinite(percentage) ? percentage : 0;
@@ -116,9 +119,9 @@ export default function Results() {
                         {count} vote{count === 1 ? "" : "s"} • {pctLabel}
                       </span>
                     </div>
-                    <div className="h-2 rounded-full bg-slate-200 overflow-hidden dark:bg-white/10">
+                    <div className="h-2 rounded-full bg-slate-200/80 overflow-hidden dark:bg-white/10">
                       <div
-                        className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-indigo-500 transition-all"
+                        className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-indigo-500 transition-all dark:shadow-[0_10px_30px_rgba(34,211,238,0.22)]"
                         style={{ width: `${pct}%` }}
                       />
                     </div>
@@ -127,7 +130,7 @@ export default function Results() {
               })}
             </div>
 
-            <div className="text-xs text-slate-500 dark:text-slate-300">Total votes: {totalVotes}</div>
+            <div className="text-sm text-slate-600 dark:text-slate-300">Total votes: {totalVotes}</div>
 
             <button
               type="button"
@@ -181,8 +184,8 @@ function MoreInfoPanel({
   const totalVotes = results.reduce((sum, r) => sum + r.count, 0);
 
   return (
-    <div className="mt-4 space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 shadow-sm dark:border-white/10 dark:bg-white/5">
-      <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-200">Visual summary</h4>
+    <div className="mt-4 space-y-3 rounded-2xl border p-4 sm:p-6 bg-white border-slate-200 shadow-[0_12px_30px_rgba(15,23,42,0.10)] dark:bg-slate-950/40 dark:border-white/10 dark:shadow-[0_18px_70px_rgba(0,0,0,0.55)] backdrop-blur-xl">
+      <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Visual summary</h4>
 
       <Results3DPie
         data={pieData}
