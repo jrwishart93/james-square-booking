@@ -989,8 +989,6 @@ function MoreInfoBreakdown({
   expanded: boolean;
   onToggle: () => void;
 }) {
-  const turnoutCount = votes.length;
-
   const flatCounts = votes.reduce<Record<string, number>>((acc, v) => {
     const label =
       typeof v.voterFlat === "string" && v.voterFlat.trim().length > 0
@@ -1001,6 +999,7 @@ function MoreInfoBreakdown({
   }, {});
 
   const flatEntries = Object.entries(flatCounts).sort((a, b) => a[0].localeCompare(b[0]));
+  const turnoutCount = Object.keys(flatCounts).length;
 
   const perOptionFlats = results.map(({ option }) => {
     const counts = votes
@@ -1015,10 +1014,9 @@ function MoreInfoBreakdown({
       }, {});
 
     const entries = Object.entries(counts).sort((a, b) => a[0].localeCompare(b[0]));
-    const flatLabels = entries.map(([label]) => label);
-    const flatCount = entries.reduce((sum, [, count]) => sum + count, 0);
+    const flatCount = entries.length;
 
-    return { option, flatLabels, counts: entries, count: flatCount };
+    return { option, counts: entries, count: flatCount };
   });
 
   const lastUpdated = (() => {
