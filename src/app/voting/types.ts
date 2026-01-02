@@ -24,6 +24,7 @@ export interface Vote {
   flat: string;
   userId?: string | null; // Prepared for Firebase Auth
   createdAt: number;
+  updatedAt?: number;
 }
 
 export interface QuestionStats {

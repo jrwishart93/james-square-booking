@@ -6,6 +6,7 @@ import {
   orderBy,
   query,
   serverTimestamp,
+  updateDoc,
   where,
   writeBatch,
 } from 'firebase/firestore';
@@ -68,6 +69,42 @@ export const getQuestions = async (): Promise<Question[]> => {
   return snapshot.docs.map(mapQuestionDoc);
 };
 
+const mapVoteDoc = (snap: { id: string; data: () => Record<string, unknown> }): Vote => {
+  const data = snap.data() as Record<string, unknown>;
+  const createdAtTs =
+    typeof data.createdAt === 'number'
+      ? data.createdAt
+      : (data.createdAt as { toMillis?: () => number })?.toMillis?.();
+  const updatedAtTs =
+    typeof data.updatedAt === 'number'
+      ? data.updatedAt
+      : (data.updatedAt as { toMillis?: () => number })?.toMillis?.();
+  const userName =
+    typeof data.userName === 'string'
+      ? data.userName
+      : typeof data.voterName === 'string'
+        ? data.voterName
+        : 'Unknown';
+  const userNameLower =
+    typeof data.userNameLower === 'string'
+      ? data.userNameLower
+      : typeof userName === 'string'
+        ? userName.toLowerCase()
+        : undefined;
+
+  return {
+    id: snap.id,
+    questionId: typeof data.questionId === 'string' ? data.questionId : '',
+    optionId: typeof data.optionId === 'string' ? data.optionId : '',
+    userName,
+    userNameLower,
+    flat: typeof data.flat === 'string' ? data.flat : 'Unknown',
+    userId: typeof data.userId === 'string' ? data.userId : null,
+    createdAt: createdAtTs ?? Date.now(),
+    updatedAt: updatedAtTs ?? undefined,
+  };
+};
+
 export const addQuestion = async (
   title: string,
   description: string,
@@ -113,32 +150,36 @@ export const getVotes = async (questionId?: string): Promise<Vote[]> => {
     : query(collection(db, VOTES_COLLECTION), orderBy('createdAt', 'desc'));
 
   const votesSnap = await getDocs(voteQuery);
-  return votesSnap.docs.map((snap) => {
-    const data = snap.data() as Record<string, unknown>;
-    const createdAtTs = (data.createdAt as { toMillis?: () => number })?.toMillis?.();
-    const userName =
-      typeof data.userName === 'string'
-        ? data.userName
-        : typeof data.voterName === 'string'
-          ? data.voterName
-          : 'Unknown';
-    const userNameLower =
-      typeof data.userNameLower === 'string'
-        ? data.userNameLower
-        : typeof userName === 'string'
-          ? userName.toLowerCase()
-          : undefined;
-    return {
-      id: snap.id,
-      questionId: typeof data.questionId === 'string' ? data.questionId : '',
-      optionId: typeof data.optionId === 'string' ? data.optionId : '',
-      userName,
-      userNameLower,
-      flat: typeof data.flat === 'string' ? data.flat : 'Unknown',
-      userId: typeof data.userId === 'string' ? data.userId : null,
-      createdAt: createdAtTs ?? Date.now(),
-    };
-  });
+  return votesSnap.docs.map(mapVoteDoc);
+};
+
+const findExistingVoteDoc = async (questionId: string, userId?: string | null, flat?: string) => {
+  const normalizedFlat = flat ? normalizeFlat(flat) : '';
+  if (userId) {
+    const byUserQuery = query(
+      collection(db, VOTES_COLLECTION),
+      where('questionId', '==', questionId),
+      where('userId', '==', userId),
+    );
+    const byUserSnapshot = await getDocs(byUserQuery);
+    if (!byUserSnapshot.empty) {
+      return byUserSnapshot.docs[0];
+    }
+  }
+
+  if (normalizedFlat) {
+    const byFlatQuery = query(
+      collection(db, VOTES_COLLECTION),
+      where('questionId', '==', questionId),
+      where('flat', '==', normalizedFlat),
+    );
+    const byFlatSnapshot = await getDocs(byFlatQuery);
+    if (!byFlatSnapshot.empty) {
+      return byFlatSnapshot.docs[0];
+    }
+  }
+
+  return null;
 };
 
 export const submitVote = async (
@@ -174,6 +215,26 @@ export const submitVote = async (
     createdAt: serverTimestamp(),
   };
 
+  const existing = await findExistingVoteDoc(questionId, userId, trimmedFlat);
+
+  if (existing) {
+    await updateDoc(existing.ref, {
+      ...payload,
+      createdAt: existing.data()?.createdAt ?? serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+
+    return mapVoteDoc({
+      id: existing.id,
+      data: () => ({
+        ...existing.data(),
+        ...payload,
+        createdAt: (existing.data() as Record<string, unknown>).createdAt,
+        updatedAt: Date.now(),
+      }),
+    });
+  }
+
   const ref = await addDoc(collection(db, VOTES_COLLECTION), payload);
 
   return {
@@ -201,4 +262,14 @@ export const hasExistingVoteForFlat = async (questionId: string, flat: string): 
 
   const snapshot = await getDocs(voteQuery);
   return !snapshot.empty;
+};
+
+export const getExistingVoteForUser = async (
+  questionId: string,
+  userId?: string | null,
+  flat?: string,
+): Promise<Vote | null> => {
+  const existing = await findExistingVoteDoc(questionId, userId, flat);
+  if (!existing) return null;
+  return mapVoteDoc(existing);
 };
