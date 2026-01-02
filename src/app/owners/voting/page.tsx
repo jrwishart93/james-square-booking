@@ -1,6 +1,6 @@
 "use client";
 
-import dynamic from "next/dynamic";
+import dynamicImport from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import type { User } from "firebase/auth";
@@ -28,18 +28,9 @@ import GradientBG from "@/components/GradientBG";
 import type { ResultStat } from "@/components/Voting3DChart";
 import { useAuth } from "@/context/AuthContext";
 import { db } from "@/lib/firebase";
-import dynamic from "next/dynamic";
 
-type Voting3DChartProps = {
-  data: ResultStat[];
-  totalVotes: number;
-  paused: boolean;
-  palette: string[];
-  isMobile: boolean;
-};
-
-const Voting3DChart = dynamic<Voting3DChartProps>(
-  () => import("@/components/Voting3DChart").then((mod) => mod.default),
+const Voting3DChart = dynamicImport(
+  () => import("@/components/Voting3DChart"),
   { ssr: false },
 );
 
