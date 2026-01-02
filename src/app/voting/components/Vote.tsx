@@ -239,7 +239,7 @@ const VotePage: React.FC = () => {
     !isSubmitting &&
     !isCheckingExistingVote,
   );
-  const isClosed = currentQuestion.status !== 'open';
+  const isClosed = currentQuestion?.status !== 'open';
   const hasExistingVote = Boolean(existingVote);
   const hasChangedVote = hasExistingVote && selectedOptionId !== existingVote?.optionId;
 
