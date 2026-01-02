@@ -1,9 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import type { User } from "firebase/auth";
-import { collection, doc, getDoc, onSnapshot, query, where } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import {
   AlertCircle,
   BarChart3,
@@ -17,15 +17,15 @@ import { Button } from "@/app/voting/components/ui/Button";
 import { Input } from "@/app/voting/components/ui/Input";
 import {
   addQuestion,
-  deleteQuestion,
   getQuestions,
   normalizeFlat,
   submitVote,
 } from "@/app/voting/services/storageService";
-import type { Option, Question } from "@/app/voting/types";
+import type { Question } from "@/app/voting/types";
 import GradientBG from "@/components/GradientBG";
 import { useAuth } from "@/context/AuthContext";
 import { db } from "@/lib/firebase";
+import Results from "@/app/voting/components/Results";
 
 const deriveFirstName = (user: User | null): string => {
   if (!user) return "";
@@ -38,29 +38,16 @@ type Tab = "ask" | "vote" | "results";
 
 const VIEW_ONLY_MESSAGE = "Viewing only. Please log in or sign up to place a vote.";
 const VOTE_RECORDED_MESSAGE = "Vote recorded";
-const SHOW_FLATS_IN_BREAKDOWN = true;
-
-type VoteDoc = {
-  id: string;
-  questionId: string;
-  optionId: string;
-  voterFlat?: string;
-  createdAt?: unknown;
-};
 
 export default function OwnersVotingPage() {
   const router = useRouter();
   const { user: currentUser, loading: authLoading } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>("vote");
   const [questions, setQuestions] = useState<Question[]>([]);
-  const [voteCounts, setVoteCounts] = useState<Record<string, Record<string, number>>>({});
-  const [questionVotes, setQuestionVotes] = useState<Record<string, VoteDoc[]>>({});
   const [loading, setLoading] = useState(true);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [savingVoteId, setSavingVoteId] = useState<string | null>(null);
   const [voteErrors, setVoteErrors] = useState<Record<string, string | null>>({});
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
-  const [expandedMoreInfo, setExpandedMoreInfo] = useState<Record<string, boolean>>({});
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
   // Ask tab state
@@ -150,54 +137,6 @@ export default function OwnersVotingPage() {
     load();
   }, []);
 
-  useEffect(() => {
-    if (questions.length === 0) {
-      setVoteCounts({});
-      setQuestionVotes({});
-      return;
-    }
-
-    const votesRef = collection(db, "voting_votes");
-    setVoteCounts({});
-    const unsubscribers = questions.map((question) => {
-      const votesQuery = query(votesRef, where("questionId", "==", question.id));
-      return onSnapshot(
-        votesQuery,
-        (snapshot) => {
-          console.log("Votes returned:", snapshot.docs.map((d) => d.data()));
-          const counts = snapshot.docs.reduce<Record<string, number>>((acc, doc) => {
-            const data = doc.data() as Record<string, unknown>;
-            const optionId = typeof data.optionId === "string" ? data.optionId : null;
-            if (!optionId) return acc;
-            acc[optionId] = (acc[optionId] ?? 0) + 1;
-            return acc;
-          }, {});
-
-          setVoteCounts((prev) => ({ ...prev, [question.id]: counts }));
-
-          const docs: VoteDoc[] = snapshot.docs.map((d) => {
-            const data = d.data() as Record<string, unknown>;
-            return {
-              id: d.id,
-              questionId: typeof data.questionId === "string" ? data.questionId : question.id,
-              optionId: typeof data.optionId === "string" ? data.optionId : "",
-              voterFlat: typeof data.voterFlat === "string" ? data.voterFlat : undefined,
-              createdAt: data.createdAt,
-            };
-          });
-          setQuestionVotes((prev) => ({ ...prev, [question.id]: docs }));
-        },
-        (error) => {
-          console.error("Failed to load votes for question", error);
-        },
-      );
-    });
-
-    return () => {
-      unsubscribers.forEach((unsub) => unsub());
-    };
-  }, [questions]);
-
   const validateAsk = () => {
     const errs: { title?: string; options?: string } = {};
     if (!title.trim()) errs.title = "Question title is required";
@@ -214,13 +153,6 @@ export default function OwnersVotingPage() {
   const handleRemoveOption = (index: number) => {
     if (options.length <= 2) return;
     setOptions((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const toggleMoreInfo = (questionId: string) => {
-    setExpandedMoreInfo((prev) => ({
-      ...prev,
-      [questionId]: !prev[questionId],
-    }));
   };
 
   const handleCreateQuestion = async (event: React.FormEvent) => {
@@ -289,34 +221,6 @@ export default function OwnersVotingPage() {
       setSavingVoteId(null);
     }
   };
-
-  const handleDeleteQuestion = async (questionId: string) => {
-    const proceed = window.confirm("This question and its votes will be deleted. Are you sure?");
-    if (!proceed) return;
-    setDeletingId(questionId);
-    try {
-      await deleteQuestion(questionId);
-      const qs = await getQuestions();
-      setQuestions(qs);
-    } catch (error) {
-      console.error("Failed to delete question", error);
-    } finally {
-      setDeletingId(null);
-    }
-  };
-
-  const questionResults = useMemo(() => {
-    return questions.map((q) => {
-      const totals = voteCounts[q.id] ?? {};
-      const totalVotes = Object.values(totals).reduce((sum, count) => sum + count, 0);
-      const safeTotal = Math.max(totalVotes, 1);
-      const results = q.options.map((opt) => {
-        const count = totals[opt.id] ?? 0;
-        return { option: opt, count, percentage: Math.round((count / safeTotal) * 100) };
-      });
-      return { question: q, totalVotes, results };
-    });
-  }, [questions, voteCounts]);
 
   if (loading) {
     return (
@@ -627,74 +531,7 @@ export default function OwnersVotingPage() {
               </div>
             )}
 
-            {activeTab === "results" && (
-              <div className="space-y-6">
-                {questionResults.length === 0 ? (
-                  <p className="text-slate-600 dark:text-slate-300">No questions yet.</p>
-                ) : (
-                  questionResults.map(({ question, results, totalVotes }) => {
-                    return (
-                      <div
-                        key={question.id}
-                        className="p-6 rounded-2xl bg-white border border-black/10 space-y-4 shadow-[0_12px_30px_rgba(0,0,0,0.08)] dark:bg-white/5 dark:border-white/10 dark:shadow-none"
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="space-y-2">
-                            <div>
-                              <p className="text-xs uppercase tracking-[0.2em] text-slate-600 dark:text-slate-400">{question.status}</p>
-                              <h3 className="text-xl font-semibold text-slate-900 dark:text-white">{question.title}</h3>
-                              {question.description && (
-                                <p className="text-slate-700 text-sm dark:text-slate-300">{question.description}</p>
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <div className="text-right text-sm text-slate-600 dark:text-slate-400">
-                              <div className="font-semibold text-slate-900 dark:text-white">{totalVotes}</div>
-                              <div>votes</div>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteQuestion(question.id)}
-                              disabled={deletingId === question.id}
-                              className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-black/10 text-slate-700 hover:bg-slate-100 transition disabled:opacity-50 dark:border-white/20 dark:text-slate-200 dark:hover:bg-white/10"
-                              aria-label="Delete question"
-                            >
-                              {deletingId === question.id ? "…" : "×"}
-                            </button>
-                          </div>
-                        </div>
-
-                        <div className="space-y-3">
-                          {results.map(({ option, count, percentage }) => (
-                            <ResultRow key={option.id} option={option} count={count} percentage={percentage} />
-                          ))}
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => toggleMoreInfo(question.id)}
-                          aria-expanded={expandedMoreInfo[question.id] ?? false}
-                          className="mt-4 text-sm font-medium text-slate-600 hover:text-slate-900 underline-offset-4 hover:underline dark:text-slate-300 dark:hover:text-white"
-                        >
-                          {expandedMoreInfo[question.id] ? "Hide details" : "More info"}
-                        </button>
-
-                        {expandedMoreInfo[question.id] && (
-                          <>
-                            <div className="mt-4 h-px bg-slate-200 dark:bg-white/10" />
-                            <MoreInfoPanel
-                              question={question}
-                              results={results}
-                              votes={questionVotes[question.id] ?? []}
-                            />
-                          </>
-                        )}
-                      </div>
-                    );
-                  })
-                )}
-              </div>
-            )}
+            {activeTab === "results" && <Results />}
           </section>
         </div>
       </GradientBG>
@@ -781,87 +618,5 @@ function TabButton({
       {icon}
       {label}
     </button>
-  );
-}
-
-function ResultRow({ option, count, percentage }: { option: Option; count: number; percentage: number }) {
-  return (
-    <div className="space-y-1">
-      <div className="flex justify-between text-sm text-slate-800 dark:text-slate-200">
-        <span>{option.label}</span>
-        <span className="text-slate-500 dark:text-slate-400">
-          {count} vote{count === 1 ? "" : "s"} • {Number.isFinite(percentage) ? percentage : 0}%
-        </span>
-      </div>
-      <div className="h-2 rounded-full bg-slate-200 overflow-hidden dark:bg-white/10">
-        <div
-          className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-indigo-500 transition-all"
-          style={{ width: `${Number.isFinite(percentage) ? percentage : 0}%` }}
-        />
-      </div>
-    </div>
-  );
-}
-
-function MoreInfoPanel({
-  question,
-  results,
-  votes,
-}: {
-  question: Question;
-  results: { option: Option; count: number; percentage: number }[];
-  votes: VoteDoc[];
-}) {
-  const uniqueFlats = Array.from(new Set(votes.map((v) => v.voterFlat).filter(Boolean))).sort();
-
-  if (!SHOW_FLATS_IN_BREAKDOWN) {
-    return (
-      <div className="mt-4 space-y-4">
-        <div className="text-sm text-slate-700 dark:text-slate-200">
-          Turnout: <span className="font-semibold">{uniqueFlats.length}</span> flat{uniqueFlats.length === 1 ? "" : "s"}
-        </div>
-        <p className="text-sm text-slate-600 dark:text-slate-300">Flat-level participation is hidden.</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="mt-4 space-y-4">
-      <div className="text-sm text-slate-700 dark:text-slate-200">
-        Turnout: <span className="font-semibold">{uniqueFlats.length}</span> flat{uniqueFlats.length === 1 ? "" : "s"}
-      </div>
-
-      <div className="space-y-4">
-        {results.map(({ option }) => {
-          const flats = votes
-            .filter((v) => v.optionId === option.id)
-            .map((v) => v.voterFlat)
-            .filter(Boolean)
-            .sort() as string[];
-
-          return (
-            <div key={option.id} className="space-y-2">
-              <div className="flex justify-between text-sm font-medium text-slate-700 dark:text-slate-200">
-                <span>{option.label}</span>
-                <span>{flats.length}</span>
-              </div>
-
-              {flats.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {flats.map((flat) => (
-                    <span
-                      key={`${question.id}-${option.id}-${flat}`}
-                      className="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-700 dark:bg-white/10 dark:text-white/80"
-                    >
-                      {flat}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-    </div>
   );
 }
