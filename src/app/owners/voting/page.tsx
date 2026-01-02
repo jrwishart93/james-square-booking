@@ -676,30 +676,58 @@ export default function OwnersVotingPage() {
                             id={`question-details-${question.id}`}
                             className="mt-3 space-y-3 text-sm text-slate-700 dark:text-slate-200"
                           >
-                            <p className="flex flex-wrap gap-2">
-                              <span className="font-semibold">Top option:</span>
-                              <span>{leadingResult?.option.label ?? "No votes yet"}</span>
-                              {leadingResult && (
-                                <span className="text-slate-500 dark:text-slate-400">
-                                  ({leadingResult.count} vote{leadingResult.count === 1 ? "" : "s"})
-                                </span>
-                              )}
-                            </p>
-                            {Number.isFinite(leadMargin) && leadMargin > 0 && (
-                              <p className="text-slate-600 dark:text-slate-300">
-                                Lead margin: {leadMargin} vote{leadMargin === 1 ? "" : "s"} over next option.
-                              </p>
-                            )}
-                            <ul className="space-y-1">
-                              {sortedResults.map(({ option, count, percentage }) => (
-                                <li key={option.id} className="flex items-center justify-between rounded-lg bg-white/70 px-3 py-2 shadow-sm ring-1 ring-black/5 dark:bg-white/5 dark:ring-white/10">
-                                  <span className="text-slate-800 dark:text-slate-100">{option.label}</span>
-                                  <span className="font-mono text-slate-600 dark:text-slate-300">
-                                    {count} / {totalVotes || 0} • {Number.isFinite(percentage) ? percentage : 0}%
+                            <div className="space-y-2">
+                              <p className="flex flex-wrap gap-2">
+                                <span className="font-semibold">Top option:</span>
+                                <span>{leadingResult?.option.label ?? "No votes yet"}</span>
+                                {leadingResult && (
+                                  <span className="text-slate-500 dark:text-slate-400">
+                                    ({leadingResult.count} vote{leadingResult.count === 1 ? "" : "s"})
                                   </span>
-                                </li>
-                              ))}
-                            </ul>
+                                )}
+                              </p>
+                              {Number.isFinite(leadMargin) && leadMargin > 0 && (
+                                <p className="text-slate-600 dark:text-slate-300">
+                                  Lead margin: {leadMargin} vote{leadMargin === 1 ? "" : "s"} over next option.
+                                </p>
+                              )}
+                              <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                                Vote distribution (counts with percentages)
+                              </p>
+                            </div>
+
+                            <div className="space-y-2">
+                              {sortedResults.map(({ option, count, percentage }) => {
+                                const pct = Number.isFinite(percentage) ? percentage : 0;
+                                return (
+                                  <div key={option.id} className="space-y-1">
+                                    <div className="flex items-center justify-between text-sm text-slate-800 dark:text-slate-100">
+                                      <span>{option.label}</span>
+                                      <span className="font-mono text-slate-600 dark:text-slate-300">
+                                        {count} • {pct}%
+                                      </span>
+                                    </div>
+                                    <div className="h-2 rounded-full bg-slate-200/90 overflow-hidden dark:bg-white/10">
+                                      <div
+                                        className="h-full rounded-full bg-slate-700/60 dark:bg-white/40 transition-all"
+                                        style={{ width: `${pct}%`, maxWidth: "100%" }}
+                                      />
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+
+                            <div className="mt-4 space-y-1 text-sm text-slate-700 dark:text-slate-200">
+                              <p className="font-semibold">Turnout</p>
+                              <p>Total votes cast: {totalVotes}</p>
+                              <p className="text-slate-600 dark:text-slate-400">
+                                Eligible voters: not provided • Participation: not available
+                              </p>
+                            </div>
+                            <p className="text-xs text-slate-500 dark:text-slate-400">
+                              Charts show current vote counts and percentages per option. Historical timing data is not captured in this view.
+                            </p>
                           </div>
                         )}
                       </div>
