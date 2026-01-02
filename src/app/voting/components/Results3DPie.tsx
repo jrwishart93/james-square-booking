@@ -33,7 +33,7 @@ export default function Results3DPie({
   const resolvedTotal =
     typeof totalVotes === "number" ? totalVotes : data.reduce((sum, item) => sum + item.value, 0);
   const resolvedTurnout = turnoutFlats ?? undefined;
-  const centerNumberFill = isDark ? "rgba(255,255,255,0.95)" : "rgba(15,23,42,0.95)";
+  const centerNumberFill = isDark ? "#67e8f9" : "#0ea5e9";
   const centerLabelFill = isDark ? "rgba(226,232,240,0.75)" : "rgba(100,116,139,0.9)";
 
   return (
