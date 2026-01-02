@@ -50,6 +50,7 @@ export default function OwnersVotingPage() {
   const [savingVoteId, setSavingVoteId] = useState<string | null>(null);
   const [voteErrors, setVoteErrors] = useState<Record<string, string | null>>({});
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
+  const [detailsOpen, setDetailsOpen] = useState<Record<string, boolean>>({});
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
   // Ask tab state
@@ -608,6 +609,11 @@ export default function OwnersVotingPage() {
                     );
                     const isVotingOpen = question.status === "open";
                     const statusCopy = `${isVotingOpen ? "Voting open" : "Voting closed"} • ${isVotingOpen ? "Live" : "Final"} results`;
+                    const sortedResults = [...results].sort((a, b) => b.count - a.count);
+                    const leadingResult = sortedResults[0];
+                    const runnerUp = sortedResults[1];
+                    const leadMargin = leadingResult && runnerUp ? leadingResult.count - runnerUp.count : leadingResult?.count ?? 0;
+                    const isDetailsOpen = detailsOpen[question.id] ?? false;
 
                     return (
                     <div
@@ -650,6 +656,52 @@ export default function OwnersVotingPage() {
                             isLeader={Number.isFinite(percentage) && percentage === leadingPercentage && leadingPercentage > 0}
                           />
                         ))}
+                      </div>
+
+                      <div className="pt-4 mt-2 border-t border-black/10 dark:border-white/10">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setDetailsOpen((prev) => ({ ...prev, [question.id]: !isDetailsOpen }))
+                          }
+                          className="flex items-center gap-2 text-sm font-semibold text-slate-800 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:text-white dark:focus-visible:ring-offset-slate-900"
+                          aria-expanded={isDetailsOpen}
+                          aria-controls={`question-details-${question.id}`}
+                        >
+                          {isDetailsOpen ? "Hide detail" : "More detail"}
+                        </button>
+
+                        {isDetailsOpen && (
+                          <div
+                            id={`question-details-${question.id}`}
+                            className="mt-3 space-y-3 text-sm text-slate-700 dark:text-slate-200"
+                          >
+                            <p className="flex flex-wrap gap-2">
+                              <span className="font-semibold">Top option:</span>
+                              <span>{leadingResult?.option.label ?? "No votes yet"}</span>
+                              {leadingResult && (
+                                <span className="text-slate-500 dark:text-slate-400">
+                                  ({leadingResult.count} vote{leadingResult.count === 1 ? "" : "s"})
+                                </span>
+                              )}
+                            </p>
+                            {Number.isFinite(leadMargin) && leadMargin > 0 && (
+                              <p className="text-slate-600 dark:text-slate-300">
+                                Lead margin: {leadMargin} vote{leadMargin === 1 ? "" : "s"} over next option.
+                              </p>
+                            )}
+                            <ul className="space-y-1">
+                              {sortedResults.map(({ option, count, percentage }) => (
+                                <li key={option.id} className="flex items-center justify-between rounded-lg bg-white/70 px-3 py-2 shadow-sm ring-1 ring-black/5 dark:bg-white/5 dark:ring-white/10">
+                                  <span className="text-slate-800 dark:text-slate-100">{option.label}</span>
+                                  <span className="font-mono text-slate-600 dark:text-slate-300">
+                                    {count} / {totalVotes || 0} • {Number.isFinite(percentage) ? percentage : 0}%
+                                  </span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
                       </div>
                     </div>
                   );
