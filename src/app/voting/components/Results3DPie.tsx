@@ -25,6 +25,8 @@ export default function Results3DPie({
   data,
   theme = "light",
   emphasis = "secondary",
+  totalVotes,
+  turnoutFlats,
 }: Results3DPieProps) {
   const colors = theme === "dark" ? DARK_COLORS : LIGHT_COLORS;
   const isSecondary = emphasis === "secondary";
