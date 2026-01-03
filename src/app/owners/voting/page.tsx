@@ -1,5 +1,6 @@
 "use client";
 
+import dynamicImport from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import type { User } from "firebase/auth";
@@ -24,8 +25,14 @@ import {
 } from "@/app/voting/services/storageService";
 import type { Option, Question } from "@/app/voting/types";
 import GradientBG from "@/components/GradientBG";
+import type { ResultStat } from "@/components/Voting3DChart";
 import { useAuth } from "@/context/AuthContext";
 import { db } from "@/lib/firebase";
+
+const Voting3DChart = dynamicImport(
+  () => import("@/components/Voting3DChart"),
+  { ssr: false },
+);
 
 const deriveFirstName = (user: User | null): string => {
   if (!user) return "";
@@ -50,6 +57,7 @@ export default function OwnersVotingPage() {
   const [savingVoteId, setSavingVoteId] = useState<string | null>(null);
   const [voteErrors, setVoteErrors] = useState<Record<string, string | null>>({});
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
+  const [detailsOpen, setDetailsOpen] = useState<Record<string, boolean>>({});
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
   // Ask tab state
@@ -601,7 +609,20 @@ export default function OwnersVotingPage() {
                 {questionResults.length === 0 ? (
                   <p className="text-slate-600 dark:text-slate-300">No questions yet.</p>
                 ) : (
-                  questionResults.map(({ question, results, totalVotes }) => (
+                  questionResults.map(({ question, results, totalVotes }) => {
+                    const leadingPercentage = results.reduce(
+                      (max, { percentage }) => Math.max(max, Number.isFinite(percentage) ? percentage : 0),
+                      0,
+                    );
+                    const isVotingOpen = question.status === "open";
+                    const statusCopy = `${isVotingOpen ? "Voting open" : "Voting closed"} • ${isVotingOpen ? "Live" : "Final"} results`;
+                    const sortedResults = [...results].sort((a, b) => b.count - a.count);
+                    const leadingResult = sortedResults[0];
+                    const runnerUp = sortedResults[1];
+                    const leadMargin = leadingResult && runnerUp ? leadingResult.count - runnerUp.count : leadingResult?.count ?? 0;
+                    const isDetailsOpen = detailsOpen[question.id] ?? false;
+
+                    return (
                     <div
                       key={question.id}
                       className="p-6 rounded-2xl bg-white border border-black/10 space-y-4 shadow-[0_12px_30px_rgba(0,0,0,0.08)] dark:bg-white/5 dark:border-white/10 dark:shadow-none"
@@ -613,6 +634,7 @@ export default function OwnersVotingPage() {
                           {question.description && (
                             <p className="text-slate-700 text-sm dark:text-slate-300">{question.description}</p>
                           )}
+                          <p className="mt-1 text-xs font-medium text-slate-600 dark:text-slate-400">{statusCopy}</p>
                         </div>
                         <div className="flex items-center gap-3">
                           <div className="text-right text-sm text-slate-600 dark:text-slate-400">
@@ -631,13 +653,44 @@ export default function OwnersVotingPage() {
                         </div>
                       </div>
 
-                      <div className="space-y-3">
+                      <div className="space-y-4">
                         {results.map(({ option, count, percentage }) => (
-                          <ResultRow key={option.id} option={option} count={count} percentage={percentage} />
+                          <ResultRow
+                            key={option.id}
+                            option={option}
+                            count={count}
+                            percentage={percentage}
+                            isLeader={Number.isFinite(percentage) && percentage === leadingPercentage && leadingPercentage > 0}
+                          />
                         ))}
                       </div>
+
+                      <div className="pt-4 mt-2 border-t border-black/10 dark:border-white/10">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setDetailsOpen((prev) => ({ ...prev, [question.id]: !isDetailsOpen }))
+                          }
+                          className="flex items-center gap-2 text-sm font-semibold text-slate-800 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:text-white dark:focus-visible:ring-offset-slate-900"
+                          aria-expanded={isDetailsOpen}
+                          aria-controls={`question-details-${question.id}`}
+                        >
+                          {isDetailsOpen ? "Hide detail" : "More detail"}
+                        </button>
+
+                        {isDetailsOpen && (
+                          <AdvancedDetailPanel
+                            questionId={question.id}
+                            sortedResults={sortedResults}
+                            totalVotes={totalVotes}
+                            leadMargin={leadMargin}
+                            leadingResult={leadingResult}
+                          />
+                        )}
+                      </div>
                     </div>
-                  ))
+                  );
+                  })
                 )}
               </div>
             )}
@@ -730,21 +783,192 @@ function TabButton({
   );
 }
 
-function ResultRow({ option, count, percentage }: { option: Option; count: number; percentage: number }) {
+function ResultRow({
+  option,
+  count,
+  percentage,
+  isLeader,
+}: { option: Option; count: number; percentage: number; isLeader: boolean }) {
   return (
-    <div className="space-y-1">
-      <div className="flex justify-between text-sm text-slate-800 dark:text-slate-200">
-        <span>{option.label}</span>
-        <span className="text-slate-500 dark:text-slate-400">
+    <div className="space-y-2 rounded-xl border border-black/5 bg-white/60 p-3 shadow-[0_8px_20px_rgba(0,0,0,0.05)] backdrop-blur-sm transition dark:border-white/10 dark:bg-white/5">
+      <div className="flex justify-between gap-3 text-sm text-slate-800 dark:text-slate-200">
+        <span className={`font-medium ${isLeader ? "text-slate-900 dark:text-white" : ""}`}>{option.label}</span>
+        <span className="text-slate-600 dark:text-slate-400 font-semibold">
           {count} vote{count === 1 ? "" : "s"} • {Number.isFinite(percentage) ? percentage : 0}%
         </span>
       </div>
       <div className="h-2 rounded-full bg-slate-200 overflow-hidden dark:bg-white/10">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-indigo-500 transition-all"
-          style={{ width: `${Number.isFinite(percentage) ? percentage : 0}%` }}
+          className={`h-full rounded-full bg-gradient-to-r from-cyan-400/80 via-cyan-500/70 to-indigo-500/80 transition-all shadow-sm ${
+            isLeader ? "shadow-[0_10px_30px_rgba(56,189,248,0.35)]" : ""
+          }`}
+          style={{ width: `${Number.isFinite(percentage) ? percentage : 0}%`, maxWidth: "100%" }}
         />
       </div>
+    </div>
+  );
+}
+
+function AdvancedDetailPanel({
+  questionId,
+  sortedResults,
+  totalVotes,
+  leadMargin,
+  leadingResult,
+}: {
+  questionId: string;
+  sortedResults: ResultStat[];
+  totalVotes: number;
+  leadMargin: number;
+  leadingResult?: ResultStat;
+}) {
+  const [rotationPaused, setRotationPaused] = useState(false);
+  const [windowActive, setWindowActive] = useState(true);
+  const [supportsWebgl, setSupportsWebgl] = useState<boolean | null>(null);
+  const [reducedMotion, setReducedMotion] = useState(false);
+  const [chartKey, setChartKey] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReducedMotion(mq.matches);
+    const updateMotion = (event: MediaQueryListEvent) => setReducedMotion(event.matches);
+    mq.addEventListener("change", updateMotion);
+    setIsMobile(window.innerWidth < 640);
+    const handleResize = () => setIsMobile(window.innerWidth < 640);
+    window.addEventListener("resize", handleResize);
+
+    const glSupported = (() => {
+      try {
+        const canvas = document.createElement("canvas");
+        const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+        return Boolean(gl && gl instanceof WebGLRenderingContext);
+      } catch {
+        return false;
+      }
+    })();
+    setSupportsWebgl(glSupported);
+
+    const handleVisibility = () => setWindowActive(document.visibilityState === "visible");
+    const handleBlur = () => setWindowActive(false);
+    const handleFocus = () => setWindowActive(true);
+    window.addEventListener("visibilitychange", handleVisibility);
+    window.addEventListener("blur", handleBlur);
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      mq.removeEventListener("change", updateMotion);
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("visibilitychange", handleVisibility);
+      window.removeEventListener("blur", handleBlur);
+      window.removeEventListener("focus", handleFocus);
+    };
+  }, []);
+
+  const effectivePause = rotationPaused || reducedMotion || !windowActive;
+  const palette = useMemo(
+    () => ["#5CE1E6", "#5A8DEE", "#8B5CF6", "#22D3EE", "#60A5FA", "#9A8BFF"],
+    [],
+  );
+
+  return (
+    <div
+      id={`question-details-${questionId}`}
+      className="mt-3 space-y-4 text-sm text-slate-700 dark:text-slate-200"
+    >
+      <div className="space-y-2">
+        <p className="flex flex-wrap gap-2">
+          <span className="font-semibold">Top option:</span>
+          <span>{leadingResult?.option.label ?? "No votes yet"}</span>
+          {leadingResult && (
+            <span className="text-slate-500 dark:text-slate-400">
+              ({leadingResult.count} vote{leadingResult.count === 1 ? "" : "s"})
+            </span>
+          )}
+        </p>
+        {Number.isFinite(leadMargin) && leadMargin > 0 && (
+          <p className="text-slate-600 dark:text-slate-300">
+            Lead margin: {leadMargin} vote{leadMargin === 1 ? "" : "s"} over next option.
+          </p>
+        )}
+      </div>
+
+      <div className="overflow-hidden rounded-2xl border border-slate-800/60 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 shadow-[0_20px_60px_rgba(0,0,0,0.35)] ring-1 ring-cyan-500/10 dark:border-slate-800/60">
+        <div className="flex items-center justify-between px-4 pt-4">
+          <div>
+            <p className="text-xs uppercase tracking-[0.18em] text-cyan-200/80">Advanced visualisation</p>
+            <p className="text-xs text-slate-300/80">3D radial bars show vote distribution</p>
+          </div>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setRotationPaused((prev) => !prev)}
+              className="rounded-full border border-cyan-500/40 bg-cyan-500/10 px-3 py-1 text-xs font-semibold text-cyan-100 hover:bg-cyan-500/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+            >
+              {effectivePause ? "Resume rotation" : "Pause rotation"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setChartKey((prev) => prev + 1)}
+              className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-slate-100 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+            >
+              Reset view
+            </button>
+          </div>
+        </div>
+
+        <div className="p-4">
+          {supportsWebgl && !reducedMotion ? (
+            <div className="relative h-[320px] w-full rounded-xl bg-slate-950/80">
+              <Voting3DChart
+                key={`${questionId}-${chartKey}`}
+                data={sortedResults}
+                totalVotes={totalVotes}
+                paused={effectivePause}
+                palette={palette}
+                isMobile={isMobile}
+              />
+            </div>
+          ) : (
+            <div className="space-y-3 rounded-xl border border-white/10 bg-white/5 p-4 text-slate-100">
+              <p className="text-xs uppercase tracking-wide text-cyan-100/80">Static fallback</p>
+              {sortedResults.map(({ option, count, percentage }) => {
+                const pct = Number.isFinite(percentage) ? percentage : 0;
+                return (
+                  <div key={option.id} className="space-y-1">
+                    <div className="flex items-center justify-between text-sm">
+                      <span>{option.label}</span>
+                      <span className="font-mono text-cyan-100/80">
+                        {count} • {pct}%
+                      </span>
+                    </div>
+                    <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500"
+                        style={{ width: `${pct}%`, maxWidth: "100%" }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+              <p className="text-xs text-slate-300">
+                WebGL unavailable or reduced motion enabled. Showing static distribution.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="space-y-1 text-sm text-slate-700 dark:text-slate-200">
+        <p className="font-semibold">Turnout</p>
+        <p>Total votes cast: {totalVotes}</p>
+        <p className="text-slate-600 dark:text-slate-400">
+          Eligible voters: not provided • Participation: not available
+        </p>
+      </div>
+      <p className="text-xs text-slate-500 dark:text-slate-400">
+        Charts show current vote counts and percentages per option. Historical timing data is not captured in this view.
+      </p>
     </div>
   );
 }
