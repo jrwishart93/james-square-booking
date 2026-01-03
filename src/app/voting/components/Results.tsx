@@ -1,227 +1,213 @@
-import React, { useEffect, useState } from 'react';
-import { collection, onSnapshot, query, where } from 'firebase/firestore';
-import { getQuestions } from '../services/storageService';
-import { QuestionStats } from '../types';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import { Loader2 } from 'lucide-react';
-import { db } from '@/lib/firebase';
+"use client";
 
-const Results: React.FC = () => {
-  const [stats, setStats] = useState<QuestionStats[]>([]);
-  const [loading, setLoading] = useState(true);
+import React, { useEffect, useState } from "react";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { getQuestions } from "../services/storageService";
+import Results3DPie from "@/app/voting/components/Results3DPie";
+
+type VoteDoc = {
+  id: string;
+  questionId: string;
+  optionId: string;
+  voterFlat?: string;
+};
+
+type QuestionOption = {
+  id: string;
+  label: string;
+};
+
+type QuestionRecord = {
+  id: string;
+  title: string;
+  description?: string;
+  createdAt: number;
+  options: QuestionOption[];
+};
+
+type QuestionStat = {
+  question: QuestionRecord;
+  results: { option: QuestionOption; count: number; percentage: number }[];
+  totalVotes: number;
+};
+
+export default function Results() {
+  const [stats, setStats] = useState<QuestionStat[]>([]);
+  const [votesByQuestion, setVotesByQuestion] = useState<Record<string, VoteDoc[]>>({});
+  const [openQuestionId, setOpenQuestionId] = useState<string | null>(null);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [animateIn, setAnimateIn] = useState(false);
 
   useEffect(() => {
-    let unsubscribers: Array<() => void> = [];
-    let isMounted = true;
+    let unsubscribers: (() => void)[] = [];
 
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const questions = await getQuestions();
-        if (!isMounted) return;
+    const load = async () => {
+      const questions = (await getQuestions()) as QuestionRecord[];
 
-        if (questions.length === 0) {
-          setStats([]);
-          setLoading(false);
-          return;
-        }
+      unsubscribers = questions.map((question) => {
+        const q = query(collection(db, "voting_votes"), where("questionId", "==", question.id));
 
-        unsubscribers = questions.map((question) => {
-          const votesQuery = query(
-            collection(db, 'voting_votes'),
-            where('questionId', '==', question.id),
-          );
+        return onSnapshot(q, (snap) => {
+          const votes: VoteDoc[] = snap.docs.map((d) => {
+            const data = d.data() as Record<string, unknown>;
+            return {
+              id: d.id,
+              questionId: typeof data.questionId === "string" ? data.questionId : question.id,
+              optionId: typeof data.optionId === "string" ? data.optionId : "",
+              voterFlat: typeof data.voterFlat === "string" ? data.voterFlat : undefined,
+            };
+          });
 
-          return onSnapshot(
-            votesQuery,
-            (snapshot) => {
-              console.log('Votes returned:', snapshot.docs.map((d) => d.data()));
+          setVotesByQuestion((prev) => ({
+            ...prev,
+            [question.id]: votes,
+          }));
 
-              const counts = snapshot.docs.reduce<Record<string, number>>((acc, doc) => {
-                const data = doc.data() as Record<string, unknown>;
-                const optionId = typeof data.optionId === 'string' ? data.optionId : null;
-                if (!optionId) return acc;
-                acc[optionId] = (acc[optionId] ?? 0) + 1;
-                return acc;
-              }, {});
+          const optionCounts: Record<string, number> = {};
+          votes.forEach((v) => {
+            optionCounts[v.optionId] = (optionCounts[v.optionId] || 0) + 1;
+          });
 
-              const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
+          const totalVotes = votes.length;
 
-              const results = question.options
-                .map((opt) => {
-                  const count = counts[opt.id] ?? 0;
-                  return {
-                    option: opt,
-                    count,
-                    percentage: total === 0 ? 0 : Math.round((count / Math.max(total, 1)) * 100),
-                  };
-                })
-                .sort((a, b) => b.count - a.count);
+          const results = question.options.map((opt) => {
+            const count = optionCounts[opt.id] || 0;
+            const percentage = totalVotes === 0 ? 0 : Math.round((count / totalVotes) * 100);
+            return { option: opt, count, percentage };
+          });
 
-              setStats((prev) => {
-                const filtered = prev.filter((item) => item.question.id !== question.id);
-                const next = [...filtered, { question, totalVotes: total, results }];
-                next.sort((a, b) => b.question.createdAt - a.question.createdAt);
-                return next;
-              });
-              setLoading(false);
-            },
-            (error) => {
-              console.error(error);
-              setLoading(false);
-            },
-          );
+          setStats((prev) => {
+            const filtered = prev.filter((p) => p.question.id !== question.id);
+            return [...filtered, { question, results, totalVotes }];
+          });
         });
-      } catch (err) {
-        console.error(err);
-        if (isMounted) setLoading(false);
-      }
+      });
     };
 
-    fetchData();
-
-    return () => {
-      isMounted = false;
-      unsubscribers.forEach((unsub) => unsub());
-    };
+    void load();
+    return () => unsubscribers.forEach((u) => u());
   }, []);
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-full min-h-[400px]">
-        <Loader2 className="w-8 h-8 text-cyan-500 animate-spin" />
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const checkTheme = () => setIsDarkMode(document.documentElement.classList.contains("dark"));
+    checkTheme();
+    const observer = new MutationObserver(checkTheme);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
 
-  const summaryData = stats.map(s => ({
-    name: s.question.title.length > 15 ? s.question.title.substring(0, 15) + '...' : s.question.title,
-    fullTitle: s.question.title,
-    votes: s.totalVotes
-  }));
+  useEffect(() => {
+    const t = setTimeout(() => setAnimateIn(true), 100);
+    return () => clearTimeout(t);
+  }, []);
 
   return (
-    <div className="max-w-2xl mx-auto py-8 px-6 space-y-8">
-
-      <div className="text-center mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">Results & Insights</h1>
-        <p className="text-slate-600">Real-time voting analytics.</p>
-      </div>
-
-      {/* Overview Chart */}
-      {stats.length > 0 && stats.some(s => s.totalVotes > 0) && (
-        <div className="
-          p-6 rounded-3xl
-          bg-white
-          border border-slate-200
-          shadow-[0_24px_70px_rgba(15,23,42,0.14)]
-        ">
-           <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-6">Participation Overview</h3>
-           <div className="h-48 w-full">
-             <ResponsiveContainer width="100%" height="100%">
-               <BarChart data={summaryData}>
-                 <XAxis 
-                   dataKey="name" 
-                   fontSize={11} 
-                   tickLine={false} 
-                   axisLine={false} 
-                   stroke="#94a3b8"
-                   interval={0}
-                 />
-                 <YAxis 
-                   fontSize={11} 
-                   tickLine={false} 
-                   axisLine={false} 
-                   allowDecimals={false} 
-                   stroke="#64748b" 
-                 />
-                 <Tooltip
-                   cursor={{fill: 'rgba(148,163,184,0.15)'}}
-                   contentStyle={{
-                     backgroundColor: '#ffffff',
-                     borderRadius: '12px',
-                     border: '1px solid #e2e8f0',
-                     color: '#0f172a',
-                     boxShadow: '0 18px 40px rgba(15,23,42,0.12)'
-                   }}
-                   itemStyle={{ color: '#0891b2' }}
-                />
-                 <Bar dataKey="votes" radius={[4, 4, 0, 0]}>
-                    {summaryData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill="url(#barGradient)" />
-                    ))}
-                 </Bar>
-                 <defs>
-                   <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                     <stop offset="0%" stopColor="#22d3ee" stopOpacity={1}/>
-                     <stop offset="100%" stopColor="#6366f1" stopOpacity={0.8}/>
-                   </linearGradient>
-                 </defs>
-               </BarChart>
-             </ResponsiveContainer>
-           </div>
-        </div>
-      )}
-
-      {/* Individual Question Cards */}
-      <div className="space-y-6">
-        {stats.map((stat) => (
-          <div key={stat.question.id} className="
-            rounded-[28px]
-            bg-white
-            border border-slate-200
-            overflow-hidden
-            shadow-[0_20px_60px_rgba(15,23,42,0.12)] transition-transform hover:-translate-y-1
-          ">
-            <div className="p-6 border-b border-slate-200 bg-slate-50">
-              <h2 className="text-lg font-bold text-slate-900 leading-snug">{stat.question.title}</h2>
-              {stat.question.description && (
-                 <p className="text-slate-600 text-sm mt-2 leading-relaxed">{stat.question.description}</p>
-              )}
-              <div className="mt-4 flex items-center text-xs text-slate-600 font-medium">
-                 <span className="text-cyan-700">{stat.totalVotes}</span> <span className="ml-1 mr-1">votes</span>
-                 <span className="mx-2 text-slate-300">•</span>
-                 <span>{new Date(stat.question.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
-              </div>
-            </div>
-
-            <div className="p-6 space-y-5">
-              {stat.totalVotes === 0 ? (
-                <div className="text-center py-6 text-slate-500 text-sm italic">
-                  No votes recorded yet.
-                </div>
-              ) : (
-                stat.results.map((res) => (
-                  <div key={res.option.id} className="space-y-2">
-                    {/* Header: Label + Percentage */}
-                    <div className="flex justify-between items-end">
-                      <span className="text-sm font-medium text-slate-700">{res.option.label}</span>
-                      <span className="text-sm font-bold text-slate-900">{res.percentage}%</span>
+    <div className="space-y-6" style={{ willChange: "transform, opacity" }}>
+      {stats.map(({ question, results, totalVotes }) => {
+        const isOpen = openQuestionId === question.id;
+        return (
+          <div
+            key={question.id}
+            className="rounded-2xl border p-6 space-y-4 bg-white border-slate-200 shadow-[0_12px_30px_rgba(0,0,0,0.08)] dark:bg-slate-900/60 dark:border-white/10 dark:shadow-[0_18px_60px_rgba(0,0,0,0.55)] backdrop-blur-xl"
+          >
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white">{question.title}</h2>
+            <div className="space-y-3">
+              {results.map(({ option, count, percentage }, index) => {
+                const pct = Number.isFinite(percentage) ? percentage : 0;
+                const pctLabel = `${pct}%`;
+                return (
+                  <div key={option.id} className="space-y-1">
+                    <div className="flex items-center justify-between text-sm text-slate-800 dark:text-slate-200">
+                      <span className="font-medium">{option.label}</span>
+                      <span className="text-slate-500 dark:text-slate-300">
+                        {count} vote{count === 1 ? "" : "s"} • {pctLabel}
+                      </span>
                     </div>
-
-                    {/* Visual Bar Background */}
-                    <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden ring-1 ring-slate-200">
-                      {/* Visual Bar Fill */}
+                    <div className="h-2 rounded-full bg-slate-200/80 overflow-hidden dark:bg-white/10">
                       <div
-                        className="h-full rounded-full transition-all duration-1000 ease-out relative shadow-[0_10px_25px_rgba(8,145,178,0.25)]"
-                        style={{
-                          width: `${res.percentage}%`,
-                          background: 'linear-gradient(90deg, #6366f1 0%, #06b6d4 100%)'
-                        }}
+                        className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-indigo-500 transition-[width] duration-700 ease-out dark:shadow-[0_10px_30px_rgba(34,211,238,0.22)]"
+                        style={{ width: animateIn ? `${pct}%` : "0%", transitionDelay: `${index * 120}ms` }}
                       />
                     </div>
-                    <div className="text-xs text-slate-500 text-right">
-                      {res.count} vote{res.count !== 1 ? 's' : ''}
-                    </div>
                   </div>
-                ))
-              )}
+                );
+              })}
+            </div>
+
+            <div className="text-sm text-slate-600 dark:text-slate-300">Total votes: {totalVotes}</div>
+
+            <button
+              type="button"
+              onClick={() => setOpenQuestionId((prev) => (prev === question.id ? null : question.id))}
+              aria-expanded={isOpen}
+              className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium backdrop-blur-md border transition-all shadow-sm hover:shadow-md active:scale-[0.98] bg-white/80 border-slate-200 text-slate-700 hover:bg-white dark:bg-slate-800/70 dark:border-white/15 dark:text-white dark:hover:bg-slate-800"
+            >
+              <span>{isOpen ? "Hide details" : "More info"}</span>
+              <svg
+                className={`h-3.5 w-3.5 transition-transform ${isOpen ? "rotate-180" : ""}`}
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.38a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </button>
+
+            <div
+              className={`overflow-hidden transition-all duration-500 ease-out ${isOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2 pointer-events-none"}`}
+              style={{ maxHeight: isOpen ? "1200px" : "0px" }}
+            >
+              <MoreInfoPanel
+                votes={votesByQuestion[question.id] ?? []}
+                results={results}
+                theme={isDarkMode ? "dark" : "light"}
+              />
             </div>
           </div>
-        ))}
+        );
+      })}
+    </div>
+  );
+}
+
+function MoreInfoPanel({
+  votes,
+  results,
+  theme,
+}: {
+  votes: VoteDoc[];
+  results: QuestionStat["results"];
+  theme: "light" | "dark";
+}) {
+  const uniqueFlats = Array.from(new Set(votes.map((v) => v.voterFlat).filter(Boolean)));
+  const pieData = results.map((r) => ({
+    name: r.option.label,
+    value: r.count,
+    percentage: r.percentage,
+  }));
+  const totalVotes = results.reduce((sum, r) => sum + r.count, 0);
+
+  return (
+    <div className="mt-4 space-y-3 rounded-2xl border p-4 sm:p-6 bg-white border-slate-200 shadow-[0_12px_30px_rgba(15,23,42,0.10)] dark:bg-slate-950/40 dark:border-white/10 dark:shadow-[0_18px_70px_rgba(0,0,0,0.55)] backdrop-blur-xl">
+      <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Visual summary</h4>
+
+      <Results3DPie
+        data={pieData}
+        theme={theme}
+        emphasis="secondary"
+        totalVotes={totalVotes}
+        turnoutFlats={uniqueFlats.length}
+        enableParallax={false}
+      />
+
+      <div className="mt-3 text-xs text-slate-500 dark:text-slate-400">
+        Participation: {totalVotes} vote{totalVotes === 1 ? "" : "s"} recorded
       </div>
     </div>
   );
-};
-
-export default Results;
+}
