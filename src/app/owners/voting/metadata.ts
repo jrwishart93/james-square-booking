@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
-const shareImageUrl = "https://www.james-square.com/images/james-square-voting-share.png";
+const shareImageUrl =
+  "https://www.james-square.com/images/james-square-voting-share.png";
 
 export const metadata: Metadata = {
   title: "James Square – Voting",
