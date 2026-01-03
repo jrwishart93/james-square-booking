@@ -212,7 +212,7 @@ export default function MessageBoardPage() {
   return (
     <main className="w-full px-4 py-8 sm:px-6 sm:max-w-5xl sm:mx-auto space-y-6">
       <header
-        className={`relative overflow-hidden rounded-3xl bg-gradient-to-br from-white/85 via-white/70 to-slate-100/70 dark:from-slate-900/70 dark:via-slate-900/60 dark:to-slate-800/60 px-6 py-8 text-center shadow-[0_20px_70px_rgba(15,23,42,0.18)] ring-1 ring-black/5 dark:ring-white/10 transition-all duration-500 ease-out ${
+        className={`relative overflow-hidden rounded-3xl bg-gradient-to-br from-white/80 via-white/60 to-slate-100/60 dark:from-slate-900/60 dark:via-slate-900/52 dark:to-slate-800/50 backdrop-blur-xl px-6 py-8 text-center shadow-[0_20px_70px_rgba(15,23,42,0.16)] ring-1 ring-black/5 dark:ring-white/10 transition-all duration-500 ease-out ${
           mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
         }`}
       >
@@ -397,7 +397,7 @@ function PostCard({
       {/* Header */}
       <div className="relative flex items-start gap-3">
         <div className="flex-1 min-w-0 space-y-2">
-          <p className="text-xs uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Resident post</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-slate-500/80 dark:text-slate-400/80">Resident post</p>
           {editing ? (
             <input
               value={title}
@@ -423,17 +423,17 @@ function PostCard({
       )}
 
       {/* Meta */}
-      <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+      <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500/80 dark:text-slate-400/80 leading-relaxed">
         <span className="inline-flex items-center rounded-full bg-black/5 px-3 py-1 dark:bg-white/5 shadow-inner shadow-black/5 dark:shadow-black/10">
           By {post.authorName || 'Unknown'}
         </span>
       </div>
 
-      <div className="flex items-center justify-between flex-wrap gap-3 pt-2 text-sm text-slate-600 dark:text-slate-200/80">
+      <div className="flex items-center justify-between flex-wrap gap-3 pt-2 text-sm text-slate-600/90 dark:text-slate-200/75">
         <div className="flex items-center gap-2">
           <button
             onClick={() => toggleReaction('like')}
-            className={`message-pressable inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all duration-200 ease-out shadow-inner shadow-black/5 dark:shadow-black/20 ${
+            className={`message-pressable message-react inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all duration-150 ease-out shadow-inner shadow-black/5 dark:shadow-black/20 ${
               myReaction === 'like'
                 ? 'bg-green-500/15 text-green-700 dark:bg-green-500/20 dark:text-green-200 shadow-none'
                 : 'bg-black/5 text-slate-600 dark:bg-white/5 dark:text-slate-200 hover:bg-black/10 dark:hover:bg-white/10'
@@ -446,7 +446,7 @@ function PostCard({
           </button>
           <button
             onClick={() => toggleReaction('dislike')}
-            className={`message-pressable inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all duration-200 ease-out shadow-inner shadow-black/5 dark:shadow-black/20 ${
+            className={`message-pressable message-react inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all duration-150 ease-out shadow-inner shadow-black/5 dark:shadow-black/20 ${
               myReaction === 'dislike'
                 ? 'bg-amber-500/15 text-amber-700 dark:bg-amber-500/20 dark:text-amber-200 shadow-none'
                 : 'bg-black/5 text-slate-600 dark:bg-white/5 dark:text-slate-200 hover:bg-black/10 dark:hover:bg-white/10'
@@ -585,9 +585,9 @@ function Comments({ postId, currentUser }: { postId: string; currentUser: User |
   }
 
   return (
-    <div className="mt-4 space-y-4">
+    <div className="mt-3 space-y-3.5">
       <div className="flex items-center justify-between gap-2">
-        <h4 className="font-semibold text-lg leading-tight text-slate-900 dark:text-slate-50">
+        <h4 className="font-medium text-lg leading-tight text-slate-900/90 dark:text-slate-50/90">
           Comments ({list.length})
         </h4>
       </div>
@@ -604,7 +604,7 @@ function Comments({ postId, currentUser }: { postId: string; currentUser: User |
                     <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 leading-tight">
                       {c.authorName || 'Unknown'}
                     </p>
-                    <p className="text-xs text-slate-500/90 dark:text-slate-400/90 leading-relaxed">{createdLabel}</p>
+                    <p className="text-xs text-slate-500/75 dark:text-slate-400/75 leading-relaxed">{createdLabel}</p>
                   </div>
                   <MoreMenu onReport={() => reportComment(c)} />
                 </div>
@@ -747,7 +747,7 @@ function Replies({
                     <p className="text-sm font-medium text-slate-900 dark:text-slate-100 leading-tight">
                       {r.authorName || 'Unknown'}
                     </p>
-                    <p className="text-xs text-slate-500/80 dark:text-slate-400/80 leading-relaxed">{createdLabel}</p>
+                    <p className="text-xs text-slate-500/70 dark:text-slate-400/70 leading-relaxed">{createdLabel}</p>
                   </div>
                   <MoreMenu onReport={() => reportReply(r)} />
                 </div>

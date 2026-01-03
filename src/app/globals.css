@@ -208,8 +208,8 @@ body::before {
 /* ===== Message board glass hierarchy ===== */
 .message-surface {
   background:
-    linear-gradient(180deg, var(--glass-highlight) 0%, transparent 18%),
-    var(--glass-bg-light);
+    linear-gradient(180deg, color-mix(in srgb, var(--glass-highlight) 85%, transparent) 0%, transparent 26%),
+    color-mix(in srgb, var(--glass-bg-light) 95%, transparent 5%);
   box-shadow: var(--glass-shadow-soft);
   backdrop-filter: blur(18px);
   position: relative;
@@ -217,8 +217,8 @@ body::before {
 }
 .dark .message-surface {
   background:
-    linear-gradient(180deg, color-mix(in srgb, var(--glass-highlight) 60%, transparent), transparent 24%),
-    var(--glass-bg-light);
+    linear-gradient(180deg, color-mix(in srgb, var(--glass-highlight) 70%, transparent) 0%, transparent 30%),
+    color-mix(in srgb, var(--glass-bg-light) 96%, transparent 4%);
   box-shadow: var(--glass-shadow-soft);
 }
 .message-surface::after {
@@ -235,39 +235,39 @@ body::before {
 
 .message-thread {
   background:
-    linear-gradient(180deg, var(--glass-highlight) 0%, transparent 22%),
-    color-mix(in srgb, var(--glass-bg-light) 88%, transparent);
-  box-shadow: var(--glass-shadow-soft);
-  backdrop-filter: blur(14px);
+    linear-gradient(180deg, color-mix(in srgb, var(--glass-highlight) 55%, transparent) 0%, transparent 18%),
+    color-mix(in srgb, var(--glass-bg-light) 82%, transparent);
+  box-shadow: 0 14px 36px rgba(15, 23, 42, 0.12);
+  backdrop-filter: blur(16px);
   position: relative;
 }
 .dark .message-thread {
   background:
-    linear-gradient(180deg, color-mix(in srgb, var(--glass-highlight) 55%, transparent), transparent 26%),
-    color-mix(in srgb, var(--glass-bg-light) 92%, transparent);
-  box-shadow: var(--glass-shadow-soft);
+    linear-gradient(180deg, color-mix(in srgb, var(--glass-highlight) 50%, transparent) 0%, transparent 22%),
+    color-mix(in srgb, var(--glass-bg-light) 86%, transparent);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.32);
 }
 .message-thread::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, var(--glass-highlight), transparent 24%);
-  opacity: 0.6;
+  background: linear-gradient(180deg, var(--glass-highlight), transparent 26%);
+  opacity: 0.45;
   pointer-events: none;
 }
 
 .message-thread--reply {
   background:
-    linear-gradient(180deg, transparent, transparent),
-    color-mix(in srgb, var(--glass-bg-dark) 75%, transparent);
-  box-shadow: inset 0 1px 0 var(--glass-highlight), 0 6px 18px rgb(15 23 42 / 0.08);
-  backdrop-filter: blur(10px);
+    linear-gradient(180deg, color-mix(in srgb, var(--glass-highlight) 35%, transparent) 0%, transparent 18%),
+    color-mix(in srgb, var(--glass-bg-dark) 78%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--glass-highlight) 80%, transparent), 0 6px 18px rgb(15 23 42 / 0.08);
+  backdrop-filter: blur(12px);
 }
 .dark .message-thread--reply {
   background:
-    linear-gradient(180deg, transparent, transparent),
-    color-mix(in srgb, var(--glass-bg-dark) 80%, transparent);
-  box-shadow: inset 0 1px 0 var(--glass-highlight), 0 10px 28px rgb(0 0 0 / 0.35);
+    linear-gradient(180deg, color-mix(in srgb, var(--glass-highlight) 50%, transparent) 0%, transparent 22%),
+    color-mix(in srgb, var(--glass-bg-dark) 82%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--glass-highlight) 80%, transparent), 0 10px 28px rgb(0 0 0 / 0.35);
 }
 
 .message-reply {
@@ -356,4 +356,13 @@ body::before {
 .message-pressable:disabled {
   opacity: 0.6;
   box-shadow: none;
+}
+
+.message-react {
+  opacity: 0.9;
+  transition: transform 150ms ease, opacity 150ms ease, box-shadow 150ms ease;
+}
+.message-react:active {
+  transform: scale(0.96);
+  opacity: 0.88;
 }
