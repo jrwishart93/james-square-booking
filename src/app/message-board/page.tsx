@@ -231,9 +231,9 @@ export default function MessageBoardPage() {
 
       {/* Create box */}
       <div
-        className={`rounded-3xl bg-white/80 dark:bg-slate-900/60 shadow-[0_18px_50px_rgba(15,23,42,0.16)] ring-1 ring-black/5 dark:ring-white/10 p-4 sm:p-6 transition-all duration-200 ease-out ${
+        className={`rounded-3xl message-surface message-surface--lift p-4 sm:p-6 transition-all duration-200 ease-out ${
           mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'
-        } focus-within:shadow-[0_24px_65px_rgba(15,23,42,0.18)] focus-within:-translate-y-0.5 focus-within:ring-black/10 dark:focus-within:ring-white/20`}
+        } focus-within:shadow-[var(--glass-shadow-lift)] focus-within:-translate-y-0.5`}
       >
         {!user ? (
           <p className="text-sm text-slate-700 dark:text-slate-200/90 leading-relaxed">
@@ -249,18 +249,18 @@ export default function MessageBoardPage() {
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
               placeholder="Post title"
-              className="w-full mb-3 px-4 py-3 rounded-2xl bg-white/90 dark:bg-white/5 text-lg font-semibold text-slate-900 placeholder:text-slate-500 dark:text-white dark:placeholder:text-slate-400 shadow-inner shadow-black/5 dark:shadow-black/30 border-none focus:outline-none focus:ring-2 focus:ring-cyan-300/60 focus:ring-offset-1 focus:ring-offset-white dark:focus:ring-offset-slate-900 transition-all duration-200 ease-out"
+              className="w-full mb-3 px-4 py-3 rounded-2xl message-field text-lg font-semibold text-slate-900 placeholder:text-slate-500 dark:text-white dark:placeholder:text-slate-400 border-none focus:outline-none focus:ring-0 transition-all duration-200 ease-out"
             />
             <textarea
               value={newBody}
               onChange={(e) => setNewBody(e.target.value)}
               placeholder="Say something…"
-              className="w-full mb-4 px-4 py-3 rounded-2xl bg-white/85 dark:bg-white/5 text-base text-slate-900 placeholder:text-slate-500 dark:text-slate-100 dark:placeholder:text-slate-500 shadow-inner shadow-black/5 dark:shadow-black/30 border-none focus:outline-none focus:ring-2 focus:ring-cyan-300/60 focus:ring-offset-1 focus:ring-offset-white dark:focus:ring-offset-slate-900 transition-all duration-200 ease-out min-h-[120px] leading-relaxed resize-none"
+              className="w-full mb-4 px-4 py-3 rounded-2xl message-field text-base text-slate-900 placeholder:text-slate-500 dark:text-slate-100 dark:placeholder:text-slate-500 border-none focus:outline-none focus:ring-0 transition-all duration-200 ease-out min-h-[120px] leading-relaxed resize-none"
             />
             <button
               onClick={createPost}
               disabled={busy || !newTitle.trim() || !newBody.trim()}
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-slate-900 via-slate-900 to-slate-800 text-white shadow-lg shadow-slate-900/20 hover:shadow-xl hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 ease-out disabled:opacity-60 disabled:shadow-none disabled:translate-y-0 dark:from-white/90 dark:via-white/80 dark:to-white/80 dark:text-slate-900"
+              className="message-pressable inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-slate-900 via-slate-900 to-slate-800 text-white shadow-lg shadow-slate-900/20 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 ease-out disabled:translate-y-0 dark:from-white/90 dark:via-white/80 dark:to-white/80 dark:text-slate-900"
             >
               {busy ? 'Posting…' : 'Post'}
             </button>
@@ -386,9 +386,9 @@ function PostCard({
 
   return (
     <li
-      className={`relative overflow-hidden rounded-3xl bg-white/80 dark:bg-slate-900/60 shadow-[0_18px_55px_rgba(15,23,42,0.16)] ring-1 ring-black/5 dark:ring-white/10 p-4 sm:p-6 space-y-4 transition-all duration-300 ease-out ${
+      className={`relative overflow-hidden rounded-3xl message-surface message-surface--lift p-4 sm:p-6 space-y-4 transition-[opacity,transform,box-shadow,filter] duration-200 ease-out ${
         mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'
-      } hover:-translate-y-1 hover:shadow-[0_24px_70px_rgba(15,23,42,0.2)]`}
+      } hover:shadow-[var(--glass-shadow-lift)] sm:hover:-translate-y-1`}
       style={{ transitionDelay: `${index * 50}ms` }}
     >
       <div className="pointer-events-none absolute inset-0 opacity-40 blur-2xl">
@@ -402,7 +402,7 @@ function PostCard({
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-3 py-2 rounded-2xl bg-white/90 dark:bg-white/5 text-base font-semibold text-slate-900 dark:text-white shadow-inner shadow-black/5 dark:shadow-black/30 border-none focus:outline-none focus:ring-2 focus:ring-cyan-300/60 transition-all"
+              className="w-full px-3 py-2 rounded-2xl message-field text-base font-semibold text-slate-900 dark:text-white border-none focus:outline-none focus:ring-0 transition-all"
             />
           ) : (
             <h3 className="text-xl font-semibold leading-snug text-slate-900 dark:text-white">{post.title}</h3>
@@ -416,7 +416,7 @@ function PostCard({
         <textarea
           value={body}
           onChange={(e) => setBody(e.target.value)}
-          className="w-full my-2 px-3 py-2 rounded-2xl bg-white/85 dark:bg-white/5 text-sm sm:text-base text-slate-900 dark:text-slate-100 shadow-inner shadow-black/5 dark:shadow-black/30 border-none focus:outline-none focus:ring-2 focus:ring-cyan-300/60 transition-all min-h-[100px] leading-relaxed resize-none"
+          className="w-full my-2 px-3 py-2 rounded-2xl message-field text-sm sm:text-base text-slate-900 dark:text-slate-100 border-none focus:outline-none focus:ring-0 transition-all min-h-[100px] leading-relaxed resize-none"
         />
       ) : (
         <p className="my-2 whitespace-pre-wrap leading-relaxed text-slate-800 dark:text-slate-100 text-base">{post.body}</p>
@@ -433,7 +433,7 @@ function PostCard({
         <div className="flex items-center gap-2">
           <button
             onClick={() => toggleReaction('like')}
-            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all duration-200 ease-out active:scale-95 shadow-inner shadow-black/5 dark:shadow-black/20 ${
+            className={`message-pressable inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all duration-200 ease-out shadow-inner shadow-black/5 dark:shadow-black/20 ${
               myReaction === 'like'
                 ? 'bg-green-500/15 text-green-700 dark:bg-green-500/20 dark:text-green-200 shadow-none'
                 : 'bg-black/5 text-slate-600 dark:bg-white/5 dark:text-slate-200 hover:bg-black/10 dark:hover:bg-white/10'
@@ -446,7 +446,7 @@ function PostCard({
           </button>
           <button
             onClick={() => toggleReaction('dislike')}
-            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all duration-200 ease-out active:scale-95 shadow-inner shadow-black/5 dark:shadow-black/20 ${
+            className={`message-pressable inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all duration-200 ease-out shadow-inner shadow-black/5 dark:shadow-black/20 ${
               myReaction === 'dislike'
                 ? 'bg-amber-500/15 text-amber-700 dark:bg-amber-500/20 dark:text-amber-200 shadow-none'
                 : 'bg-black/5 text-slate-600 dark:bg-white/5 dark:text-slate-200 hover:bg-black/10 dark:hover:bg-white/10'
@@ -467,7 +467,7 @@ function PostCard({
             <>
               <button
                 onClick={onSave}
-                className="px-3 py-1.5 rounded-full bg-slate-900 text-white shadow-md shadow-slate-900/20 hover:-translate-y-[1px] transition-all duration-150 dark:bg-white dark:text-slate-900"
+                className="message-pressable px-3 py-1.5 rounded-full bg-slate-900 text-white shadow-md shadow-slate-900/20 hover:-translate-y-[1px] transition-all duration-150 dark:bg-white dark:text-slate-900"
               >
                 Save
               </button>
@@ -477,7 +477,7 @@ function PostCard({
                   setBody(post.body);
                   setEditing(false);
                 }}
-                className="px-3 py-1.5 rounded-full bg-black/5 text-slate-700 hover:bg-black/10 transition-colors dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10"
+                className="message-pressable px-3 py-1.5 rounded-full bg-black/5 text-slate-700 hover:bg-black/10 transition-colors dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10"
               >
                 Cancel
               </button>
@@ -486,13 +486,13 @@ function PostCard({
             <>
               <button
                 onClick={() => setEditing(true)}
-                className="px-3 py-1.5 rounded-full bg-black/5 text-slate-700 hover:bg-black/10 transition-colors dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10"
+                className="message-pressable px-3 py-1.5 rounded-full bg-black/5 text-slate-700 hover:bg-black/10 transition-colors dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10"
               >
                 Edit
               </button>
               <button
                 onClick={onDelete}
-                className="px-3 py-1.5 rounded-full bg-red-600 text-white shadow-md shadow-red-900/30 hover:bg-red-600/90 transition-all"
+                className="message-pressable px-3 py-1.5 rounded-full bg-red-600 text-white shadow-md shadow-red-900/30 hover:bg-red-600/90 transition-all"
               >
                 Delete
               </button>
@@ -598,13 +598,13 @@ function Comments({ postId, currentUser }: { postId: string; currentUser: User |
           const createdLabel = formatTimestampLabel(c.createdAt);
           return (
             <li key={c.id} className="list-none">
-              <div className="flex flex-col gap-3 rounded-2xl bg-white/80 dark:bg-slate-900/60 shadow-[0_12px_36px_rgba(15,23,42,0.14)] ring-1 ring-black/5 dark:ring-white/10 p-4 sm:p-5 transition-all duration-200 hover:-translate-y-[2px]">
+              <div className="flex flex-col gap-3 rounded-2xl message-thread message-fade ml-1.5 sm:ml-2 p-4 sm:p-5 transition-[box-shadow,opacity] duration-200">
                 <div className="flex items-start justify-between gap-3">
                   <div className="space-y-1">
                     <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 leading-tight">
                       {c.authorName || 'Unknown'}
                     </p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{createdLabel}</p>
+                    <p className="text-xs text-slate-500/90 dark:text-slate-400/90 leading-relaxed">{createdLabel}</p>
                   </div>
                   <MoreMenu onReport={() => reportComment(c)} />
                 </div>
@@ -615,14 +615,14 @@ function Comments({ postId, currentUser }: { postId: string; currentUser: User |
                   {mine && (
                     <button
                       onClick={() => deleteComment(c.id)}
-                      className="px-2.5 py-1.5 rounded-full bg-red-600 text-white shadow-md shadow-red-900/30 hover:bg-red-600/90 transition-colors"
+                      className="message-pressable px-2.5 py-1.5 rounded-full bg-red-600 text-white shadow-md shadow-red-900/30 hover:bg-red-600/90 transition-colors"
                     >
                       Delete
                     </button>
                   )}
                 </div>
 
-                <div className="border-t border-black/5 dark:border-white/10 pt-3">
+                <div className="message-divider pt-3">
                   <Replies postId={postId} comment={c} currentUser={currentUser} />
                 </div>
               </div>
@@ -636,11 +636,11 @@ function Comments({ postId, currentUser }: { postId: string; currentUser: User |
           value={body}
           onChange={(e) => setBody(e.target.value)}
           placeholder="Add a comment…"
-          className="flex-1 px-4 py-3 rounded-2xl bg-white/85 dark:bg-white/5 text-sm sm:text-base text-slate-900 placeholder:text-slate-500 dark:text-slate-100 dark:placeholder:text-slate-500 shadow-inner shadow-black/5 dark:shadow-black/30 border-none focus:outline-none focus:ring-2 focus:ring-cyan-300/60 focus:ring-offset-1 focus:ring-offset-white dark:focus:ring-offset-slate-900 transition-all duration-200 ease-out leading-relaxed"
+          className="flex-1 px-4 py-3 rounded-2xl message-field text-sm sm:text-base text-slate-900 placeholder:text-slate-500 dark:text-slate-100 dark:placeholder:text-slate-500 border-none focus:outline-none focus:ring-0 transition-all duration-200 ease-out leading-relaxed"
         />
         <button
           onClick={addComment}
-          className="w-full sm:w-auto px-4 py-2.5 rounded-full bg-gradient-to-r from-slate-900 to-slate-800 text-white shadow-lg shadow-slate-900/20 hover:-translate-y-0.5 hover:shadow-xl active:scale-[0.98] transition-all duration-200 ease-out dark:from-white/85 dark:to-white/80 dark:text-slate-900"
+          className="message-pressable w-full sm:w-auto px-4 py-2.5 rounded-full bg-gradient-to-r from-slate-900 to-slate-800 text-white shadow-lg shadow-slate-900/20 hover:-translate-y-0.5 hover:shadow-xl transition-all duration-200 ease-out dark:from-white/85 dark:to-white/80 dark:text-slate-900"
         >
           Comment
         </button>
@@ -730,7 +730,7 @@ function Replies({
   }
 
   return (
-    <div className="mt-3 rounded-2xl bg-white/75 dark:bg-slate-900/60 ring-1 ring-black/5 dark:ring-white/10 p-3 sm:p-4 space-y-3 shadow-[0_10px_28px_rgba(15,23,42,0.12)]">
+    <div className="mt-3 ml-2 sm:ml-3 rounded-2xl message-thread message-thread--reply message-fade p-3 sm:p-4 space-y-3 shadow-[0_10px_28px_rgba(15,23,42,0.12)]">
       <h5 className="font-medium text-sm leading-tight text-slate-900 dark:text-slate-50">Replies ({list.length})</h5>
       <ul className="space-y-3">
         {list.map((r) => {
@@ -739,7 +739,7 @@ function Replies({
           return (
             <li
               key={r.id}
-              className="px-3 py-3 rounded-2xl bg-white/85 dark:bg-white/5 ring-1 ring-black/5 dark:ring-white/10 shadow-inner shadow-black/5 dark:shadow-black/20"
+              className="px-3 py-3 rounded-2xl message-reply message-fade"
             >
               <div className="flex flex-col gap-2">
                 <div className="flex items-start justify-between gap-3">
@@ -747,7 +747,7 @@ function Replies({
                     <p className="text-sm font-medium text-slate-900 dark:text-slate-100 leading-tight">
                       {r.authorName || 'Unknown'}
                     </p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{createdLabel}</p>
+                    <p className="text-xs text-slate-500/80 dark:text-slate-400/80 leading-relaxed">{createdLabel}</p>
                   </div>
                   <MoreMenu onReport={() => reportReply(r)} />
                 </div>
@@ -756,7 +756,7 @@ function Replies({
                   {mine && (
                     <button
                       onClick={() => deleteReply(r.id)}
-                      className="px-2.5 py-1.5 rounded-full bg-red-600 text-white shadow-md shadow-red-900/30 hover:bg-red-600/90 transition-colors"
+                      className="message-pressable px-2.5 py-1.5 rounded-full bg-red-600 text-white shadow-md shadow-red-900/30 hover:bg-red-600/90 transition-colors"
                     >
                       Delete
                     </button>
@@ -773,11 +773,11 @@ function Replies({
           value={body}
           onChange={(e) => setBody(e.target.value)}
           placeholder="Write a reply…"
-          className="flex-1 px-4 py-3 rounded-2xl bg-white/85 dark:bg-white/5 text-sm sm:text-base text-slate-900 placeholder:text-slate-500 dark:text-slate-100 dark:placeholder:text-slate-500 shadow-inner shadow-black/5 dark:shadow-black/30 border-none focus:outline-none focus:ring-2 focus:ring-cyan-300/60 focus:ring-offset-1 focus:ring-offset-white dark:focus:ring-offset-slate-900 transition-all duration-200 ease-out leading-relaxed"
+          className="flex-1 px-4 py-3 rounded-2xl message-field text-sm sm:text-base text-slate-900 placeholder:text-slate-500 dark:text-slate-100 dark:placeholder:text-slate-500 border-none focus:outline-none focus:ring-0 transition-all duration-200 ease-out leading-relaxed"
         />
         <button
           onClick={addReply}
-          className="w-full sm:w-auto px-4 py-2.5 rounded-full bg-gradient-to-r from-slate-900 to-slate-800 text-white shadow-lg shadow-slate-900/20 hover:-translate-y-0.5 hover:shadow-xl active:scale-[0.98] transition-all duration-200 ease-out dark:from-white/85 dark:to-white/80 dark:text-slate-900"
+          className="message-pressable w-full sm:w-auto px-4 py-2.5 rounded-full bg-gradient-to-r from-slate-900 to-slate-800 text-white shadow-lg shadow-slate-900/20 hover:-translate-y-0.5 hover:shadow-xl transition-all duration-200 ease-out dark:from-white/85 dark:to-white/80 dark:text-slate-900"
         >
           Reply
         </button>

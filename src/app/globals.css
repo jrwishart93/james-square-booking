@@ -10,6 +10,11 @@
   --border: 215 30% 62% / 0.22;
 
   /* Glass + status tokens */
+  --glass-bg-light: hsla(210 42% 97% / 0.82);
+  --glass-bg-dark: hsla(215 35% 92% / 0.58);
+  --glass-highlight: hsla(210 90% 98% / 0.5);
+  --glass-shadow-soft: 0 16px 46px rgba(15, 23, 42, 0.16);
+  --glass-shadow-lift: 0 22px 62px rgba(15, 23, 42, 0.2);
   --glass: 0 0% 100% / 0.68;
   --glass-strong: 0 0% 100% / 0.82;
   --glass-border: 215 30% 62% / 0.24;
@@ -31,6 +36,11 @@
     --glass: 220 26% 17% / 0.65;       /* darker glass */
     --glass-strong: 220 26% 20% / 0.78; /* stronger glass */
     --glass-border: 215 25% 85% / 0.14;
+    --glass-bg-light: hsla(220 26% 21% / 0.82);
+    --glass-bg-dark: hsla(220 26% 16% / 0.72);
+    --glass-highlight: hsla(210 75% 88% / 0.28);
+    --glass-shadow-soft: 0 18px 42px rgba(0, 0, 0, 0.44);
+    --glass-shadow-lift: 0 24px 66px rgba(0, 0, 0, 0.5);
   }
 }
 
@@ -193,4 +203,157 @@ body::before {
 
 #winter-visitors {
   scroll-margin-top: 120px;
+}
+
+/* ===== Message board glass hierarchy ===== */
+.message-surface {
+  background:
+    linear-gradient(180deg, var(--glass-highlight) 0%, transparent 18%),
+    var(--glass-bg-light);
+  box-shadow: var(--glass-shadow-soft);
+  backdrop-filter: blur(18px);
+  position: relative;
+  isolation: isolate;
+}
+.dark .message-surface {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--glass-highlight) 60%, transparent), transparent 24%),
+    var(--glass-bg-light);
+  box-shadow: var(--glass-shadow-soft);
+}
+.message-surface::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, var(--glass-highlight), transparent 16%);
+  opacity: 0.9;
+  pointer-events: none;
+}
+.message-surface--lift {
+  box-shadow: var(--glass-shadow-lift);
+}
+
+.message-thread {
+  background:
+    linear-gradient(180deg, var(--glass-highlight) 0%, transparent 22%),
+    color-mix(in srgb, var(--glass-bg-light) 88%, transparent);
+  box-shadow: var(--glass-shadow-soft);
+  backdrop-filter: blur(14px);
+  position: relative;
+}
+.dark .message-thread {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--glass-highlight) 55%, transparent), transparent 26%),
+    color-mix(in srgb, var(--glass-bg-light) 92%, transparent);
+  box-shadow: var(--glass-shadow-soft);
+}
+.message-thread::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, var(--glass-highlight), transparent 24%);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.message-thread--reply {
+  background:
+    linear-gradient(180deg, transparent, transparent),
+    color-mix(in srgb, var(--glass-bg-dark) 75%, transparent);
+  box-shadow: inset 0 1px 0 var(--glass-highlight), 0 6px 18px rgb(15 23 42 / 0.08);
+  backdrop-filter: blur(10px);
+}
+.dark .message-thread--reply {
+  background:
+    linear-gradient(180deg, transparent, transparent),
+    color-mix(in srgb, var(--glass-bg-dark) 80%, transparent);
+  box-shadow: inset 0 1px 0 var(--glass-highlight), 0 10px 28px rgb(0 0 0 / 0.35);
+}
+
+.message-reply {
+  background:
+    linear-gradient(180deg, var(--glass-highlight) 0%, transparent 28%),
+    color-mix(in srgb, var(--glass-bg-dark) 65%, transparent);
+  box-shadow: inset 0 1px 0 var(--glass-highlight);
+}
+.dark .message-reply {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--glass-highlight) 65%, transparent), transparent 30%),
+    color-mix(in srgb, var(--glass-bg-dark) 78%, transparent);
+}
+
+.message-fade-up {
+  opacity: 0;
+  animation: message-fade-up 0.2s ease-out forwards;
+}
+.message-fade {
+  opacity: 0;
+  animation: message-fade 0.2s ease-out forwards;
+}
+@keyframes message-fade-up {
+  from { opacity: 0; transform: translateY(3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes message-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .message-fade-up,
+  .message-fade {
+    animation-duration: 0.001ms;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+  }
+}
+
+.message-divider {
+  position: relative;
+}
+.message-divider::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--glass-highlight), transparent);
+  opacity: 0.85;
+}
+
+.message-field {
+  background: color-mix(in srgb, var(--glass-bg-light) 88%, transparent);
+  box-shadow:
+    inset 0 1px 0 var(--glass-highlight),
+    inset 0 -1px 0 rgba(15, 23, 42, 0.05),
+    0 10px 28px rgba(15, 23, 42, 0.08);
+  transition: box-shadow 150ms ease, background-color 150ms ease, transform 150ms ease;
+}
+.dark .message-field {
+  background: color-mix(in srgb, var(--glass-bg-dark) 88%, transparent);
+  box-shadow:
+    inset 0 1px 0 var(--glass-highlight),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.04),
+    0 12px 30px rgba(0, 0, 0, 0.35);
+}
+.message-field:focus {
+  box-shadow:
+    0 0 0 1px var(--glass-highlight),
+    0 14px 34px var(--glass-shadow-soft),
+    inset 0 1px 0 var(--glass-highlight);
+}
+.message-field:focus-visible {
+  outline: none;
+}
+
+.message-pressable {
+  transition: transform 150ms ease, opacity 150ms ease, box-shadow 150ms ease;
+}
+.message-pressable:active {
+  transform: scale(0.97);
+  opacity: 0.95;
+}
+.message-pressable:disabled {
+  opacity: 0.6;
+  box-shadow: none;
 }
