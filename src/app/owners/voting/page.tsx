@@ -1,4 +1,5 @@
 "use client";
+import type { Metadata } from "next";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import type { User } from "firebase/auth";
@@ -38,6 +39,34 @@ type Tab = "ask" | "vote" | "results";
 
 const VIEW_ONLY_MESSAGE = "Viewing only. Please log in or sign up to place a vote.";
 const VOTE_RECORDED_MESSAGE = "Vote recorded";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: "James Square – Voting",
+    description: "Owners community voting for James Square residents.",
+    openGraph: {
+      title: "James Square – Voting",
+      description: "Owners community voting for James Square residents.",
+      url: "https://www.james-square.com/owners/voting",
+      siteName: "James Square",
+      images: [
+        {
+          url: "https://www.james-square.com/images/james-square-voting-share.png",
+          width: 1200,
+          height: 630,
+          alt: "James Square owners community voting",
+        },
+      ],
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "James Square – Voting",
+      description: "Owners community voting for James Square residents.",
+      images: ["https://www.james-square.com/images/james-square-voting-share.png"],
+    },
+  };
+}
 
 export default function OwnersVotingPage() {
   const router = useRouter();
