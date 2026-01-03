@@ -800,7 +800,6 @@ function Replies({
           className="inline-flex items-center gap-1.5 font-semibold text-slate-700 hover:text-slate-900 dark:text-slate-200 dark:hover:text-white transition-colors min-h-[36px]"
           aria-label="Write a reply"
         >
-          <MessageCircle className="h-4 w-4" />
           Reply
         </button>
         {onDelete && (
@@ -837,13 +836,25 @@ function Replies({
           type="button"
           onClick={() => setShowReplies(true)}
           aria-label={`Reply from ${preview.authorName || 'Unknown'}. Tap to view.`}
-          className="group w-full text-left pl-3 sm:pl-4 flex items-center gap-2 text-[13px] text-slate-700/80 dark:text-slate-200/80 hover:text-slate-900 dark:hover:text-white transition-colors truncate"
+          className="group w-full text-left pl-3 sm:pl-4 flex flex-col gap-1 text-[13px] text-slate-700/80 dark:text-slate-200/80 hover:text-slate-900 dark:hover:text-white transition-colors"
         >
-          <span className="text-slate-500 dark:text-slate-400">↳</span>
-          <span className="font-semibold min-w-[80px] truncate">{preview.authorName || 'Unknown'}:</span>
-          <span className="truncate leading-snug group-hover:text-inherit">
-            {preview.body}
-          </span>
+          <div className="flex items-center gap-2 truncate">
+            <span className="text-slate-500 dark:text-slate-400">↳</span>
+            <span className="font-semibold min-w-[80px] truncate">{preview.authorName || 'Unknown'}:</span>
+          </div>
+          <div className="relative overflow-hidden">
+            <p
+              className="leading-snug truncate text-left"
+              style={{
+                display: '-webkit-box',
+                WebkitBoxOrient: 'vertical',
+                WebkitLineClamp: 2,
+              }}
+            >
+              {preview.body}
+            </p>
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-4 bg-gradient-to-b from-transparent to-white/80 dark:to-slate-900/80" />
+          </div>
         </button>
       )}
 
@@ -855,7 +866,7 @@ function Replies({
             return (
               <li
                 key={r.id}
-                className="px-3 py-2 rounded-2xl bg-white/50 dark:bg-slate-900/30 text-sm text-slate-900 dark:text-slate-100 shadow-none"
+                className="px-3 py-2 rounded-xl text-sm text-slate-900 dark:text-slate-100 shadow-none bg-transparent"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="space-y-0.5">
