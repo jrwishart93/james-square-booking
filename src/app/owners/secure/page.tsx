@@ -54,6 +54,8 @@ const OwnersSecurePage = () => {
         <div className="space-y-6">
           <SgmSection />
 
+          <FiorFactorUpdateSection />
+
           <AgmSection />
         </div>
       </div>
@@ -167,6 +169,40 @@ function SgmSection() {
             </motion.div>
           )}
         </AnimatePresence>
+      </div>
+    </GlassCard>
+  );
+}
+
+function FiorFactorUpdateSection() {
+  return (
+    <GlassCard title="Fior Factor Update" titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100">
+      <div className="space-y-3 text-sm md:text-base text-slate-700 dark:text-slate-200">
+        <p>
+          Owners are advised of an update following correspondence received from Fior Asset &amp; Property Management on
+          19 December 2025.
+        </p>
+        <p>
+          In this correspondence, Fior confirmed that they intend to step down as factor for James Square. They have
+          proposed a managed departure to allow outstanding matters to be addressed, including completion of financial
+          reconciliation, recovery of outstanding and historic debts, resolution of ongoing utility matters, and the
+          orderly handover of information to a new factor.
+        </p>
+        <p>
+          Fior advised that updated invoices were issued to owners prior to the Christmas period and that a full
+          financial report will follow. They also confirmed that several active building issues are currently being dealt
+          with, including multiple water leaks across the development, and that actions agreed at the AGM, such as the
+          pool window works and clarification of staff roles, are being progressed.
+        </p>
+        <p>
+          Plans are now in place to review and appoint a new factor for James Square, and further information will be
+          shared with owners as this process moves forward.
+        </p>
+        <p>
+          To discuss the factoring arrangements and the next steps in more detail, a meeting has been arranged for owners
+          on Wednesday 21 January at 6:00 pm. Further details of this meeting will be shared shortly, and owners are
+          encouraged to attend.
+        </p>
       </div>
     </GlassCard>
   );
