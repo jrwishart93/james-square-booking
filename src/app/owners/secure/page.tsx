@@ -182,27 +182,17 @@ function AgmSection() {
       subtitle="James Square Proprietors Association AGM 2025"
       titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100"
     >
-      <p className="text-sm text-slate-600 dark:text-slate-300">8pm Monday 8 September 2025 (via Zoom)</p>
+      <p className="text-sm text-slate-600 dark:text-slate-300">Held at 8:00 pm on Monday 8 September 2025 (via Zoom)</p>
 
       <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
-        The AGM is the annual meeting for owners and proprietors. Zoom links are emailed directly by Fior Asset &amp;
-        Property Management. If you did not receive a link, please contact Fior to request assistance. The meeting
-        covers financial updates, building maintenance, facilities management, and sets objectives for the next year.
+        The 2025 Annual General Meeting has now taken place. The meeting brought owners together to review the past
+        year, discuss current building and facilities matters, and agree priorities and actions for the year ahead.
       </p>
 
-      <div className={glassPanel}>
-        <ul className="list-disc space-y-1 text-sm text-slate-800 dark:text-slate-100 ms-5">
-          <li>
-            The 2025 AGM will cover finances, elections, pool and building issues, and objectives for the next year.
-          </li>
-          <li>Roof and render works remain the top long-term priority.</li>
-          <li>The pool booking system and privacy will be reviewed.</li>
-          <li>Owners will elect new committee members and block representatives.</li>
-          <li>
-            Major maintenance projects such as ceiling repairs, lift flooring and communal redecorations are on the agenda.
-          </li>
-        </ul>
-      </div>
+      <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+        If you were unable to attend, or would like a refresher, you can read a full summary of what was discussed
+        using the tab below.
+      </p>
 
       <div className="space-y-4">
         <div>
