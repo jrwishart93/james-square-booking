@@ -19,7 +19,7 @@ export default function ResultsDonutChart({ data }: Props) {
 
   return (
     <div className="space-y-4">
-      <div className="relative h-[260px] w-full rounded-2xl bg-white/80 backdrop-blur border border-slate-200 shadow-md dark:bg-white/5 dark:border-white/10">
+      <div className="relative h-[260px] w-full rounded-2xl bg-transparent">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
@@ -30,10 +30,13 @@ export default function ResultsDonutChart({ data }: Props) {
               outerRadius="80%"
               paddingAngle={3}
               cornerRadius={10}
+              stroke="rgba(255,255,255,0.6)"
+              strokeWidth={1}
               isAnimationActive
               animationDuration={1200}
               animationBegin={200}
               animationEasing="ease-out"
+              style={{ filter: "drop-shadow(0 6px 12px rgba(0,0,0,0.25))" }}
             >
               {data.map((_, i) => (
                 <Cell key={i} fill={COLORS[i % COLORS.length]} />
@@ -58,7 +61,7 @@ export default function ResultsDonutChart({ data }: Props) {
         </div>
       </div>
 
-      <ul className="space-y-2 text-sm">
+      <ul className="mt-6 space-y-3 text-sm">
         {data.map((item, i) => (
           <li key={i} className="flex items-center justify-between">
             <div className="flex items-center gap-2">

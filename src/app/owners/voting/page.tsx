@@ -655,7 +655,7 @@ export default function OwnersVotingPage() {
                         </button>
 
                         {openDetailsId === question.id && (
-                          <div className="mt-4 rounded-2xl bg-slate-50 border border-slate-200 p-4 dark:bg-white/5 dark:border-white/10">
+                          <div className="mt-4 space-y-4">
                             <ResultsDetails data={chartData} />
                           </div>
                         )}
@@ -782,5 +782,9 @@ function ResultsDetails({ data }: { data: { name: string; value: number }[] }) {
     );
   }
 
-  return <ResultsDonutChart data={data} />;
+  return (
+    <div className="rounded-2xl bg-slate-100/60 p-6 dark:bg-white/8">
+      <ResultsDonutChart data={data} />
+    </div>
+  );
 }
