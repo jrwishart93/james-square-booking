@@ -786,6 +786,7 @@ function Replies({
   const repliesLabel =
     list.length === 1 ? 'View reply' : `View ${list.length} replies`;
   const hideLabel = 'Hide replies';
+  const preview = hasReplies ? list[0] : null;
 
   return (
     <div className="mt-2 space-y-2">
@@ -830,6 +831,21 @@ function Replies({
           </button>
         )}
       </div>
+
+      {preview && !showReplies && (
+        <button
+          type="button"
+          onClick={() => setShowReplies(true)}
+          aria-label={`Reply from ${preview.authorName || 'Unknown'}. Tap to view.`}
+          className="group w-full text-left pl-3 sm:pl-4 flex items-center gap-2 text-[13px] text-slate-700/80 dark:text-slate-200/80 hover:text-slate-900 dark:hover:text-white transition-colors truncate"
+        >
+          <span className="text-slate-500 dark:text-slate-400">↳</span>
+          <span className="font-semibold min-w-[80px] truncate">{preview.authorName || 'Unknown'}:</span>
+          <span className="truncate leading-snug group-hover:text-inherit">
+            {preview.body}
+          </span>
+        </button>
+      )}
 
       {showReplies && hasReplies && (
         <ul className="pl-3 sm:pl-4 space-y-2 border-l border-black/5 dark:border-white/10 transition-opacity duration-150 ease-out">
