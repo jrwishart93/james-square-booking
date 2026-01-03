@@ -1349,11 +1349,14 @@ function WorldBuffetCard() {
       initial
     >
       <p className="mt-2">
-        It’s looking like the renovations for the new buffet restaurant at the end of our street
-        are now complete, and they’re getting ready to open by the end of the year. Once open, Hot
-        World Cuisine Buffet is expected to offer a large international all-you-can-eat buffet,
-        with pricing varying depending on the day. Please note that opening times and prices are
-        based on current information and may change once the restaurant officially opens.
+        It’s looking like the renovations for the new buffet restaurant at the end of Dalry Road are
+        now largely complete, with the opening currently expected in early 2026. Once open, Hot
+        World Cuisine Buffet is anticipated to offer a large international all-you-can-eat buffet,
+        with pricing likely to vary depending on the day.
+      </p>
+      <p className="mt-2">
+        As with any new opening, details such as opening times and prices are based on the latest
+        available information and may change once the restaurant is fully up and running.
       </p>
 
       <WorldBuffetCarousel />
