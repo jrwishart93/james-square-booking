@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import { ThumbsDown, ThumbsUp } from 'lucide-react';
+import { MessageCircle, ThumbsDown, ThumbsUp } from 'lucide-react';
 import { auth, db } from '@/lib/firebase';
 import {
   collection,
@@ -516,6 +516,8 @@ function PostCard({
 function Comments({ postId, currentUser }: { postId: string; currentUser: User | null }) {
   const [list, setList] = useState<Comment[]>([]);
   const [body, setBody] = useState('');
+  const [isCommenting, setIsCommenting] = useState(false);
+  const commentInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const qC = query(
@@ -558,7 +560,16 @@ function Comments({ postId, currentUser }: { postId: string; currentUser: User |
       createdAt: serverTimestamp(),
     });
     setBody('');
+    setIsCommenting(false);
   }
+
+  useEffect(() => {
+    if (isCommenting) {
+      requestAnimationFrame(() => {
+        commentInputRef.current?.focus();
+      });
+    }
+  }, [isCommenting]);
 
   async function deleteComment(id: string) {
     if (!currentUser) return;
@@ -611,39 +622,66 @@ function Comments({ postId, currentUser }: { postId: string; currentUser: User |
 
                 <p className="whitespace-pre-wrap leading-relaxed text-slate-900 dark:text-slate-100">{c.body}</p>
 
-                <div className="flex flex-wrap gap-2 pt-1 text-xs">
-                  {mine && (
-                    <button
-                      onClick={() => deleteComment(c.id)}
-                      className="message-pressable px-2.5 py-1.5 rounded-full bg-red-600 text-white shadow-md shadow-red-900/30 hover:bg-red-600/90 transition-colors"
-                    >
-                      Delete
-                    </button>
-                  )}
-                </div>
-
-                <div className="message-divider pt-3">
-                  <Replies postId={postId} comment={c} currentUser={currentUser} />
-                </div>
+                <Replies postId={postId} comment={c} currentUser={currentUser} onDelete={mine ? () => deleteComment(c.id) : undefined} />
               </div>
             </li>
           );
         })}
       </ul>
 
-      <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
-        <input
-          value={body}
-          onChange={(e) => setBody(e.target.value)}
-          placeholder="Add a comment…"
-          className="flex-1 px-4 py-3 rounded-2xl message-field text-sm sm:text-base text-slate-900 placeholder:text-slate-500 dark:text-slate-100 dark:placeholder:text-slate-500 border-none focus:outline-none focus:ring-0 transition-all duration-200 ease-out leading-relaxed"
-        />
+      <div className="flex items-center gap-2 pt-1">
         <button
-          onClick={addComment}
-          className="message-pressable w-full sm:w-auto px-4 py-2.5 rounded-full bg-gradient-to-r from-slate-900 to-slate-800 text-white shadow-lg shadow-slate-900/20 hover:-translate-y-0.5 hover:shadow-xl transition-all duration-200 ease-out dark:from-white/85 dark:to-white/80 dark:text-slate-900"
+          type="button"
+          onClick={() => setIsCommenting(true)}
+          className="message-pressable inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 bg-black/5 hover:bg-black/10 dark:bg-white/5 dark:hover:bg-white/10 shadow-inner shadow-black/5 dark:shadow-black/15 min-h-[44px]"
+          aria-label="Add a comment"
+          aria-expanded={isCommenting}
         >
-          Comment
+          <MessageCircle className="h-4 w-4" />
+          <span className="hidden sm:inline">Comment</span>
         </button>
+      </div>
+
+      <div
+        className={`grid transition-[grid-template-rows,opacity] duration-200 ease-out ${
+          isCommenting ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+        }`}
+      >
+        <div className="overflow-hidden">
+          <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center">
+            <input
+              ref={commentInputRef}
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') {
+                  setIsCommenting(false);
+                  setBody('');
+                }
+              }}
+              placeholder="Add a comment…"
+              className="flex-1 px-4 py-2.5 rounded-2xl message-field text-sm sm:text-base text-slate-900 placeholder:text-slate-500 dark:text-slate-100 dark:placeholder:text-slate-500 border-none focus:outline-none focus:ring-0 transition-all duration-200 ease-out leading-relaxed"
+            />
+            <div className="flex items-center gap-3 sm:gap-2 sm:flex-row">
+              <button
+                onClick={addComment}
+                className="message-pressable w-full sm:w-auto px-4 py-2 rounded-full bg-gradient-to-r from-slate-900 to-slate-800 text-white shadow-lg shadow-slate-900/20 hover:-translate-y-0.5 hover:shadow-xl transition-all duration-200 ease-out dark:from-white/85 dark:to-white/80 dark:text-slate-900"
+              >
+                Comment
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsCommenting(false);
+                  setBody('');
+                }}
+                className="px-2 py-1 text-sm font-medium text-slate-600 hover:text-slate-800 dark:text-slate-300 dark:hover:text-white"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -653,13 +691,18 @@ function Replies({
   postId,
   comment,
   currentUser,
+  onDelete,
 }: {
   postId: string;
   comment: Comment;
   currentUser: User | null;
+  onDelete?: () => void;
 }) {
   const [list, setList] = useState<Reply[]>([]);
   const [body, setBody] = useState('');
+  const [isReplying, setIsReplying] = useState(false);
+  const replyInputRef = useRef<HTMLInputElement>(null);
+  const [showReplies, setShowReplies] = useState(false);
 
   useEffect(() => {
     const qR = query(
@@ -702,7 +745,17 @@ function Replies({
       createdAt: serverTimestamp(),
     });
     setBody('');
+    setIsReplying(false);
+    setShowReplies(true);
   }
+
+  useEffect(() => {
+    if (isReplying) {
+      requestAnimationFrame(() => {
+        replyInputRef.current?.focus();
+      });
+    }
+  }, [isReplying]);
 
   async function deleteReply(id: string) {
     if (!currentUser) return;
@@ -729,59 +782,159 @@ function Replies({
     alert('Reported — thanks.');
   }
 
+  const hasReplies = list.length > 0;
+  const repliesLabel =
+    list.length === 1 ? 'View reply' : `View ${list.length} replies`;
+  const hideLabel = 'Hide replies';
+  const preview = hasReplies ? list[0] : null;
+
   return (
-    <div className="mt-3 ml-2 sm:ml-3 rounded-2xl message-thread message-thread--reply message-fade p-3 sm:p-4 space-y-3 shadow-[0_10px_28px_rgba(15,23,42,0.12)]">
-      <h5 className="font-medium text-sm leading-tight text-slate-900 dark:text-slate-50">Replies ({list.length})</h5>
-      <ul className="space-y-3">
-        {list.map((r) => {
-          const mine = currentUser?.uid === r.authorId;
-          const createdLabel = formatTimestampLabel(r.createdAt);
-          return (
-            <li
-              key={r.id}
-              className="px-3 py-3 rounded-2xl message-reply message-fade"
+    <div className="mt-2 space-y-2">
+      <div className="flex flex-wrap items-center gap-3 text-xs">
+        <button
+          type="button"
+          onClick={() => {
+            setIsReplying(true);
+            setShowReplies(true);
+          }}
+          className="inline-flex items-center gap-1.5 font-semibold text-slate-700 hover:text-slate-900 dark:text-slate-200 dark:hover:text-white transition-colors min-h-[36px]"
+          aria-label="Write a reply"
+        >
+          Reply
+        </button>
+        {onDelete && (
+          <button
+            type="button"
+            onClick={onDelete}
+            className="message-pressable px-2.5 py-1.5 rounded-full bg-red-600 text-white shadow-md shadow-red-900/30 hover:bg-red-600/90 transition-colors text-[13px]"
+          >
+            Delete
+          </button>
+        )}
+        {hasReplies && !showReplies && (
+          <button
+            type="button"
+            onClick={() => setShowReplies(true)}
+            className="text-xs font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white underline decoration-slate-300 dark:decoration-slate-600"
+          >
+            {repliesLabel}
+          </button>
+        )}
+        {hasReplies && showReplies && (
+          <button
+            type="button"
+            onClick={() => setShowReplies(false)}
+            className="text-xs font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white underline decoration-slate-300 dark:decoration-slate-600"
+          >
+            {hideLabel}
+          </button>
+        )}
+      </div>
+
+      {preview && !showReplies && (
+        <button
+          type="button"
+          onClick={() => setShowReplies(true)}
+          aria-label={`Reply from ${preview.authorName || 'Unknown'}. Tap to view.`}
+          className="group w-full text-left pl-3 sm:pl-4 flex flex-col gap-1 text-[13px] text-slate-700/80 dark:text-slate-200/80 hover:text-slate-900 dark:hover:text-white transition-colors"
+        >
+          <div className="flex items-center gap-2 truncate">
+            <span className="text-slate-500 dark:text-slate-400">↳</span>
+            <span className="font-semibold min-w-[80px] truncate">{preview.authorName || 'Unknown'}:</span>
+          </div>
+          <div className="relative overflow-hidden">
+            <p
+              className="leading-snug truncate text-left"
+              style={{
+                display: '-webkit-box',
+                WebkitBoxOrient: 'vertical',
+                WebkitLineClamp: 2,
+              }}
             >
-              <div className="flex flex-col gap-2">
+              {preview.body}
+            </p>
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-4 bg-gradient-to-b from-transparent to-white/80 dark:to-slate-900/80" />
+          </div>
+        </button>
+      )}
+
+      {showReplies && hasReplies && (
+        <ul className="pl-3 sm:pl-4 space-y-2 border-l border-black/5 dark:border-white/10 transition-opacity duration-150 ease-out">
+          {list.map((r) => {
+            const mine = currentUser?.uid === r.authorId;
+            const createdLabel = formatTimestampLabel(r.createdAt);
+            return (
+              <li
+                key={r.id}
+                className="px-3 py-2 rounded-xl text-sm text-slate-900 dark:text-slate-100 shadow-none bg-transparent"
+              >
                 <div className="flex items-start justify-between gap-3">
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium text-slate-900 dark:text-slate-100 leading-tight">
+                  <div className="space-y-0.5">
+                    <p className="text-[13px] font-semibold text-slate-900 dark:text-slate-100 leading-tight">
                       {r.authorName || 'Unknown'}
                     </p>
-                    <p className="text-xs text-slate-500/70 dark:text-slate-400/70 leading-relaxed">{createdLabel}</p>
+                    <p className="text-[11px] text-slate-500/80 dark:text-slate-400/80 leading-relaxed">
+                      {createdLabel}
+                    </p>
                   </div>
                   <MoreMenu onReport={() => reportReply(r)} />
                 </div>
-                <p className="whitespace-pre-wrap leading-relaxed text-slate-900 dark:text-slate-100">{r.body}</p>
-                <div className="flex flex-wrap gap-2 pt-1 text-xs">
+                <p className="mt-1 whitespace-pre-wrap leading-relaxed text-sm text-slate-900 dark:text-slate-100">
+                  {r.body}
+                </p>
+                <div className="flex flex-wrap gap-2 pt-1 text-[11px]">
                   {mine && (
                     <button
                       onClick={() => deleteReply(r.id)}
-                      className="message-pressable px-2.5 py-1.5 rounded-full bg-red-600 text-white shadow-md shadow-red-900/30 hover:bg-red-600/90 transition-colors"
+                      className="message-pressable px-2 py-1 rounded-full bg-red-600 text-white shadow-md shadow-red-900/30 hover:bg-red-600/90 transition-colors"
                     >
                       Delete
                     </button>
                   )}
                 </div>
-              </div>
-            </li>
-          );
-        })}
-      </ul>
+              </li>
+            );
+          })}
+        </ul>
+      )}
 
-      <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center">
-        <input
-          value={body}
-          onChange={(e) => setBody(e.target.value)}
-          placeholder="Write a reply…"
-          className="flex-1 px-4 py-3 rounded-2xl message-field text-sm sm:text-base text-slate-900 placeholder:text-slate-500 dark:text-slate-100 dark:placeholder:text-slate-500 border-none focus:outline-none focus:ring-0 transition-all duration-200 ease-out leading-relaxed"
-        />
-        <button
-          onClick={addReply}
-          className="message-pressable w-full sm:w-auto px-4 py-2.5 rounded-full bg-gradient-to-r from-slate-900 to-slate-800 text-white shadow-lg shadow-slate-900/20 hover:-translate-y-0.5 hover:shadow-xl transition-all duration-200 ease-out dark:from-white/85 dark:to-white/80 dark:text-slate-900"
-        >
-          Reply
-        </button>
-      </div>
+      {isReplying && (
+        <div className="pl-3 sm:pl-4">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center transition-opacity duration-150 ease-out">
+            <input
+              ref={replyInputRef}
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') {
+                  setIsReplying(false);
+                  setBody('');
+                }
+              }}
+              placeholder="Write a reply…"
+              className="flex-1 px-4 py-2.5 rounded-2xl message-field text-sm sm:text-base text-slate-900 placeholder:text-slate-500 dark:text-slate-100 dark:placeholder:text-slate-500 border-none focus:outline-none focus:ring-0 transition-all duration-150 ease-out leading-relaxed"
+            />
+            <div className="flex items-center gap-3 sm:gap-2 sm:flex-row">
+              <button
+                onClick={addReply}
+                className="message-pressable w-full sm:w-auto px-4 py-2 rounded-full bg-gradient-to-r from-slate-900 to-slate-800 text-white shadow-lg shadow-slate-900/20 hover:-translate-y-0.5 hover:shadow-xl transition-all duration-150 ease-out dark:from-white/85 dark:to-white/80 dark:text-slate-900"
+              >
+                Reply
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsReplying(false);
+                  setBody('');
+                }}
+                className="px-2 py-1 text-sm font-medium text-slate-600 hover:text-slate-800 dark:text-slate-300 dark:hover:text-white"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
