@@ -147,6 +147,7 @@ export default function MessageBoardPage() {
   const [newTitle, setNewTitle] = useState('');
   const [newBody, setNewBody] = useState('');
   const [busy, setBusy] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     const unsubAuth = onAuthStateChanged(auth, setUser);
@@ -172,6 +173,10 @@ export default function MessageBoardPage() {
       unsubAuth();
       unsubPosts();
     };
+  }, []);
+
+  useEffect(() => {
+    setMounted(true);
   }, []);
 
   async function createPost() {
@@ -205,13 +210,33 @@ export default function MessageBoardPage() {
   }
 
   return (
-    <main className="w-full px-4 py-8 sm:px-6 sm:max-w-4xl sm:mx-auto">
-      <h1 className="text-3xl font-bold mb-4 text-center leading-tight">Message Board</h1>
+    <main className="w-full px-4 py-8 sm:px-6 sm:max-w-5xl sm:mx-auto space-y-6">
+      <header
+        className={`relative overflow-hidden rounded-3xl bg-gradient-to-br from-white/85 via-white/70 to-slate-100/70 dark:from-slate-900/70 dark:via-slate-900/60 dark:to-slate-800/60 px-6 py-8 text-center shadow-[0_20px_70px_rgba(15,23,42,0.18)] ring-1 ring-black/5 dark:ring-white/10 transition-all duration-500 ease-out ${
+          mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
+        }`}
+      >
+        <div className="pointer-events-none absolute inset-0 opacity-70 blur-3xl">
+          <div className="absolute inset-x-6 -top-10 h-36 rounded-full bg-gradient-to-r from-cyan-200/50 via-blue-200/40 to-purple-200/40 dark:from-cyan-500/20 dark:via-blue-500/15 dark:to-purple-500/20" />
+        </div>
+        <div className="relative space-y-3">
+          <h1 className="text-3xl md:text-4xl font-semibold leading-tight text-slate-900 dark:text-white">
+            Message Board
+          </h1>
+          <p className="text-base md:text-lg text-slate-600 dark:text-slate-200/80 max-w-2xl mx-auto leading-relaxed">
+            Share updates, questions, or concerns with other residents.
+          </p>
+        </div>
+      </header>
 
       {/* Create box */}
-      <div className="glass p-4 sm:p-5 mb-6 rounded-2xl border">
+      <div
+        className={`rounded-3xl bg-white/80 dark:bg-slate-900/60 shadow-[0_18px_50px_rgba(15,23,42,0.16)] ring-1 ring-black/5 dark:ring-white/10 p-4 sm:p-6 transition-all duration-200 ease-out ${
+          mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'
+        } focus-within:shadow-[0_24px_65px_rgba(15,23,42,0.18)] focus-within:-translate-y-0.5 focus-within:ring-black/10 dark:focus-within:ring-white/20`}
+      >
         {!user ? (
-          <p className="text-sm">
+          <p className="text-sm text-slate-700 dark:text-slate-200/90 leading-relaxed">
             You&apos;re not signed in.{' '}
             <Link href="/login" className="underline">
               Sign in
@@ -224,18 +249,18 @@ export default function MessageBoardPage() {
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
               placeholder="Post title"
-              className="w-full mb-2 px-3 py-2 rounded border leading-relaxed"
+              className="w-full mb-3 px-4 py-3 rounded-2xl bg-white/90 dark:bg-white/5 text-lg font-semibold text-slate-900 placeholder:text-slate-500 dark:text-white dark:placeholder:text-slate-400 shadow-inner shadow-black/5 dark:shadow-black/30 border-none focus:outline-none focus:ring-2 focus:ring-cyan-300/60 focus:ring-offset-1 focus:ring-offset-white dark:focus:ring-offset-slate-900 transition-all duration-200 ease-out"
             />
             <textarea
               value={newBody}
               onChange={(e) => setNewBody(e.target.value)}
               placeholder="Say something…"
-              className="w-full mb-3 px-3 py-2 rounded border min-h-[100px] leading-relaxed"
+              className="w-full mb-4 px-4 py-3 rounded-2xl bg-white/85 dark:bg-white/5 text-base text-slate-900 placeholder:text-slate-500 dark:text-slate-100 dark:placeholder:text-slate-500 shadow-inner shadow-black/5 dark:shadow-black/30 border-none focus:outline-none focus:ring-2 focus:ring-cyan-300/60 focus:ring-offset-1 focus:ring-offset-white dark:focus:ring-offset-slate-900 transition-all duration-200 ease-out min-h-[120px] leading-relaxed resize-none"
             />
             <button
               onClick={createPost}
               disabled={busy || !newTitle.trim() || !newBody.trim()}
-              className="px-4 py-2 rounded-xl bg-black/80 text-white hover:bg-black disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-slate-900 via-slate-900 to-slate-800 text-white shadow-lg shadow-slate-900/20 hover:shadow-xl hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 ease-out disabled:opacity-60 disabled:shadow-none disabled:translate-y-0 dark:from-white/90 dark:via-white/80 dark:to-white/80 dark:text-slate-900"
             >
               {busy ? 'Posting…' : 'Post'}
             </button>
@@ -244,9 +269,9 @@ export default function MessageBoardPage() {
       </div>
 
       {/* Posts */}
-      <ul className="space-y-4">
-        {posts.map((p) => (
-          <PostCard key={p.id} post={p} currentUser={user} />
+      <ul className="space-y-4 sm:space-y-5">
+        {posts.map((p, index) => (
+          <PostCard key={p.id} post={p} currentUser={user} index={index} mounted={mounted} />
         ))}
       </ul>
     </main>
@@ -257,7 +282,17 @@ export default function MessageBoardPage() {
    Post Card
 ============================ */
 
-function PostCard({ post, currentUser }: { post: Post; currentUser: User | null }) {
+function PostCard({
+  post,
+  currentUser,
+  index,
+  mounted,
+}: {
+  post: Post;
+  currentUser: User | null;
+  index: number;
+  mounted: boolean;
+}) {
   const mine = useMemo(() => currentUser?.uid === post.authorId, [currentUser?.uid, post.authorId]);
 
   const [editing, setEditing] = useState(false);
@@ -350,53 +385,30 @@ function PostCard({ post, currentUser }: { post: Post; currentUser: User | null 
   }
 
   return (
-    <li className="glass p-4 sm:p-5 rounded-2xl border space-y-3">
+    <li
+      className={`relative overflow-hidden rounded-3xl bg-white/80 dark:bg-slate-900/60 shadow-[0_18px_55px_rgba(15,23,42,0.16)] ring-1 ring-black/5 dark:ring-white/10 p-4 sm:p-6 space-y-4 transition-all duration-300 ease-out ${
+        mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'
+      } hover:-translate-y-1 hover:shadow-[0_24px_70px_rgba(15,23,42,0.2)]`}
+      style={{ transitionDelay: `${index * 50}ms` }}
+    >
+      <div className="pointer-events-none absolute inset-0 opacity-40 blur-2xl">
+        <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-gradient-to-br from-cyan-200/35 via-blue-200/30 to-purple-200/25 dark:from-cyan-500/15 dark:via-blue-500/12 dark:to-purple-600/15" />
+      </div>
       {/* Header */}
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex-1 min-w-0">
+      <div className="relative flex items-start gap-3">
+        <div className="flex-1 min-w-0 space-y-2">
+          <p className="text-xs uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Resident post</p>
           {editing ? (
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-2 py-1 rounded border"
+              className="w-full px-3 py-2 rounded-2xl bg-white/90 dark:bg-white/5 text-base font-semibold text-slate-900 dark:text-white shadow-inner shadow-black/5 dark:shadow-black/30 border-none focus:outline-none focus:ring-2 focus:ring-cyan-300/60 transition-all"
             />
           ) : (
-            <h3 className="text-lg font-semibold leading-snug">{post.title}</h3>
+            <h3 className="text-xl font-semibold leading-snug text-slate-900 dark:text-white">{post.title}</h3>
           )}
         </div>
-
-        <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-white/60">
-          {/* Reactions */}
-          <button
-            onClick={() => toggleReaction('like')}
-            className={`inline-flex items-center gap-1 rounded-full px-2 py-1 transition-colors ${
-              myReaction === 'like'
-                ? 'text-slate-700 bg-black/5 dark:text-white dark:bg-white/10'
-                : 'hover:text-slate-700 hover:bg-black/5 dark:hover:text-white dark:hover:bg-white/10'
-            }`}
-            aria-label="Like"
-            title="Like"
-          >
-            <ThumbsUp className="h-4 w-4" />
-            <span>{likeCount}</span>
-          </button>
-          <button
-            onClick={() => toggleReaction('dislike')}
-            className={`inline-flex items-center gap-1 rounded-full px-2 py-1 transition-colors ${
-              myReaction === 'dislike'
-                ? 'text-slate-700 bg-black/5 dark:text-white dark:bg-white/10'
-                : 'hover:text-slate-700 hover:bg-black/5 dark:hover:text-white dark:hover:bg-white/10'
-            }`}
-            aria-label="Dislike"
-            title="Dislike"
-          >
-            <ThumbsDown className="h-4 w-4" />
-            <span>{dislikeCount}</span>
-          </button>
-          <div className="pl-1">
-            <MoreMenu onReport={onReport} />
-          </div>
-        </div>
+        <MoreMenu onReport={onReport} />
       </div>
 
       {/* Body */}
@@ -404,23 +416,58 @@ function PostCard({ post, currentUser }: { post: Post; currentUser: User | null 
         <textarea
           value={body}
           onChange={(e) => setBody(e.target.value)}
-          className="w-full my-2 px-2 py-1 rounded border min-h-[80px] leading-relaxed"
+          className="w-full my-2 px-3 py-2 rounded-2xl bg-white/85 dark:bg-white/5 text-sm sm:text-base text-slate-900 dark:text-slate-100 shadow-inner shadow-black/5 dark:shadow-black/30 border-none focus:outline-none focus:ring-2 focus:ring-cyan-300/60 transition-all min-h-[100px] leading-relaxed resize-none"
         />
       ) : (
-        <p className="my-2 whitespace-pre-wrap leading-relaxed text-slate-900 dark:text-slate-100">{post.body}</p>
+        <p className="my-2 whitespace-pre-wrap leading-relaxed text-slate-800 dark:text-slate-100 text-base">{post.body}</p>
       )}
 
       {/* Meta */}
-      <p className="text-xs text-slate-500 dark:text-slate-400 mb-3 leading-relaxed">By {post.authorName || 'Unknown'}</p>
+      <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+        <span className="inline-flex items-center rounded-full bg-black/5 px-3 py-1 dark:bg-white/5 shadow-inner shadow-black/5 dark:shadow-black/10">
+          By {post.authorName || 'Unknown'}
+        </span>
+      </div>
+
+      <div className="flex items-center justify-between flex-wrap gap-3 pt-2 text-sm text-slate-600 dark:text-slate-200/80">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => toggleReaction('like')}
+            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all duration-200 ease-out active:scale-95 shadow-inner shadow-black/5 dark:shadow-black/20 ${
+              myReaction === 'like'
+                ? 'bg-green-500/15 text-green-700 dark:bg-green-500/20 dark:text-green-200 shadow-none'
+                : 'bg-black/5 text-slate-600 dark:bg-white/5 dark:text-slate-200 hover:bg-black/10 dark:hover:bg-white/10'
+            }`}
+            aria-label="Like"
+            title="Like"
+          >
+            <ThumbsUp className="h-3.5 w-3.5" />
+            <span>{likeCount}</span>
+          </button>
+          <button
+            onClick={() => toggleReaction('dislike')}
+            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all duration-200 ease-out active:scale-95 shadow-inner shadow-black/5 dark:shadow-black/20 ${
+              myReaction === 'dislike'
+                ? 'bg-amber-500/15 text-amber-700 dark:bg-amber-500/20 dark:text-amber-200 shadow-none'
+                : 'bg-black/5 text-slate-600 dark:bg-white/5 dark:text-slate-200 hover:bg-black/10 dark:hover:bg-white/10'
+            }`}
+            aria-label="Dislike"
+            title="Dislike"
+          >
+            <ThumbsDown className="h-3.5 w-3.5" />
+            <span>{dislikeCount}</span>
+          </button>
+        </div>
+      </div>
 
       {/* Actions */}
-      <div className="flex gap-2">
+      <div className="flex gap-2 flex-wrap pt-1">
         {mine ? (
           editing ? (
             <>
               <button
                 onClick={onSave}
-                className="px-3 py-1 rounded bg-black/80 text-white hover:bg-black"
+                className="px-3 py-1.5 rounded-full bg-slate-900 text-white shadow-md shadow-slate-900/20 hover:-translate-y-[1px] transition-all duration-150 dark:bg-white dark:text-slate-900"
               >
                 Save
               </button>
@@ -430,19 +477,22 @@ function PostCard({ post, currentUser }: { post: Post; currentUser: User | null 
                   setBody(post.body);
                   setEditing(false);
                 }}
-                className="px-3 py-1 rounded border"
+                className="px-3 py-1.5 rounded-full bg-black/5 text-slate-700 hover:bg-black/10 transition-colors dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10"
               >
                 Cancel
               </button>
             </>
           ) : (
             <>
-              <button onClick={() => setEditing(true)} className="px-3 py-1 rounded border">
+              <button
+                onClick={() => setEditing(true)}
+                className="px-3 py-1.5 rounded-full bg-black/5 text-slate-700 hover:bg-black/10 transition-colors dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10"
+              >
                 Edit
               </button>
               <button
                 onClick={onDelete}
-                className="px-3 py-1 rounded bg-red-600 text-white hover:bg-red-700"
+                className="px-3 py-1.5 rounded-full bg-red-600 text-white shadow-md shadow-red-900/30 hover:bg-red-600/90 transition-all"
               >
                 Delete
               </button>
@@ -452,7 +502,7 @@ function PostCard({ post, currentUser }: { post: Post; currentUser: User | null 
       </div>
 
       {/* Comments */}
-      <div className="mt-4 border-t border-slate-200 pt-4">
+      <div className="mt-4 pt-4 border-t border-black/5 dark:border-white/10">
         <Comments postId={post.id} currentUser={currentUser} />
       </div>
     </li>
@@ -547,11 +597,11 @@ function Comments({ postId, currentUser }: { postId: string; currentUser: User |
           const mine = currentUser?.uid === c.authorId;
           const createdLabel = formatTimestampLabel(c.createdAt);
           return (
-            <li key={c.id} className="glass p-4 sm:p-5 rounded-2xl border">
-              <div className="flex flex-col gap-3">
+            <li key={c.id} className="list-none">
+              <div className="flex flex-col gap-3 rounded-2xl bg-white/80 dark:bg-slate-900/60 shadow-[0_12px_36px_rgba(15,23,42,0.14)] ring-1 ring-black/5 dark:ring-white/10 p-4 sm:p-5 transition-all duration-200 hover:-translate-y-[2px]">
                 <div className="flex items-start justify-between gap-3">
                   <div className="space-y-1">
-                    <p className="text-sm font-medium text-slate-900 dark:text-slate-100 leading-tight">
+                    <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 leading-tight">
                       {c.authorName || 'Unknown'}
                     </p>
                     <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{createdLabel}</p>
@@ -565,14 +615,14 @@ function Comments({ postId, currentUser }: { postId: string; currentUser: User |
                   {mine && (
                     <button
                       onClick={() => deleteComment(c.id)}
-                      className="px-2 py-1 rounded bg-red-600 text-white hover:bg-red-700"
+                      className="px-2.5 py-1.5 rounded-full bg-red-600 text-white shadow-md shadow-red-900/30 hover:bg-red-600/90 transition-colors"
                     >
                       Delete
                     </button>
                   )}
                 </div>
 
-                <div className="border-t border-slate-200 pt-3">
+                <div className="border-t border-black/5 dark:border-white/10 pt-3">
                   <Replies postId={postId} comment={c} currentUser={currentUser} />
                 </div>
               </div>
@@ -586,11 +636,11 @@ function Comments({ postId, currentUser }: { postId: string; currentUser: User |
           value={body}
           onChange={(e) => setBody(e.target.value)}
           placeholder="Add a comment…"
-          className="flex-1 px-3 py-2 rounded border leading-relaxed"
+          className="flex-1 px-4 py-3 rounded-2xl bg-white/85 dark:bg-white/5 text-sm sm:text-base text-slate-900 placeholder:text-slate-500 dark:text-slate-100 dark:placeholder:text-slate-500 shadow-inner shadow-black/5 dark:shadow-black/30 border-none focus:outline-none focus:ring-2 focus:ring-cyan-300/60 focus:ring-offset-1 focus:ring-offset-white dark:focus:ring-offset-slate-900 transition-all duration-200 ease-out leading-relaxed"
         />
         <button
           onClick={addComment}
-          className="w-full sm:w-auto px-3 py-2 rounded-xl bg-black/80 text-white hover:bg-black"
+          className="w-full sm:w-auto px-4 py-2.5 rounded-full bg-gradient-to-r from-slate-900 to-slate-800 text-white shadow-lg shadow-slate-900/20 hover:-translate-y-0.5 hover:shadow-xl active:scale-[0.98] transition-all duration-200 ease-out dark:from-white/85 dark:to-white/80 dark:text-slate-900"
         >
           Comment
         </button>
@@ -680,7 +730,7 @@ function Replies({
   }
 
   return (
-    <div className="mt-3 rounded-xl border border-slate-200 bg-white/70 p-3 sm:p-4 space-y-3 dark:border-slate-700 dark:bg-slate-900/80">
+    <div className="mt-3 rounded-2xl bg-white/75 dark:bg-slate-900/60 ring-1 ring-black/5 dark:ring-white/10 p-3 sm:p-4 space-y-3 shadow-[0_10px_28px_rgba(15,23,42,0.12)]">
       <h5 className="font-medium text-sm leading-tight text-slate-900 dark:text-slate-50">Replies ({list.length})</h5>
       <ul className="space-y-3">
         {list.map((r) => {
@@ -689,7 +739,7 @@ function Replies({
           return (
             <li
               key={r.id}
-              className="slot px-3 py-3 rounded-xl border border-slate-200/70 bg-white dark:border-slate-700 dark:bg-slate-900"
+              className="px-3 py-3 rounded-2xl bg-white/85 dark:bg-white/5 ring-1 ring-black/5 dark:ring-white/10 shadow-inner shadow-black/5 dark:shadow-black/20"
             >
               <div className="flex flex-col gap-2">
                 <div className="flex items-start justify-between gap-3">
@@ -706,7 +756,7 @@ function Replies({
                   {mine && (
                     <button
                       onClick={() => deleteReply(r.id)}
-                      className="px-2 py-1 rounded bg-red-600 text-white hover:bg-red-700"
+                      className="px-2.5 py-1.5 rounded-full bg-red-600 text-white shadow-md shadow-red-900/30 hover:bg-red-600/90 transition-colors"
                     >
                       Delete
                     </button>
@@ -723,11 +773,11 @@ function Replies({
           value={body}
           onChange={(e) => setBody(e.target.value)}
           placeholder="Write a reply…"
-          className="flex-1 px-3 py-2 rounded border leading-relaxed"
+          className="flex-1 px-4 py-3 rounded-2xl bg-white/85 dark:bg-white/5 text-sm sm:text-base text-slate-900 placeholder:text-slate-500 dark:text-slate-100 dark:placeholder:text-slate-500 shadow-inner shadow-black/5 dark:shadow-black/30 border-none focus:outline-none focus:ring-2 focus:ring-cyan-300/60 focus:ring-offset-1 focus:ring-offset-white dark:focus:ring-offset-slate-900 transition-all duration-200 ease-out leading-relaxed"
         />
         <button
           onClick={addReply}
-          className="w-full sm:w-auto px-3 py-2 rounded-xl bg-black/80 text-white hover:bg-black"
+          className="w-full sm:w-auto px-4 py-2.5 rounded-full bg-gradient-to-r from-slate-900 to-slate-800 text-white shadow-lg shadow-slate-900/20 hover:-translate-y-0.5 hover:shadow-xl active:scale-[0.98] transition-all duration-200 ease-out dark:from-white/85 dark:to-white/80 dark:text-slate-900"
         >
           Reply
         </button>
