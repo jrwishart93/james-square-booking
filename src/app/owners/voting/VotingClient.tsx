@@ -412,32 +412,33 @@ export default function OwnersVotingPage() {
                   </div>
                 )}
 
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-3">
-                    <label className="block text-sm font-semibold text-slate-900 dark:text-slate-200">
-                      Voting duration
-                    </label>
-                    <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">Default 1 month</span>
-                  </div>
+                <div className="mt-6 space-y-2">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                    How long should this vote stay open?
+                  </label>
+
                   <div className="flex flex-wrap gap-2">
-                    {DURATION_PRESETS.map((preset) => {
-                      const isActive = durationPreset === preset.value;
-                      return (
-                        <button
-                          key={preset.value}
-                          type="button"
-                          onClick={() => setDurationPreset(preset.value)}
-                          className={`px-4 py-2 rounded-full text-sm font-semibold border transition-all backdrop-blur ${
-                            isActive
-                              ? "bg-cyan-500/10 border-cyan-400 text-cyan-800 shadow-[0_10px_30px_rgba(6,182,212,0.15)] dark:bg-cyan-500/20 dark:border-cyan-300 dark:text-white"
-                              : "bg-white/80 border-black/10 text-slate-700 hover:border-cyan-300 hover:text-cyan-800 dark:bg-white/5 dark:border-white/15 dark:text-slate-200 dark:hover:border-cyan-400"
-                          }`}
-                        >
-                          {preset.label}
-                        </button>
-                      );
-                    })}
+                    {DURATION_PRESETS.map((preset) => (
+                      <button
+                        key={preset.value}
+                        type="button"
+                        onClick={() => setDurationPreset(preset.value)}
+                        className={`px-4 py-2 rounded-full text-sm font-semibold transition
+          ${
+            durationPreset === preset.value
+              ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900"
+              : "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-white/10 dark:text-white/80 dark:hover:bg-white/20"
+          }
+        `}
+                      >
+                        {preset.label}
+                      </button>
+                    ))}
                   </div>
+
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    After this time, voting will automatically close.
+                  </p>
                 </div>
 
                 <div className="pt-2">
