@@ -277,11 +277,14 @@ export default function OwnersVotingPage() {
       setVoteErrors((prev) => ({ ...prev, [question.id]: VOTE_RECORDED_MESSAGE }));
     } catch (error) {
       const message = error instanceof Error ? error.message : "An error occurred while submitting.";
-      setVoteErrors((prev) => ({ ...prev, [question.id]: message }));
+    setVoteErrors((prev) => ({ ...prev, [question.id]: message }));
     } finally {
       setSavingVoteId(null);
     }
   };
+
+  const quickDurations: DurationPreset[] = ["3m", "1h", "1d"];
+  const longDurations: DurationPreset[] = ["1w", "1m", "1y"];
 
   const handleDeleteQuestion = async (questionId: string) => {
     const proceed = window.confirm("This question and its votes will be deleted. Are you sure?");
@@ -412,32 +415,53 @@ export default function OwnersVotingPage() {
                   </div>
                 )}
 
-                <div className="mt-6 space-y-2">
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-                    How long should this vote stay open?
-                  </label>
-
-                  <div className="flex flex-wrap gap-2">
-                    {DURATION_PRESETS.map((preset) => (
-                      <button
-                        key={preset.value}
-                        type="button"
-                        onClick={() => setDurationPreset(preset.value)}
-                        className={`px-4 py-2 rounded-full text-sm font-semibold transition
+                <div className="mt-6 space-y-3">
+                  <div className="space-y-1">
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                      How long should this vote stay open?
+                    </label>
+                    <div className="space-y-3">
+                      <div className="flex flex-wrap gap-2">
+                        {DURATION_PRESETS.filter((preset) => quickDurations.includes(preset.value)).map((preset) => (
+                          <button
+                            key={preset.value}
+                            type="button"
+                            onClick={() => setDurationPreset(preset.value)}
+                            className={`px-4 py-2 rounded-full text-sm font-semibold transition-all transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70
           ${
             durationPreset === preset.value
-              ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900"
+              ? "bg-slate-900 text-white shadow-md shadow-black/10 dark:bg-white dark:text-slate-900 scale-[1.03]"
               : "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-white/10 dark:text-white/80 dark:hover:bg-white/20"
           }
         `}
-                      >
-                        {preset.label}
-                      </button>
-                    ))}
+                          >
+                            {preset.label}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="flex flex-wrap gap-2 pt-1">
+                        {DURATION_PRESETS.filter((preset) => longDurations.includes(preset.value)).map((preset) => (
+                          <button
+                            key={preset.value}
+                            type="button"
+                            onClick={() => setDurationPreset(preset.value)}
+                            className={`px-4 py-2 rounded-full text-sm font-semibold transition-all transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70
+          ${
+            durationPreset === preset.value
+              ? "bg-slate-900 text-white shadow-md shadow-black/10 dark:bg-white dark:text-slate-900 scale-[1.03]"
+              : "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-white/10 dark:text-white/80 dark:hover:bg-white/20"
+          }
+        `}
+                          >
+                            {preset.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   </div>
 
                   <p className="text-xs text-slate-500 dark:text-slate-400">
-                    After this time, voting will automatically close.
+                    Voting will close {DURATION_PRESETS.find((p) => p.value === durationPreset)?.label?.toLowerCase() ?? ""} after publishing.
                   </p>
                 </div>
 

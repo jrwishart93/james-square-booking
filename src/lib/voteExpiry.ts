@@ -9,7 +9,7 @@ export const DURATION_PRESETS: {
   { value: "1h", label: "1 hour", seconds: 60 * 60 },
   { value: "1d", label: "1 day", seconds: 24 * 60 * 60 },
   { value: "1w", label: "1 week", seconds: 7 * 24 * 60 * 60 },
-  { value: "1m", label: "1 month (default)", seconds: 30 * 24 * 60 * 60 },
+  { value: "1m", label: "1 month", seconds: 30 * 24 * 60 * 60 },
   { value: "1y", label: "1 year", seconds: 365 * 24 * 60 * 60 },
 ];
 
