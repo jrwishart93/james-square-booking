@@ -1,3 +1,5 @@
+import type { DurationPreset } from '@/lib/voteExpiry';
+
 export type QuestionStatus = 'open' | 'closed';
 
 export interface Option {
@@ -12,6 +14,8 @@ export interface Question {
   options: Option[];
   status: QuestionStatus;
   createdAt: number;
+  durationPreset?: DurationPreset;
+  expiresAt?: number | Date | null;
   voteTotals?: Record<string, number>;
 }
 

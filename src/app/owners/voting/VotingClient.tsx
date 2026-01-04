@@ -26,6 +26,7 @@ import ResultsDonutChart from "@/app/voting/components/ResultsDonutChart";
 import GradientBG from "@/components/GradientBG";
 import { useAuth } from "@/context/AuthContext";
 import { db } from "@/lib/firebase";
+import { DURATION_PRESETS, DurationPreset, getVoteStatus } from "@/lib/voteExpiry";
 
 const deriveFirstName = (user: User | null): string => {
   if (!user) return "";
@@ -60,6 +61,7 @@ export default function OwnersVotingPage() {
   const [askErrors, setAskErrors] = useState<{ title?: string; options?: string }>({});
   const [askSuccess, setAskSuccess] = useState(false);
   const [submittingQuestion, setSubmittingQuestion] = useState(false);
+  const [durationPreset, setDurationPreset] = useState<DurationPreset>("1m");
 
   // Vote tab state
   const [voterName, setVoterName] = useState("");
@@ -71,6 +73,12 @@ export default function OwnersVotingPage() {
     if (stored) setVoterName(stored);
     const storedFlat = typeof window !== "undefined" ? sessionStorage.getItem("ovh_flat") : null;
     if (storedFlat) setFlat(normalizeFlat(storedFlat));
+  }, []);
+  const [now, setNow] = useState<number>(() => Date.now());
+
+  useEffect(() => {
+    const interval = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -199,13 +207,14 @@ export default function OwnersVotingPage() {
     setSubmittingQuestion(true);
     try {
       const filled = options.filter((o) => o.trim().length > 0);
-      await addQuestion(title.trim(), description.trim(), filled);
+      await addQuestion(title.trim(), description.trim(), filled, durationPreset);
       const qs = await getQuestions();
       setQuestions(qs);
       setAskSuccess(true);
       setTitle("");
       setDescription("");
       setOptions(["", ""]);
+      setDurationPreset("1m");
       setActiveTab("vote");
     } catch (error) {
       console.error("Failed to add question", error);
@@ -214,51 +223,68 @@ export default function OwnersVotingPage() {
     }
   };
 
-  const handleSubmitVote = async (event: React.FormEvent, questionId: string) => {
+  const handleSubmitVote = async (event: React.FormEvent, question: Question) => {
     event.preventDefault();
+    const expiresAt =
+      question.expiresAt instanceof Date
+        ? question.expiresAt
+        : question.expiresAt
+          ? new Date(question.expiresAt)
+          : null;
+    const voteStatus = getVoteStatus(new Date(), expiresAt);
+    if (voteStatus.isExpired) {
+      setVoteErrors((prev) => ({
+        ...prev,
+        [question.id]: "Voting is closed for this question.",
+      }));
+      return;
+    }
     const name = voterName.trim();
     const flatValue = normalizeFlat(flat);
-    const optionId = selectedOptions[questionId];
+    const optionId = selectedOptions[question.id];
     if (!currentUser) {
-      setVoteErrors((prev) => ({ ...prev, [questionId]: VIEW_ONLY_MESSAGE }));
+      setVoteErrors((prev) => ({ ...prev, [question.id]: VIEW_ONLY_MESSAGE }));
       setAuthModalOpen(true);
       return;
     }
     if (!name) {
-      setVoteErrors((prev) => ({ ...prev, [questionId]: "Please enter your name to vote." }));
+      setVoteErrors((prev) => ({ ...prev, [question.id]: "Please enter your name to vote." }));
       return;
     }
     if (!flatValue) {
-      setVoteErrors((prev) => ({ ...prev, [questionId]: "Flat number is required to vote." }));
+      setVoteErrors((prev) => ({ ...prev, [question.id]: "Flat number is required to vote." }));
       return;
     }
     if (!optionId) {
-      setVoteErrors((prev) => ({ ...prev, [questionId]: "Please select an option." }));
+      setVoteErrors((prev) => ({ ...prev, [question.id]: "Please select an option." }));
       return;
     }
-    setSavingVoteId(questionId);
-    setVoteErrors((prev) => ({ ...prev, [questionId]: null }));
+    setSavingVoteId(question.id);
+    setVoteErrors((prev) => ({ ...prev, [question.id]: null }));
     try {
-      await submitVote(questionId, optionId, name, flatValue, currentUser.uid);
+      await submitVote(question.id, optionId, name, flatValue, currentUser.uid);
       if (typeof window !== "undefined") {
         sessionStorage.setItem("ovh_username", name);
         sessionStorage.setItem("ovh_flat", flatValue);
       }
-      const updatedSelections = { ...selectedOptions, [questionId]: optionId };
+      const updatedSelections = { ...selectedOptions, [question.id]: optionId };
       setSelectedOptions(updatedSelections);
       if (typeof window !== "undefined") {
         sessionStorage.setItem("ovh_vote_choices", JSON.stringify(updatedSelections));
       }
       const refreshedQuestions = await getQuestions();
       setQuestions(refreshedQuestions);
-      setVoteErrors((prev) => ({ ...prev, [questionId]: VOTE_RECORDED_MESSAGE }));
+      setVoteErrors((prev) => ({ ...prev, [question.id]: VOTE_RECORDED_MESSAGE }));
     } catch (error) {
       const message = error instanceof Error ? error.message : "An error occurred while submitting.";
-      setVoteErrors((prev) => ({ ...prev, [questionId]: message }));
+    setVoteErrors((prev) => ({ ...prev, [question.id]: message }));
     } finally {
       setSavingVoteId(null);
     }
   };
+
+  const quickDurations: DurationPreset[] = ["3m", "1h", "1d"];
+  const longDurations: DurationPreset[] = ["1w", "1m", "1y"];
 
   const handleDeleteQuestion = async (questionId: string) => {
     const proceed = window.confirm("This question and its votes will be deleted. Are you sure?");
@@ -389,6 +415,56 @@ export default function OwnersVotingPage() {
                   </div>
                 )}
 
+                <div className="mt-6 space-y-3">
+                  <div className="space-y-1">
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                      How long should this vote stay open?
+                    </label>
+                    <div className="space-y-3">
+                      <div className="flex flex-wrap gap-2">
+                        {DURATION_PRESETS.filter((preset) => quickDurations.includes(preset.value)).map((preset) => (
+                          <button
+                            key={preset.value}
+                            type="button"
+                            onClick={() => setDurationPreset(preset.value)}
+                            className={`px-4 py-2 rounded-full text-sm font-semibold transition-all transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70
+          ${
+            durationPreset === preset.value
+              ? "bg-slate-900 text-white shadow-md shadow-black/10 dark:bg-white dark:text-slate-900 scale-[1.03]"
+              : "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-white/10 dark:text-white/80 dark:hover:bg-white/20"
+          }
+        `}
+                          >
+                            {preset.label}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="flex flex-wrap gap-2 pt-1">
+                        {DURATION_PRESETS.filter((preset) => longDurations.includes(preset.value)).map((preset) => (
+                          <button
+                            key={preset.value}
+                            type="button"
+                            onClick={() => setDurationPreset(preset.value)}
+                            className={`px-4 py-2 rounded-full text-sm font-semibold transition-all transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70
+          ${
+            durationPreset === preset.value
+              ? "bg-slate-900 text-white shadow-md shadow-black/10 dark:bg-white dark:text-slate-900 scale-[1.03]"
+              : "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-white/10 dark:text-white/80 dark:hover:bg-white/20"
+          }
+        `}
+                          >
+                            {preset.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Voting will close {DURATION_PRESETS.find((p) => p.value === durationPreset)?.label?.toLowerCase() ?? ""} after publishing.
+                  </p>
+                </div>
+
                 <div className="pt-2">
                   <Button
                     type="submit"
@@ -461,9 +537,17 @@ export default function OwnersVotingPage() {
                   questions
                     .filter((q) => q.status === "open")
                     .map((question) => {
+                      const expiresAt =
+                        question.expiresAt instanceof Date
+                          ? question.expiresAt
+                          : question.expiresAt
+                            ? new Date(question.expiresAt)
+                            : null;
+                      const voteStatus = getVoteStatus(new Date(now), expiresAt);
                       const error = voteErrors[question.id];
                       const selected = selectedOptions[question.id] ?? null;
-                      const selectionDisabled = authLoading || !isAuthenticated;
+                      const selectionDisabled = authLoading || !isAuthenticated || voteStatus.isExpired;
+                      const isClosed = voteStatus.isExpired || question.status !== "open";
                       const alertTone = error === VOTE_RECORDED_MESSAGE
                         ? "success"
                         : error === VIEW_ONLY_MESSAGE
@@ -476,18 +560,26 @@ export default function OwnersVotingPage() {
                         >
                           <div className="flex items-center justify-between mb-2">
                             <div className="space-y-1">
-                              <p className="text-xs uppercase tracking-[0.2em] text-slate-600 font-semibold dark:text-white/70">Active poll</p>
+                              <p className="text-xs uppercase tracking-[0.2em] text-slate-600 font-semibold dark:text-white/70">
+                                Active poll
+                              </p>
                               <h2 className="text-xl font-bold text-slate-900 dark:text-white">{question.title}</h2>
                             </div>
-                            <span className="inline-flex px-3 py-1 text-xs font-bold uppercase bg-emerald-500/10 text-emerald-700 rounded-full border border-emerald-500/30 dark:text-emerald-200 dark:bg-emerald-500/15">
-                              Open
+                            <span
+                              className={`inline-flex px-3 py-1 text-xs font-bold uppercase rounded-full border ${
+                                isClosed
+                                  ? "bg-slate-100 text-slate-600 border-slate-200 dark:bg-white/10 dark:text-white/70 dark:border-white/15"
+                                  : "bg-emerald-500/10 text-emerald-700 border-emerald-500/30 dark:text-emerald-200 dark:bg-emerald-500/15"
+                              }`}
+                            >
+                              {voteStatus.label}
                             </span>
                           </div>
                           {question.description && (
                             <p className="text-slate-700 text-sm leading-relaxed dark:text-slate-200">{question.description}</p>
                           )}
 
-                          <form onSubmit={(e) => handleSubmitVote(e, question.id)} className="space-y-4">
+                          <form onSubmit={(e) => handleSubmitVote(e, question)} className="space-y-4">
                             <div className="space-y-4">
                               {question.options.map((opt) => {
                                 const isSelected = selected === opt.id;
@@ -495,6 +587,7 @@ export default function OwnersVotingPage() {
                                   <label
                                     key={opt.id}
                                     onClick={() => {
+                                      if (voteStatus.isExpired) return;
                                       if (selectionDisabled) {
                                         setAuthModalOpen(true);
                                         setVoteErrors((prev) => ({ ...prev, [question.id]: VIEW_ONLY_MESSAGE }));
@@ -539,6 +632,13 @@ export default function OwnersVotingPage() {
                               })}
                             </div>
 
+                            {voteStatus.isExpired && (
+                              <div className="flex items-center gap-3 text-sm text-slate-600 bg-slate-100 border border-slate-200 rounded-xl p-4 dark:bg-white/10 dark:border-white/15 dark:text-white/80">
+                                <AlertCircle size={16} className="text-slate-500 dark:text-white/70" />
+                                Voting is closed for this question.
+                              </div>
+                            )}
+
                             {!isAuthenticated && (
                               <p className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
                                 <AlertCircle size={16} className="text-indigo-500" />
@@ -570,7 +670,14 @@ export default function OwnersVotingPage() {
                                 type="submit"
                                 fullWidth
                                 isLoading={savingVoteId === question.id}
-                                disabled={!selected || !voterName || !flat || !currentUser || authLoading}
+                                disabled={
+                                  !selected ||
+                                  !voterName ||
+                                  !flat ||
+                                  !currentUser ||
+                                  authLoading ||
+                                  voteStatus.isExpired
+                                }
                               >
                                 Submit Vote
                               </Button>
@@ -603,6 +710,13 @@ export default function OwnersVotingPage() {
                   <p className="text-slate-600 dark:text-slate-300">No questions yet.</p>
                 ) : (
                   questionResults.map(({ question, results, totalVotes }) => {
+                    const expiresAt =
+                      question.expiresAt instanceof Date
+                        ? question.expiresAt
+                        : question.expiresAt
+                          ? new Date(question.expiresAt)
+                          : null;
+                    const voteStatus = getVoteStatus(new Date(now), expiresAt);
                     const chartData = results.map(({ option, count }) => ({
                       name: option.label,
                       value: count,
@@ -615,13 +729,24 @@ export default function OwnersVotingPage() {
                       >
                         <div className="flex items-center justify-between gap-3">
                           <div>
-                            <p className="text-xs uppercase tracking-[0.2em] text-slate-600 dark:text-slate-400">{question.status}</p>
+                            <p className="text-xs uppercase tracking-[0.2em] text-slate-600 dark:text-slate-400">
+                              {question.status}
+                            </p>
                             <h3 className="text-xl font-semibold text-slate-900 dark:text-white">{question.title}</h3>
                             {question.description && (
                               <p className="text-slate-700 text-sm dark:text-slate-300">{question.description}</p>
                             )}
                           </div>
                           <div className="flex items-center gap-3">
+                            <span
+                              className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full border ${
+                                voteStatus.isExpired
+                                  ? "bg-slate-100 text-slate-600 border-slate-200 dark:bg-white/10 dark:text-white/70 dark:border-white/15"
+                                  : "bg-emerald-500/10 text-emerald-700 border-emerald-500/30 dark:text-emerald-200 dark:bg-emerald-500/15"
+                              }`}
+                            >
+                              {voteStatus.label}
+                            </span>
                             <div className="text-right text-sm text-slate-600 dark:text-slate-400">
                               <div className="font-semibold text-slate-900 dark:text-white">{totalVotes}</div>
                               <div>votes</div>

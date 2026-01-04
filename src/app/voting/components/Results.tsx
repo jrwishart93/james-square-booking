@@ -5,10 +5,19 @@ import { QuestionStats } from '../types';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { Loader2 } from 'lucide-react';
 import { db } from '@/lib/firebase';
+import { getVoteStatus } from '@/lib/voteExpiry';
+import CountdownTimer from './CountdownTimer';
 
 const Results: React.FC = () => {
   const [stats, setStats] = useState<QuestionStats[]>([]);
   const [loading, setLoading] = useState(true);
+  const [now, setNow] = useState<number>(() => Date.now());
+  const [openDetailsId, setOpenDetailsId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const interval = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     let unsubscribers: Array<() => void> = [];
@@ -165,7 +174,16 @@ const Results: React.FC = () => {
 
       {/* Individual Question Cards */}
       <div className="space-y-6">
-        {stats.map((stat) => (
+        {stats.map((stat) => {
+          const expiresAt =
+            stat.question.expiresAt instanceof Date
+              ? stat.question.expiresAt
+              : stat.question.expiresAt
+                ? new Date(stat.question.expiresAt)
+                : null;
+          const voteStatus = getVoteStatus(new Date(now), expiresAt);
+
+          return (
           <div key={stat.question.id} className="
             rounded-[28px]
             bg-white
@@ -174,7 +192,18 @@ const Results: React.FC = () => {
             shadow-[0_20px_60px_rgba(15,23,42,0.12)] transition-transform hover:-translate-y-1
           ">
             <div className="p-6 border-b border-slate-200 bg-slate-50">
-              <h2 className="text-lg font-bold text-slate-900 leading-snug">{stat.question.title}</h2>
+              <div className="flex items-start justify-between gap-3">
+                <h2 className="text-lg font-bold text-slate-900 leading-snug">{stat.question.title}</h2>
+                <span
+                  className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full border ${
+                    voteStatus.isExpired
+                      ? 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-white/10 dark:text-white/70 dark:border-white/15'
+                      : 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-100 dark:border-emerald-300/60'
+                  }`}
+                >
+                  {voteStatus.label}
+                </span>
+              </div>
               {stat.question.description && (
                  <p className="text-slate-600 text-sm mt-2 leading-relaxed">{stat.question.description}</p>
               )}
@@ -217,8 +246,40 @@ const Results: React.FC = () => {
                 ))
               )}
             </div>
+
+            <div className="p-6 pt-0">
+              <button
+                type="button"
+                onClick={() => setOpenDetailsId((prev) => (prev === stat.question.id ? null : stat.question.id))}
+                className="text-sm font-semibold text-cyan-700 hover:text-cyan-900 transition-colors underline decoration-cyan-200 underline-offset-4"
+              >
+                {openDetailsId === stat.question.id ? 'Hide details' : 'More details'}
+              </button>
+
+              {openDetailsId === stat.question.id && (
+                <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 flex items-center justify-between gap-4 dark:border-white/15 dark:bg-white/5">
+                  <div className="text-sm text-slate-700 dark:text-slate-200">
+                    <p className="font-semibold text-slate-900 dark:text-white">Live countdown</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      Track how long remains before voting closes.
+                    </p>
+                  </div>
+                  {stat.question.expiresAt ? (
+                    <CountdownTimer
+                      expiresAt={
+                        stat.question.expiresAt instanceof Date
+                          ? stat.question.expiresAt
+                          : new Date(stat.question.expiresAt)
+                      }
+                      createdAt={new Date(stat.question.createdAt)}
+                    />
+                  ) : null}
+                </div>
+              )}
+            </div>
           </div>
-        ))}
+        );
+        })}
       </div>
     </div>
   );
