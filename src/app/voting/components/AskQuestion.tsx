@@ -4,6 +4,7 @@ import { Button } from './ui/Button';
 import { Input } from './ui/Input';
 import { addQuestion } from '../services/storageService';
 import { useNavigate } from 'react-router-dom';
+import { DURATION_PRESETS, DurationPreset } from '@/lib/voteExpiry';
 
 const AskQuestion: React.FC = () => {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ const AskQuestion: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [errors, setErrors] = useState<{title?: string, options?: string}>({});
+  const [durationPreset, setDurationPreset] = useState<DurationPreset>('1m');
 
   const handleOptionChange = (index: number, value: string) => {
     const newOptions = [...options];
@@ -59,13 +61,14 @@ const AskQuestion: React.FC = () => {
     setIsSubmitting(true);
     try {
       const validOptions = options.filter(o => o.trim().length > 0);
-      await addQuestion(title, description, validOptions);
+      await addQuestion(title, description, validOptions, durationPreset);
       setSuccess(true);
       
       // Reset form
       setTitle('');
       setDescription('');
       setOptions(['', '']);
+      setDurationPreset('1m');
     } catch (err) {
       console.error(err);
       alert('Failed to save question. Please try again.');
@@ -186,6 +189,32 @@ const AskQuestion: React.FC = () => {
                 <Plus size={16} className="mr-1.5" /> Add Another Option
               </button>
             )}
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+              <label className="block text-sm font-semibold text-slate-800 ml-1">Voting duration</label>
+              <span className="text-xs text-slate-500 font-mono">Default 1 month</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {DURATION_PRESETS.map((preset) => {
+                const isActive = durationPreset === preset.value;
+                return (
+                  <button
+                    key={preset.value}
+                    type="button"
+                    onClick={() => setDurationPreset(preset.value)}
+                    className={`px-4 py-2 rounded-full text-sm font-semibold border transition-all ${
+                      isActive
+                        ? 'bg-cyan-50 border-cyan-300 text-cyan-800 shadow-[0_10px_30px_rgba(6,182,212,0.1)]'
+                        : 'bg-white border-slate-200 text-slate-700 hover:border-cyan-300 hover:text-cyan-800'
+                    }`}
+                  >
+                    {preset.label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           <div className="pt-4">

@@ -9,6 +9,7 @@ import { Question, Vote } from '../types';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
 import { ArrowRight, AlertCircle, Check, Loader2 } from 'lucide-react';
+import { getVoteStatus } from '@/lib/voteExpiry';
 
 const deriveFirstName = (user: User | null): string => {
   if (!user) return '';
@@ -34,6 +35,7 @@ const VotePage: React.FC = () => {
   const [isCheckingExistingVote, setIsCheckingExistingVote] = useState(false);
   const [existingVote, setExistingVote] = useState<Vote | null>(null);
   const [duplicateMessage, setDuplicateMessage] = useState<string | null>(null);
+  const [now, setNow] = useState<number>(() => Date.now());
 
   // Load username from session storage if available (UX convenience)
   useEffect(() => {
@@ -41,6 +43,11 @@ const VotePage: React.FC = () => {
     if (storedName) setUserName(storedName);
     const storedFlat = sessionStorage.getItem('ovh_flat');
     if (storedFlat) setFlat(normalizeFlat(storedFlat));
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(interval);
   }, []);
 
   // Keep auth state in sync and prefill the name from the signed-in user
@@ -90,7 +97,17 @@ const VotePage: React.FC = () => {
     setIsLoading(true);
     try {
       const questions = await getQuestions();
-      const openQuestions = questions.filter(q => q.status === 'open');
+      const nowDate = new Date();
+      const openQuestions = questions.filter((q) => {
+        const expiresAt =
+          q.expiresAt instanceof Date
+            ? q.expiresAt
+            : q.expiresAt
+              ? new Date(q.expiresAt)
+              : null;
+        const status = getVoteStatus(nowDate, expiresAt);
+        return q.status === 'open' && !status.isExpired;
+      });
       const nextQ = openQuestions[0] ?? questions[0] ?? null;
 
       if (nextQ) {
@@ -173,6 +190,18 @@ const VotePage: React.FC = () => {
 
     setError(null);
 
+    const expiresAt =
+      currentQuestion.expiresAt instanceof Date
+        ? currentQuestion.expiresAt
+        : currentQuestion.expiresAt
+          ? new Date(currentQuestion.expiresAt)
+          : null;
+    const voteStatus = getVoteStatus(new Date(), expiresAt);
+    if (voteStatus.isExpired || currentQuestion.status !== 'open') {
+      setError('Voting is closed for this question.');
+      return;
+    }
+
     if (!currentUser) {
       setError('Please log in to vote.');
       return;
@@ -230,6 +259,13 @@ const VotePage: React.FC = () => {
 
   const normalizedFlat = normalizeFlat(flat);
   const trimmedName = userName.trim();
+  const expiresAtDate =
+    currentQuestion?.expiresAt instanceof Date
+      ? currentQuestion.expiresAt
+      : currentQuestion?.expiresAt
+        ? new Date(currentQuestion.expiresAt)
+        : null;
+  const voteStatus = getVoteStatus(new Date(now), expiresAtDate);
   const canSubmit = Boolean(
     selectedOptionId &&
     trimmedName &&
@@ -239,7 +275,7 @@ const VotePage: React.FC = () => {
     !isSubmitting &&
     !isCheckingExistingVote,
   );
-  const isClosed = currentQuestion?.status !== 'open';
+  const isClosed = voteStatus.isExpired || currentQuestion?.status !== 'open';
   const hasExistingVote = Boolean(existingVote);
   const hasChangedVote = hasExistingVote && selectedOptionId !== existingVote?.optionId;
 
@@ -271,8 +307,14 @@ const VotePage: React.FC = () => {
         {/* Header */}
         <div className="p-8 border-b border-slate-200 bg-gradient-to-r from-cyan-50 to-indigo-50">
           <div className="flex justify-between items-start mb-4">
-            <span className="inline-flex px-3 py-1 text-xs font-bold tracking-wider uppercase bg-emerald-50 text-emerald-700 rounded-full border border-emerald-200 shadow-[0_6px_20px_rgba(16,185,129,0.15)]">
-              {isClosed ? 'Closed Poll' : 'Active Poll'}
+            <span
+              className={`inline-flex px-3 py-1 text-xs font-bold tracking-wider uppercase rounded-full border shadow-[0_6px_20px_rgba(16,185,129,0.15)] ${
+                isClosed
+                  ? 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-white/10 dark:text-white/80 dark:border-white/20'
+                  : 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-100 dark:border-emerald-300/60'
+              }`}
+            >
+              {voteStatus.label}
             </span>
           </div>
           <h2 className="text-2xl font-bold text-slate-900 mb-2 leading-tight">
@@ -409,10 +451,12 @@ const VotePage: React.FC = () => {
               {displayMessage}
             </div>
           )}
-          {isClosed && hasExistingVote && (
-            <div className="flex items-center gap-3 text-sm text-slate-700 bg-slate-50 p-4 rounded-xl border border-slate-200">
-              <AlertCircle size={18} className="shrink-0 text-slate-500" />
-              Voting is closed for this question. Your recorded answer is shown above.
+          {isClosed && (
+            <div className="flex items-center gap-3 text-sm text-slate-700 bg-slate-50 p-4 rounded-xl border border-slate-200 dark:bg-white/10 dark:text-white/80 dark:border-white/15">
+              <AlertCircle size={18} className="shrink-0 text-slate-500 dark:text-white/70" />
+              {hasExistingVote
+                ? 'Voting is closed for this question. Your recorded answer is shown above.'
+                : 'Voting is closed for this question.'}
             </div>
           )}
 

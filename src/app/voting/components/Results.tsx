@@ -5,10 +5,17 @@ import { QuestionStats } from '../types';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { Loader2 } from 'lucide-react';
 import { db } from '@/lib/firebase';
+import { getVoteStatus } from '@/lib/voteExpiry';
 
 const Results: React.FC = () => {
   const [stats, setStats] = useState<QuestionStats[]>([]);
   const [loading, setLoading] = useState(true);
+  const [now, setNow] = useState<number>(() => Date.now());
+
+  useEffect(() => {
+    const interval = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     let unsubscribers: Array<() => void> = [];
@@ -165,8 +172,17 @@ const Results: React.FC = () => {
 
       {/* Individual Question Cards */}
       <div className="space-y-6">
-        {stats.map((stat) => (
-          <div key={stat.question.id} className="
+        {stats.map((stat) => {
+          const expiresAt =
+            stat.question.expiresAt instanceof Date
+              ? stat.question.expiresAt
+              : stat.question.expiresAt
+                ? new Date(stat.question.expiresAt)
+                : null;
+          const voteStatus = getVoteStatus(new Date(now), expiresAt);
+
+          return (
+            <div key={stat.question.id} className="
             rounded-[28px]
             bg-white
             border border-slate-200
@@ -174,7 +190,18 @@ const Results: React.FC = () => {
             shadow-[0_20px_60px_rgba(15,23,42,0.12)] transition-transform hover:-translate-y-1
           ">
             <div className="p-6 border-b border-slate-200 bg-slate-50">
-              <h2 className="text-lg font-bold text-slate-900 leading-snug">{stat.question.title}</h2>
+              <div className="flex items-start justify-between gap-3">
+                <h2 className="text-lg font-bold text-slate-900 leading-snug">{stat.question.title}</h2>
+                <span
+                  className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full border ${
+                    voteStatus.isExpired
+                      ? 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-white/10 dark:text-white/70 dark:border-white/15'
+                      : 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-100 dark:border-emerald-300/60'
+                  }`}
+                >
+                  {voteStatus.label}
+                </span>
+              </div>
               {stat.question.description && (
                  <p className="text-slate-600 text-sm mt-2 leading-relaxed">{stat.question.description}</p>
               )}
@@ -218,7 +245,8 @@ const Results: React.FC = () => {
               )}
             </div>
           </div>
-        ))}
+        );
+        })}
       </div>
     </div>
   );

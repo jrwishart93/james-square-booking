@@ -6,12 +6,14 @@ import {
   orderBy,
   query,
   serverTimestamp,
+  Timestamp,
   updateDoc,
   where,
   writeBatch,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Question, Vote } from '../types';
+import { addDuration, DURATION_PRESETS, DurationPreset } from '@/lib/voteExpiry';
 
 const QUESTIONS_COLLECTION = 'voting_questions';
 const VOTES_COLLECTION = 'voting_votes';
@@ -25,7 +27,19 @@ export const normalizeFlat = (value: string): string => value.trim().toUpperCase
 
 const mapQuestionDoc = (snap: { id: string; data: () => Record<string, unknown> }): Question => {
   const data = snap.data();
-  const createdAtTs = (data.createdAt as { toMillis?: () => number })?.toMillis?.();
+  const createdAtTs =
+    typeof data.createdAt === 'number'
+      ? data.createdAt
+      : (data.createdAt as { toMillis?: () => number })?.toMillis?.();
+  const expiresAtValue =
+    typeof data.expiresAt === 'number'
+      ? data.expiresAt
+      : (data.expiresAt as { toMillis?: () => number })?.toMillis?.();
+  const expiresAt = typeof expiresAtValue === 'number' ? new Date(expiresAtValue) : null;
+  const rawPreset = typeof data.durationPreset === 'string' ? data.durationPreset : null;
+  const durationPreset = DURATION_PRESETS.some((p) => p.value === rawPreset)
+    ? (rawPreset as DurationPreset)
+    : undefined;
   const optionsRaw = Array.isArray(data.options) ? data.options : [];
   const options = optionsRaw
     .map((opt, idx) => {
@@ -58,6 +72,8 @@ const mapQuestionDoc = (snap: { id: string; data: () => Record<string, unknown> 
     description: typeof data.description === 'string' ? data.description : undefined,
     status: typeof data.status === 'string' && data.status.toLowerCase() === 'open' ? 'open' : 'closed',
     createdAt: createdAtTs ?? Date.now(),
+    durationPreset: durationPreset ?? '1m',
+    expiresAt,
     options,
     voteTotals,
   };
@@ -109,13 +125,18 @@ export const addQuestion = async (
   title: string,
   description: string,
   options: string[],
+  durationPreset: DurationPreset = '1m',
 ): Promise<Question> => {
   const optionObjects = options.map((label, idx) => normalizeOption(label, idx));
+  const createdAt = serverTimestamp();
+  const expiresAt = Timestamp.fromDate(addDuration(new Date(), durationPreset));
   const payload = {
     title,
     description,
     status: 'open',
-    createdAt: serverTimestamp(),
+    createdAt,
+    durationPreset,
+    expiresAt,
     options: optionObjects,
     voteTotals: optionObjects.reduce<Record<string, number>>((totals, option) => {
       totals[option.id] = 0;
@@ -131,6 +152,8 @@ export const addQuestion = async (
     description,
     status: 'open',
     createdAt: Date.now(),
+    durationPreset,
+    expiresAt: expiresAt.toDate?.() ?? null,
     options: payload.options,
     voteTotals: payload.voteTotals,
   };
