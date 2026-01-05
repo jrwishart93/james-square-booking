@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import VotingEntryRedirect from "./VotingEntryRedirect";
+import VotingClientRedirect from "./client-redirect";
 
 export const metadata: Metadata = {
   title: "James Square – Voting",
@@ -23,10 +23,12 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "James Square – Voting",
     description: "Owners community voting for James Square residents.",
-    images: ["https://www.james-square.com/images/james-square-voting-share.png"],
+    images: [
+      "https://www.james-square.com/images/james-square-voting-share.png",
+    ],
   },
 };
 
-export default function VotingPage() {
-  return <VotingEntryRedirect />;
+export default function VotingSharePage() {
+  return <VotingClientRedirect />;
 }
