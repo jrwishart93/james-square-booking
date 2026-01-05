@@ -44,6 +44,25 @@ const OwnersPage = () => {
             <p className="text-sm text-slate-700 dark:text-slate-200">
               This section provides access to secure documents and owners-only updates.
             </p>
+            <div className="space-y-2 pt-2 text-left">
+              <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+                Voting is currently open to <strong>owners of James Square</strong>.
+              </p>
+
+              <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+                To access the voting area, you will need an access code. This code can be obtained by contacting
+                committee members or by asking another owner to share the code with you.
+              </p>
+
+              <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+                The access code will be shared during the upcoming General Special Meeting taking place at{' '}
+                <strong>18:00 on 21/01/2026</strong>. Further details will be published shortly.
+              </p>
+
+              <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+                Any owner without the access code will be provided with the relevant details during this meeting.
+              </p>
+            </div>
 
             <form className="space-y-3 pt-2" onSubmit={handleOwnersAccessSubmit}>
               <label className="block text-sm font-semibold text-slate-800 dark:text-slate-100">
