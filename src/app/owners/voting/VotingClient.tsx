@@ -327,7 +327,7 @@ export default function OwnersVotingPage() {
       <GradientBG className="min-h-screen py-12 md:py-16 relative overflow-hidden">
         <div className="absolute inset-x-0 top-0 mx-auto max-w-4xl h-48 bg-white/50 dark:bg-slate-900/50 blur-3xl opacity-60 pointer-events-none" />
         <div className="max-w-5xl mx-auto px-4 md:px-6 space-y-10 relative">
-          <header className="text-center space-y-3 bg-white/70 dark:bg-slate-900/40 backdrop-blur-md rounded-3xl border border-black/10 dark:border-white/10 px-6 py-8 shadow-[0_20px_80px_rgba(0,0,0,0.25)]">
+          <header className="text-center space-y-3 bg-white/60 dark:bg-slate-900/30 backdrop-blur-md rounded-3xl px-6 py-8 shadow-[0_16px_60px_rgba(0,0,0,0.18)] dark:shadow-[0_14px_50px_rgba(0,0,0,0.3)]">
             <p className="text-xs md:text-sm uppercase tracking-[0.3em] font-semibold text-slate-700 dark:text-white/80">Owners • Community</p>
             <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-slate-900 dark:text-white">Voting Hub</h1>
             <p className="text-slate-700 dark:text-white/80 font-medium text-sm md:text-base leading-relaxed max-w-3xl mx-auto">
@@ -341,7 +341,7 @@ export default function OwnersVotingPage() {
             <TabButton icon={<BarChart3 size={16} />} label="Results" active={activeTab === "results"} onClick={() => setActiveTab("results")} />
           </div>
 
-          <section className="rounded-3xl border shadow-xl backdrop-blur-xl bg-white/70 border-black/10 text-slate-900 dark:bg-white/10 dark:border-white/15 dark:text-white p-6 md:p-10 space-y-8">
+          <section className="p-6 md:p-10 space-y-8 text-slate-900 dark:text-white">
             {activeTab === "ask" && (
               <form className="space-y-10" onSubmit={handleCreateQuestion}>
                 <div className="space-y-6">
@@ -556,7 +556,7 @@ export default function OwnersVotingPage() {
                       return (
                         <div
                           key={question.id}
-                          className="p-6 rounded-2xl bg-white border border-black/10 shadow-[0_16px_40px_rgba(0,0,0,0.08)] space-y-6 dark:bg-white/5 dark:border-white/15 dark:shadow-[0_16px_60px_rgba(0,0,0,0.3)]"
+                          className="p-6 rounded-2xl bg-white border border-black/10 shadow-[0_16px_40px_rgba(0,0,0,0.08)] space-y-6 dark:bg-slate-900/60 dark:border-white/10 dark:shadow-[0_14px_40px_rgba(0,0,0,0.35)]"
                         >
                           <div className="flex items-center justify-between mb-2">
                             <div className="space-y-1">
@@ -725,7 +725,7 @@ export default function OwnersVotingPage() {
                     return (
                       <div
                         key={question.id}
-                        className="p-6 rounded-2xl bg-white border border-black/10 space-y-4 shadow-[0_12px_30px_rgba(0,0,0,0.08)] dark:bg-white/5 dark:border-white/10 dark:shadow-none"
+                        className="p-6 rounded-2xl bg-white border border-black/10 space-y-4 shadow-[0_12px_30px_rgba(0,0,0,0.08)] dark:bg-slate-900/60 dark:border-white/10 dark:shadow-[0_10px_30px_rgba(0,0,0,0.28)]"
                       >
                         <div className="flex items-center justify-between gap-3">
                           <div>
@@ -773,7 +773,7 @@ export default function OwnersVotingPage() {
                           onClick={() =>
                             setOpenDetailsId((prev) => (prev === question.id ? null : question.id))
                           }
-                          className="mt-3 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium bg-white/70 backdrop-blur border border-slate-200 shadow-sm hover:bg-white transition dark:bg-white/10 dark:border-white/15 dark:hover:bg-white/20"
+                          className="mt-3 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium bg-white/70 backdrop-blur border border-slate-200 text-slate-800 shadow-sm transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-slate-900/15 dark:bg-slate-800/80 dark:border-slate-500 dark:text-white dark:hover:bg-slate-700 dark:focus-visible:ring-2 dark:focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 dark:focus-visible:ring-white/35"
                         >
                           {openDetailsId === question.id ? "Hide details" : "More details"}
                         </button>
