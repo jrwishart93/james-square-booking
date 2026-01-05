@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, type ReactNode } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { ClipboardCheck } from 'lucide-react';
 
 import { GlassCard } from '@/components/GlassCard';
 import GradientBG from '@/components/GradientBG';
@@ -60,6 +61,43 @@ const OwnersSecurePage = () => {
             </Link>
           </div>
         </header>
+
+        <div className="mb-8">
+          <div
+            className="flex items-start gap-4 p-6 rounded-2xl
+                  bg-white/80 border border-black/10
+                  shadow-[0_12px_40px_rgba(0,0,0,0.08)]
+                  dark:bg-white/5 dark:border-white/15
+                  dark:shadow-[0_16px_60px_rgba(0,0,0,0.3)]"
+          >
+            <div
+              className="flex items-center justify-center
+                    w-11 h-11 rounded-xl
+                    bg-cyan-500/10 text-cyan-600
+                    dark:text-cyan-300"
+            >
+              <ClipboardCheck size={22} />
+            </div>
+
+            <div className="flex-1 space-y-1">
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Owners Voting</h3>
+
+              <p className="text-sm text-slate-600 dark:text-slate-300">
+                Vote on current owners’ matters and view live results for James Square.
+              </p>
+
+              <a
+                href="/owners/secure/voting"
+                className="inline-flex items-center gap-2 mt-3
+                   px-4 py-2 rounded-lg
+                   bg-cyan-600 text-white text-sm font-medium
+                   hover:bg-cyan-500 transition-colors"
+              >
+                Open voting
+              </a>
+            </div>
+          </div>
+        </div>
 
         <div className="space-y-6">
           <SgmSection />
