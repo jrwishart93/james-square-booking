@@ -251,7 +251,18 @@ const Results: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setOpenDetailsId((prev) => (prev === stat.question.id ? null : stat.question.id))}
-                className="text-sm font-semibold text-cyan-700 hover:text-cyan-900 transition-colors underline decoration-cyan-200 underline-offset-4"
+                className={`
+                  inline-flex items-center gap-2
+                  px-4 py-2 rounded-full
+                  text-sm font-medium
+                  border transition-all
+                  bg-white text-slate-800 border-slate-200
+                  hover:bg-slate-50 hover:shadow-sm
+                  dark:bg-white/10 dark:text-white/90 dark:border-white/20
+                  dark:hover:bg-white/20 dark:hover:shadow-black/20
+                  focus-visible:outline-none
+                  focus-visible:ring-2 focus-visible:ring-cyan-400/70
+                `}
               >
                 {openDetailsId === stat.question.id ? 'Hide details' : 'More details'}
               </button>
