@@ -8,6 +8,7 @@ import { GlassCard } from '@/components/GlassCard';
 import GradientBG from '@/components/GradientBG';
 
 const OWNERS_ACCESS_CODE = '3579';
+const OWNERS_ACCESS_KEY = 'owners_secure_access';
 
 const OwnersPage = () => {
   const router = useRouter();
@@ -18,7 +19,7 @@ const OwnersPage = () => {
     event.preventDefault();
 
     if (accessCode === OWNERS_ACCESS_CODE) {
-      sessionStorage.setItem('ownersAccess', 'true');
+      sessionStorage.setItem(OWNERS_ACCESS_KEY, 'true');
       router.push('/owners/secure');
       return;
     }
@@ -96,7 +97,7 @@ const OwnersPage = () => {
               className="before:inset-x-0 before:h-[3px] before:bg-[linear-gradient(90deg,rgba(15,23,42,0.08),rgba(15,23,42,0))]"
             >
               <Link
-                href="/owners/voting"
+                href="/owners/secure/voting"
                 className="inline-flex items-center justify-center rounded-full px-5 py-2.5 text-sm font-semibold text-slate-900 bg-white/90 backdrop-blur-lg shadow-[0_6px_18px_rgba(0,0,0,0.08)] border border-black/5 transition-transform transition-shadow duration-200 hover:-translate-y-0.5 hover:scale-[1.01] hover:shadow-[0_10px_28px_rgba(0,0,0,0.12)] active:translate-y-[1px] active:shadow-[0_4px_12px_rgba(0,0,0,0.08)] dark:bg-white/85 dark:text-slate-900 dark:border-white/20"
               >
                 Go to voting hub

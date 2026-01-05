@@ -8,6 +8,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { GlassCard } from '@/components/GlassCard';
 import GradientBG from '@/components/GradientBG';
 
+const OWNERS_ACCESS_KEY = 'owners_secure_access';
+
 const SGM_DESCRIPTION = `A Special General Meeting will be held at 1800 hours (6:00pm) on Wednesday 21 January 2026.
 All owners are encouraged to save the date.
 Further correspondence will be issued in due course, including additional details and a link to join the meeting online.`;
@@ -28,7 +30,7 @@ const OwnersSecurePage = () => {
   const [authorized, setAuthorized] = useState(false);
 
   useEffect(() => {
-    const hasAccess = sessionStorage.getItem('ownersAccess') === 'true';
+    const hasAccess = sessionStorage.getItem(OWNERS_ACCESS_KEY) === 'true';
     if (!hasAccess) {
       router.replace('/owners');
       return;

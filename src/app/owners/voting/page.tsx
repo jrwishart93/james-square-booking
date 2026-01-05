@@ -1,34 +1,22 @@
-import type { Metadata } from "next";
-import VotingClient from "./VotingClient";
+"use client";
 
-export const metadata: Metadata = {
-  title: "James Square – Voting",
-  description: "Owners community voting for James Square residents.",
-  openGraph: {
-    title: "James Square – Voting",
-    description: "Owners community voting for James Square residents.",
-    url: "https://www.james-square.com/owners/voting",
-    siteName: "James Square",
-    images: [
-      {
-        url: "https://www.james-square.com/images/james-square-voting-share.png",
-        width: 1200,
-        height: 630,
-        alt: "James Square owners community voting",
-      },
-    ],
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "James Square – Voting",
-    description: "Owners community voting for James Square residents.",
-    images: [
-      "https://www.james-square.com/images/james-square-voting-share.png",
-    ],
-  },
-};
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-export default function VotingPage() {
-  return <VotingClient />;
+export default function OwnersVotingGate() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const hasAccess =
+      typeof window !== "undefined" &&
+      sessionStorage.getItem("owners_secure_access") === "true";
+
+    if (hasAccess) {
+      router.replace("/owners/secure/voting");
+    } else {
+      router.replace("/owners/secure");
+    }
+  }, [router]);
+
+  return null;
 }

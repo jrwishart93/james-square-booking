@@ -1,4 +1,4 @@
-import ownersVotingMetadata from "./votingMetadata";
+import ownersVotingMetadata from "../../voting/votingMetadata";
 
 export const metadata = ownersVotingMetadata;
 
