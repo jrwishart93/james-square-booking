@@ -1,5 +1,0 @@
-import ownersVotingMetadata from "./votingMetadata";
-
-export const metadata = ownersVotingMetadata;
-
-export default metadata;

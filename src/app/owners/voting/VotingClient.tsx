@@ -70,12 +70,12 @@ export default function OwnersVotingPage() {
   const isAuthenticated = Boolean(currentUser);
 
   useEffect(() => {
-    const hasAccess =
-      typeof window !== "undefined" &&
-      sessionStorage.getItem(OWNERS_ACCESS_KEY) === "true";
+    if (typeof window === "undefined") return;
+
+    const hasAccess = sessionStorage.getItem(OWNERS_ACCESS_KEY) === "true";
 
     if (!hasAccess) {
-      router.replace("/owners/secure");
+      router.replace("/owners");
     }
   }, [router]);
 

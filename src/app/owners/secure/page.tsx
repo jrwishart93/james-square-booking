@@ -51,6 +51,14 @@ const OwnersSecurePage = () => {
           <p className="max-w-3xl text-sm md:text-base text-slate-600 dark:text-slate-300">
             This section contains meeting information and documents intended for James Square owners only.
           </p>
+          <div className="flex justify-center md:justify-start">
+            <Link
+              href="/owners/secure/voting"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold bg-cyan-600 text-white hover:bg-cyan-500 dark:bg-cyan-500 dark:hover:bg-cyan-400 transition"
+            >
+              Go to Voting
+            </Link>
+          </div>
         </header>
 
         <div className="space-y-6">

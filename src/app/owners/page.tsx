@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FormEvent, useState } from 'react';
 
@@ -20,7 +19,7 @@ const OwnersPage = () => {
 
     if (accessCode === OWNERS_ACCESS_CODE) {
       sessionStorage.setItem(OWNERS_ACCESS_KEY, 'true');
-      router.push('/owners/secure');
+      router.replace('/owners/secure');
       return;
     }
 
@@ -35,75 +34,50 @@ const OwnersPage = () => {
             Owners Area
           </h1>
           <p className="max-w-3xl text-sm md:text-base text-slate-600 dark:text-slate-300">
-            A private space for James Square owners to access secure information, vote on community matters,
-            and keep up with building updates.
-          </p>
-          <p className="text-xs md:text-sm text-slate-600 dark:text-slate-300">
-            The secure owners login is being built now and will be shared with owners first. The voting hub is live
-            and ready for your feedback.
+            A private space for James Square owners to access secure information and building updates.
           </p>
         </header>
 
         <div className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-2">
-            <GlassCard
-              title="Owners access"
-              titleClassName="text-slate-800/80 dark:text-slate-100/90"
-            >
-              <p className="text-sm text-slate-700 dark:text-slate-200">A private area for James Square owners.</p>
-              <p className="text-sm text-slate-700 dark:text-slate-200">
-                This section provides access to secure documents and owners-only updates.
+          <GlassCard title="Owners access" titleClassName="text-slate-800/80 dark:text-slate-100/90">
+            <p className="text-sm text-slate-700 dark:text-slate-200">A private area for James Square owners.</p>
+            <p className="text-sm text-slate-700 dark:text-slate-200">
+              This section provides access to secure documents and owners-only updates.
+            </p>
+
+            <form className="space-y-3 pt-2" onSubmit={handleOwnersAccessSubmit}>
+              <label className="block text-sm font-semibold text-slate-800 dark:text-slate-100">
+                Enter owners access code
+              </label>
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  placeholder="Access code"
+                  value={accessCode}
+                  onChange={(event) => {
+                    setAccessCode(event.target.value);
+                    setShowError(false);
+                  }}
+                  className="w-full rounded-xl border border-black/10 bg-white/85 px-4 py-2 text-sm font-medium text-slate-900 shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 dark:border-white/15 dark:bg-white/20 dark:text-white"
+                />
+                <button
+                  type="submit"
+                  className="inline-flex items-center justify-center rounded-full px-5 py-2.5 text-sm font-semibold text-slate-900 bg-white/90 backdrop-blur-lg shadow-[0_6px_18px_rgba(0,0,0,0.08)] border border-black/5 transition-transform transition-shadow duration-200 hover:-translate-y-0.5 hover:scale-[1.01] hover:shadow-[0_10px_28px_rgba(0,0,0,0.12)] active:translate-y-[1px] active:shadow-[0_4px_12px_rgba(0,0,0,0.08)] dark:bg-white/85 dark:text-slate-900 dark:border-white/20"
+                >
+                  Enter secure area
+                </button>
+              </div>
+            </form>
+
+            {showError && (
+              <p className="text-sm text-rose-600 dark:text-rose-300">
+                Incorrect access code.
+                <br />
+                If you’re an owner and don’t have the code, please contact the factor or ask another owner.
               </p>
-
-              <form className="space-y-3 pt-2" onSubmit={handleOwnersAccessSubmit}>
-                <label className="block text-sm font-semibold text-slate-800 dark:text-slate-100">
-                  Enter owners access code
-                </label>
-                <div className="flex flex-col gap-3 sm:flex-row">
-                  <input
-                    type="number"
-                    inputMode="numeric"
-                    placeholder="Access code"
-                    value={accessCode}
-                    onChange={(event) => {
-                      setAccessCode(event.target.value);
-                      setShowError(false);
-                    }}
-                    className="w-full rounded-xl border border-black/10 bg-white/85 px-4 py-2 text-sm font-medium text-slate-900 shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 dark:border-white/15 dark:bg-white/20 dark:text-white"
-                  />
-                  <button
-                    type="submit"
-                    className="inline-flex items-center justify-center rounded-full px-5 py-2.5 text-sm font-semibold text-slate-900 bg-white/90 backdrop-blur-lg shadow-[0_6px_18px_rgba(0,0,0,0.08)] border border-black/5 transition-transform transition-shadow duration-200 hover:-translate-y-0.5 hover:scale-[1.01] hover:shadow-[0_10px_28px_rgba(0,0,0,0.12)] active:translate-y-[1px] active:shadow-[0_4px_12px_rgba(0,0,0,0.08)] dark:bg-white/85 dark:text-slate-900 dark:border-white/20"
-                  >
-                    Enter secure area
-                  </button>
-                </div>
-              </form>
-
-              {showError && (
-                <p className="text-sm text-rose-600 dark:text-rose-300">
-                  Incorrect access code.
-                  <br />
-                  If you’re an owner and don’t have the code, please contact the factor or ask another owner.
-                </p>
-              )}
-            </GlassCard>
-
-            <GlassCard
-              title="Community voting hub"
-              subtitle="Ask questions, vote, and review results."
-              footer="Open to all owners."
-              titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100"
-              className="before:inset-x-0 before:h-[3px] before:bg-[linear-gradient(90deg,rgba(15,23,42,0.08),rgba(15,23,42,0))]"
-            >
-              <Link
-                href="/owners/secure/voting"
-                className="inline-flex items-center justify-center rounded-full px-5 py-2.5 text-sm font-semibold text-slate-900 bg-white/90 backdrop-blur-lg shadow-[0_6px_18px_rgba(0,0,0,0.08)] border border-black/5 transition-transform transition-shadow duration-200 hover:-translate-y-0.5 hover:scale-[1.01] hover:shadow-[0_10px_28px_rgba(0,0,0,0.12)] active:translate-y-[1px] active:shadow-[0_4px_12px_rgba(0,0,0,0.08)] dark:bg-white/85 dark:text-slate-900 dark:border-white/20"
-              >
-                Go to voting hub
-              </Link>
-            </GlassCard>
-          </div>
+            )}
+          </GlassCard>
         </div>
       </div>
     </GradientBG>

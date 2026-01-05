@@ -1,19 +1,17 @@
 import type { Metadata } from "next";
+import VotingEntryRedirect from "./VotingEntryRedirect";
 
-const shareImageUrl =
-  "https://www.james-square.com/images/james-square-voting-share.png";
-
-export const ownersVotingMetadata: Metadata = {
+export const metadata: Metadata = {
   title: "James Square – Voting",
   description: "Owners community voting for James Square residents.",
   openGraph: {
     title: "James Square – Voting",
     description: "Owners community voting for James Square residents.",
-    url: "https://www.james-square.com/owners/secure/voting",
+    url: "https://www.james-square.com/voting",
     siteName: "James Square",
     images: [
       {
-        url: shareImageUrl,
+        url: "https://www.james-square.com/images/james-square-voting-share.png",
         width: 1200,
         height: 630,
         alt: "James Square owners community voting",
@@ -25,8 +23,10 @@ export const ownersVotingMetadata: Metadata = {
     card: "summary_large_image",
     title: "James Square – Voting",
     description: "Owners community voting for James Square residents.",
-    images: [shareImageUrl],
+    images: ["https://www.james-square.com/images/james-square-voting-share.png"],
   },
 };
 
-export default ownersVotingMetadata;
+export default function VotingPage() {
+  return <VotingEntryRedirect />;
+}
