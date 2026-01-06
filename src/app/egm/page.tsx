@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { Metadata } from "next";
 import { Calendar, Clock, MonitorSmartphone, Users } from "lucide-react";
 
@@ -31,6 +32,8 @@ export const metadata: Metadata = {
 };
 
 export default function EGMPage() {
+  const logoSize = { width: 22, height: 22 };
+
   return (
     <div className="relative overflow-hidden rounded-3xl border border-slate-200/70 dark:border-slate-800/70 bg-white/80 dark:bg-slate-900/70 shadow-xl px-6 sm:px-10 py-10 max-w-5xl mx-auto">
       <GradientGlow />
@@ -53,10 +56,20 @@ export default function EGMPage() {
                 Extraordinary General Meeting (EGM)
               </h1>
             </div>
-            <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-900 dark:text-emerald-100 shadow-sm">
-              <p className="font-semibold">Online via Microsoft Teams</p>
-              <p className="text-emerald-800/90 dark:text-emerald-100/90">Wednesday, 21 January 2026</p>
-              <p className="text-emerald-800/90 dark:text-emerald-100/90">18:00 – 20:30 (GMT)</p>
+            <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-900 dark:text-emerald-100 shadow-sm flex items-start gap-3">
+              <div className="mt-1">
+                <Image
+                  src="/images/brands/microsoft-teams.svg"
+                  alt="Microsoft Teams"
+                  {...logoSize}
+                  className="drop-shadow-sm"
+                />
+              </div>
+              <div>
+                <p className="font-semibold">Online via Microsoft Teams</p>
+                <p className="text-emerald-800/90 dark:text-emerald-100/90">Wednesday, 21 January 2026</p>
+                <p className="text-emerald-800/90 dark:text-emerald-100/90">18:00 – 20:30 (GMT)</p>
+              </div>
             </div>
           </div>
 
@@ -84,8 +97,14 @@ export default function EGMPage() {
                 href={teamsLink}
                 target="_blank"
                 rel="noreferrer noopener"
-                className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3.5 text-base font-semibold text-white shadow-lg shadow-blue-500/25 hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 transition-transform duration-200 hover:-translate-y-0.5"
+                className="inline-flex w-full sm:w-auto items-center justify-center gap-3 rounded-xl bg-blue-600 px-6 py-3.5 text-base font-semibold text-white shadow-lg shadow-blue-500/25 hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 transition-transform duration-200 hover:-translate-y-0.5"
               >
+                <Image
+                  src="/images/brands/microsoft-teams.svg"
+                  alt="Microsoft Teams"
+                  {...logoSize}
+                  className="drop-shadow-sm"
+                />
                 Join EGM on Microsoft Teams
               </a>
               <p className="text-sm text-slate-600 dark:text-slate-400">
@@ -109,15 +128,27 @@ export default function EGMPage() {
                 href={googleCalendarUrl}
                 target="_blank"
                 rel="noreferrer noopener"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-md shadow-emerald-500/25 hover:bg-emerald-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 transition-transform duration-200 hover:-translate-y-0.5"
+                className="inline-flex items-center justify-center gap-3 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-md shadow-emerald-500/25 hover:bg-emerald-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 transition-transform duration-200 hover:-translate-y-0.5"
               >
+                <Image
+                  src="/images/brands/google-calendar.svg"
+                  alt="Google Calendar"
+                  {...logoSize}
+                  className="drop-shadow-sm"
+                />
                 Add to Google Calendar
               </a>
               <a
                 href={icsFilePath}
                 download="james-square-egm-2026.ics"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-md shadow-slate-900/20 hover:bg-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-800 transition-transform duration-200 hover:-translate-y-0.5"
+                className="inline-flex items-center justify-center gap-3 rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-md shadow-slate-900/20 hover:bg-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-800 transition-transform duration-200 hover:-translate-y-0.5"
               >
+                <Image
+                  src="/images/brands/apple-calendar.svg"
+                  alt="Apple Calendar"
+                  {...logoSize}
+                  className="drop-shadow-sm"
+                />
                 Add to Apple Calendar
               </a>
             </div>
