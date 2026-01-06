@@ -4,6 +4,7 @@ import { Calendar, Clock, MonitorSmartphone, Users } from "lucide-react";
 
 const meetingTitle = "James Square – Extraordinary General Meeting";
 const pageUrl = "https://www.james-square.com/egm";
+const meetingImage = "https://www.james-square.com/images/EGM-LINK-IMAGE.png";
 const teamsLink =
   "https://teams.microsoft.com/l/meetup-join/19%3ameeting_ZjI4NmMzZjYtYmI3OS00ZDk3LTg1ZDgtNGE5NDI3YmExNzA1%40thread.v2/0?context=%7b%22Tid%22%3a%22f5c44b19-1c42-4ad7-b10e-1d2fcf2b71d3%22%2c%22Oid%22%3a%2290c27962-4d1a-4d45-8e9e-ff0f7b30452b%22%7d";
 const meetingDescription =
@@ -28,6 +29,21 @@ export const metadata: Metadata = {
       "Details of the James Square Extraordinary General Meeting, including joining instructions and calendar links.",
     url: pageUrl,
     siteName: "James Square",
+    images: [
+      {
+        url: meetingImage,
+        width: 1200,
+        height: 630,
+        alt: "James Square Extraordinary General Meeting information",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "James Square – Extraordinary General Meeting",
+    description:
+      "Details of the James Square Extraordinary General Meeting, including joining instructions and calendar links.",
+    images: [meetingImage],
   },
 };
 
