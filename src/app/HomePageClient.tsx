@@ -71,12 +71,14 @@ function IconCard({
   lightIcon,
   darkIcon,
   blurb,
+  iconAlt,
 }: {
   title: string;
   href: string;
   lightIcon: string;
   darkIcon: string;
   blurb: string;
+  iconAlt?: string;
 }) {
   return (
     <Link href={href} className="group block focus:outline-none">
@@ -91,7 +93,7 @@ function IconCard({
         </span>
 
         <div className="shrink-0">
-          <DualModeIcon lightSrc={lightIcon} darkSrc={darkIcon} alt={title} />
+          <DualModeIcon lightSrc={lightIcon} darkSrc={darkIcon} alt={iconAlt ?? title} />
         </div>
         <div className="relative z-10">
           <h3 className="text-lg font-semibold">{title}</h3>
@@ -281,6 +283,15 @@ export default function HomePageClient() {
           lightIcon="/images/icons/pool-icon-light.png"
           darkIcon="/images/icons/pool-icon-dark.png"
           blurb="Reserve time for the pool, gym or sauna."
+        />
+
+        <IconCard
+          title="Owners Area"
+          href="/owners"
+          lightIcon="/images/icons/Owner-icon-light.PNG"
+          darkIcon="/images/icons/Owner-icon-dark.PNG"
+          blurb="Access owner information, voting, and owners-only updates."
+          iconAlt="Owners area"
         />
 
         {/* Keep this route aligned with your header */}
