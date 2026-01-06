@@ -214,27 +214,45 @@ export default function HomePageClient() {
 
           <div className="p-6 sm:p-10">
             <header className="text-center">
-              <h1 className="text-3xl sm:text-4xl font-bold">
-                James <span className="text-slate-500">Square</span> Booking Portal
+              <h1 className="text-3xl sm:text-4xl font-bold leading-tight">
+                James <span className="text-slate-500">Square</span>
+                <br />
+                <span className="text-neutral-900 dark:text-neutral-100">Community Website</span>
               </h1>
-              <p className="mt-3 text-base sm:text-lg text-neutral-700 dark:text-neutral-300">
-                Book the pool, gym and sauna. Explore useful information about the building and the local area.
+              <div className="mt-4 space-y-3 text-base sm:text-lg text-neutral-700 dark:text-neutral-300">
+                <p>
+                  James Square is a shared community website for residents and owners. It’s a place
+                  access useful info about the area, to discuss issues or topics with other residents
+                  and owners, access owners’ documents and AGM details, take part in votes, and stay
+                  up to date with what’s happening around the square.
+                </p>
+                <p>
+                  The site also provides the booking portal for the pool, gym, and sauna.
+                </p>
+              </div>
+              <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">
+                This website is still evolving and will continue to be improved over time. Ideas,
+                suggestions, and feedback are always welcome.
               </p>
-              <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-                You can also use{' '}
-                <Link href="/dashboard" className="underline">
-                  My Dashboard
-                </Link>{' '}
-                to view, edit and manage bookings and your account.
-              </p>
-            </header>
 
-            {/* Rule Pills */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6">
-              <RulePill title="Bookable Windows" detail="05:30–09:30 • 17:00–23:00" />
-              <RulePill title="Daily Limit" detail="Max 2 slots per facility" />
-              <RulePill title="Free Use" detail="11:00–17:00 (no booking)" />
-            </div>
+              <div className="mt-7 space-y-3">
+                <h2 className="text-xl sm:text-2xl font-semibold">
+                  Booking Portal - book the pool, gym and sauna.
+                </h2>
+                <p className="text-sm sm:text-base text-neutral-700 dark:text-neutral-300">
+                  You can also use{' '}
+                  <Link href="/dashboard" className="underline">
+                    My Dashboard
+                  </Link>{' '}
+                  to view, edit and manage bookings and your account.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 pt-1">
+                  <RulePill title="Bookable Windows" detail="05:30–09:30 • 17:00–23:00" />
+                  <RulePill title="Daily Limit" detail="Max 2 slots per facility" />
+                  <RulePill title="Free Use" detail="11:00–17:00 (no booking)" />
+                </div>
+              </div>
+            </header>
           </div>
         </motion.div>
       </section>
