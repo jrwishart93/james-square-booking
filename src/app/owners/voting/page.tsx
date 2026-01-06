@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import VotingClient from "./VotingClient";
+import LegacyOwnersVotingRedirect from "./redirect-client";
 
 export const metadata: Metadata = {
   title: "James Square – Voting",
@@ -29,6 +29,6 @@ export const metadata: Metadata = {
   },
 };
 
-export default function VotingPage() {
-  return <VotingClient />;
+export default function OwnersVotingLegacyPage() {
+  return <LegacyOwnersVotingRedirect />;
 }

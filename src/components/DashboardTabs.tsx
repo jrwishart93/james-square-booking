@@ -27,8 +27,8 @@ const tabs: TabConfig[] = [
   { label: 'Owners', href: '/owners', requiresOwner: true },
   {
     label: 'Voting',
-    href: 'https://www.james-square.com/owners/voting',
-    matchPrefixes: ['/owners/voting', '/voting'],
+    href: '/voting',
+    matchPrefixes: ['/voting', '/owners/secure/voting', '/owners/voting'],
   },
 ];
 

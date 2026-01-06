@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
-
-const shareImageUrl =
-  "https://www.james-square.com/images/james-square-voting-share.png";
+import VotingClientRedirect from "./client-redirect";
 
 export const metadata: Metadata = {
   title: "James Square – Voting",
@@ -9,11 +7,11 @@ export const metadata: Metadata = {
   openGraph: {
     title: "James Square – Voting",
     description: "Owners community voting for James Square residents.",
-    url: "https://www.james-square.com/owners/voting",
+    url: "https://www.james-square.com/voting",
     siteName: "James Square",
     images: [
       {
-        url: shareImageUrl,
+        url: "https://www.james-square.com/images/james-square-voting-share.png",
         width: 1200,
         height: 630,
         alt: "James Square owners community voting",
@@ -25,8 +23,12 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "James Square – Voting",
     description: "Owners community voting for James Square residents.",
-    images: [shareImageUrl],
+    images: [
+      "https://www.james-square.com/images/james-square-voting-share.png",
+    ],
   },
 };
 
-export default metadata;
+export default function VotingSharePage() {
+  return <VotingClientRedirect />;
+}

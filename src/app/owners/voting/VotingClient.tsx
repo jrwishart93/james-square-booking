@@ -39,6 +39,7 @@ type Tab = "ask" | "vote" | "results";
 
 const VIEW_ONLY_MESSAGE = "Viewing only. Please log in or sign up to place a vote.";
 const VOTE_RECORDED_MESSAGE = "Vote recorded";
+const OWNERS_ACCESS_KEY = "owners_secure_access";
 
 export default function OwnersVotingPage() {
   const router = useRouter();
@@ -67,6 +68,16 @@ export default function OwnersVotingPage() {
   const [voterName, setVoterName] = useState("");
   const [flat, setFlat] = useState("");
   const isAuthenticated = Boolean(currentUser);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const hasAccess = sessionStorage.getItem(OWNERS_ACCESS_KEY) === "true";
+
+    if (!hasAccess) {
+      router.replace("/owners");
+    }
+  }, [router]);
 
   useEffect(() => {
     const stored = typeof window !== "undefined" ? sessionStorage.getItem("ovh_username") : null;
@@ -331,7 +342,7 @@ export default function OwnersVotingPage() {
             <p className="text-xs md:text-sm uppercase tracking-[0.3em] font-semibold text-slate-700 dark:text-white/80">Owners • Community</p>
             <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-slate-900 dark:text-white">Voting Hub</h1>
             <p className="text-slate-700 dark:text-white/80 font-medium text-sm md:text-base leading-relaxed max-w-3xl mx-auto">
-              Ask a question, cast your vote, and review results. This section is open to all residents—no owners passcode required.
+              Ask a question, cast your vote, and review results. This voting section is available to owners only and requires secure access.
             </p>
           </header>
 

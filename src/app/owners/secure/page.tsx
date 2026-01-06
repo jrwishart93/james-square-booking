@@ -4,9 +4,12 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, type ReactNode } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { ClipboardCheck } from 'lucide-react';
 
 import { GlassCard } from '@/components/GlassCard';
 import GradientBG from '@/components/GradientBG';
+
+const OWNERS_ACCESS_KEY = 'owners_secure_access';
 
 const SGM_DESCRIPTION = `A Special General Meeting will be held at 1800 hours (6:00pm) on Wednesday 21 January 2026.
 All owners are encouraged to save the date.
@@ -28,7 +31,7 @@ const OwnersSecurePage = () => {
   const [authorized, setAuthorized] = useState(false);
 
   useEffect(() => {
-    const hasAccess = sessionStorage.getItem('ownersAccess') === 'true';
+    const hasAccess = sessionStorage.getItem(OWNERS_ACCESS_KEY) === 'true';
     if (!hasAccess) {
       router.replace('/owners');
       return;
@@ -47,9 +50,46 @@ const OwnersSecurePage = () => {
         <header className="pt-5 md:pt-6 space-y-4 md:space-y-5 text-center md:text-left">
           <h1 className="text-3xl md:text-4xl font-semibold text-neutral-900 dark:text-white">Owners area</h1>
           <p className="max-w-3xl text-sm md:text-base text-slate-600 dark:text-slate-300">
-            This section contains meeting information and documents intended for James Square owners only.
+            This section contains meeting information, documents, and voting intended for James Square owners only.
           </p>
         </header>
+
+        <div className="mt-8">
+          <div
+            className="flex items-start gap-4 p-6 rounded-2xl
+                  bg-white/80 border border-black/10
+                  shadow-[0_12px_40px_rgba(0,0,0,0.08)]
+                  dark:bg-white/5 dark:border-white/15
+                  dark:shadow-[0_16px_60px_rgba(0,0,0,0.3)]"
+          >
+            <div
+              className="flex items-center justify-center
+                    w-11 h-11 rounded-xl
+                    bg-cyan-500/10 text-cyan-600
+                    dark:text-cyan-300"
+            >
+              <ClipboardCheck size={22} />
+            </div>
+
+            <div className="flex-1 space-y-1">
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Owners Voting</h3>
+
+              <p className="text-sm text-slate-600 dark:text-slate-300">
+                Vote on current owners’ matters and view live results for James Square.
+              </p>
+
+              <a
+                href="/owners/secure/voting"
+                className="inline-flex items-center gap-2 mt-3
+                   px-4 py-2 rounded-lg
+                   bg-cyan-600 text-white text-sm font-medium
+                   hover:bg-cyan-500 transition-colors"
+              >
+                Go to owners voting
+              </a>
+            </div>
+          </div>
+        </div>
 
         <div className="space-y-6">
           <SgmSection />
