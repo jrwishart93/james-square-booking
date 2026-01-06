@@ -239,6 +239,26 @@ export default function HomePageClient() {
         </motion.div>
       </section>
 
+      {/* COMMUNITY INTRO */}
+      <section className="mx-auto max-w-6xl mt-8 sm:mt-10">
+        <div className="space-y-3 sm:space-y-4 text-neutral-900 dark:text-neutral-100">
+          <h2 className="text-2xl font-semibold">Welcome to James Square</h2>
+          <p className="text-base sm:text-lg text-neutral-700 dark:text-neutral-300">
+            James Square is a shared community website for residents and owners. It’s a place to
+            discuss issues affecting the building, access owners’ information, take part in votes,
+            and stay up to date with what’s happening around the square.
+          </p>
+          <p className="text-base sm:text-lg text-neutral-700 dark:text-neutral-300">
+            The site also provides the booking portal for the pool, gym, and sauna, making it easy
+            to manage shared facilities alongside day-to-day community matters.
+          </p>
+          <p className="text-base sm:text-lg text-neutral-700 dark:text-neutral-300">
+            This website is still evolving and will continue to be improved over time. Ideas,
+            suggestions, and feedback are always welcome.
+          </p>
+        </div>
+      </section>
+
       {/* MAIN ICON GRID */}
       <section className="mx-auto max-w-6xl mt-8 sm:mt-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
         <IconCard
