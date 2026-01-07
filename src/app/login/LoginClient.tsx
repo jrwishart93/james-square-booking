@@ -100,6 +100,7 @@ export default function LoginClient() {
         // Registration: Create user with email and password, then store additional info.
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
+        await user.getIdToken(true);
         const residentTypeLabel =
           residentType === 'owner'
             ? 'Owner'
@@ -139,7 +140,8 @@ export default function LoginClient() {
             return;
           }
         }
-        await signInWithEmailAndPassword(auth, loginEmail, password);
+        const userCredential = await signInWithEmailAndPassword(auth, loginEmail, password);
+        await userCredential.user.getIdToken(true);
         setIsRedirecting(true);
         window.location.href = '/dashboard';
       }
