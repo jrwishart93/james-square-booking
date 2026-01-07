@@ -1,0 +1,15 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//James Square//Local Projects//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:friends-of-dalry-community-park-2026@james-square.com
+DTSTAMP:20250110T120000Z
+DTSTART:20260112T190000Z
+DTEND:20260112T203000Z
+SUMMARY:Friends of Dalry Community Park – Community Meeting
+DESCRIPTION:Community meeting to follow up on issues raised last year and discuss future events in Dalry Community Park.
+LOCATION:St Bride’s Community Centre, 10 Orwell Terrace
+END:VEVENT
+END:VCALENDAR

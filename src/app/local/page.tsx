@@ -180,6 +180,11 @@ export default function UsefulInfoPage() {
   const [activeTab, setActiveTab] = useState<TabId>('about');
 
   useEffect(() => {
+    if (window.location.hash === '#local-projects') {
+      setActiveTab('projects');
+      return;
+    }
+
     const saved = window.localStorage.getItem('useful-info-tab');
     if (saved === 'area') {
       setActiveTab('projects');
@@ -858,6 +863,11 @@ export default function UsefulInfoPage() {
             aria-labelledby="projects-tab"
             className="space-y-10"
           >
+            <div id="local-projects" />
+
+            {/* ---------------- Friends of Dalry Community Park ---------------- */}
+            <DalryCommunityParkCard />
+
             {/* ---------------- Voi E-bikes (image shows fully) ---------------- */}
             <VoiEbikesCard />
 
@@ -1101,6 +1111,41 @@ function FloatingDock({ anchors, activeSection, onNavigate, emphasize }: DockPro
         })}
       </div>
     </motion.nav>
+  );
+}
+
+/* -------------------------------------------------
+   Friends of Dalry Community Park
+-------------------------------------------------- */
+
+function DalryCommunityParkCard() {
+  return (
+    <SectionCard
+      id="dalry-community-park"
+      headingId="friends-of-dalry-community-park"
+      title="Friends of Dalry Community Park"
+      initial
+    >
+      <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-[0.18em] text-[color:var(--text-muted)]">
+        <span className="rounded-full border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-1 text-[0.6rem] font-semibold text-emerald-700 dark:text-emerald-200">
+          Community meeting
+        </span>
+        <span>Monday 12 January</span>
+      </div>
+
+      <p className="mt-3 text-sm text-[color:var(--text-muted)]">
+        Friends of Dalry Community Park are hosting a community meeting to follow up on issues raised last
+        year and discuss next steps for the park.
+      </p>
+
+      <a
+        href="/local/projects/dalry-community-park"
+        className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700"
+      >
+        View project details
+        <span aria-hidden>→</span>
+      </a>
+    </SectionCard>
   );
 }
 
