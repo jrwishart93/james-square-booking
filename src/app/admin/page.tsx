@@ -136,9 +136,6 @@ export default function AdminDashboard() {
   const [facilityRules, setFacilityRules] = useState<string>('');
   const [debugMode, setDebugMode] = useState<boolean>(false);
 
-  /* ---------- Communication state (unchanged) ---------- */
-  const [emailSubject, setEmailSubject] = useState<string>('');
-  const [emailMessage, setEmailMessage] = useState<string>('');
 
   /* ---------- Auth check (unchanged) ---------- */
   useEffect(() => {
@@ -329,18 +326,6 @@ export default function AdminDashboard() {
     }
   };
 
-  /* ---------- Communication (unchanged / mock) ---------- */
-  const sendEmailToUsers = async () => {
-    console.log('Sending email with subject:', emailSubject, 'and message:', emailMessage);
-    alert('Email sent (mock implementation).');
-    await addDoc(collection(db, 'activityLogs'), {
-      action: 'Sent email to users',
-      admin: auth.currentUser?.email || 'unknown',
-      timestamp: new Date(),
-    });
-    setEmailSubject('');
-    setEmailMessage('');
-  };
 
   /* ---------- Export / Debug (unchanged) ---------- */
   const exportDataAsCSV = () => {
@@ -744,41 +729,6 @@ export default function AdminDashboard() {
                 className="px-4 py-2 rounded-full jqs-glass font-semibold hover:brightness-[1.05] transition"
               >
                 Update Facility Info
-              </button>
-            </div>
-          </div>
-        </Section>
-
-        {/* Communication Tools */}
-        <Section
-          title="Communication Tools"
-          subtitle="Send a message to registered users (mock)"
-        >
-          <div className="grid gap-4">
-            <div className="jqs-glass rounded-2xl p-4">
-              <label className="block font-medium mb-1">Email Subject:</label>
-              <input
-                type="text"
-                value={emailSubject}
-                onChange={(e) => setEmailSubject(e.target.value)}
-                className="w-full border rounded px-2 py-1 bg-transparent"
-              />
-            </div>
-            <div className="jqs-glass rounded-2xl p-4">
-              <label className="block font-medium mb-1">Email Message:</label>
-              <textarea
-                value={emailMessage}
-                onChange={(e) => setEmailMessage(e.target.value)}
-                rows={3}
-                className="w-full border rounded px-2 py-1 bg-transparent"
-              />
-            </div>
-            <div>
-              <button
-                onClick={sendEmailToUsers}
-                className="px-4 py-2 rounded-full jqs-glass font-semibold hover:brightness-[1.05] transition"
-              >
-                Send Email to Users
               </button>
             </div>
           </div>

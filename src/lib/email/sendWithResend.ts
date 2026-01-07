@@ -16,8 +16,7 @@ function getResendClient() {
   return new Resend(apiKey);
 }
 
-const FROM_EMAIL =
-  process.env.RESEND_FROM_EMAIL ?? "James Square <onboarding@resend.dev>";
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL;
 
 function stripHtml(html: string) {
   return html
@@ -35,6 +34,9 @@ export async function sendWithResend(args: {
   attachments?: { filename: string; content: string }[];
 }) {
   const resend = getResendClient();
+  if (!FROM_EMAIL) {
+    throw new Error("RESEND_FROM_EMAIL is not set");
+  }
 
   const { error, data } = await resend.emails.send({
     from: FROM_EMAIL,
