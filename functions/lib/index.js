@@ -18,8 +18,11 @@ const metrics_1 = require("./metrics");
 if (!(0, app_1.getApps)().length) {
     (0, app_1.initializeApp)();
 }
-const resendApiKey = process.env.RESEND_API_KEY ?? (0, firebase_functions_1.config)().resend?.api_key;
-const resendClient = resendApiKey ? new resend_1.Resend(resendApiKey) : null;
+const resendApiKey = process.env.RESEND_API_KEY;
+if (!resendApiKey) {
+    throw new Error('RESEND_API_KEY is not set');
+}
+const resendClient = new resend_1.Resend(resendApiKey);
 exports.sendBookingReminders = (0, scheduler_1.onSchedule)({
     schedule: '0 7 * * *',
     timeZone: 'Europe/London',
@@ -52,10 +55,6 @@ exports.sendBookingReminders = (0, scheduler_1.onSchedule)({
             time: data.time ?? 'Unknown time',
         });
     });
-    if (!resendClient) {
-        firebase_functions_1.logger.warn('Resend API key is not configured; skipping reminder emails.');
-        return;
-    }
     for (const [email, entries] of Object.entries(grouped)) {
         const body = entries.map((entry) => `• ${entry.facility} at ${entry.time}`).join('\n');
         try {

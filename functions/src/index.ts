@@ -6,7 +6,7 @@
 
 import { getApps, initializeApp } from 'firebase-admin/app';
 import { FieldValue, getFirestore } from 'firebase-admin/firestore';
-import { config, logger } from 'firebase-functions';
+import { logger } from 'firebase-functions';
 import { onDocumentCreated } from 'firebase-functions/v2/firestore';
 import { onSchedule } from 'firebase-functions/v2/scheduler';
 import { DateTime } from 'luxon';
@@ -19,8 +19,11 @@ if (!getApps().length) {
   initializeApp();
 }
 
-const resendApiKey = process.env.RESEND_API_KEY ?? config().resend?.api_key;
-const resendClient = resendApiKey ? new Resend(resendApiKey) : null;
+const resendApiKey = process.env.RESEND_API_KEY;
+if (!resendApiKey) {
+  throw new Error('RESEND_API_KEY is not set');
+}
+const resendClient = new Resend(resendApiKey);
 
 export const sendBookingReminders = onSchedule(
   {
@@ -61,11 +64,6 @@ export const sendBookingReminders = onSchedule(
         time: data.time ?? 'Unknown time',
       });
     });
-
-    if (!resendClient) {
-      logger.warn('Resend API key is not configured; skipping reminder emails.');
-      return;
-    }
 
     for (const [email, entries] of Object.entries(grouped)) {
       const body = entries.map((entry) => `• ${entry.facility} at ${entry.time}`).join('\n');

@@ -58,3 +58,4 @@ const adminApp = initFirebaseAdmin();
 export { adminApp };
 export const adminAuth = getAuth(adminApp);
 export const adminDb = getFirestore(adminApp);
+export const initAdmin = () => initFirebaseAdmin();
