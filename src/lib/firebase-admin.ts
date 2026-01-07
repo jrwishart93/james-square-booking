@@ -29,11 +29,14 @@ function getAdminApp(): App {
   }
 
   const creds = parseServiceAccount();
+  const projectId = process.env.FIREBASE_PROJECT_ID;
   try {
-    cachedApp = creds ? initializeApp({ credential: cert(creds) }) : initializeApp();
+    cachedApp = creds
+      ? initializeApp({ credential: cert(creds), projectId })
+      : initializeApp({ projectId });
   } catch (error) {
     console.warn('⚠️ Failed to initialize Firebase Admin with provided credentials; retrying without credentials.', error);
-    cachedApp = initializeApp();
+    cachedApp = initializeApp({ projectId });
   }
 
   return cachedApp;
