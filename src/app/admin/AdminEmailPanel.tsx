@@ -3,29 +3,36 @@
 import { useEffect, useMemo, useState } from 'react';
 import { collection, getDocs, orderBy, query } from 'firebase/firestore';
 
-import { db } from '@/lib/firebase';
-/**
- * Legacy admin email panel.
- * Deprecated in favor of /admin/email and kept read-only for reference.
- */
+import { auth, db } from '@/lib/firebase';
+import { sendAdminEmailRequest } from '@/lib/client/sendAdminEmailRequest';
+
+const baseCardClasses =
+  'rounded-2xl border border-white/20 bg-white/10 dark:border-white/10 dark:bg-white/5 backdrop-blur px-6 py-6 shadow-md space-y-5';
 
 type AdminUser = {
   id: string;
   email: string;
   fullName?: string;
+  residentType?: string;
+  roles?: {
+    owner?: boolean;
+  };
 };
+
+type RecipientMode = 'all' | 'owners' | 'selected';
 
 type Status = {
-  tone: 'idle' | 'success' | 'error';
+  tone: 'idle' | 'loading' | 'success' | 'error';
   message: string;
 };
-
-const baseCardClasses =
-  'rounded-2xl border border-white/20 bg-white/10 dark:border-white/10 dark:bg-white/5 backdrop-blur px-6 py-6 shadow-md space-y-5';
 
 const AdminEmailPanel = () => {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
+  const [recipientMode, setRecipientMode] = useState<RecipientMode>('all');
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [subject, setSubject] = useState('');
+  const [message, setMessage] = useState('');
   const [status, setStatus] = useState<Status>({ tone: 'idle', message: '' });
 
   useEffect(() => {
@@ -33,21 +40,28 @@ const AdminEmailPanel = () => {
       try {
         const q = query(collection(db, 'users'), orderBy('email'));
         const snapshot = await getDocs(q);
-        const mapped: AdminUser[] = snapshot.docs
+        const mapped = snapshot.docs
           .map((docSnap) => {
-            const data = docSnap.data() as { email?: string; fullName?: string };
+            const data = docSnap.data() as {
+              email?: string;
+              fullName?: string;
+              residentType?: string;
+              roles?: { owner?: boolean };
+            };
             if (!data?.email) return null;
             return {
               id: docSnap.id,
               email: data.email,
               fullName: data.fullName,
+              residentType: data.residentType,
+              roles: data.roles,
             } satisfies AdminUser;
           })
           .filter(Boolean) as AdminUser[];
         setUsers(mapped);
       } catch (error) {
         console.error('Failed to load users for email panel', error);
-        setStatus({ tone: 'error', message: 'Failed to load users.' });
+        setStatus({ tone: 'error', message: 'Failed to load recipients.' });
       } finally {
         setLoadingUsers(false);
       }
@@ -56,76 +70,218 @@ const AdminEmailPanel = () => {
     void loadUsers();
   }, []);
 
-  const allEmails = useMemo(() => users.map((u) => u.email), [users]);
+  const ownerUsers = useMemo(
+    () =>
+      users.filter(
+        (user) => user.residentType === 'owner' || Boolean(user.roles?.owner),
+      ),
+    [users],
+  );
+
+  const recipientCount = useMemo(() => {
+    if (recipientMode === 'all') return users.length;
+    if (recipientMode === 'owners') return ownerUsers.length;
+    return selectedIds.length;
+  }, [recipientMode, selectedIds.length, users.length, ownerUsers.length]);
+
+  const handleToggleSelected = (userId: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId],
+    );
+  };
+
+  const handleSubmit = async () => {
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      setStatus({ tone: 'error', message: 'You must be signed in to send email.' });
+      return;
+    }
+
+    if (!subject.trim() || !message.trim()) {
+      setStatus({ tone: 'error', message: 'Subject and message are required.' });
+      return;
+    }
+
+    if (recipientMode === 'selected' && selectedIds.length === 0) {
+      setStatus({ tone: 'error', message: 'Select at least one recipient.' });
+      return;
+    }
+
+    try {
+      setStatus({ tone: 'loading', message: 'Sending email…' });
+      const response = await sendAdminEmailRequest(currentUser, {
+        subject: subject.trim(),
+        message: message.trim(),
+        recipients: {
+          mode: recipientMode,
+          userIds: recipientMode === 'selected' ? selectedIds : undefined,
+        },
+      });
+
+      setStatus({
+        tone: 'success',
+        message: `Email sent to ${response?.recipients ?? recipientCount} recipient(s).`,
+      });
+      setSubject('');
+      setMessage('');
+      setSelectedIds([]);
+    } catch (error) {
+      console.error('Failed to send admin email', error);
+      setStatus({
+        tone: 'error',
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Failed to send email. Please try again.',
+      });
+    }
+  };
 
   return (
     <section className={baseCardClasses}>
-      <header className="flex flex-wrap items-center justify-between gap-3">
+      <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Email Residents</h2>
           <p className="text-sm text-slate-600 dark:text-slate-300">
-            Compose an announcement and send it to selected residents.
+            Compose and send an announcement using the official James Square admin system.
           </p>
         </div>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            disabled
-            className="inline-flex items-center justify-center rounded-xl border border-white/25 px-4 py-2 text-sm font-medium text-white/90 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            Send to all ({allEmails.length})
-          </button>
-          <button
-            type="button"
-            disabled
-            className="inline-flex items-center justify-center rounded-xl bg-white/80 px-4 py-2 text-sm font-medium text-gray-900 shadow hover:bg-white disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white/90"
-          >
-            Send to selected (0)
-          </button>
+        <div className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-xs text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
+          Recipients: <strong>{recipientCount}</strong>
         </div>
       </header>
 
-      <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-400/20 dark:bg-amber-900/20 dark:text-amber-100">
-        This panel is deprecated. Please use the dedicated Admin Email Centre at /admin/email.
+      <div className="rounded-xl border border-indigo-200/70 bg-indigo-50 px-4 py-3 text-sm text-indigo-900 dark:border-indigo-400/20 dark:bg-indigo-900/20 dark:text-indigo-100">
+        Emails are delivered from the official James Square admin system. Replies go to the configured Resend sender.
       </div>
 
-      {status.message && (
-        <p
-          className={
-            status.tone === 'error'
-              ? 'text-sm text-rose-400'
-              : status.tone === 'success'
-                ? 'text-sm text-emerald-400'
-                : 'text-sm text-slate-600 dark:text-slate-300'
-          }
-          aria-live="polite"
-        >
-          {status.message}
-        </p>
-      )}
-
-      <div>
-        <h3 className="text-sm font-medium text-slate-700 dark:text-slate-200">Recipients</h3>
-        <div className="mt-2 max-h-64 overflow-auto rounded-xl border border-white/15 bg-white/5 dark:border-white/10 dark:bg-white/5">
-          {loadingUsers ? (
-            <div className="px-3 py-4 text-sm text-slate-500 dark:text-slate-400">Loading users...</div>
-          ) : users.length === 0 ? (
-            <div className="px-3 py-4 text-sm text-slate-500 dark:text-slate-400">No users found.</div>
-          ) : (
-            users.map((u) => (
-              <label key={u.id} className="flex items-center gap-3 border-b border-white/10 px-3 py-2 last:border-b-0 dark:border-white/5">
+      <div className="grid gap-4">
+        <div>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
+            Recipients
+          </label>
+          <div className="mt-2 grid gap-2 sm:grid-cols-3">
+            {(
+              [
+                { value: 'all', label: `All users (${users.length})` },
+                { value: 'owners', label: `Owners only (${ownerUsers.length})` },
+                { value: 'selected', label: `Selected users (${selectedIds.length})` },
+              ] as const
+            ).map((option) => (
+              <label
+                key={option.value}
+                className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-sm transition ${
+                  recipientMode === option.value
+                    ? 'border-indigo-300 bg-indigo-50 text-indigo-900 dark:border-indigo-400/40 dark:bg-indigo-900/30 dark:text-indigo-100'
+                    : 'border-white/15 bg-white/5 text-slate-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-300'
+                }`}
+              >
                 <input
-                  type="checkbox"
-                  checked={false}
-                  disabled
+                  type="radio"
+                  name="recipient-mode"
+                  value={option.value}
+                  checked={recipientMode === option.value}
+                  onChange={() => setRecipientMode(option.value)}
                 />
-                <div>
-                  <p className="text-sm text-slate-900 dark:text-white">{u.fullName || u.email}</p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">{u.email}</p>
-                </div>
+                {option.label}
               </label>
-            ))
-          )}
+            ))}
+          </div>
+        </div>
+
+        {recipientMode === 'selected' && (
+          <div>
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-medium text-slate-700 dark:text-slate-200">Select recipients</h3>
+              <span className="text-xs text-slate-500 dark:text-slate-400">
+                {selectedIds.length} selected
+              </span>
+            </div>
+            <div className="mt-2 max-h-64 overflow-auto rounded-xl border border-white/15 bg-white/5 dark:border-white/10 dark:bg-white/5">
+              {loadingUsers ? (
+                <div className="px-3 py-4 text-sm text-slate-500 dark:text-slate-400">Loading users…</div>
+              ) : users.length === 0 ? (
+                <div className="px-3 py-4 text-sm text-slate-500 dark:text-slate-400">No users found.</div>
+              ) : (
+                users.map((user) => (
+                  <label
+                    key={user.id}
+                    className="flex items-center gap-3 border-b border-white/10 px-3 py-2 last:border-b-0 dark:border-white/5"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.includes(user.id)}
+                      onChange={() => handleToggleSelected(user.id)}
+                    />
+                    <div>
+                      <p className="text-sm text-slate-900 dark:text-white">
+                        {user.fullName || user.email}
+                      </p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">{user.email}</p>
+                    </div>
+                  </label>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="sm:col-span-2">
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
+              Subject
+            </label>
+            <input
+              type="text"
+              value={subject}
+              onChange={(event) => setSubject(event.target.value)}
+              className="mt-1 w-full rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 dark:border-white/10 dark:bg-white/5 dark:text-white"
+              placeholder="Enter email subject"
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
+              Message
+            </label>
+            <textarea
+              value={message}
+              onChange={(event) => setMessage(event.target.value)}
+              rows={5}
+              className="mt-1 w-full rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 dark:border-white/10 dark:bg-white/5 dark:text-white"
+              placeholder="Write a clear message for residents."
+            />
+          </div>
+        </div>
+
+        {status.message && (
+          <p
+            className={
+              status.tone === 'error'
+                ? 'text-sm text-rose-400'
+                : status.tone === 'success'
+                  ? 'text-sm text-emerald-400'
+                  : status.tone === 'loading'
+                    ? 'text-sm text-slate-500 dark:text-slate-300'
+                    : 'text-sm text-slate-600 dark:text-slate-300'
+            }
+            aria-live="polite"
+          >
+            {status.message}
+          </p>
+        )}
+
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={status.tone === 'loading' || loadingUsers}
+            className="inline-flex items-center justify-center rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white/90"
+          >
+            {status.tone === 'loading' ? 'Sending…' : 'Send email'}
+          </button>
+          <span className="text-xs text-slate-500 dark:text-slate-400">
+            Emails are sent only after you press “Send email”.
+          </span>
         </div>
       </div>
     </section>

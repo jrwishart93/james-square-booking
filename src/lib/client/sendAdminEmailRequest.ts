@@ -1,14 +1,16 @@
 import { User } from "firebase/auth";
 
-type AttachmentPayload = { filename: string; content: string };
+type RecipientMode = "all" | "owners" | "selected";
 
 export async function sendAdminEmailRequest(
   user: User,
   payload: {
-    to: string | string[];
     subject: string;
     message: string;
-    attachments?: AttachmentPayload[];
+    recipients: {
+      mode: RecipientMode;
+      userIds?: string[];
+    };
   },
 ) {
   const token = await user.getIdToken(true);
