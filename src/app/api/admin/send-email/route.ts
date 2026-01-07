@@ -60,7 +60,7 @@ export async function POST(req: Request) {
     const token = authHeader.slice("Bearer ".length);
     const decoded = await adminAuth.verifyIdToken(token);
 
-    if (!decoded.admin && !decoded.isAdmin) {
+    if (decoded.admin !== true) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
