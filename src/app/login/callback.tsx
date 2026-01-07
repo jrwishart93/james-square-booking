@@ -22,7 +22,8 @@ export default function LoginCallback() {
       try {
         const auth = getAuth();
         if (isSignInWithEmailLink(auth, window.location.href)) {
-          await signInWithEmailLink(auth, email, window.location.href);
+          const credential = await signInWithEmailLink(auth, email, window.location.href);
+          await credential.user.getIdToken(true);
           window.localStorage.removeItem('emailForSignIn');
           window.localStorage.removeItem('nameForSignIn');
           window.localStorage.removeItem('buildingForSignIn');

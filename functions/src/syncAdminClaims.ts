@@ -1,5 +1,6 @@
 import { getApps, initializeApp } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
+import { logger } from 'firebase-functions';
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 
 if (!getApps().length) {
@@ -8,19 +9,32 @@ if (!getApps().length) {
 
 export const syncAdminClaims = onDocumentWritten('users/{uid}', async (event) => {
   const uid = event.params.uid;
-  const after = event.data?.after?.data();
-  const before = event.data?.before?.data();
+  const afterSnap = event.data?.after;
+  const beforeSnap = event.data?.before;
 
-  if (!after) return;
-
-  const wasAdmin = before?.isAdmin === true;
-  const isAdmin = after.isAdmin === true;
+  const wasAdmin = beforeSnap?.data()?.isAdmin === true;
+  const isAdmin = afterSnap?.exists ? afterSnap.data()?.isAdmin === true : false;
 
   if (wasAdmin === isAdmin) return;
 
-  await getAuth().setCustomUserClaims(uid, {
-    admin: isAdmin,
-  });
+  try {
+    const auth = getAuth();
+    const user = await auth.getUser(uid);
+    const existingClaims = user.customClaims ?? {};
+    const updatedClaims = { ...existingClaims };
 
-  console.log(`Admin claim ${isAdmin ? 'granted' : 'revoked'} for user ${uid}`);
+    if (isAdmin) {
+      updatedClaims.admin = true;
+    } else {
+      delete updatedClaims.admin;
+    }
+
+    await auth.setCustomUserClaims(uid, updatedClaims);
+    logger.info(`Admin claim ${isAdmin ? 'granted' : 'revoked'} for user ${uid}`);
+  } catch (error) {
+    logger.error('Failed to sync admin claim', {
+      uid,
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
 });
