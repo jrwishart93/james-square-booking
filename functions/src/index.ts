@@ -14,6 +14,7 @@ import { Resend } from 'resend';
 
 import { setOwnerClaim } from './claims';
 import { incrementUsage, monthKey } from './metrics';
+import { syncAdminClaims } from './syncAdminClaims';
 
 if (!getApps().length) {
   initializeApp();
@@ -84,7 +85,7 @@ export const sendBookingReminders = onSchedule(
   },
 );
 
-export { setOwnerClaim };
+export { setOwnerClaim, syncAdminClaims };
 
 export const summarizeMonthlyUsage = onSchedule(
   {

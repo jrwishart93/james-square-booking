@@ -40,14 +40,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      setUser(firebaseUser);
-
-      if (firebaseUser) {
-        ensureUserDoc(firebaseUser)
-          .catch((error) => console.error('Failed to ensure user document', error))
-          .finally(() => setLoading(false));
-      } else {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      try {
+        if (firebaseUser) {
+          await firebaseUser.getIdToken(true);
+          setUser(firebaseUser);
+          await ensureUserDoc(firebaseUser);
+        } else {
+          setUser(null);
+        }
+      } catch (error) {
+        console.error('Failed to sync auth state', error);
+        setUser(firebaseUser ?? null);
+      } finally {
         setLoading(false);
       }
     });
