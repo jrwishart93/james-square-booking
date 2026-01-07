@@ -868,6 +868,9 @@ export default function UsefulInfoPage() {
             {/* ---------------- Friends of Dalry Community Park ---------------- */}
             <DalryCommunityParkCard />
 
+            {/* ---------------- Dalry Road Improvements ---------------- */}
+            <DalryRoadImprovementsCard />
+
             {/* ---------------- Voi E-bikes (image shows fully) ---------------- */}
             <VoiEbikesCard />
 
@@ -1140,6 +1143,33 @@ function DalryCommunityParkCard() {
 
       <a
         href="/local/projects/dalry-community-park"
+        className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700"
+      >
+        View project details
+        <span aria-hidden>→</span>
+      </a>
+    </SectionCard>
+  );
+}
+
+/* -------------------------------------------------
+   Dalry Road Improvements
+-------------------------------------------------- */
+
+function DalryRoadImprovementsCard() {
+  return (
+    <SectionCard
+      id="dalry-road-improvements"
+      headingId="dalry-road-improvements"
+      title="Dalry Road & Caledonian Area Road Improvements"
+    >
+      <p className="mt-3 text-sm text-[color:var(--text-muted)]">
+        Council-led road and pedestrian improvement works across Dalry Road and surrounding streets, running through
+        to spring 2026.
+      </p>
+
+      <a
+        href="/local/projects/dalry-road-improvements"
         className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700"
       >
         View project details
