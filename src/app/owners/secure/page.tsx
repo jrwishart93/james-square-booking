@@ -35,18 +35,29 @@ const OwnersSecurePage = () => {
     return null;
   }
 
+  const easeOut = [0.16, 1, 0.3, 1] as const;
+  const containerTransition = {
+    duration: prefersReducedMotion ? 0 : 0.3,
+    ease: easeOut,
+    staggerChildren: prefersReducedMotion ? 0 : 0.08,
+  };
+  const itemTransition = {
+    duration: prefersReducedMotion ? 0 : 0.28,
+    ease: easeOut,
+  };
+
   const containerVariants = {
     hidden: { opacity: 0, y: prefersReducedMotion ? 0 : 8 },
     show: {
       opacity: 1,
       y: 0,
-      transition: prefersReducedMotion ? { duration: 0 } : { duration: 0.3, ease: 'easeOut', staggerChildren: 0.08 },
+      transition: containerTransition,
     },
   };
 
   const itemVariants = {
     hidden: { opacity: 0, y: prefersReducedMotion ? 0 : 8 },
-    show: { opacity: 1, y: 0, transition: prefersReducedMotion ? { duration: 0 } : { duration: 0.28, ease: 'easeOut' } },
+    show: { opacity: 1, y: 0, transition: itemTransition },
   };
 
   return (
