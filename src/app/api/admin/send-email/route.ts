@@ -44,7 +44,7 @@ export async function POST(req: Request) {
     const subject = String(body.subject).trim();
     const message = String(body.message);
 
-    const html = renderAdminEmail(subject, message);
+    const html = await renderAdminEmail(subject, message);
 
     const attachments = (body.attachments ?? [])
       .slice(0, 5)
