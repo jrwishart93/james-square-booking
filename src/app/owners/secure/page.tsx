@@ -3,25 +3,15 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, type ReactNode } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { ClipboardCheck } from 'lucide-react';
 
 import { GlassCard } from '@/components/GlassCard';
 import GradientBG from '@/components/GradientBG';
 
 const OWNERS_ACCESS_KEY = 'owners_secure_access';
-
-const SGM_DESCRIPTION = `A Special General Meeting will be held at 1800 hours (6:00pm) on Wednesday 21 January 2026.
-All owners are encouraged to save the date.
-Further correspondence will be issued in due course, including additional details and a link to join the meeting online.`;
-const SGM_START = '20260121T180000';
-const SGM_END = '20260121T190000';
-const SGM_ICS_FILENAME = 'james-square-sgm-2026.ics';
-const SGM_GOOGLE_CALENDAR_LINK = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
-  'James Square – Special General Meeting',
-)}&dates=${SGM_START}/${SGM_END}&details=${encodeURIComponent(SGM_DESCRIPTION)}&location=${encodeURIComponent(
-  'Online meeting',
-)}&ctz=Europe/London`;
+const EGM_END = new Date('2026-01-21T20:30:00Z');
+const VOTING_DEADLINE = new Date('2026-01-23T23:59:00Z');
 
 const glassPanel =
   'rounded-2xl border border-white/40 bg-white/65 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5';
@@ -29,6 +19,7 @@ const glassPanel =
 const OwnersSecurePage = () => {
   const router = useRouter();
   const [authorized, setAuthorized] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
     const hasAccess = sessionStorage.getItem(OWNERS_ACCESS_KEY) === 'true';
@@ -44,17 +35,36 @@ const OwnersSecurePage = () => {
     return null;
   }
 
+  const containerVariants = {
+    hidden: { opacity: 0, y: prefersReducedMotion ? 0 : 8 },
+    show: {
+      opacity: 1,
+      y: 0,
+      transition: prefersReducedMotion ? { duration: 0 } : { duration: 0.3, ease: 'easeOut', staggerChildren: 0.08 },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: prefersReducedMotion ? 0 : 8 },
+    show: { opacity: 1, y: 0, transition: prefersReducedMotion ? { duration: 0 } : { duration: 0.28, ease: 'easeOut' } },
+  };
+
   return (
     <GradientBG className="relative isolate min-h-screen w-screen -ml-[calc((100vw-100%)/2)] -mr-[calc((100vw-100%)/2)] px-4 md:px-8 py-12">
-      <div className="relative mx-auto max-w-5xl px-2 sm:px-4 md:px-0 space-y-10">
-        <header className="pt-5 md:pt-6 space-y-4 md:space-y-5 text-center md:text-left">
+      <motion.div
+        className="relative mx-auto max-w-5xl px-2 sm:px-4 md:px-0 space-y-10"
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+      >
+        <motion.header variants={itemVariants} className="pt-5 md:pt-6 space-y-4 md:space-y-5 text-center md:text-left">
           <h1 className="text-3xl md:text-4xl font-semibold text-neutral-900 dark:text-white">Owners area</h1>
           <p className="max-w-3xl text-sm md:text-base text-slate-600 dark:text-slate-300">
             This section contains meeting information, documents, and voting intended for James Square owners only.
           </p>
-        </header>
+        </motion.header>
 
-        <div className="mt-8">
+        <motion.div variants={itemVariants} className="mt-8">
           <div
             className="flex items-start gap-4 p-6 rounded-2xl
                   bg-white/80 border border-black/10
@@ -83,22 +93,28 @@ const OwnersSecurePage = () => {
                 className="inline-flex items-center gap-2 mt-3
                    px-4 py-2 rounded-lg
                    bg-cyan-600 text-white text-sm font-medium
-                   hover:bg-cyan-500 transition-colors"
+                   transition-colors hover:bg-cyan-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/60"
               >
                 Go to owners voting
               </a>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         <div className="space-y-6">
-          <SgmSection />
+          <motion.div variants={itemVariants}>
+            <SgmSection />
+          </motion.div>
 
-          <FiorFactorUpdateSection />
+          <motion.div variants={itemVariants}>
+            <FiorFactorUpdateSection />
+          </motion.div>
 
-          <AgmSection />
+          <motion.div variants={itemVariants}>
+            <AgmSection />
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
     </GradientBG>
   );
 };
@@ -106,109 +122,122 @@ const OwnersSecurePage = () => {
 export default OwnersSecurePage;
 
 function SgmSection() {
-  const [calendarOptionsOpen, setCalendarOptionsOpen] = useState(false);
+  const [meetingConcluded, setMeetingConcluded] = useState(false);
+  const [votingClosed, setVotingClosed] = useState(false);
 
-  const downloadIcs = () => {
-    const dtStamp = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-    const description = SGM_DESCRIPTION.replace(/\n/g, '\\n');
+  useEffect(() => {
+    const now = new Date();
+    setMeetingConcluded(now > EGM_END);
+    setVotingClosed(now > VOTING_DEADLINE);
+  }, []);
 
-    const icsContent = [
-      'BEGIN:VCALENDAR',
-      'VERSION:2.0',
-      'PRODID:-//James Square//Owners Portal//EN',
-      'CALSCALE:GREGORIAN',
-      'X-WR-TIMEZONE:Europe/London',
-      'BEGIN:VEVENT',
-      'UID:james-square-sgm-2026@jamessquare',
-      `DTSTAMP:${dtStamp}`,
-      `DTSTART;TZID=Europe/London:${SGM_START}`,
-      `DTEND;TZID=Europe/London:${SGM_END}`,
-      'SUMMARY:James Square – Special General Meeting',
-      'LOCATION:Online meeting',
-      `DESCRIPTION:${description}`,
-      'END:VEVENT',
-      'END:VCALENDAR',
-    ].join('\r\n');
+  const egmCardClassName = meetingConcluded
+    ? votingClosed
+      ? 'bg-white/70 border-slate-200/70 shadow-[0_12px_34px_rgba(15,23,42,0.08)] dark:bg-white/5 dark:border-white/10'
+      : 'bg-white/80 border-amber-200/70 shadow-[0_16px_40px_rgba(15,23,42,0.1)] dark:bg-white/5 dark:border-amber-400/20'
+    : 'bg-white/85 border-cyan-200/70 shadow-[0_18px_45px_rgba(15,23,42,0.12)] dark:bg-white/10 dark:border-cyan-400/20';
 
-    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = SGM_ICS_FILENAME;
-    link.click();
-
-    URL.revokeObjectURL(url);
-  };
+  if (meetingConcluded) {
+    return (
+      <GlassCard
+        title="Extraordinary General Meeting (EGM)"
+        titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100"
+        className={egmCardClassName}
+      >
+        {votingClosed ? (
+          <>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-300">
+              Voting closed – outcome pending
+            </p>
+            <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">Voting has now closed.</p>
+            <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+              The outcome of the vote and any next steps will be shared with owners once confirmed.
+            </p>
+          </>
+        ) : (
+          <>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-300">
+              Meeting concluded
+            </p>
+            <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+              The Extraordinary General Meeting held on Wednesday 21 January 2026 has now taken place.
+            </p>
+            <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+              Owners are now invited to vote on which property factor they believe would be best for James Square.
+            </p>
+            <div className="space-y-2">
+              <Link
+                href="https://www.james-square.com/voting"
+                target="_blank"
+                rel="noreferrer noopener"
+                className="inline-flex items-center justify-center rounded-full px-5 py-2.5 text-sm font-semibold text-white bg-slate-900 shadow-[0_6px_18px_rgba(0,0,0,0.18)] transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.01] hover:shadow-[0_10px_28px_rgba(0,0,0,0.2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:bg-white dark:text-slate-900"
+              >
+                Place your vote
+              </Link>
+              <p className="text-xs text-slate-500 dark:text-slate-300">Voting will close on Friday 23 January 2026.</p>
+            </div>
+          </>
+        )}
+      </GlassCard>
+    );
+  }
 
   return (
     <GlassCard
-      title="Special General Meeting – Save the Date"
+      title="Extraordinary General Meeting (EGM)"
       subtitle="Wednesday 21 January 2026 • 6:00pm (online)"
       titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100"
+      className={egmCardClassName}
     >
       <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
-        A Special General Meeting will be held at 1800 hours (6:00pm) on Wednesday 21 January 2026. All owners are
-        encouraged to save the date. Further correspondence will be issued in due course, including additional details
-        and a link to join the meeting online.
+        An Extraordinary General Meeting has been arranged for owners at James Square to discuss and vote on a potential
+        change to the property factor.
+      </p>
+      <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+        The meeting will be held online via Microsoft Teams to allow as many owners as possible to attend.
       </p>
 
       <div className={glassPanel}>
-        <dl className="grid grid-cols-1 gap-3 text-sm text-slate-800 dark:text-slate-100 sm:grid-cols-3">
+        <dl className="grid grid-cols-1 gap-3 text-sm text-slate-800 dark:text-slate-100 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <dt className="font-semibold">Date</dt>
             <dd>Wednesday 21 January 2026</dd>
           </div>
           <div>
             <dt className="font-semibold">Time</dt>
-            <dd>1800–1900 hours (UK time)</dd>
+            <dd>From 18:00 (UK time)</dd>
           </div>
           <div>
             <dt className="font-semibold">Format</dt>
-            <dd>Online meeting</dd>
+            <dd>Online via Microsoft Teams</dd>
+          </div>
+          <div>
+            <dt className="font-semibold">Audience</dt>
+            <dd>James Square owners</dd>
           </div>
         </dl>
       </div>
 
-      <div className="space-y-3">
-        <button
-          type="button"
-          onClick={() => setCalendarOptionsOpen((open) => !open)}
-          aria-expanded={calendarOptionsOpen}
-          aria-controls="sgm-calendar-options"
-          className="inline-flex items-center justify-center rounded-full px-5 py-2.5 text-sm font-semibold text-white bg-slate-900 shadow-[0_6px_18px_rgba(0,0,0,0.18)] transition-transform transition-shadow duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_28px_rgba(0,0,0,0.2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:bg-white dark:text-slate-900"
+      <div className="space-y-2">
+        <Link
+          href="https://teams.microsoft.com/l/meetup-join/19%3ameeting_ZjI4NmMzZjYtYmI3OS00ZDk3LTg1ZDgtNGE5NDI3YmExNzA1%40thread.v2/0?context=%7b%22Tid%22%3a%22f5c44b19-1c42-4ad7-b10e-1d2fcf2b71d3%22%2c%22Oid%22%3a%2290c27962-4d1a-4d45-8e9e-ff0f7b30452b%22%7d"
+          target="_blank"
+          rel="noreferrer noopener"
+          className="inline-flex items-center justify-center rounded-full px-5 py-2.5 text-sm font-semibold text-white bg-slate-900 shadow-[0_6px_18px_rgba(0,0,0,0.18)] transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.01] hover:shadow-[0_10px_28px_rgba(0,0,0,0.2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:bg-white dark:text-slate-900"
         >
-          Add to calendar
-        </button>
-
-        <AnimatePresence initial={false}>
-          {calendarOptionsOpen && (
-            <motion.div
-              id="sgm-calendar-options"
-              className="flex flex-col gap-2 overflow-hidden md:flex-row"
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              <button
-                type="button"
-                onClick={downloadIcs}
-                className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-2 text-sm font-medium text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
-              >
-                Add to Apple Calendar
-              </button>
-              <Link
-                href={SGM_GOOGLE_CALENDAR_LINK}
-                target="_blank"
-                rel="noreferrer noopener"
-                className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-2 text-sm font-medium text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
-              >
-                Add to Google Calendar
-              </Link>
-            </motion.div>
-          )}
-        </AnimatePresence>
+          Join meeting on Microsoft Teams
+        </Link>
+        <Link
+          href="https://www.james-square.com/egm"
+          target="_blank"
+          rel="noreferrer noopener"
+          className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-2 text-sm font-medium text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
+        >
+          View full meeting details
+        </Link>
+        <p className="text-xs text-slate-500 dark:text-slate-300">
+          Calendar options and meeting details are also available at james-square.com/egm.
+        </p>
       </div>
     </GlassCard>
   );
