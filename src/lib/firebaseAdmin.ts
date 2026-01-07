@@ -27,6 +27,22 @@ const resolveServiceAccount = (): ServiceAccount | undefined => {
   return undefined;
 };
 
+const resolveProjectId = (
+  serviceAccount?: ServiceAccount,
+): string | undefined => {
+  const projectIdFromEnv = process.env.FIREBASE_PROJECT_ID;
+  if (projectIdFromEnv) return projectIdFromEnv;
+  if (
+    serviceAccount &&
+    typeof serviceAccount === 'object' &&
+    'project_id' in serviceAccount &&
+    typeof serviceAccount.project_id === 'string'
+  ) {
+    return serviceAccount.project_id;
+  }
+  return undefined;
+};
+
 const initFirebaseAdmin = (): App => {
   if (adminAppInstance) return adminAppInstance;
   if (getApps().length) {
@@ -35,19 +51,22 @@ const initFirebaseAdmin = (): App => {
   }
 
   const serviceAccount = resolveServiceAccount();
+  const projectId = resolveProjectId(serviceAccount);
 
   if (serviceAccount) {
     adminAppInstance = initializeApp({
       credential: cert(serviceAccount),
+      projectId,
     });
   } else {
     try {
       adminAppInstance = initializeApp({
         credential: applicationDefault(),
+        projectId,
       });
     } catch (error) {
       console.warn('Falling back to default Firebase Admin initialization', error);
-      adminAppInstance = initializeApp();
+      adminAppInstance = initializeApp({ projectId });
     }
   }
 
