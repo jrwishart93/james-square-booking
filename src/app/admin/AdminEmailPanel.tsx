@@ -3,9 +3,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { collection, getDocs, orderBy, query } from 'firebase/firestore';
 
-import { useAuth } from '@/context/AuthContext';
 import { db } from '@/lib/firebase';
-import { sendAdminEmail } from '@/lib/sendAdminEmail';
+/**
+ * Legacy admin email panel.
+ * Deprecated in favor of /admin/email and kept read-only for reference.
+ */
 
 type AdminUser = {
   id: string;
@@ -22,13 +24,8 @@ const baseCardClasses =
   'rounded-2xl border border-white/20 bg-white/10 dark:border-white/10 dark:bg-white/5 backdrop-blur px-6 py-6 shadow-md space-y-5';
 
 const AdminEmailPanel = () => {
-  const { user } = useAuth();
   const [users, setUsers] = useState<AdminUser[]>([]);
-  const [selected, setSelected] = useState<Record<string, boolean>>({});
-  const [subject, setSubject] = useState('');
-  const [bodyHtml, setBodyHtml] = useState('<p>Hello everyone,</p><p>Quick update...</p>');
   const [loadingUsers, setLoadingUsers] = useState(true);
-  const [sending, setSending] = useState(false);
   const [status, setStatus] = useState<Status>({ tone: 'idle', message: '' });
 
   useEffect(() => {
@@ -61,46 +58,6 @@ const AdminEmailPanel = () => {
 
   const allEmails = useMemo(() => users.map((u) => u.email), [users]);
 
-  const selectedEmails = useMemo(
-    () => users.filter((user) => selected[user.id]).map((user) => user.email),
-    [selected, users],
-  );
-
-  const handleSend = async (recipients: string[]) => {
-    if (!user) {
-      setStatus({ tone: 'error', message: 'You must be signed in.' });
-      return;
-    }
-
-    if (!recipients.length) {
-      setStatus({ tone: 'error', message: 'No recipients selected.' });
-      return;
-    }
-
-    if (!subject.trim()) {
-      setStatus({ tone: 'error', message: 'Please enter a subject.' });
-      return;
-    }
-
-    if (!bodyHtml.trim()) {
-      setStatus({ tone: 'error', message: 'Please enter a message body.' });
-      return;
-    }
-
-    try {
-      setSending(true);
-      setStatus({ tone: 'idle', message: 'Sending...' });
-      await sendAdminEmail(user, { to: recipients, subject: subject.trim(), message: bodyHtml });
-      setStatus({ tone: 'success', message: 'Email sent successfully.' });
-      setSelected({});
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to send email.';
-      setStatus({ tone: 'error', message });
-    } finally {
-      setSending(false);
-    }
-  };
-
   return (
     <section className={baseCardClasses}>
       <header className="flex flex-wrap items-center justify-between gap-3">
@@ -113,49 +70,24 @@ const AdminEmailPanel = () => {
         <div className="flex gap-2">
           <button
             type="button"
-            onClick={() => void handleSend(allEmails)}
-            disabled={sending || !allEmails.length}
+            disabled
             className="inline-flex items-center justify-center rounded-xl border border-white/25 px-4 py-2 text-sm font-medium text-white/90 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
           >
             Send to all ({allEmails.length})
           </button>
           <button
             type="button"
-            onClick={() => void handleSend(selectedEmails)}
-            disabled={sending || !selectedEmails.length}
+            disabled
             className="inline-flex items-center justify-center rounded-xl bg-white/80 px-4 py-2 text-sm font-medium text-gray-900 shadow hover:bg-white disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white/90"
           >
-            Send to selected ({selectedEmails.length})
+            Send to selected (0)
           </button>
         </div>
       </header>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <label className="flex flex-col gap-1 text-sm">
-          <span className="font-medium text-slate-700 dark:text-slate-200">Subject</span>
-          <input
-            value={subject}
-            onChange={(event) => setSubject(event.target.value)}
-            placeholder="Update about shared facilities"
-            className="rounded-xl border border-white/20 bg-white/70 px-3 py-2 text-sm text-slate-900 shadow focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-400/60 dark:border-white/10 dark:bg-white/10 dark:text-white"
-            disabled={sending}
-          />
-        </label>
+      <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-400/20 dark:bg-amber-900/20 dark:text-amber-100">
+        This panel is deprecated. Please use the dedicated Admin Email Centre at /admin/email.
       </div>
-
-      <label className="flex flex-col gap-2 text-sm">
-        <span className="font-medium text-slate-700 dark:text-slate-200">Message (basic HTML allowed)</span>
-        <textarea
-          value={bodyHtml}
-          onChange={(event) => setBodyHtml(event.target.value)}
-          rows={8}
-          className="rounded-xl border border-white/20 bg-white/60 px-3 py-3 font-mono text-xs text-slate-900 shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-400/60 dark:border-white/10 dark:bg-white/10 dark:text-white"
-          disabled={sending}
-        />
-        <span className="text-xs text-slate-500 dark:text-slate-400">
-          Allowed tags: p, br, strong, em, b, i, u, ul, ol, li, h1–h6, a, div, span.
-        </span>
-      </label>
 
       {status.message && (
         <p
@@ -184,14 +116,8 @@ const AdminEmailPanel = () => {
               <label key={u.id} className="flex items-center gap-3 border-b border-white/10 px-3 py-2 last:border-b-0 dark:border-white/5">
                 <input
                   type="checkbox"
-                  checked={Boolean(selected[u.id])}
-                  onChange={(event) =>
-                    setSelected((prev) => ({
-                      ...prev,
-                      [u.id]: event.target.checked,
-                    }))
-                  }
-                  disabled={sending}
+                  checked={false}
+                  disabled
                 />
                 <div>
                   <p className="text-sm text-slate-900 dark:text-white">{u.fullName || u.email}</p>

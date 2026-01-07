@@ -6,6 +6,7 @@ import { collection, getDocs, orderBy, query } from 'firebase/firestore';
 
 import { useAuth } from '@/context/AuthContext';
 import { db } from '@/lib/firebase';
+import { sendAdminEmailRequest } from '@/lib/client/sendAdminEmailRequest';
 
 type AdminUser = {
   id: string;
@@ -187,25 +188,12 @@ export default function AdminEmailPage() {
       setSending(true);
       setStatus({ tone: 'idle', message: 'Sending…' });
 
-      const token = await user.getIdToken(true);
-
-      const response = await fetch('/api/admin/send-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          to: recipients,
-          subject: subject.trim(),
-          message,
-          attachments: attachments.length ? attachments : undefined,
-        }),
+      await sendAdminEmailRequest(user, {
+        to: recipients,
+        subject: subject.trim(),
+        message,
+        attachments: attachments.length ? attachments : undefined,
       });
-
-      if (!response.ok) {
-        throw new Error('Send failed');
-      }
 
       setStatus({ tone: 'success', message: 'Email sent successfully' });
       setSubject('');
@@ -218,7 +206,8 @@ export default function AdminEmailPage() {
         fileInputRef.current.value = '';
       }
     } catch (error) {
-      setStatus({ tone: 'error', message: 'Failed to send email' });
+      const message = error instanceof Error ? error.message : 'Failed to send email';
+      setStatus({ tone: 'error', message });
       console.error('Failed to send email', error);
     } finally {
       setSending(false);
