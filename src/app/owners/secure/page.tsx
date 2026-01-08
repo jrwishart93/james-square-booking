@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, type ReactNode } from 'react';
@@ -258,36 +257,18 @@ function SgmSection() {
             >
               View meeting details
             </Link>
-            <div className="flex flex-col items-center gap-2">
-              <Link
-                href="/myreside"
-                className="inline-flex w-full items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
-              >
-                View Myreside Management information
-              </Link>
-              <Image
-                src="/images/logo/myreside-logo-removebg-preview.png"
-                alt="Myreside Management logo"
-                width={160}
-                height={40}
-                className="h-10 w-auto object-contain opacity-60"
-              />
-            </div>
-            <div className="flex flex-col items-center gap-2">
-              <Link
-                href="/newton"
-                className="inline-flex w-full items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
-              >
-                View Newton Property Management information
-              </Link>
-              <Image
-                src="/images/logo/newton-logo-removebg-preview.png"
-                alt="Newton Property Management logo"
-                width={160}
-                height={40}
-                className="h-10 w-auto object-contain opacity-60"
-              />
-            </div>
+            <Link
+              href="/myreside"
+              className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
+            >
+              View Myreside Management information
+            </Link>
+            <Link
+              href="/newton"
+              className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
+            >
+              View Newton Property Management information
+            </Link>
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-300 text-center sm:text-left">
             Proposal documents are provided for information only and may be updated ahead of the meeting.
@@ -352,9 +333,9 @@ function SgmSection() {
           </div>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2">
-          <Link
-            href={EGM_TEAMS_LINK}
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Link
+              href={EGM_TEAMS_LINK}
             target="_blank"
             rel="noreferrer noopener"
             className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
@@ -366,40 +347,22 @@ function SgmSection() {
             target="_blank"
             rel="noreferrer noopener"
             className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
-          >
-            View meeting details
-          </Link>
-          <div className="flex flex-col items-center gap-2">
+            >
+              View meeting details
+            </Link>
             <Link
               href="/myreside"
-              className="inline-flex w-full items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
+              className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
             >
               View Myreside Management information
             </Link>
-            <Image
-              src="/images/logo/myreside-logo-removebg-preview.png"
-              alt="Myreside Management logo"
-              width={160}
-              height={40}
-              className="h-10 w-auto object-contain opacity-60"
-            />
-          </div>
-          <div className="flex flex-col items-center gap-2">
             <Link
               href="/newton"
-              className="inline-flex w-full items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
+              className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
             >
               View Newton Property Management information
             </Link>
-            <Image
-              src="/images/logo/newton-logo-removebg-preview.png"
-              alt="Newton Property Management logo"
-              width={160}
-              height={40}
-              className="h-10 w-auto object-contain opacity-60"
-            />
           </div>
-        </div>
         <p className="text-xs text-slate-500 dark:text-slate-300 text-center sm:text-left">
           Proposal documents are provided for information only and may be updated ahead of the meeting.
         </p>
