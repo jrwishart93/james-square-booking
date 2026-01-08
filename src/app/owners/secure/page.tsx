@@ -114,6 +114,10 @@ const OwnersSecurePage = () => {
 
         <div className="space-y-6">
           <motion.div variants={itemVariants}>
+            <FactorReviewSection />
+          </motion.div>
+
+          <motion.div variants={itemVariants}>
             <SgmSection />
           </motion.div>
 
@@ -249,6 +253,39 @@ function SgmSection() {
         <p className="text-xs text-slate-500 dark:text-slate-300">
           Calendar options and meeting details are also available at james-square.com/egm.
         </p>
+      </div>
+    </GlassCard>
+  );
+}
+
+function FactorReviewSection() {
+  return (
+    <GlassCard
+      title="Factor review information"
+      titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100"
+    >
+      <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+        Access neutral information and documentation for each proposed factor ahead of the general meeting.
+      </p>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Link
+          href="/myreside"
+          className="group rounded-2xl border border-slate-200/80 bg-white/80 p-5 text-left text-sm font-semibold text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/60 dark:border-white/10 dark:bg-white/5 dark:text-white"
+        >
+          <p className="text-base font-semibold">View Myreside Management information</p>
+          <p className="mt-2 text-sm font-normal text-slate-600 dark:text-slate-300">
+            Review the Myreside proposal, caretaker approach, costs, and tender documentation.
+          </p>
+        </Link>
+        <Link
+          href="/newton"
+          className="group rounded-2xl border border-slate-200/80 bg-white/80 p-5 text-left text-sm font-semibold text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/60 dark:border-white/10 dark:bg-white/5 dark:text-white"
+        >
+          <p className="text-base font-semibold">View Newton Property Management information</p>
+          <p className="mt-2 text-sm font-normal text-slate-600 dark:text-slate-300">
+            Review the Newton proposal, caretaker approach, costs, and tender documentation.
+          </p>
+        </Link>
       </div>
     </GlassCard>
   );
