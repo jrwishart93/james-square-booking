@@ -7,7 +7,7 @@ const cx = (...classes: Array<string | false | null | undefined>) =>
   classes.filter(Boolean).join(' ');
 
 type GlassCardProps = {
-  title?: string;
+  title?: ReactNode;
   subtitle?: string;
   footer?: ReactNode;
   children: ReactNode;
