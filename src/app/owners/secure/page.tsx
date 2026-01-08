@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, type ReactNode } from 'react';
@@ -12,6 +13,18 @@ import GradientBG from '@/components/GradientBG';
 const OWNERS_ACCESS_KEY = 'owners_secure_access';
 const EGM_END = new Date('2026-01-21T20:30:00Z');
 const VOTING_DEADLINE = new Date('2026-01-23T23:59:00Z');
+const EGM_TITLE = 'James Square – Extraordinary General Meeting';
+const EGM_PAGE_URL = 'https://www.james-square.com/egm';
+const EGM_TEAMS_LINK =
+  'https://teams.microsoft.com/l/meetup-join/19%3ameeting_ZjI4NmMzZjYtYmI3OS00ZDk3LTg1ZDgtNGE5NDI3YmExNzA1%40thread.v2/0?context=%7b%22Tid%22%3a%22f5c44b19-1c42-4ad7-b10e-1d2fcf2b71d3%22%2c%22Oid%22%3a%2290c27962-4d1a-4d45-8e9e-ff0f7b30452b%22%7d';
+const EGM_DESCRIPTION =
+  'This meeting has been arranged for owners to discuss and vote on a potential change to the property factor for James Square. Join via Microsoft Teams.';
+const GOOGLE_CALENDAR_URL = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
+  EGM_TITLE,
+)}&dates=20260121T180000Z/20260121T203000Z&details=${encodeURIComponent(
+  `${EGM_DESCRIPTION}\n\nMicrosoft Teams: ${EGM_TEAMS_LINK}\nEGM details: ${EGM_PAGE_URL}`,
+)}&location=${encodeURIComponent('Microsoft Teams')}`;
+const EGM_ICS_PATH = '/calendar/james-square-egm-2026.ics';
 
 const glassPanel =
   'rounded-2xl border border-white/40 bg-white/65 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5';
@@ -156,44 +169,81 @@ function SgmSection() {
         titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100"
         className={egmCardClassName}
       >
-        {votingClosed ? (
-          <>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-300">
-              Voting closed – outcome pending
-            </p>
-            <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">Voting has now closed.</p>
-            <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
-              The outcome of the vote and any next steps will be shared with owners once confirmed.
-            </p>
-          </>
-        ) : (
-          <>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-300">
-              Meeting concluded
-            </p>
-            <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
-              The Extraordinary General Meeting held on Wednesday 21 January 2026 has now taken place.
-            </p>
-            <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
-              Owners are now invited to vote on which property factor they believe would be best for James Square.
-            </p>
-            <div className="space-y-2">
-              <Link
-                href="https://www.james-square.com/voting"
+        <div className="space-y-6 rounded-2xl border border-slate-200/70 bg-white/70 p-6 shadow-sm dark:border-white/10 dark:bg-white/5">
+          {votingClosed ? (
+            <>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-300">
+                Voting closed – outcome pending
+              </p>
+              <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">Voting has now closed.</p>
+              <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+                The outcome of the vote and any next steps will be shared with owners once confirmed.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-300">
+                Meeting concluded
+              </p>
+              <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+                The Extraordinary General Meeting held on Wednesday 21 January 2026 has now taken place.
+              </p>
+              <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+                Owners are now invited to vote on which property factor they believe would be best for James Square.
+              </p>
+              <div className="space-y-2">
+                <Link
+                  href="https://www.james-square.com/voting"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="inline-flex items-center justify-center rounded-full px-5 py-2.5 text-sm font-semibold text-white bg-slate-900 shadow-[0_6px_18px_rgba(0,0,0,0.18)] transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.01] hover:shadow-[0_10px_28px_rgba(0,0,0,0.2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:bg-white dark:text-slate-900"
+                >
+                  Place your vote
+                </Link>
+                <p className="text-xs text-slate-500 dark:text-slate-300">Voting will close on Friday 23 January 2026.</p>
+              </div>
+            </>
+          )}
+          <div className={glassPanel}>
+            <dl className="grid grid-cols-1 gap-3 text-sm text-slate-800 dark:text-slate-100 sm:grid-cols-2 lg:grid-cols-4">
+              <div>
+                <dt className="font-semibold">Date</dt>
+                <dd>Wednesday 21 January 2026</dd>
+              </div>
+              <div>
+                <dt className="font-semibold">Time</dt>
+                <dd>From 18:00 (UK time)</dd>
+              </div>
+              <div>
+                <dt className="font-semibold">Format</dt>
+                <dd>Online via Microsoft Teams</dd>
+              </div>
+              <div>
+                <dt className="font-semibold">Audience</dt>
+                <dd>James Square owners</dd>
+              </div>
+            </dl>
+            <div className="mt-3 flex flex-wrap items-center gap-3 text-xs">
+              <a
+                href={GOOGLE_CALENDAR_URL}
                 target="_blank"
                 rel="noreferrer noopener"
-                className="inline-flex items-center justify-center rounded-full px-5 py-2.5 text-sm font-semibold text-white bg-slate-900 shadow-[0_6px_18px_rgba(0,0,0,0.18)] transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.01] hover:shadow-[0_10px_28px_rgba(0,0,0,0.2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:bg-white dark:text-slate-900"
+                className="font-medium text-slate-600 underline underline-offset-4 transition hover:text-slate-500 dark:text-slate-300 dark:hover:text-slate-200"
               >
-                Place your vote
-              </Link>
-              <p className="text-xs text-slate-500 dark:text-slate-300">Voting will close on Friday 23 January 2026.</p>
+                Add meeting to calendar
+              </a>
+              <a
+                href={EGM_ICS_PATH}
+                download="james-square-egm-2026.ics"
+                className="text-slate-500 underline underline-offset-4 transition hover:text-slate-400 dark:text-slate-400 dark:hover:text-slate-300"
+              >
+                Apple Calendar file
+              </a>
             </div>
-          </>
-        )}
-        <div className="space-y-4">
+          </div>
           <div className="grid gap-3 sm:grid-cols-2">
             <Link
-              href="https://teams.microsoft.com/l/meetup-join/19%3ameeting_ZjI4NmMzZjYtYmI3OS00ZDk3LTg1ZDgtNGE5NDI3YmExNzA1%40thread.v2/0?context=%7b%22Tid%22%3a%22f5c44b19-1c42-4ad7-b10e-1d2fcf2b71d3%22%2c%22Oid%22%3a%2290c27962-4d1a-4d45-8e9e-ff0f7b30452b%22%7d"
+              href={EGM_TEAMS_LINK}
               target="_blank"
               rel="noreferrer noopener"
               className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
@@ -201,26 +251,47 @@ function SgmSection() {
               Join Microsoft Teams meeting
             </Link>
             <Link
-              href="https://www.james-square.com/egm"
+              href={EGM_PAGE_URL}
               target="_blank"
               rel="noreferrer noopener"
               className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
             >
               View meeting details
             </Link>
-            <Link
-              href="/myreside"
-              className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
-            >
-              View Myreside factor info
-            </Link>
-            <Link
-              href="/newton"
-              className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
-            >
-              View Newton factor info
-            </Link>
+            <div className="flex flex-col items-center gap-2">
+              <Link
+                href="/myreside"
+                className="inline-flex w-full items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
+              >
+                View Myreside Management information
+              </Link>
+              <Image
+                src="/images/logo/myreside-logo-removebg-preview.png"
+                alt="Myreside Management logo"
+                width={160}
+                height={40}
+                className="h-10 w-auto object-contain opacity-60"
+              />
+            </div>
+            <div className="flex flex-col items-center gap-2">
+              <Link
+                href="/newton"
+                className="inline-flex w-full items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
+              >
+                View Newton Property Management information
+              </Link>
+              <Image
+                src="/images/logo/newton-logo-removebg-preview.png"
+                alt="Newton Property Management logo"
+                width={160}
+                height={40}
+                className="h-10 w-auto object-contain opacity-60"
+              />
+            </div>
           </div>
+          <p className="text-xs text-slate-500 dark:text-slate-300 text-center sm:text-left">
+            Proposal documents are provided for information only and may be updated ahead of the meeting.
+          </p>
           <div className="inline-flex flex-col gap-1 rounded-full border border-slate-200/80 bg-white/70 px-4 py-2 text-xs text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
             <span>Factor documentation is provided for information only.</span>
             <span>Proposals are initial and subject to clarification and update ahead of the meeting.</span>
@@ -237,36 +308,53 @@ function SgmSection() {
       titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100"
       className={egmCardClassName}
     >
-      <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
-        This meeting has been arranged for owners to discuss and vote on a potential change to the property factor for
-        James Square. Owners are encouraged to review the information below in advance of the meeting.
-      </p>
+      <div className="space-y-6 rounded-2xl border border-slate-200/70 bg-white/70 p-6 shadow-sm dark:border-white/10 dark:bg-white/5">
+        <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+          This meeting has been arranged for owners to discuss and vote on a potential change to the property factor for
+          James Square. Owners are encouraged to review the information below in advance of the meeting.
+        </p>
 
-      <div className={glassPanel}>
-        <dl className="grid grid-cols-1 gap-3 text-sm text-slate-800 dark:text-slate-100 sm:grid-cols-2 lg:grid-cols-4">
-          <div>
-            <dt className="font-semibold">Date</dt>
-            <dd>Wednesday 21 January 2026</dd>
+        <div className={glassPanel}>
+          <dl className="grid grid-cols-1 gap-3 text-sm text-slate-800 dark:text-slate-100 sm:grid-cols-2 lg:grid-cols-4">
+            <div>
+              <dt className="font-semibold">Date</dt>
+              <dd>Wednesday 21 January 2026</dd>
+            </div>
+            <div>
+              <dt className="font-semibold">Time</dt>
+              <dd>From 18:00 (UK time)</dd>
+            </div>
+            <div>
+              <dt className="font-semibold">Format</dt>
+              <dd>Online via Microsoft Teams</dd>
+            </div>
+            <div>
+              <dt className="font-semibold">Audience</dt>
+              <dd>James Square owners</dd>
+            </div>
+          </dl>
+          <div className="mt-3 flex flex-wrap items-center gap-3 text-xs">
+            <a
+              href={GOOGLE_CALENDAR_URL}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="font-medium text-slate-600 underline underline-offset-4 transition hover:text-slate-500 dark:text-slate-300 dark:hover:text-slate-200"
+            >
+              Add meeting to calendar
+            </a>
+            <a
+              href={EGM_ICS_PATH}
+              download="james-square-egm-2026.ics"
+              className="text-slate-500 underline underline-offset-4 transition hover:text-slate-400 dark:text-slate-400 dark:hover:text-slate-300"
+            >
+              Apple Calendar file
+            </a>
           </div>
-          <div>
-            <dt className="font-semibold">Time</dt>
-            <dd>From 18:00 (UK time)</dd>
-          </div>
-          <div>
-            <dt className="font-semibold">Format</dt>
-            <dd>Online via Microsoft Teams</dd>
-          </div>
-          <div>
-            <dt className="font-semibold">Audience</dt>
-            <dd>James Square owners</dd>
-          </div>
-        </dl>
-      </div>
+        </div>
 
-      <div className="space-y-4">
         <div className="grid gap-3 sm:grid-cols-2">
           <Link
-            href="https://teams.microsoft.com/l/meetup-join/19%3ameeting_ZjI4NmMzZjYtYmI3OS00ZDk3LTg1ZDgtNGE5NDI3YmExNzA1%40thread.v2/0?context=%7b%22Tid%22%3a%22f5c44b19-1c42-4ad7-b10e-1d2fcf2b71d3%22%2c%22Oid%22%3a%2290c27962-4d1a-4d45-8e9e-ff0f7b30452b%22%7d"
+            href={EGM_TEAMS_LINK}
             target="_blank"
             rel="noreferrer noopener"
             className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
@@ -274,26 +362,47 @@ function SgmSection() {
             Join Microsoft Teams meeting
           </Link>
           <Link
-            href="https://www.james-square.com/egm"
+            href={EGM_PAGE_URL}
             target="_blank"
             rel="noreferrer noopener"
             className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
           >
             View meeting details
           </Link>
-          <Link
-            href="/myreside"
-            className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
-          >
-            View Myreside factor info
-          </Link>
-          <Link
-            href="/newton"
-            className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
-          >
-            View Newton factor info
-          </Link>
+          <div className="flex flex-col items-center gap-2">
+            <Link
+              href="/myreside"
+              className="inline-flex w-full items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
+            >
+              View Myreside Management information
+            </Link>
+            <Image
+              src="/images/logo/myreside-logo-removebg-preview.png"
+              alt="Myreside Management logo"
+              width={160}
+              height={40}
+              className="h-10 w-auto object-contain opacity-60"
+            />
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <Link
+              href="/newton"
+              className="inline-flex w-full items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
+            >
+              View Newton Property Management information
+            </Link>
+            <Image
+              src="/images/logo/newton-logo-removebg-preview.png"
+              alt="Newton Property Management logo"
+              width={160}
+              height={40}
+              className="h-10 w-auto object-contain opacity-60"
+            />
+          </div>
         </div>
+        <p className="text-xs text-slate-500 dark:text-slate-300 text-center sm:text-left">
+          Proposal documents are provided for information only and may be updated ahead of the meeting.
+        </p>
         <div className="inline-flex flex-col gap-1 rounded-full border border-slate-200/80 bg-white/70 px-4 py-2 text-xs text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
           <span>Factor documentation is provided for information only.</span>
           <span>Proposals are initial and subject to clarification and update ahead of the meeting.</span>
