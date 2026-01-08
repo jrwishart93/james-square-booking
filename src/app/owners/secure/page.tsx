@@ -114,10 +114,6 @@ const OwnersSecurePage = () => {
 
         <div className="space-y-6">
           <motion.div variants={itemVariants}>
-            <FactorReviewSection />
-          </motion.div>
-
-          <motion.div variants={itemVariants}>
             <SgmSection />
           </motion.div>
 
@@ -156,6 +152,7 @@ function SgmSection() {
     return (
       <GlassCard
         title="Extraordinary General Meeting (EGM)"
+        subtitle="Factor review and decision"
         titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100"
         className={egmCardClassName}
       >
@@ -193,6 +190,42 @@ function SgmSection() {
             </div>
           </>
         )}
+        <div className="space-y-4">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Link
+              href="https://teams.microsoft.com/l/meetup-join/19%3ameeting_ZjI4NmMzZjYtYmI3OS00ZDk3LTg1ZDgtNGE5NDI3YmExNzA1%40thread.v2/0?context=%7b%22Tid%22%3a%22f5c44b19-1c42-4ad7-b10e-1d2fcf2b71d3%22%2c%22Oid%22%3a%2290c27962-4d1a-4d45-8e9e-ff0f7b30452b%22%7d"
+              target="_blank"
+              rel="noreferrer noopener"
+              className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
+            >
+              Join Microsoft Teams meeting
+            </Link>
+            <Link
+              href="https://www.james-square.com/egm"
+              target="_blank"
+              rel="noreferrer noopener"
+              className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
+            >
+              View meeting details
+            </Link>
+            <Link
+              href="/myreside"
+              className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
+            >
+              View Myreside factor info
+            </Link>
+            <Link
+              href="/newton"
+              className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
+            >
+              View Newton factor info
+            </Link>
+          </div>
+          <div className="inline-flex flex-col gap-1 rounded-full border border-slate-200/80 bg-white/70 px-4 py-2 text-xs text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
+            <span>Factor documentation is provided for information only.</span>
+            <span>Proposals are initial and subject to clarification and update ahead of the meeting.</span>
+          </div>
+        </div>
       </GlassCard>
     );
   }
@@ -200,16 +233,13 @@ function SgmSection() {
   return (
     <GlassCard
       title="Extraordinary General Meeting (EGM)"
-      subtitle="Wednesday 21 January 2026 • 6:00pm (online)"
+      subtitle="Factor review and decision"
       titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100"
       className={egmCardClassName}
     >
       <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
-        An Extraordinary General Meeting has been arranged for owners at James Square to discuss and vote on a potential
-        change to the property factor.
-      </p>
-      <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
-        The meeting will be held online via Microsoft Teams to allow as many owners as possible to attend.
+        This meeting has been arranged for owners to discuss and vote on a potential change to the property factor for
+        James Square. Owners are encouraged to review the information below in advance of the meeting.
       </p>
 
       <div className={glassPanel}>
@@ -233,59 +263,41 @@ function SgmSection() {
         </dl>
       </div>
 
-      <div className="space-y-2">
-        <Link
-          href="https://teams.microsoft.com/l/meetup-join/19%3ameeting_ZjI4NmMzZjYtYmI3OS00ZDk3LTg1ZDgtNGE5NDI3YmExNzA1%40thread.v2/0?context=%7b%22Tid%22%3a%22f5c44b19-1c42-4ad7-b10e-1d2fcf2b71d3%22%2c%22Oid%22%3a%2290c27962-4d1a-4d45-8e9e-ff0f7b30452b%22%7d"
-          target="_blank"
-          rel="noreferrer noopener"
-          className="inline-flex items-center justify-center rounded-full px-5 py-2.5 text-sm font-semibold text-white bg-slate-900 shadow-[0_6px_18px_rgba(0,0,0,0.18)] transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.01] hover:shadow-[0_10px_28px_rgba(0,0,0,0.2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:bg-white dark:text-slate-900"
-        >
-          Join meeting on Microsoft Teams
-        </Link>
-        <Link
-          href="https://www.james-square.com/egm"
-          target="_blank"
-          rel="noreferrer noopener"
-          className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-2 text-sm font-medium text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
-        >
-          View full meeting details
-        </Link>
-        <p className="text-xs text-slate-500 dark:text-slate-300">
-          Calendar options and meeting details are also available at james-square.com/egm.
-        </p>
-      </div>
-    </GlassCard>
-  );
-}
-
-function FactorReviewSection() {
-  return (
-    <GlassCard
-      title="Factor review information"
-      titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100"
-    >
-      <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
-        Access neutral information and documentation for each proposed factor ahead of the general meeting.
-      </p>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Link
-          href="/myreside"
-          className="group rounded-2xl border border-slate-200/80 bg-white/80 p-5 text-left text-sm font-semibold text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/60 dark:border-white/10 dark:bg-white/5 dark:text-white"
-        >
-          <p className="text-base font-semibold">View Myreside Management information</p>
-          <p className="mt-2 text-sm font-normal text-slate-600 dark:text-slate-300">
-            Review the Myreside proposal, caretaker approach, costs, and tender documentation.
-          </p>
-        </Link>
-        <Link
-          href="/newton"
-          className="group rounded-2xl border border-slate-200/80 bg-white/80 p-5 text-left text-sm font-semibold text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/60 dark:border-white/10 dark:bg-white/5 dark:text-white"
-        >
-          <p className="text-base font-semibold">View Newton Property Management information</p>
-          <p className="mt-2 text-sm font-normal text-slate-600 dark:text-slate-300">
-            Review the Newton proposal, caretaker approach, costs, and tender documentation.
-          </p>
-        </Link>
+      <div className="space-y-4">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Link
+            href="https://teams.microsoft.com/l/meetup-join/19%3ameeting_ZjI4NmMzZjYtYmI3OS00ZDk3LTg1ZDgtNGE5NDI3YmExNzA1%40thread.v2/0?context=%7b%22Tid%22%3a%22f5c44b19-1c42-4ad7-b10e-1d2fcf2b71d3%22%2c%22Oid%22%3a%2290c27962-4d1a-4d45-8e9e-ff0f7b30452b%22%7d"
+            target="_blank"
+            rel="noreferrer noopener"
+            className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
+          >
+            Join Microsoft Teams meeting
+          </Link>
+          <Link
+            href="https://www.james-square.com/egm"
+            target="_blank"
+            rel="noreferrer noopener"
+            className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
+          >
+            View meeting details
+          </Link>
+          <Link
+            href="/myreside"
+            className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
+          >
+            View Myreside factor info
+          </Link>
+          <Link
+            href="/newton"
+            className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
+          >
+            View Newton factor info
+          </Link>
+        </div>
+        <div className="inline-flex flex-col gap-1 rounded-full border border-slate-200/80 bg-white/70 px-4 py-2 text-xs text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
+          <span>Factor documentation is provided for information only.</span>
+          <span>Proposals are initial and subject to clarification and update ahead of the meeting.</span>
+        </div>
       </div>
     </GlassCard>
   );
