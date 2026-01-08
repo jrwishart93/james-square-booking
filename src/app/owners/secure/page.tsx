@@ -125,8 +125,22 @@ const OwnersSecurePage = () => {
         </motion.div>
 
         <div className="space-y-6">
-          <motion.div variants={itemVariants}>
+          <motion.div
+            initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: prefersReducedMotion ? 0 : 0.35, ease: easeOut }}
+            viewport={{ once: true, amount: 0.2 }}
+          >
             <SgmSection />
+          </motion.div>
+
+          <motion.div variants={itemVariants} className="flex justify-center">
+            <motion.div
+              className="h-px w-full max-w-4xl bg-slate-200/70 dark:bg-white/10"
+              initial={prefersReducedMotion ? { opacity: 1, width: '100%' } : { opacity: 0, width: 0 }}
+              animate={{ opacity: 1, width: '100%' }}
+              transition={{ duration: prefersReducedMotion ? 0 : 0.4, ease: 'easeOut' }}
+            />
           </motion.div>
 
           <motion.div variants={itemVariants}>
@@ -147,12 +161,30 @@ export default OwnersSecurePage;
 function SgmSection() {
   const [meetingConcluded, setMeetingConcluded] = useState(false);
   const [votingClosed, setVotingClosed] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
     const now = new Date();
     setMeetingConcluded(now > EGM_END);
     setVotingClosed(now > VOTING_DEADLINE);
   }, []);
+
+  const actionGridVariants = {
+    hidden: { opacity: prefersReducedMotion ? 1 : 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        duration: prefersReducedMotion ? 0 : 0.15,
+        ease: 'easeOut',
+        staggerChildren: prefersReducedMotion ? 0 : 0.05,
+      },
+    },
+  };
+
+  const actionItemVariants = {
+    hidden: { opacity: prefersReducedMotion ? 1 : 0, y: prefersReducedMotion ? 0 : 4 },
+    show: { opacity: 1, y: 0, transition: { duration: prefersReducedMotion ? 0 : 0.2, ease: 'easeOut' } },
+  };
 
   const egmCardClassName = meetingConcluded
     ? votingClosed
@@ -232,49 +264,63 @@ function SgmSection() {
                 href={GOOGLE_CALENDAR_URL}
                 target="_blank"
                 rel="noreferrer noopener"
-                className="inline-flex items-center justify-center rounded-lg border border-black/10 bg-white/85 px-3 py-2 text-xs font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
+                className="inline-flex items-center justify-center rounded-lg border border-black/10 bg-white/85 px-3 py-2 text-xs font-semibold text-slate-900 shadow-sm transition-all duration-150 ease-out hover:-translate-y-0.5 hover:shadow-md hover:bg-white/95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] active:scale-[0.98] dark:border-white/15 dark:bg-white/20 dark:text-white dark:hover:bg-white/25"
               >
                 Add to Google Calendar
               </a>
               <a
                 href={EGM_ICS_PATH}
                 download="james-square-egm-2026.ics"
-                className="inline-flex items-center justify-center rounded-lg border border-black/10 bg-white/85 px-3 py-2 text-xs font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
+                className="inline-flex items-center justify-center rounded-lg border border-black/10 bg-white/85 px-3 py-2 text-xs font-semibold text-slate-900 shadow-sm transition-all duration-150 ease-out hover:-translate-y-0.5 hover:shadow-md hover:bg-white/95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] active:scale-[0.98] dark:border-white/15 dark:bg-white/20 dark:text-white dark:hover:bg-white/25"
               >
                 Add to Apple Calendar
               </a>
             </div>
           </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <Link
-              href={EGM_TEAMS_LINK}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
-            >
-              Join Microsoft Teams meeting
-            </Link>
-            <Link
-              href={EGM_PAGE_URL}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
-            >
-              View meeting details
-            </Link>
-            <Link
-              href="/myreside"
-              className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
-            >
-              View Myreside Management information
-            </Link>
-            <Link
-              href="/newton"
-              className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
-            >
-              View Newton Property Management information
-            </Link>
-          </div>
+          <motion.div
+            className="grid gap-3 sm:grid-cols-2"
+            variants={actionGridVariants}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.2 }}
+          >
+            <motion.div variants={actionItemVariants}>
+              <Link
+                href={EGM_TEAMS_LINK}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="inline-flex w-full items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-150 ease-out hover:-translate-y-0.5 hover:shadow-md hover:bg-white/95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white dark:hover:bg-white/25"
+              >
+                Join Microsoft Teams meeting
+              </Link>
+            </motion.div>
+            <motion.div variants={actionItemVariants}>
+              <Link
+                href={EGM_PAGE_URL}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="inline-flex w-full items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-150 ease-out hover:-translate-y-0.5 hover:shadow-md hover:bg-white/95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white dark:hover:bg-white/25"
+              >
+                View meeting details
+              </Link>
+            </motion.div>
+            <motion.div variants={actionItemVariants}>
+              <Link
+                href="/myreside"
+                className="inline-flex w-full items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-150 ease-out hover:-translate-y-0.5 hover:shadow-md hover:bg-white/95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white dark:hover:bg-white/25"
+              >
+                View Myreside Management information
+              </Link>
+            </motion.div>
+            <motion.div variants={actionItemVariants}>
+              <Link
+                href="/newton"
+                className="inline-flex w-full items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-150 ease-out hover:-translate-y-0.5 hover:shadow-md hover:bg-white/95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white dark:hover:bg-white/25"
+              >
+                View Newton Property Management information
+              </Link>
+            </motion.div>
+          </motion.div>
           <p className="text-xs text-slate-500 dark:text-slate-300 text-center sm:text-left">
             Proposal documents are provided for information only and may be updated ahead of the meeting.
           </p>
@@ -329,50 +375,64 @@ function SgmSection() {
               href={GOOGLE_CALENDAR_URL}
               target="_blank"
               rel="noreferrer noopener"
-              className="inline-flex items-center justify-center rounded-lg border border-black/10 bg-white/85 px-3 py-2 text-xs font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
+              className="inline-flex items-center justify-center rounded-lg border border-black/10 bg-white/85 px-3 py-2 text-xs font-semibold text-slate-900 shadow-sm transition-all duration-150 ease-out hover:-translate-y-0.5 hover:shadow-md hover:bg-white/95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] active:scale-[0.98] dark:border-white/15 dark:bg-white/20 dark:text-white dark:hover:bg-white/25"
             >
               Add to Google Calendar
             </a>
             <a
               href={EGM_ICS_PATH}
               download="james-square-egm-2026.ics"
-              className="inline-flex items-center justify-center rounded-lg border border-black/10 bg-white/85 px-3 py-2 text-xs font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
+              className="inline-flex items-center justify-center rounded-lg border border-black/10 bg-white/85 px-3 py-2 text-xs font-semibold text-slate-900 shadow-sm transition-all duration-150 ease-out hover:-translate-y-0.5 hover:shadow-md hover:bg-white/95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] active:scale-[0.98] dark:border-white/15 dark:bg-white/20 dark:text-white dark:hover:bg-white/25"
             >
               Add to Apple Calendar
             </a>
           </div>
         </div>
 
-          <div className="grid gap-3 sm:grid-cols-2">
+        <motion.div
+          className="grid gap-3 sm:grid-cols-2"
+          variants={actionGridVariants}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.2 }}
+        >
+          <motion.div variants={actionItemVariants}>
             <Link
               href={EGM_TEAMS_LINK}
-            target="_blank"
-            rel="noreferrer noopener"
-            className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
-          >
-            Join Microsoft Teams meeting
-          </Link>
-          <Link
-            href={EGM_PAGE_URL}
-            target="_blank"
-            rel="noreferrer noopener"
-            className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
+              target="_blank"
+              rel="noreferrer noopener"
+              className="inline-flex w-full items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-150 ease-out hover:-translate-y-0.5 hover:shadow-md hover:bg-white/95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white dark:hover:bg-white/25"
+            >
+              Join Microsoft Teams meeting
+            </Link>
+          </motion.div>
+          <motion.div variants={actionItemVariants}>
+            <Link
+              href={EGM_PAGE_URL}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="inline-flex w-full items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-150 ease-out hover:-translate-y-0.5 hover:shadow-md hover:bg-white/95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white dark:hover:bg-white/25"
             >
               View meeting details
             </Link>
+          </motion.div>
+          <motion.div variants={actionItemVariants}>
             <Link
               href="/myreside"
-              className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
+              className="inline-flex w-full items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-150 ease-out hover:-translate-y-0.5 hover:shadow-md hover:bg-white/95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white dark:hover:bg-white/25"
             >
               View Myreside Management information
             </Link>
+          </motion.div>
+          <motion.div variants={actionItemVariants}>
             <Link
               href="/newton"
-              className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white"
+              className="inline-flex w-full items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-150 ease-out hover:-translate-y-0.5 hover:shadow-md hover:bg-white/95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 active:translate-y-[1px] dark:border-white/15 dark:bg-white/20 dark:text-white dark:hover:bg-white/25"
             >
               View Newton Property Management information
             </Link>
-          </div>
+          </motion.div>
+        </motion.div>
         <p className="text-xs text-slate-500 dark:text-slate-300 text-center sm:text-left">
           Proposal documents are provided for information only and may be updated ahead of the meeting.
         </p>
