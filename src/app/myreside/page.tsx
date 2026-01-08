@@ -16,33 +16,14 @@ const MyresidePage = () => {
       logoSrc="/images/logo/myreside-logo-removebg-preview.png"
       logoAlt="Myreside Management logo"
       managementTitle="How Myreside would manage James Square"
-      managementPoints={[
-        'Traditional factoring model',
-        'Emphasis on in-house service delivery',
-        'Regular site inspections',
-        'Close working relationship with the owners’ committee',
-        'Flexible, practical approach rather than rigid systems',
-      ]}
-      caretakerTitle="Caretaker arrangements"
-      caretakerIntro="James Square already has a caretaker in post."
-      caretakerPoints={[
-        'The existing caretaker would be expected to transfer across (subject to TUPE)',
-        'Caretaking, cleaning, and minor maintenance duties may overlap where required',
-        'Day-to-day support would be provided by Myreside’s internal team',
-        'Holiday and sickness cover would be arranged internally',
-      ]}
-      communicationPoints={[
-        'Direct contact with a named property manager',
-        'Issues raised by phone or email',
-        'Maintenance progressed via internal teams or approved contractors',
-        'Committee involvement encouraged where appropriate',
-      ]}
+      managementText="Myreside Management operates a traditional factoring model, with an emphasis on in-house service delivery and regular site inspections. Their approach focuses on maintaining a close working relationship with the owners’ committee and dealing with issues in a practical and flexible manner rather than relying on rigid systems or processes."
+      communicationText="Communication would be handled directly through a named property manager, with issues raised by phone or email. Maintenance would be coordinated using Myreside’s internal teams or approved contractors, with committee involvement where appropriate and agreed."
       costs={[
-        'Total annual budget: ~£179,000',
-        'Approximate cost per flat: ~£1,740 per year (~£145 per month)',
-        'Management fee: £150 + VAT per flat per year',
-        'Float required: £450 per flat (refundable)',
-        'No commission taken on buildings insurance',
+        { label: 'Total annual budget:', value: 'approximately £179,000' },
+        { label: 'Approximate cost per flat:', value: 'around £1,740 per year (about £145 per month)' },
+        { label: 'Management fee:', value: '£150 plus VAT per flat per year' },
+        { label: 'Float required:', value: '£450 per flat (refundable)' },
+        { label: 'Insurance commission:', value: 'none taken' },
       ]}
       documentationHref="/images/venues/myreside-tender-doc.pdf"
       documentationLabel="View Myreside tender documentation (PDF)"

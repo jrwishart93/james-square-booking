@@ -12,12 +12,9 @@ type FactorInfoPageProps = {
   logoSrc: string;
   logoAlt: string;
   managementTitle: string;
-  managementPoints: string[];
-  caretakerTitle: string;
-  caretakerIntro: string;
-  caretakerPoints: string[];
-  communicationPoints: string[];
-  costs: string[];
+  managementText: string;
+  communicationText: string;
+  costs: Array<{ label: string; value: string }>;
   documentationHref: string;
   documentationLabel: string;
 };
@@ -29,19 +26,16 @@ const FactorInfoPage = ({
   logoSrc,
   logoAlt,
   managementTitle,
-  managementPoints,
-  caretakerTitle,
-  caretakerIntro,
-  caretakerPoints,
-  communicationPoints,
+  managementText,
+  communicationText,
   costs,
   documentationHref,
   documentationLabel,
 }: FactorInfoPageProps) => {
   return (
     <GradientBG className="relative isolate min-h-screen w-screen -ml-[calc((100vw-100%)/2)] -mr-[calc((100vw-100%)/2)] px-4 md:px-8 py-12">
-      <div className="relative mx-auto max-w-5xl px-2 sm:px-4 md:px-0 space-y-8">
-        <header className="pt-5 md:pt-6 space-y-4 md:space-y-5 text-center md:text-left">
+      <div className="relative mx-auto max-w-5xl px-2 sm:px-4 md:px-0 space-y-10">
+        <header className="pt-5 md:pt-6 space-y-4 md:space-y-6 text-center md:text-left">
           <div className="flex flex-col items-center gap-4 md:flex-row md:items-center md:gap-6">
             <Image
               src={logoSrc}
@@ -51,7 +45,7 @@ const FactorInfoPage = ({
               className="h-20 w-auto object-contain"
               priority
             />
-            <div className="space-y-1">
+            <div className="space-y-2">
               <h1 className="text-3xl md:text-4xl font-semibold text-neutral-900 dark:text-white">{title}</h1>
               <p className="text-sm md:text-base text-slate-600 dark:text-slate-300">{subtitle}</p>
             </div>
@@ -61,36 +55,21 @@ const FactorInfoPage = ({
 
         <div className="space-y-6">
           <GlassCard title={managementTitle} titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100">
-            <ul className="list-disc space-y-2 pl-5 text-sm md:text-base text-slate-700 dark:text-slate-200">
-              {managementPoints.map((point) => (
-                <li key={point}>{point}</li>
-              ))}
-            </ul>
-          </GlassCard>
-
-          <GlassCard title={caretakerTitle} titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100">
-            <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">{caretakerIntro}</p>
-            <ul className="list-disc space-y-2 pl-5 text-sm md:text-base text-slate-700 dark:text-slate-200">
-              {caretakerPoints.map((point) => (
-                <li key={point}>{point}</li>
-              ))}
-            </ul>
+            <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">{managementText}</p>
           </GlassCard>
 
           <GlassCard title="Communication & maintenance" titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100">
-            <ul className="list-disc space-y-2 pl-5 text-sm md:text-base text-slate-700 dark:text-slate-200">
-              {communicationPoints.map((point) => (
-                <li key={point}>{point}</li>
-              ))}
-            </ul>
+            <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">{communicationText}</p>
           </GlassCard>
 
           <GlassCard title="Costs summary" titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100">
-            <ul className="list-disc space-y-2 pl-5 text-sm md:text-base text-slate-700 dark:text-slate-200">
+            <div className="space-y-2 text-sm md:text-base text-slate-700 dark:text-slate-200">
               {costs.map((cost) => (
-                <li key={cost}>{cost}</li>
+                <p key={cost.label}>
+                  <span className="font-semibold text-slate-900 dark:text-slate-100">{cost.label}</span> {cost.value}
+                </p>
               ))}
-            </ul>
+            </div>
           </GlassCard>
 
           <GlassCard title="Documentation" titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100">
@@ -102,6 +81,7 @@ const FactorInfoPage = ({
             >
               {documentationLabel}
             </a>
+            <p className="text-xs text-slate-500 dark:text-slate-300">This document is provided for information only.</p>
           </GlassCard>
 
           <div className="rounded-2xl border border-slate-200/80 bg-slate-50/80 p-6 shadow-sm dark:border-white/10 dark:bg-white/5">

@@ -16,34 +16,14 @@ const NewtonPage = () => {
       logoSrc="/images/logo/newton-logo-removebg-preview.png"
       logoAlt="Newton Property Management logo"
       managementTitle="How Newton would manage James Square"
-      managementPoints={[
-        'Structured, systems-based factoring model',
-        'Named property manager and assistant',
-        'Centralised maintenance tracking',
-        'Formal escalation and reporting processes',
-        'Regular communication with the committee',
-      ]}
-      caretakerTitle="Caretaker arrangements"
-      caretakerIntro="James Square already has a caretaker in post."
-      caretakerPoints={[
-        'The existing caretaker would be expected to transfer across (subject to TUPE)',
-        'Caretaker supported through Newton payroll and HR systems',
-        'Clear line management and escalation routes',
-        'Planned holiday and sickness cover',
-      ]}
-      communicationPoints={[
-        'Maintenance issues logged and tracked',
-        'Responsibility assigned to a named manager',
-        'Progress monitored and escalated where required',
-        'Updates provided to the committee',
-        'Online systems used for reporting and visibility',
-      ]}
+      managementText="Newton Property Management operates a structured, systems-based factoring model with defined processes for reporting, escalation, and oversight. Management would be delivered through a named property manager supported by centralised systems designed to provide consistency and visibility across maintenance and compliance matters."
+      communicationText="Maintenance issues would be logged, tracked, and assigned through Newton’s internal systems, with responsibility held by a named property manager. Progress would be monitored and escalated where required, with updates available to the committee as matters are progressed."
       costs={[
-        'Total annual budget: ~£192,700',
-        'Approximate cost per flat: ~£1,870 per year (~£156 per month)',
-        'Management fee: £180 + VAT per flat per year',
-        'Float required: £300 per flat (refundable)',
-        'Potential insurance savings identified',
+        { label: 'Total annual budget:', value: 'approximately £192,700' },
+        { label: 'Approximate cost per flat:', value: 'around £1,870 per year (about £156 per month)' },
+        { label: 'Management fee:', value: '£180 plus VAT per flat per year' },
+        { label: 'Float required:', value: '£300 per flat (refundable)' },
+        { label: 'Insurance:', value: 'potential savings identified' },
       ]}
       documentationHref="/images/venues/newton-tender-doc.pdf"
       documentationLabel="View Newton tender documentation (PDF)"
