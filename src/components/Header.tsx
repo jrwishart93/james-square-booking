@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { onAuthStateChanged, signOut, User } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
 import { collection, doc, getDocs, onSnapshot, query, where, DocumentData, type Timestamp } from "firebase/firestore";
@@ -24,6 +24,8 @@ export default function Header() {
   const [userName, setUserName] = useState<string>("");
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
+  const [hidden, setHidden] = useState(false);
+  const lastScrollY = useRef(0);
   const [lastSeenMessageBoardAt, setLastSeenMessageBoardAt] = useState<Timestamp | null | undefined>(
     undefined
   );
@@ -95,6 +97,23 @@ export default function Header() {
     setOpen(false);
   }, [pathname]);
 
+  useEffect(() => {
+    const onScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      if (currentScrollY > lastScrollY.current && currentScrollY > 64) {
+        setHidden(true);
+      } else {
+        setHidden(false);
+      }
+
+      lastScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   function NavLink({ href, label, showUnread }: { href: string; label: string; showUnread?: boolean }) {
     const active = pathname?.startsWith(href);
 
@@ -153,7 +172,14 @@ export default function Header() {
   }
 
   return (
-    <header className="site-header z-40">
+    <header
+      className={[
+        "site-header fixed top-0 left-0 right-0 z-50 safe-top",
+        "transition-transform duration-300 ease-out",
+        hidden ? "-translate-y-full" : "translate-y-0",
+        "md:translate-y-0"
+      ].join(" ")}
+    >
       <div className="mx-auto max-w-6xl px-4 sm:px-6 py-3">
         <div className="glass border flex items-center justify-between px-3 sm:px-4 py-2">
           {/* Brand */}
