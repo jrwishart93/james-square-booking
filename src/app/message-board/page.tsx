@@ -140,6 +140,8 @@ function formatTimestampLabel(value?: unknown): string {
   return 'Unknown time';
 }
 
+const TWO_WEEKS_MS = 1000 * 60 * 60 * 24 * 14;
+
 function toMillis(value?: unknown): number | null {
   if (value && typeof value === 'object') {
     if ('toMillis' in (value as Record<string, unknown>)) {
@@ -155,11 +157,17 @@ function toMillis(value?: unknown): number | null {
   return null;
 }
 
+function getUnreadCutoffMillis(lastSeenMessageBoardAt?: Timestamp | null): number {
+  const twoWeeksAgo = Date.now() - TWO_WEEKS_MS;
+  const lastSeenMillis = lastSeenMessageBoardAt?.toMillis();
+  return lastSeenMillis !== undefined ? Math.min(lastSeenMillis, twoWeeksAgo) : twoWeeksAgo;
+}
+
 function isPostUnread(updatedAt: unknown, lastSeenMessageBoardAt?: Timestamp | null): boolean {
-  if (!lastSeenMessageBoardAt) return true;
+  const cutoffMillis = getUnreadCutoffMillis(lastSeenMessageBoardAt);
   const updatedMillis = toMillis(updatedAt);
   if (!updatedMillis) return false;
-  return updatedMillis > lastSeenMessageBoardAt.toMillis();
+  return updatedMillis > cutoffMillis;
 }
 
 /* ============================
