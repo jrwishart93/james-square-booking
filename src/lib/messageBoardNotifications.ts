@@ -11,7 +11,7 @@ import {
 import { db } from '@/lib/firebase';
 
 // In-app unread detection uses user.lastSeenMessageBoardAt + post.updatedAt (no notifications collection).
-// The "new" window is either within the last 2 weeks or since last seen, whichever is earlier.
+// The "new" window is within the last 2 weeks and newer than last seen when available.
 export type UnreadMessageBoardResult = {
   hasUnread: boolean;
   count: number;
@@ -23,7 +23,7 @@ function getUnreadCutoff(lastSeenMessageBoardAt?: Timestamp | null): Timestamp {
   const twoWeeksAgo = Date.now() - TWO_WEEKS_MS;
   const lastSeenMillis = lastSeenMessageBoardAt?.toMillis();
   const cutoffMillis =
-    lastSeenMillis !== undefined ? Math.min(lastSeenMillis, twoWeeksAgo) : twoWeeksAgo;
+    lastSeenMillis !== undefined ? Math.max(lastSeenMillis, twoWeeksAgo) : twoWeeksAgo;
   return Timestamp.fromMillis(cutoffMillis);
 }
 

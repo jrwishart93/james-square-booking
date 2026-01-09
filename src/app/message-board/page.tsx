@@ -160,7 +160,7 @@ function toMillis(value?: unknown): number | null {
 function getUnreadCutoffMillis(lastSeenMessageBoardAt?: Timestamp | null): number {
   const twoWeeksAgo = Date.now() - TWO_WEEKS_MS;
   const lastSeenMillis = lastSeenMessageBoardAt?.toMillis();
-  return lastSeenMillis !== undefined ? Math.min(lastSeenMillis, twoWeeksAgo) : twoWeeksAgo;
+  return lastSeenMillis !== undefined ? Math.max(lastSeenMillis, twoWeeksAgo) : twoWeeksAgo;
 }
 
 function isPostUnread(updatedAt: unknown, lastSeenMessageBoardAt?: Timestamp | null): boolean {
