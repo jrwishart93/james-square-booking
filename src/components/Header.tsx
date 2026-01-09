@@ -9,6 +9,7 @@ import { auth, db } from "@/lib/firebase";
 import { collection, doc, getDocs, onSnapshot, query, where, DocumentData, type Timestamp } from "firebase/firestore";
 import { motion } from "framer-motion";
 import { getUnreadMessageBoardCount } from "@/lib/messageBoardNotifications";
+import { lightHaptic } from "@/lib/haptics";
 
 /** Shape of the Firestore user document */
 type UserDoc = {
@@ -30,6 +31,25 @@ export default function Header() {
     undefined
   );
   const [hasUnreadMessageBoard, setHasUnreadMessageBoard] = useState<boolean>(false);
+
+  const handleMenuToggle = () => {
+    setOpen((prev) => {
+      const next = !prev;
+      if (next !== prev) {
+        lightHaptic();
+      }
+      return next;
+    });
+  };
+
+  const handleMenuClose = () => {
+    setOpen((prev) => {
+      if (prev) {
+        lightHaptic();
+      }
+      return false;
+    });
+  };
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (u) => {
@@ -250,7 +270,7 @@ export default function Header() {
             className="sm:hidden px-3 py-2 rounded-xl bg-white/50"
             aria-expanded={open}
             aria-label="Toggle menu"
-            onClick={() => setOpen((v) => !v)}
+            onClick={handleMenuToggle}
           >
             {open ? "Close" : "Menu"}
           </motion.button>
@@ -278,7 +298,7 @@ export default function Header() {
                     <motion.button
                       whileTap={{ scale: 0.97 }}
                       onClick={() => {
-                        setOpen(false);
+                        handleMenuClose();
                         signOut(auth);
                       }}
                       className="w-full px-3 py-2 rounded-xl bg-black/80 text-white hover:bg-black"

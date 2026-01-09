@@ -16,6 +16,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { DateTime } from 'luxon';
+import { lightHaptic, softHaptic } from '@/lib/haptics';
 
 interface Slot {
   start: string;
@@ -99,7 +100,11 @@ function renderDateSelector(
         return (
           <button
             key={iso}
-            onClick={() => setSelectedDate(iso)}
+            onClick={() => {
+              if (iso === selectedDate) return;
+              softHaptic();
+              setSelectedDate(iso);
+            }}
             className={[
               'jqs-date-pill whitespace-nowrap transition active:scale-[0.98]',
               isActive
@@ -206,6 +211,12 @@ export default function SchedulePageClientInner() {
   
     fetchData(selectedDate);
   }, [selectedDate]);
+
+  useEffect(() => {
+    if (bookingConfirm?.type === 'success') {
+      lightHaptic();
+    }
+  }, [bookingConfirm]);
   
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
@@ -391,6 +402,7 @@ export default function SchedulePageClientInner() {
             },
           },
         }));
+        softHaptic();
         setBookingConfirm({ message: 'Booking Successful!', type: 'success' });
         setTimeout(() => setBookingConfirm(null), 2000);
       } catch (err: unknown) {

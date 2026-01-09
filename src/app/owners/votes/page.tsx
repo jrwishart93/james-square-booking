@@ -5,6 +5,7 @@ import { collection, doc, getDoc, getDocs, orderBy, query, serverTimestamp, setD
 
 import { useAuth } from '@/context/AuthContext';
 import { db } from '@/lib/firebase';
+import { lightHaptic } from '@/lib/haptics';
 
 interface VoteOption {
   id: string;
@@ -250,6 +251,7 @@ const OwnersVotesPage = () => {
 
       setInitialSelections((prev) => ({ ...prev, [voteId]: chosenOption }));
       setVoteMessages((prev) => ({ ...prev, [voteId]: 'Vote saved.' }));
+      lightHaptic();
     } catch (error) {
       console.error('Failed to cast vote', error);
       setVoteMessages((prev) => ({ ...prev, [voteId]: 'Failed to save vote. Please try again.' }));
