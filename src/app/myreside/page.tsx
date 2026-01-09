@@ -25,8 +25,12 @@ const MyresidePage = () => {
         { label: 'Float required:', value: '£450 per flat (refundable)' },
         { label: 'Insurance commission:', value: 'none taken' },
       ]}
-      documentationHref="/images/venues/myreside-tender-doc.pdf"
-      documentationLabel="View Myreside tender documentation (PDF)"
+      documentationLinks={[
+        {
+          href: '/images/venues/myreside-tender-doc.pdf',
+          label: 'View Myreside tender documentation (PDF)',
+        },
+      ]}
     />
   );
 };

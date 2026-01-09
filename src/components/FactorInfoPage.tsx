@@ -15,8 +15,7 @@ type FactorInfoPageProps = {
   managementText: string;
   communicationText: string;
   costs: Array<{ label: string; value: string }>;
-  documentationHref: string;
-  documentationLabel: string;
+  documentationLinks: Array<{ href: string; label: string }>;
 };
 
 const FactorInfoPage = ({
@@ -29,8 +28,7 @@ const FactorInfoPage = ({
   managementText,
   communicationText,
   costs,
-  documentationHref,
-  documentationLabel,
+  documentationLinks,
 }: FactorInfoPageProps) => {
   return (
     <GradientBG className="relative isolate min-h-screen w-screen -ml-[calc((100vw-100%)/2)] -mr-[calc((100vw-100%)/2)] px-4 md:px-8 py-12">
@@ -73,15 +71,20 @@ const FactorInfoPage = ({
           </GlassCard>
 
           <GlassCard title="Documentation" titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100">
-            <a
-              href={documentationHref}
-              className="inline-flex items-center text-sm font-semibold text-cyan-700 hover:text-cyan-600 dark:text-cyan-300 dark:hover:text-cyan-200"
-              target="_blank"
-              rel="noreferrer noopener"
-            >
-              {documentationLabel}
-            </a>
-            <p className="text-xs text-slate-500 dark:text-slate-300">This document is provided for information only.</p>
+            <div className="flex flex-col gap-2">
+              {documentationLinks.map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  className="inline-flex items-center text-sm font-semibold text-cyan-700 hover:text-cyan-600 dark:text-cyan-300 dark:hover:text-cyan-200"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                >
+                  {link.label}
+                </a>
+              ))}
+            </div>
+            <p className="text-xs text-slate-500 dark:text-slate-300">These documents are provided for information only.</p>
           </GlassCard>
 
           <div className="rounded-2xl border border-slate-200/80 bg-slate-50/80 p-6 shadow-sm dark:border-white/10 dark:bg-white/5">
