@@ -153,7 +153,7 @@ export default function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-40">
+    <header className="site-header z-40">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 py-3">
         <div className="glass border flex items-center justify-between px-3 sm:px-4 py-2">
           {/* Brand */}

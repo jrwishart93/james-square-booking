@@ -64,6 +64,19 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+.site-header {
+  position: sticky;
+  top: env(safe-area-inset-top);
+  padding-top: env(safe-area-inset-top);
+}
+
+@supports (padding: env(safe-area-inset-top)) {
+  .site-header button,
+  .site-header a {
+    min-height: 44px;
+  }
+}
+
 @media (prefers-color-scheme: dark) {
   html, body {
     background-color: #0f172a;
