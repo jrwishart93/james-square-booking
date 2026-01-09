@@ -309,6 +309,8 @@ export default function HomePageClient() {
 
       {/* PHOTO CAROUSEL */}
       <PhotoCarousel />
+
+      <MobileAppPoster />
     </main>
   );
 }
