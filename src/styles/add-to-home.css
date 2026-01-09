@@ -3,6 +3,44 @@
   width: 100%;
 }
 
+.add-to-home-controls {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.add-to-home-arrow {
+  border-radius: 9999px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(15, 23, 42, 0.08);
+  color: var(--text-primary);
+  height: 40px;
+  width: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  box-shadow: 0 10px 24px rgba(59, 130, 246, 0.18);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.add-to-home-arrow:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(59, 130, 246, 0.28);
+}
+
+.add-to-home-arrow:active {
+  transform: translateY(0);
+  opacity: 0.85;
+}
+
+.dark .add-to-home-arrow {
+  background: rgba(15, 23, 42, 0.4);
+  border-color: rgba(148, 163, 184, 0.2);
+  box-shadow: 0 12px 28px rgba(59, 130, 246, 0.2);
+}
+
 .add-to-home-track {
   display: flex;
   gap: 40px;

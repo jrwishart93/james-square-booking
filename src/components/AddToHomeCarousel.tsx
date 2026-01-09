@@ -50,6 +50,7 @@ export default function AddToHomeCarousel() {
   const x = useMotionValue(0);
   const [activeIndex, setActiveIndex] = useState(0);
   const [slideWidth, setSlideWidth] = useState(0);
+  const [isDesktop, setIsDesktop] = useState(false);
 
   useEffect(() => {
     if (!wrapperRef.current) return undefined;
@@ -67,10 +68,41 @@ export default function AddToHomeCarousel() {
     x.set(-activeIndex * slideWidth);
   }, [activeIndex, slideWidth, x]);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    const media = window.matchMedia('(min-width: 1024px)');
+    const handleChange = () => setIsDesktop(media.matches);
+    handleChange();
+    if (media.addEventListener) {
+      media.addEventListener('change', handleChange);
+      return () => media.removeEventListener('change', handleChange);
+    }
+    media.addListener(handleChange);
+    return () => media.removeListener(handleChange);
+  }, []);
+
+  useEffect(() => {
+    if (!isDesktop || slideWidth === 0) return undefined;
+    const timer = window.setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % STEP_POSITIONS.length);
+    }, 5200);
+    return () => window.clearInterval(timer);
+  }, [isDesktop, slideWidth]);
+
   const maxDrag = useMemo(() => -(STEP_POSITIONS.length - 1) * slideWidth, [slideWidth]);
+  const goPrev = () => setActiveIndex((prev) => (prev - 1 + STEP_POSITIONS.length) % STEP_POSITIONS.length);
+  const goNext = () => setActiveIndex((prev) => (prev + 1) % STEP_POSITIONS.length);
 
   return (
     <div ref={wrapperRef} className="add-to-home-carousel">
+      <div className="add-to-home-controls">
+        <button type="button" className="add-to-home-arrow" onClick={goPrev} aria-label="Previous step">
+          <span aria-hidden="true">←</span>
+        </button>
+        <button type="button" className="add-to-home-arrow" onClick={goNext} aria-label="Next step">
+          <span aria-hidden="true">→</span>
+        </button>
+      </div>
       <motion.div
         className="add-to-home-track"
         drag="x"
