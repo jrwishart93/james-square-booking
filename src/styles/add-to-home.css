@@ -43,7 +43,7 @@
 
 .add-to-home-track {
   display: flex;
-  gap: 40px;
+  gap: 32px;
   cursor: grab;
   padding: 12px 0 24px;
 }
@@ -95,5 +95,15 @@
 
   .add-to-home-text h3 {
     font-size: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .add-to-home-track {
+    gap: 24px;
+  }
+
+  .add-to-home-slide {
+    flex: 0 0 70%;
   }
 }
