@@ -25,8 +25,16 @@ const NewtonPage = () => {
         { label: 'Float required:', value: '£300 per flat (refundable)' },
         { label: 'Insurance:', value: 'potential savings identified' },
       ]}
-      documentationHref="/images/venues/newton-tender-doc.pdf"
-      documentationLabel="View Newton tender documentation (PDF)"
+      documentationLinks={[
+        {
+          href: '/images/venues/Newton-Tender-Doc.pdf',
+          label: 'View Newton tender documentation (PDF)',
+        },
+        {
+          href: '/images/venues/Newton-Cost-doc.pdf',
+          label: 'View Newton cost breakdown (PDF)',
+        },
+      ]}
     />
   );
 };
