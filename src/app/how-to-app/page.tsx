@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useState } from 'react';
+import FocusHighlight from '@/components/FocusHighlight';
 
 const iPhoneSteps = [
   {
@@ -38,6 +39,14 @@ const androidSteps = [
   'Tap the menu (three dots) in the top-right corner.',
   'Tap Add to Home screen or Install app.',
   'Confirm when prompted.',
+];
+
+const focusHighlights = [
+  { top: '87%', left: '90%', size: 44, label: 'Menu' },
+  { top: '58%', left: '50%', size: 56, label: 'Share' },
+  { top: '72%', left: '50%', size: 58 },
+  { top: '6%', left: '88%', size: 44, label: 'Add' },
+  { top: '32%', left: '50%', size: 64 },
 ];
 
 export default function HowToAppPage() {
@@ -160,6 +169,7 @@ export default function HowToAppPage() {
                             height={520}
                             className="h-auto w-full rounded-xl border border-black/5"
                           />
+                          <FocusHighlight {...focusHighlights[index]} isActive={isActive} />
                         </motion.div>
                         <motion.div
                           className="space-y-2"
