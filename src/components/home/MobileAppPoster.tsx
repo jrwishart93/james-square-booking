@@ -1,15 +1,31 @@
 "use client";
 
 import Image from 'next/image';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, useInView, useReducedMotion } from 'framer-motion';
+import { useRef } from 'react';
 import AppPromoSection from '@/components/AppPromo/AppPromoSection';
 
 export default function MobileAppPoster() {
   const shouldReduceMotion = useReducedMotion();
+  const visualsRef = useRef<HTMLDivElement | null>(null);
+  const visualsInView = useInView(visualsRef, { margin: '-20% 0px -20% 0px' });
 
-  const leftPhoneInitial = shouldReduceMotion ? { opacity: 0 } : { x: -120, rotate: -8, opacity: 0 };
-  const rightPhoneInitial = shouldReduceMotion ? { opacity: 0 } : { y: 140, rotate: 8, opacity: 0 };
+  const leftPhoneInitial = shouldReduceMotion ? { opacity: 0 } : { x: -30, rotate: -12, opacity: 0 };
+  const rightPhoneInitial = shouldReduceMotion ? { opacity: 0 } : { x: 30, rotate: 12, opacity: 0 };
   const textInitial = shouldReduceMotion ? { opacity: 0 } : { y: 16, opacity: 0 };
+
+  const leftPhoneAnimation = shouldReduceMotion
+    ? { opacity: visualsInView ? 1 : 0 }
+    : { opacity: visualsInView ? 1 : 0, x: visualsInView ? 0 : -30, rotate: visualsInView ? -8 : -12 };
+  const rightPhoneAnimation = shouldReduceMotion
+    ? { opacity: visualsInView ? 1 : 0 }
+    : { opacity: visualsInView ? 1 : 0, x: visualsInView ? 0 : 30, rotate: visualsInView ? 8 : 12 };
+  const phoneTransition = shouldReduceMotion
+    ? { duration: 0.25 }
+    : {
+        duration: 0.6,
+        ease: 'easeOut',
+      };
   return (
     <section className="mt-16 sm:mt-20">
       <div
@@ -41,20 +57,15 @@ export default function MobileAppPoster() {
           </p>
         </motion.div>
 
-        <div className="app-promo-visuals relative mt-6 flex items-center justify-center gap-3.5 md:mt-16 md:h-[520px] md:block">
+        <div
+          ref={visualsRef}
+          className="app-promo-visuals relative mt-6 flex items-center justify-center gap-3.5 md:mt-16 md:h-[520px] md:block"
+        >
           <motion.div
             initial={leftPhoneInitial}
-            whileInView={{ x: 0, rotate: shouldReduceMotion ? 0 : -6, opacity: 1 }}
-            transition={
-              shouldReduceMotion
-                ? { duration: 0.25 }
-                : {
-                    duration: 0.6,
-                    ease: 'easeOut',
-                  }
-            }
-            viewport={{ once: true, amount: 0.25 }}
-            className="app-promo-phone left order-1 md:absolute md:bottom-0 md:left-2 md:z-10 md:translate-x-6"
+            animate={leftPhoneAnimation}
+            transition={phoneTransition}
+            className="app-promo-phone left order-1 block visible z-20 md:absolute md:bottom-0 md:left-2 md:translate-x-6"
           >
             <Image
               src="/images/brands/step4-removebg-preview.png"
@@ -66,22 +77,13 @@ export default function MobileAppPoster() {
             />
           </motion.div>
 
-          <AppPromoSection className="order-2 px-0 py-0 pb-0 md:absolute md:bottom-4 md:left-1/2 md:z-30 md:-translate-x-1/2 md:py-0 md:pb-0" />
+          <AppPromoSection className="order-2 z-30 px-0 py-0 pb-0 md:absolute md:bottom-4 md:left-1/2 md:-translate-x-1/2 md:py-0 md:pb-0" />
 
           <motion.div
             initial={rightPhoneInitial}
-            whileInView={{ y: 0, rotate: shouldReduceMotion ? 0 : 6, opacity: 1 }}
-            transition={
-              shouldReduceMotion
-                ? { duration: 0.25 }
-                : {
-                    delay: 0.15,
-                    duration: 0.6,
-                    ease: 'easeOut',
-                  }
-            }
-            viewport={{ once: true, amount: 0.45 }}
-            className="app-promo-phone right order-3 md:absolute md:bottom-0 md:right-2 md:z-20 md:-translate-x-6"
+            animate={rightPhoneAnimation}
+            transition={phoneTransition}
+            className="app-promo-phone right order-3 block visible z-20 md:absolute md:bottom-0 md:right-2 md:-translate-x-6"
           >
             <Image
               src="/images/brands/step5-removebg-preview.png"
