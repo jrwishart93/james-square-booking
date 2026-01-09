@@ -264,24 +264,24 @@ export default function HomePageClient() {
         <IconCard
           title="Message Board"
           href="/message-board"
-          lightIcon="/images/icons/message-icon-light.png"
-          darkIcon="/images/icons/message-icon-dark.png"
+          lightIcon="/images/icons/new-message-icon-light.png"
+          darkIcon="/images/icons/new-message-icon-dark.png"
           blurb="Share updates, ask questions and discuss anything related to James Square."
         />
 
         <IconCard
           title="My Dashboard"
           href="/dashboard"
-          lightIcon="/images/icons/dashboard-icon-light.png"
-          darkIcon="/images/icons/dashboard-icon-dark.png"
+          lightIcon="/images/icons/new-dashboard-icon-light.png"
+          darkIcon="/images/icons/new-dashboard-icon-dark.png"
           blurb="View, edit and manage your bookings. Add bookings to your calendar."
         />
 
         <IconCard
           title="Book Facilities"
           href="/book"
-          lightIcon="/images/icons/pool-icon-light.png"
-          darkIcon="/images/icons/pool-icon-dark.png"
+          lightIcon="/images/icons/new-pool-icon-light.png"
+          darkIcon="/images/icons/new-pool-icon-dark.png"
           blurb="Reserve time for the pool, gym or sauna."
         />
 
@@ -289,7 +289,7 @@ export default function HomePageClient() {
           title="Owners Area"
           href="/owners"
           lightIcon="/images/icons/Owner-icon-light.PNG"
-          darkIcon="/images/icons/Owner-icon-dark.PNG"
+          darkIcon="/images/icons/new-Owner-icon-dark.png"
           blurb="Access owner information, voting, and owners-only updates."
           iconAlt="Owners area"
         />
@@ -299,7 +299,7 @@ export default function HomePageClient() {
           title="Useful Info"
           href="/local"
           lightIcon="/images/icons/info-icon-light.png"
-          darkIcon="/images/icons/info-icon-dark.png"
+          darkIcon="/images/icons/new-info-icon-dark.png"
           blurb="Access, bins & recycling, contacts and local picks (food, shops, coffee)."
         />
       </section>
