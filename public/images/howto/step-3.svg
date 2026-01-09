@@ -1,0 +1,11 @@
+<svg width="750" height="1580" viewBox="0 0 750 1580" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="750" height="1580" rx="80" fill="#F8FAFC"/>
+  <rect x="40" y="80" width="670" height="1420" rx="60" fill="#E2E8F0"/>
+  <rect x="120" y="240" width="510" height="900" rx="40" fill="#CBD5F5"/>
+  <rect x="160" y="320" width="430" height="80" rx="32" fill="#94A3B8"/>
+  <rect x="160" y="440" width="380" height="60" rx="30" fill="#CBD5F5"/>
+  <rect x="160" y="520" width="360" height="60" rx="30" fill="#CBD5F5"/>
+  <rect x="160" y="600" width="340" height="60" rx="30" fill="#CBD5F5"/>
+  <text x="120" y="1220" fill="#334155" font-family="Arial" font-size="52" font-weight="600">Add to Home Screen</text>
+  <text x="120" y="1300" fill="#64748B" font-family="Arial" font-size="36">Select it from the list</text>
+</svg>

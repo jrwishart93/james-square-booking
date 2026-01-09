@@ -1,0 +1,11 @@
+<svg width="750" height="1580" viewBox="0 0 750 1580" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="750" height="1580" rx="80" fill="#F8FAFC"/>
+  <rect x="40" y="80" width="670" height="1420" rx="60" fill="#E2E8F0"/>
+  <rect x="120" y="260" width="510" height="280" rx="40" fill="#CBD5F5"/>
+  <rect x="120" y="620" width="430" height="40" rx="20" fill="#CBD5F5"/>
+  <rect x="120" y="690" width="380" height="40" rx="20" fill="#CBD5F5"/>
+  <rect x="120" y="760" width="300" height="40" rx="20" fill="#CBD5F5"/>
+  <rect x="300" y="1320" width="150" height="80" rx="40" fill="#94A3B8"/>
+  <text x="120" y="1080" fill="#334155" font-family="Arial" font-size="52" font-weight="600">Tap Share</text>
+  <text x="120" y="1160" fill="#64748B" font-family="Arial" font-size="36">Use the share icon below</text>
+</svg>
