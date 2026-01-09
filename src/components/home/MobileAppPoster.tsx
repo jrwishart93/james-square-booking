@@ -9,6 +9,7 @@ export default function MobileAppPoster() {
   const shouldReduceMotion = useReducedMotion();
   const visualsRef = useRef<HTMLDivElement | null>(null);
   const visualsInView = useInView(visualsRef, { margin: '-20% 0px -20% 0px' });
+  const easing: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
   const leftPhoneInitial = shouldReduceMotion ? { opacity: 0 } : { x: -30, rotate: -12, opacity: 0 };
   const rightPhoneInitial = shouldReduceMotion ? { opacity: 0 } : { x: 30, rotate: 12, opacity: 0 };
@@ -24,7 +25,7 @@ export default function MobileAppPoster() {
     ? { duration: 0.25 }
     : {
         duration: 0.6,
-        ease: 'easeOut',
+        ease: easing,
       };
   return (
     <section className="mt-16 sm:mt-20">
