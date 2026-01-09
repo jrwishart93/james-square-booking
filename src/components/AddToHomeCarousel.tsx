@@ -1,7 +1,6 @@
 'use client';
 
-import { animate, motion, useMotionValue } from 'framer-motion';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import GuidedScreenshot from '@/components/GuidedScreenshot';
 
 // 🔧 EDIT THESE VALUES TO PERFECTLY ALIGN TARGETS
@@ -47,7 +46,7 @@ const STEP_POSITIONS = [
 
 export default function AddToHomeCarousel() {
   const wrapperRef = useRef<HTMLDivElement | null>(null);
-  const x = useMotionValue(0);
+  const railRef = useRef<HTMLDivElement | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [slideWidth, setSlideWidth] = useState(0);
 
@@ -63,40 +62,51 @@ export default function AddToHomeCarousel() {
     return () => observer.disconnect();
   }, []);
 
-  useEffect(() => {
-    if (!slideWidth) return;
-    const controls = animate(x, -activeIndex * slideWidth, { duration: 0.6, ease: 'easeInOut' });
-    return () => controls.stop();
-  }, [activeIndex, slideWidth, x]);
 
-  const maxDrag = useMemo(() => -(STEP_POSITIONS.length - 1) * slideWidth, [slideWidth]);
-  const goPrev = () => setActiveIndex((prev) => (prev - 1 + STEP_POSITIONS.length) % STEP_POSITIONS.length);
-  const goNext = () => setActiveIndex((prev) => (prev + 1) % STEP_POSITIONS.length);
+  useEffect(() => {
+    const rail = railRef.current;
+    if (!rail || !slideWidth) return undefined;
+    const onScroll = () => {
+      const nextIndex = Math.round(rail.scrollLeft / slideWidth);
+      setActiveIndex(Math.max(0, Math.min(STEP_POSITIONS.length - 1, nextIndex)));
+    };
+    rail.addEventListener('scroll', onScroll, { passive: true });
+    return () => rail.removeEventListener('scroll', onScroll);
+  }, [slideWidth]);
+
+  const scrollByStep = (direction: 'left' | 'right') => {
+    if (!railRef.current || !slideWidth) return;
+    railRef.current.scrollBy({
+      left: direction === 'right' ? slideWidth : -slideWidth,
+      behavior: 'smooth',
+    });
+  };
 
   return (
     <div ref={wrapperRef} className="add-to-home-carousel">
       <div className="add-to-home-controls">
-        <button type="button" className="add-to-home-arrow" onClick={goPrev} aria-label="Previous step">
+        <button
+          type="button"
+          className="add-to-home-arrow"
+          onClick={() => scrollByStep('left')}
+          aria-label="Previous step"
+          disabled={activeIndex === 0}
+        >
           <span aria-hidden="true">←</span>
         </button>
-        <button type="button" className="add-to-home-arrow" onClick={goNext} aria-label="Next step">
+        <button
+          type="button"
+          className="add-to-home-arrow"
+          onClick={() => scrollByStep('right')}
+          aria-label="Next step"
+          disabled={activeIndex === STEP_POSITIONS.length - 1}
+        >
           <span aria-hidden="true">→</span>
         </button>
       </div>
-      <motion.div
-        className="add-to-home-track"
-        drag="x"
-        style={{ x }}
-        dragConstraints={{ left: maxDrag, right: 0 }}
-        dragElastic={0.08}
-        onDragEnd={() => {
-          if (!slideWidth) return;
-          const nextIndex = Math.round(Math.abs(x.get()) / slideWidth);
-          setActiveIndex(Math.max(0, Math.min(STEP_POSITIONS.length - 1, nextIndex)));
-        }}
-      >
+      <div ref={railRef} className="add-to-home-track">
         {STEP_POSITIONS.map((step, index) => (
-          <div key={step.id} className="add-to-home-slide">
+          <div key={step.id} className="add-to-home-step">
             <div className="add-to-home-phone">
               <GuidedScreenshot
                 src={step.image}
@@ -106,14 +116,14 @@ export default function AddToHomeCarousel() {
                 stepId={step.id}
               />
             </div>
-            <div className="add-to-home-text">
-              <p className="add-to-home-step">Step {step.id}</p>
+            <div className="add-to-home-copy">
+              <p className="add-to-home-label">Step {step.id}</p>
               <h3>{step.title}</h3>
-              <p className="add-to-home-description">{step.description}</p>
+              <p>{step.description}</p>
             </div>
           </div>
         ))}
-      </motion.div>
+      </div>
     </div>
   );
 }
