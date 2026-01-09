@@ -41,7 +41,7 @@ const androidSteps = [
   'Confirm when prompted.',
 ];
 
-export const IPHONE_FOCUS = [
+const IPHONE_FOCUS = [
   { x: '66%', y: '79%', size: 78, label: 'Menu', enterFrom: 'right' },
   { x: '42%', y: '48%', size: 82, label: 'Share', enterFrom: 'bottom' },
   { x: '50%', y: '79%', size: 92, enterFrom: 'top' },
