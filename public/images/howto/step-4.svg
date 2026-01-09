@@ -1,0 +1,10 @@
+<svg width="750" height="1580" viewBox="0 0 750 1580" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="750" height="1580" rx="80" fill="#F8FAFC"/>
+  <rect x="40" y="80" width="670" height="1420" rx="60" fill="#E2E8F0"/>
+  <rect x="120" y="260" width="510" height="220" rx="40" fill="#CBD5F5"/>
+  <rect x="120" y="520" width="430" height="60" rx="30" fill="#CBD5F5"/>
+  <rect x="120" y="610" width="320" height="60" rx="30" fill="#CBD5F5"/>
+  <rect x="520" y="190" width="140" height="60" rx="30" fill="#94A3B8"/>
+  <text x="120" y="1000" fill="#334155" font-family="Arial" font-size="52" font-weight="600">Name &amp; Add</text>
+  <text x="120" y="1080" fill="#64748B" font-family="Arial" font-size="36">Tap Add to finish</text>
+</svg>
