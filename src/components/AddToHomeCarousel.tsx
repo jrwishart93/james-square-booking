@@ -1,6 +1,6 @@
 'use client';
 
-import { motion, useMotionValue } from 'framer-motion';
+import { animate, motion, useMotionValue } from 'framer-motion';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import GuidedScreenshot from '@/components/GuidedScreenshot';
 
@@ -66,7 +66,7 @@ export default function AddToHomeCarousel() {
 
   useEffect(() => {
     if (!slideWidth) return;
-    const controls = x.animate(-activeIndex * slideWidth, { duration: 0.6, ease: 'easeInOut' });
+    const controls = animate(x, -activeIndex * slideWidth, { duration: 0.6, ease: 'easeInOut' });
     return () => controls.stop();
   }, [activeIndex, slideWidth, x]);
 
