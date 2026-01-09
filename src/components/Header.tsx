@@ -6,14 +6,16 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { onAuthStateChanged, signOut, User } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
-import { collection, getDocs, query, where, DocumentData } from "firebase/firestore";
+import { collection, doc, getDocs, onSnapshot, query, where, DocumentData, type Timestamp } from "firebase/firestore";
 import { motion } from "framer-motion";
+import { getUnreadMessageBoardCount } from "@/lib/messageBoardNotifications";
 
 /** Shape of the Firestore user document */
 type UserDoc = {
   fullName?: string;
   isAdmin?: boolean;
   email?: string;
+  lastSeenMessageBoardAt?: Timestamp;
 } & DocumentData;
 
 export default function Header() {
@@ -22,6 +24,10 @@ export default function Header() {
   const [userName, setUserName] = useState<string>("");
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
+  const [lastSeenMessageBoardAt, setLastSeenMessageBoardAt] = useState<Timestamp | null | undefined>(
+    undefined
+  );
+  const [hasUnreadMessageBoard, setHasUnreadMessageBoard] = useState<boolean>(false);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (u) => {
@@ -45,12 +51,51 @@ export default function Header() {
     return () => unsub();
   }, []);
 
+  useEffect(() => {
+    if (!user) {
+      setLastSeenMessageBoardAt(undefined);
+      return;
+    }
+
+    const userRef = doc(db, "users", user.uid);
+    const unsub = onSnapshot(userRef, (snap) => {
+      const data = snap.data() as UserDoc | undefined;
+      setLastSeenMessageBoardAt(data?.lastSeenMessageBoardAt ?? null);
+    });
+
+    return () => unsub();
+  }, [user]);
+
+  useEffect(() => {
+    let active = true;
+
+    const checkUnread = async () => {
+      if (!user) {
+        setHasUnreadMessageBoard(false);
+        return;
+      }
+
+      try {
+        const { hasUnread } = await getUnreadMessageBoardCount(user.uid, lastSeenMessageBoardAt);
+        if (active) setHasUnreadMessageBoard(hasUnread);
+      } catch {
+        if (active) setHasUnreadMessageBoard(false);
+      }
+    };
+
+    void checkUnread();
+
+    return () => {
+      active = false;
+    };
+  }, [user, lastSeenMessageBoardAt]);
+
   // Close mobile nav on route change
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
 
-  function NavLink({ href, label }: { href: string; label: string }) {
+  function NavLink({ href, label, showUnread }: { href: string; label: string; showUnread?: boolean }) {
     const active = pathname?.startsWith(href);
 
     return (
@@ -70,7 +115,18 @@ export default function Header() {
               active ? "bg-white/60 font-semibold" : "bg-transparent"
             ].join(" ")}
           >
-            <span className="relative z-10">{label}</span>
+            <span className="relative z-10 inline-flex items-center gap-2">
+              {label}
+              {showUnread ? (
+                <>
+                  <span
+                    className="inline-flex h-2 w-2 rounded-full bg-emerald-400/80 shadow-[0_0_0_3px_rgba(52,211,153,0.15)]"
+                    aria-hidden="true"
+                  />
+                  <span className="sr-only">New message board activity</span>
+                </>
+              ) : null}
+            </span>
 
             {/* sheen on hover */}
             <span
@@ -133,7 +189,7 @@ export default function Header() {
             <ul className="flex items-center gap-2 text-sm">
               <NavLink href="/book" label="Book Facilities" />
               <NavLink href="/dashboard" label="My Dashboard" />
-              <NavLink href="/message-board" label="Message Board" />
+              <NavLink href="/message-board" label="Message Board" showUnread={hasUnreadMessageBoard} />
               {user && <NavLink href="/owners" label="Owners" />}
               <NavLink href="/local" label="Useful Info" />
               {isAdmin && <NavLink href="/admin" label="Admin" />}
@@ -180,7 +236,7 @@ export default function Header() {
             <ul className="flex flex-col gap-2">
               <NavLink href="/book" label="Book Facilities" />
               <NavLink href="/dashboard" label="My Dashboard" />
-              <NavLink href="/message-board" label="Message Board" />
+              <NavLink href="/message-board" label="Message Board" showUnread={hasUnreadMessageBoard} />
               {user && <NavLink href="/owners" label="Owners" />}
               <NavLink href="/local" label="Useful Info" />
               {isAdmin && <NavLink href="/admin" label="Admin" />}

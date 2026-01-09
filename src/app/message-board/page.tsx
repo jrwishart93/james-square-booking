@@ -20,6 +20,7 @@ import {
   setDoc,
   type DocumentData,
   type FieldValue,
+  type Timestamp,
 } from 'firebase/firestore';
 import { onAuthStateChanged, type User } from 'firebase/auth';
 
@@ -30,6 +31,7 @@ import { onAuthStateChanged, type User } from 'firebase/auth';
 type UserDoc = {
   fullName?: string;
   isAdmin?: boolean;
+  lastSeenMessageBoardAt?: Timestamp;
 };
 
 type Post = {
@@ -40,6 +42,7 @@ type Post = {
   authorName?: string;
   createdAt?: unknown;
   updatedAt?: unknown;
+  isAdminPost?: boolean;
 };
 
 type Comment = {
@@ -137,6 +140,28 @@ function formatTimestampLabel(value?: unknown): string {
   return 'Unknown time';
 }
 
+function toMillis(value?: unknown): number | null {
+  if (value && typeof value === 'object') {
+    if ('toMillis' in (value as Record<string, unknown>)) {
+      const millis = (value as { toMillis?: () => number }).toMillis?.();
+      if (typeof millis === 'number') return millis;
+    }
+    if ('toDate' in (value as Record<string, unknown>)) {
+      const date = (value as { toDate?: () => Date }).toDate?.();
+      if (date instanceof Date && !Number.isNaN(date.getTime())) return date.getTime();
+    }
+  }
+
+  return null;
+}
+
+function isPostUnread(updatedAt: unknown, lastSeenMessageBoardAt?: Timestamp | null): boolean {
+  if (!lastSeenMessageBoardAt) return true;
+  const updatedMillis = toMillis(updatedAt);
+  if (!updatedMillis) return false;
+  return updatedMillis > lastSeenMessageBoardAt.toMillis();
+}
+
 /* ============================
    Page
 ============================ */
@@ -148,6 +173,10 @@ export default function MessageBoardPage() {
   const [newBody, setNewBody] = useState('');
   const [busy, setBusy] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [lastSeenMessageBoardAt, setLastSeenMessageBoardAt] = useState<Timestamp | null | undefined>(
+    undefined
+  );
+  const hasUpdatedLastSeenRef = useRef(false);
 
   useEffect(() => {
     const unsubAuth = onAuthStateChanged(auth, setUser);
@@ -164,6 +193,7 @@ export default function MessageBoardPage() {
           authorName: data.authorName as string | undefined,
           createdAt: data.createdAt,
           updatedAt: data.updatedAt,
+          isAdminPost: data.isAdminPost as boolean | undefined,
         };
       });
       setPosts(list);
@@ -178,6 +208,39 @@ export default function MessageBoardPage() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!user) {
+      setLastSeenMessageBoardAt(undefined);
+      hasUpdatedLastSeenRef.current = false;
+      return;
+    }
+
+    let isMounted = true;
+    const fetchLastSeen = async () => {
+      const snap = await getDoc(doc(db, 'users', user.uid));
+      if (!isMounted) return;
+      const data = snap.data() as UserDoc | undefined;
+      setLastSeenMessageBoardAt(data?.lastSeenMessageBoardAt ?? null);
+    };
+
+    void fetchLastSeen();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user]);
+
+  useEffect(() => {
+    if (!user || hasUpdatedLastSeenRef.current) return;
+    hasUpdatedLastSeenRef.current = true;
+
+    void updateDoc(doc(db, 'users', user.uid), {
+      lastSeenMessageBoardAt: serverTimestamp(),
+    }).catch((err) => {
+      console.error('Failed to update lastSeenMessageBoardAt', err);
+    });
+  }, [user]);
 
   async function createPost() {
     if (!user) {
@@ -271,7 +334,14 @@ export default function MessageBoardPage() {
       {/* Posts */}
       <ul className="space-y-4 sm:space-y-5">
         {posts.map((p, index) => (
-          <PostCard key={p.id} post={p} currentUser={user} index={index} mounted={mounted} />
+          <PostCard
+            key={p.id}
+            post={p}
+            currentUser={user}
+            index={index}
+            mounted={mounted}
+            lastSeenMessageBoardAt={lastSeenMessageBoardAt}
+          />
         ))}
       </ul>
     </main>
@@ -287,13 +357,19 @@ function PostCard({
   currentUser,
   index,
   mounted,
+  lastSeenMessageBoardAt,
 }: {
   post: Post;
   currentUser: User | null;
   index: number;
   mounted: boolean;
+  lastSeenMessageBoardAt?: Timestamp | null;
 }) {
   const mine = useMemo(() => currentUser?.uid === post.authorId, [currentUser?.uid, post.authorId]);
+  const isUnread = useMemo(() => {
+    if (mine) return false;
+    return isPostUnread(post.updatedAt, lastSeenMessageBoardAt);
+  }, [lastSeenMessageBoardAt, mine, post.updatedAt]);
 
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(post.title);
@@ -388,7 +464,11 @@ function PostCard({
     <li
       className={`relative overflow-hidden rounded-3xl message-surface message-surface--lift p-4 sm:p-6 space-y-4 transition-[opacity,transform,box-shadow,filter] duration-200 ease-out ${
         mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'
-      } hover:shadow-[var(--glass-shadow-lift)] sm:hover:-translate-y-1`}
+      } hover:shadow-[var(--glass-shadow-lift)] sm:hover:-translate-y-1 ${
+        isUnread
+          ? 'ring-1 ring-emerald-200/70 dark:ring-emerald-400/20 shadow-[0_0_0_1px_rgba(16,185,129,0.06)]'
+          : ''
+      }`}
       style={{ transitionDelay: `${index * 50}ms` }}
     >
       <div className="pointer-events-none absolute inset-0 opacity-40 blur-2xl">
@@ -397,7 +477,14 @@ function PostCard({
       {/* Header */}
       <div className="relative flex items-start gap-3">
         <div className="flex-1 min-w-0 space-y-2">
-          <p className="text-xs uppercase tracking-[0.2em] text-slate-500/80 dark:text-slate-400/80">Resident post</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="text-xs uppercase tracking-[0.2em] text-slate-500/80 dark:text-slate-400/80">Resident post</p>
+            {isUnread ? (
+              <span className="inline-flex items-center rounded-full bg-emerald-100/70 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-200">
+                New
+              </span>
+            ) : null}
+          </div>
           {editing ? (
             <input
               value={title}
@@ -558,6 +645,9 @@ function Comments({ postId, currentUser }: { postId: string; currentUser: User |
       authorId: currentUser.uid, // ✅ required by rules
       authorName: name,
       createdAt: serverTimestamp(),
+    });
+    await updateDoc(doc(db, 'messageBoard', postId), {
+      updatedAt: serverTimestamp(),
     });
     setBody('');
     setIsCommenting(false);
@@ -743,6 +833,9 @@ function Replies({
       authorId: currentUser.uid, // ✅ required by rules
       authorName: name,
       createdAt: serverTimestamp(),
+    });
+    await updateDoc(doc(db, 'messageBoard', postId), {
+      updatedAt: serverTimestamp(),
     });
     setBody('');
     setIsReplying(false);
