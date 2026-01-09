@@ -23,7 +23,10 @@ export default function AppPromoSection({ className = '' }: AppPromoSectionProps
   const wrapperTransition = { duration: 0.6, ease: easing };
 
   return (
-    <section ref={ref} className={`app-promo-section py-20 pb-28 text-center ${className}`.trim()}>
+    <section
+      ref={ref}
+      className={`app-promo-section px-4 py-12 pb-16 text-center md:px-0 md:py-24 md:pb-36 ${className}`.trim()}
+    >
       <motion.div
         className="app-promo-icon-wrapper inline-flex transform-gpu drop-shadow-[0_0_28px_rgba(96,165,250,0.35)]"
         animate={wrapperAnimation}
@@ -31,7 +34,7 @@ export default function AppPromoSection({ className = '' }: AppPromoSectionProps
       >
         <Link
           href="/how-to-app"
-          className="flex flex-col items-center gap-3 text-xs font-medium text-blue-600 transition hover:underline dark:text-blue-300"
+          className="flex flex-col items-center gap-2 text-[0.85rem] font-medium text-blue-600 transition hover:underline dark:text-blue-300"
         >
           <motion.div
             animate={
@@ -51,7 +54,7 @@ export default function AppPromoSection({ className = '' }: AppPromoSectionProps
               animate={{ opacity: isInView ? 1 : 0 }}
               transition={wrapperTransition}
             />
-            <div className="app-promo-icon-clip relative h-24 w-24 overflow-hidden rounded-[22%] bg-[#0b1220] md:h-28 md:w-28">
+            <div className="app-promo-icon-clip relative h-[72px] w-[72px] overflow-hidden rounded-[22%] bg-[#0b1220] md:h-28 md:w-28">
               <span className="pointer-events-none absolute inset-0 rounded-[22%] shadow-[inset_0_1px_1px_rgba(255,255,255,0.12)]" />
               <Image
                 src="/images/icons/JS-app-icon-1024.png"
@@ -64,6 +67,7 @@ export default function AppPromoSection({ className = '' }: AppPromoSectionProps
             </div>
           </motion.div>
           <motion.span
+            className="mt-1.5"
             animate={{ opacity: isInView ? 1 : 0, y: shouldReduceMotion ? 0 : isInView ? 0 : 8 }}
             transition={wrapperTransition}
           >

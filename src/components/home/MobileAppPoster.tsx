@@ -13,7 +13,7 @@ export default function MobileAppPoster() {
   return (
     <section className="mt-16 sm:mt-20">
       <div
-        className="relative mx-auto max-w-6xl overflow-hidden rounded-[32px] border border-white/10 bg-gradient-to-br from-slate-50 to-blue-100 px-6 py-20 shadow-[0_24px_80px_rgba(15,23,42,0.08)] dark:border-white/5 dark:from-[#0b1220] dark:to-[#0e1a35] sm:px-10 sm:py-24"
+        className="relative mx-auto max-w-6xl overflow-hidden rounded-[32px] border border-white/10 bg-gradient-to-br from-slate-50 to-blue-100 px-6 py-12 shadow-[0_24px_80px_rgba(15,23,42,0.08)] dark:border-white/5 dark:from-[#0b1220] dark:to-[#0e1a35] sm:px-10 sm:py-16 md:py-24"
       >
         <motion.div
           initial={textInitial}
@@ -41,7 +41,7 @@ export default function MobileAppPoster() {
           </p>
         </motion.div>
 
-        <div className="relative mt-12 flex flex-col items-center gap-10 md:mt-16 md:h-[520px]">
+        <div className="app-promo-visuals relative mt-6 flex items-center justify-center gap-3.5 md:mt-16 md:h-[520px] md:block">
           <motion.div
             initial={leftPhoneInitial}
             whileInView={{ x: 0, rotate: shouldReduceMotion ? 0 : -6, opacity: 1 }}
@@ -54,7 +54,7 @@ export default function MobileAppPoster() {
                   }
             }
             viewport={{ once: true, amount: 0.25 }}
-            className="order-3 md:absolute md:bottom-0 md:left-2 md:z-10 md:translate-x-6"
+            className="app-promo-phone left order-1 md:absolute md:bottom-0 md:left-2 md:z-10 md:translate-x-6"
           >
             <Image
               src="/images/brands/step4-removebg-preview.png"
@@ -62,11 +62,11 @@ export default function MobileAppPoster() {
               width={260}
               height={520}
               sizes="(min-width: 1024px) 260px, (min-width: 768px) 220px, 180px"
-              className="h-auto w-40 sm:w-48 md:w-[250px]"
+              className="h-auto w-24 max-w-[28vw] sm:w-28 md:w-[250px] md:max-w-none"
             />
           </motion.div>
 
-          <AppPromoSection className="order-2 md:absolute md:bottom-4 md:left-1/2 md:z-30 md:-translate-x-1/2 md:py-0 md:pb-0" />
+          <AppPromoSection className="order-2 px-0 py-0 pb-0 md:absolute md:bottom-4 md:left-1/2 md:z-30 md:-translate-x-1/2 md:py-0 md:pb-0" />
 
           <motion.div
             initial={rightPhoneInitial}
@@ -81,7 +81,7 @@ export default function MobileAppPoster() {
                   }
             }
             viewport={{ once: true, amount: 0.45 }}
-            className="order-4 md:absolute md:bottom-0 md:right-2 md:z-20 md:-translate-x-6"
+            className="app-promo-phone right order-3 md:absolute md:bottom-0 md:right-2 md:z-20 md:-translate-x-6"
           >
             <Image
               src="/images/brands/step5-removebg-preview.png"
@@ -89,7 +89,7 @@ export default function MobileAppPoster() {
               width={260}
               height={520}
               sizes="(min-width: 1024px) 260px, (min-width: 768px) 220px, 180px"
-              className="h-auto w-40 sm:w-48 md:w-[250px]"
+              className="h-auto w-24 max-w-[28vw] sm:w-28 md:w-[250px] md:max-w-none"
             />
           </motion.div>
         </div>
