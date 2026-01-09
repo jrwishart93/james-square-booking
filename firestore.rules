@@ -34,6 +34,11 @@ service cloud.firestore {
       // A user can create their own profile
       allow create: if isSignedIn() && request.auth.uid == userId;
 
+      // Allow users to update only their own lastSeenMessageBoardAt timestamp
+      allow update: if isSignedIn()
+        && request.auth.uid == userId
+        && request.resource.data.diff(resource.data).changedKeys().hasOnly(['lastSeenMessageBoardAt']);
+
       // User can update/delete their own profile OR admin can manage anyone's profile
       allow update, delete: if isSignedIn() && (
         request.auth.uid == userId ||
