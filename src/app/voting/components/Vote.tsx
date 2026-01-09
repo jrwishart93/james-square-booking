@@ -10,6 +10,7 @@ import { Button } from './ui/Button';
 import { Input } from './ui/Input';
 import { ArrowRight, AlertCircle, Check, Loader2 } from 'lucide-react';
 import { getVoteStatus } from '@/lib/voteExpiry';
+import { lightHaptic } from '@/lib/haptics';
 
 const deriveFirstName = (user: User | null): string => {
   if (!user) return '';
@@ -230,6 +231,7 @@ const VotePage: React.FC = () => {
       });
 
       await submitVote(currentQuestion.id, selectedOptionId, trimmedName, normalizedFlat, currentUser.uid);
+      lightHaptic();
       sessionStorage.setItem('ovh_username', trimmedName);
       sessionStorage.setItem('ovh_flat', normalizedFlat);
       await loadNextQuestion();
