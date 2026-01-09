@@ -11,6 +11,7 @@ import {
   User,
 } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { DateTime } from 'luxon';
 import Image from 'next/image';
 import DashboardTabs from '@/components/DashboardTabs';
@@ -494,6 +495,19 @@ export default function MyDashboardPage() {
             </div>
           </GlassCard>
         </div>
+
+        <GlassCard
+          title="Use James Square like an app"
+          subtitle="Add the site to your phone’s home screen for quicker access."
+          className="lg:col-span-2"
+        >
+          <p className="text-sm text-[color:var(--text-secondary)]">
+            You can add this website to your phone’s home screen and open it like an app for faster access.
+          </p>
+          <Link href="/how-to-app" className="text-sm font-semibold text-[color:var(--text-primary)] underline">
+            View simple instructions
+          </Link>
+        </GlassCard>
       </div>
 
       {showModal && (

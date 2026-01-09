@@ -9,9 +9,16 @@ const geistSans = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
 const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono" });
 
 export const metadata: Metadata = {
-  title: "James Square Booking Portal",
-  description: "Book the pool, gym and sauna at James Square. Residents only.",
+  title: "James Square",
+  description: "Residents community website for James Square, Edinburgh",
   metadataBase: new URL("https://james-square.com"),
+  manifest: "/manifest.json",
+  themeColor: "#0f172a",
+  appleWebApp: {
+    capable: true,
+    title: "James Square",
+    statusBarStyle: "default",
+  },
   openGraph: {
     title: "James Square Booking Portal",
     description: "Residents can book the pool, gym and sauna.",
@@ -45,6 +52,12 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="apple-touch-icon" href="/images/icons/JS-app-icon-180.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-title" content="James Square" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`}>
         <AuthProvider>
           <Header />
