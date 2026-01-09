@@ -38,7 +38,6 @@ export default function GuidedScreenshot({
     const rect = event.currentTarget.getBoundingClientRect();
     const xPct = ((event.clientX - rect.left) / rect.width) * 100;
     const yPct = ((event.clientY - rect.top) / rect.height) * 100;
-    // eslint-disable-next-line no-console
     console.log(`Step ${stepId ?? ''} hotspot`, { x: Number(xPct.toFixed(1)), y: Number(yPct.toFixed(1)) });
   };
 

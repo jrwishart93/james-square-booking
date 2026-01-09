@@ -15,10 +15,13 @@ export default function MobileAppPoster() {
   });
 
   const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [0, 1, 0]);
-  const y = shouldReduceMotion ? 0 : useTransform(scrollYProgress, [0, 0.5, 1], [40, 0, 40]);
-  const scale = shouldReduceMotion ? 1 : useTransform(scrollYProgress, [0, 0.5, 1], [0.9, 1, 0.9]);
+  const yProgress = useTransform(scrollYProgress, [0, 0.5, 1], [40, 0, 40]);
+  const scaleProgress = useTransform(scrollYProgress, [0, 0.5, 1], [0.9, 1, 0.9]);
   const ctaOpacity = useTransform(scrollYProgress, [0.2, 0.6, 1], [0, 1, 0]);
-  const ctaY = shouldReduceMotion ? 0 : useTransform(scrollYProgress, [0.2, 0.6, 1], [6, 0, 6]);
+  const ctaYProgress = useTransform(scrollYProgress, [0.2, 0.6, 1], [6, 0, 6]);
+  const y = shouldReduceMotion ? 0 : yProgress;
+  const scale = shouldReduceMotion ? 1 : scaleProgress;
+  const ctaY = shouldReduceMotion ? 0 : ctaYProgress;
 
   return (
     <section ref={ref} className="mx-auto mt-10 max-w-5xl">
