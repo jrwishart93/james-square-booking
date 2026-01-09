@@ -3,45 +3,8 @@
 import Link from 'next/link';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useState } from 'react';
-import GuidedScreenshot from '@/components/GuidedScreenshot';
-
-const iPhoneStepMedia = [
-  {
-    id: 1,
-    title: 'Open Safari',
-    text: 'Open Safari and go to www.james-square.com, then tap the three dots in the bottom-right corner.',
-    image: '/images/brands/step1-removebg-preview.png',
-    highlight: { x: 73.5, y: 82, size: 54, label: 'MENU', entryFrom: 'right' as const },
-  },
-  {
-    id: 2,
-    title: 'Tap Share',
-    text: 'From the menu, tap Share to open the iOS sharing options.',
-    image: '/images/brands/step2-removebg-preview.png',
-    highlight: { x: 44, y: 49, size: 62, label: 'SHARE', entryFrom: 'left' as const },
-  },
-  {
-    id: 3,
-    title: 'Add to Home Screen',
-    text: 'Scroll down and tap Add to Home Screen.',
-    image: '/images/brands/step3-removebg-preview.png',
-    highlight: { x: 40.5, y: 79.5, size: 70, label: 'ADD', entryFrom: 'left' as const },
-  },
-  {
-    id: 4,
-    title: 'Confirm details',
-    text: 'Check the details and make sure Open as Web App is enabled, then tap Add.',
-    image: '/images/brands/step4-removebg-preview.png',
-    highlight: { x: 86, y: 10.5, size: 68, label: 'ADD', entryFrom: 'right' as const },
-  },
-  {
-    id: 5,
-    title: 'Launch James Square',
-    text: 'James Square will now appear on your home screen. Tap it to open like an app.',
-    image: '/images/brands/step5-removebg-preview.png',
-    highlight: { x: 74, y: 52.5, size: 74, label: 'OPEN', entryFrom: 'right' as const },
-  },
-];
+import AddToHomeCarousel from '@/components/AddToHomeCarousel';
+import '@/styles/add-to-home.css';
 
 const androidSteps = [
   'Open James Square in Chrome.',
@@ -52,15 +15,10 @@ const androidSteps = [
 
 export default function HowToAppPage() {
   const shouldReduceMotion = useReducedMotion();
-  const [activeStep, setActiveStep] = useState(0);
   const [isAndroidOpen, setIsAndroidOpen] = useState(false);
-  const progress = iPhoneStepMedia.length > 1 ? activeStep / (iPhoneStepMedia.length - 1) : 0;
 
   const easedOut = [0.16, 1, 0.3, 1] as const;
   const stepTransition = shouldReduceMotion ? { duration: 0 } : { duration: 0.45, ease: easedOut };
-  const delayedTransition = shouldReduceMotion
-    ? { duration: 0 }
-    : { duration: 0.4, ease: easedOut, delay: 0.07 };
 
   const sectionVariants = {
     hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 10 },
@@ -99,7 +57,7 @@ export default function HowToAppPage() {
         {/* iPhone section */}
         <motion.section
           variants={sectionVariants}
-          className="glass-surface glass-outline space-y-8 rounded-2xl border border-[color:var(--glass-border)] bg-white/60 p-5 sm:p-7"
+          className="space-y-8 rounded-2xl px-1 py-4 sm:px-2 sm:py-6"
         >
           <div className="space-y-2">
             <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[color:var(--muted)]">
@@ -111,84 +69,7 @@ export default function HowToAppPage() {
             </p>
           </div>
 
-          <div className="relative space-y-6">
-            <div className="absolute left-[11px] top-5 h-[calc(100%-2.5rem)] w-px bg-[color:var(--glass-border)]/70" />
-            <motion.div
-              className="absolute left-[11px] top-5 h-[calc(100%-2.5rem)] w-px origin-top bg-[color:var(--btn-bg)]/50"
-              animate={{ scaleY: progress }}
-              transition={stepTransition}
-            />
-            <div className="space-y-6">
-              {iPhoneStepMedia.map((step, index) => {
-                const isActive = index === activeStep;
-                const isPast = index < activeStep;
-                return (
-                  <motion.div
-                    key={step.id}
-                    className="grid grid-cols-[24px,1fr] items-start gap-4 sm:gap-6"
-                    initial="hidden"
-                    whileInView="show"
-                    viewport={{ amount: 0.5, once: true }}
-                    onViewportEnter={() => setActiveStep(index)}
-                  >
-                    <div className="relative flex h-full items-start justify-center pt-2 sm:pt-3">
-                      <div
-                        className={`flex h-6 w-6 items-center justify-center rounded-full border text-xs font-semibold transition-colors ${
-                          isActive
-                            ? 'border-[color:var(--btn-bg)] bg-[color:var(--btn-bg)] text-white'
-                            : isPast
-                              ? 'border-[color:var(--glass-border)]/70 bg-white/60 text-[color:var(--muted)]'
-                              : 'border-[color:var(--glass-border)] bg-white/40 text-[color:var(--text-secondary)]'
-                        }`}
-                      >
-                        {index + 1}
-                      </div>
-                    </div>
-                    <motion.div
-                      className={`glass-surface glass-outline rounded-2xl border border-[color:var(--glass-border)]/70 bg-white/70 p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:scale-[0.99] sm:p-5 ${
-                        isPast ? 'opacity-70' : 'opacity-100'
-                      } ${isActive ? 'shadow-md' : ''}`}
-                      variants={{
-                        hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 8 },
-                        show: { opacity: 1, y: 0 },
-                      }}
-                      transition={stepTransition}
-                    >
-                      <div className="flex flex-col gap-4 md:flex-row md:items-start md:gap-6">
-                        <motion.div
-                          className="w-full"
-                          variants={{
-                            hidden: { opacity: 0, scale: shouldReduceMotion ? 1 : 0.96 },
-                            show: { opacity: 1, scale: 1 },
-                          }}
-                          transition={stepTransition}
-                        >
-                          <GuidedScreenshot
-                            src={step.image}
-                            alt={`Step ${index + 1} - ${step.title}`}
-                            highlight={step.highlight}
-                            isActive={isActive}
-                            stepId={step.id}
-                          />
-                        </motion.div>
-                        <motion.div
-                          className="space-y-2 [text-shadow:0_1px_2px_rgba(0,0,0,0.6),0_0_12px_rgba(0,0,0,0.35)]"
-                          variants={{
-                            hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 6 },
-                            show: { opacity: 1, y: 0 },
-                          }}
-                          transition={delayedTransition}
-                        >
-                          <h3 className="text-lg font-semibold">{step.title}</h3>
-                          <p className="text-[color:var(--text-secondary)]">{step.text}</p>
-                        </motion.div>
-                      </div>
-                    </motion.div>
-                  </motion.div>
-                );
-              })}
-            </div>
-          </div>
+          <AddToHomeCarousel />
 
           <div className="glass-surface glass-outline flex items-center gap-3 rounded-2xl border border-[color:var(--glass-border)]/70 bg-white/60 p-4 text-sm text-[color:var(--text-secondary)] sm:p-5">
             <span className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600">

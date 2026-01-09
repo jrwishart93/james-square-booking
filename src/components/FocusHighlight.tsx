@@ -27,6 +27,7 @@ export default function FocusHighlight({
   const [isMobile, setIsMobile] = useState(false);
   const pulseEase: [number, number, number, number] = [0.45, 0, 0.55, 1];
   const resolvedEntryDistance = entryDistance ?? (isMobile ? 24 : 32);
+  const resolvedSize = isMobile ? Math.max(36, size * 0.9) : size;
   const entryDelta =
     entryFrom === 'right'
       ? { x: resolvedEntryDistance, y: 0 }
@@ -79,7 +80,7 @@ export default function FocusHighlight({
             : { duration: 0 }
         }
       >
-        <div className="relative" style={{ width: size, height: size }}>
+        <div className="relative" style={{ width: resolvedSize, height: resolvedSize }}>
           {shouldAnimate ? (
             <motion.div
               className="absolute inset-0 rounded-full border border-white/40"
