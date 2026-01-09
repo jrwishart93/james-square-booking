@@ -22,6 +22,8 @@ export default function FocusHighlight({
   const shouldReduceMotion = useReducedMotion();
   const showPulse = isActive && !shouldReduceMotion;
   const glowOpacity = showPulse ? [0.35, 0.6, 0.35] : 0.4;
+  const entryEase: [number, number, number, number] = [0.22, 1, 0.36, 1];
+  const pulseEase: [number, number, number, number] = [0.45, 0, 0.25, 1];
   const entryOffset = 28;
   const entryDelta =
     enterFrom === 'right'
@@ -32,10 +34,10 @@ export default function FocusHighlight({
           ? { x: 0, y: entryOffset }
           : { x: -entryOffset, y: 0 };
   const entryTransition = showPulse
-    ? { duration: 0.6, ease: [0.22, 1, 0.36, 1] }
+    ? { duration: 0.6, ease: entryEase }
     : { duration: 0 };
   const pulseTransition = showPulse
-    ? { duration: 1.6, ease: [0.45, 0, 0.25, 1], repeat: 2, delay: 0.3 }
+    ? { duration: 1.6, ease: pulseEase, repeat: 2, delay: 0.3 }
     : { duration: 0 };
 
   return (
