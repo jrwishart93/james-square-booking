@@ -42,11 +42,11 @@ const androidSteps = [
 ];
 
 export const IPHONE_FOCUS = [
-  { x: '66%', y: '79%', size: 78, label: 'Menu' },
-  { x: '42%', y: '48%', size: 82, label: 'Share' },
-  { x: '50%', y: '79%', size: 92 },
-  { x: '77%', y: '14%', size: 82, label: 'Add' },
-  { x: '72%', y: '58%', size: 68 },
+  { x: '66%', y: '79%', size: 78, label: 'Menu', enterFrom: 'right' },
+  { x: '42%', y: '48%', size: 82, label: 'Share', enterFrom: 'bottom' },
+  { x: '50%', y: '79%', size: 92, enterFrom: 'top' },
+  { x: '77%', y: '14%', size: 82, label: 'Add', enterFrom: 'right' },
+  { x: '72%', y: '58%', size: 68, enterFrom: 'left' },
 ];
 
 export default function HowToAppPage() {
