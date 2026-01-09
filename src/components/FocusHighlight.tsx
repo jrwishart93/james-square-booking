@@ -20,6 +20,10 @@ export default function FocusHighlight({
   const shouldReduceMotion = useReducedMotion();
   const shouldAnimate = isActive && !shouldReduceMotion;
   const entryOffset = percentX > 50 ? 40 : -40;
+  const pulseEase: [number, number, number, number] = [0.45, 0, 0.55, 1];
+  const pulseTransition = shouldAnimate
+    ? { duration: 2.1, repeat: Infinity, ease: pulseEase }
+    : { duration: 0 };
 
   return (
     <div
@@ -53,7 +57,7 @@ export default function FocusHighlight({
             <motion.div
               className="absolute inset-0 rounded-full border border-white/40"
               animate={{ scale: [1, 1.25], opacity: [0.6, 0] }}
-              transition={{ duration: 1.6, repeat: Infinity }}
+              transition={pulseTransition}
             />
           ) : null}
         </div>

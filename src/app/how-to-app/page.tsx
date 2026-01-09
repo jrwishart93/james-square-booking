@@ -1,11 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useState } from 'react';
-import FocusHighlight from '@/components/FocusHighlight';
 import { HOW_TO_FOCUS } from '@/lib/howToFocusMap';
+import GuidedScreenshot from '@/components/GuidedScreenshot';
 
 const iPhoneSteps = [
   {
@@ -43,11 +42,11 @@ const androidSteps = [
 ];
 
 const iPhoneHotspots = [
-  HOW_TO_FOCUS.step1,
-  HOW_TO_FOCUS.step2,
-  HOW_TO_FOCUS.step3,
-  HOW_TO_FOCUS.step4,
-  HOW_TO_FOCUS.step5,
+  { ...HOW_TO_FOCUS.step1 },
+  { ...HOW_TO_FOCUS.step2 },
+  { ...HOW_TO_FOCUS.step3 },
+  { ...HOW_TO_FOCUS.step4 },
+  { ...HOW_TO_FOCUS.step5 },
 ];
 
 export default function HowToAppPage() {
@@ -156,32 +155,22 @@ export default function HowToAppPage() {
                     >
                       <div className="flex flex-col gap-4 md:flex-row md:items-start md:gap-6">
                         <motion.div
-                          className="relative mx-auto w-full max-w-[320px] overflow-visible"
+                          className="w-full"
                           variants={{
                             hidden: { opacity: 0, scale: shouldReduceMotion ? 1 : 0.96 },
                             show: { opacity: 1, scale: 1 },
                           }}
                           transition={stepTransition}
                         >
-                          <Image
+                          <GuidedScreenshot
                             src={step.image}
                             alt={`Step ${index + 1} - ${step.title}`}
-                            width={260}
-                            height={520}
-                            className="h-auto w-full drop-shadow-2xl"
+                            highlight={iPhoneHotspots[index]}
+                            isActive={isActive}
                           />
-                          {isActive ? (
-                            <FocusHighlight
-                              percentX={iPhoneHotspots[index].x}
-                              percentY={iPhoneHotspots[index].y}
-                              size={iPhoneHotspots[index].size}
-                              label={iPhoneHotspots[index].label}
-                              isActive={isActive}
-                            />
-                          ) : null}
                         </motion.div>
                         <motion.div
-                          className="space-y-2"
+                          className="space-y-2 [text-shadow:0_1px_2px_rgba(0,0,0,0.6),0_0_12px_rgba(0,0,0,0.35)]"
                           variants={{
                             hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 6 },
                             show: { opacity: 1, y: 0 },
