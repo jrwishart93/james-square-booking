@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
+import MobileAppPoster from '@/components/home/MobileAppPoster';
 
 /** ------------------------------------------------
  *  Shared styles
@@ -306,6 +307,8 @@ export default function HomePageClient() {
 
       {/* PHOTO CAROUSEL */}
       <PhotoCarousel />
+
+      <MobileAppPoster />
     </main>
   );
 }
