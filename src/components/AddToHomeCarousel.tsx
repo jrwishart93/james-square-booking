@@ -65,7 +65,9 @@ export default function AddToHomeCarousel() {
   }, []);
 
   useEffect(() => {
-    x.set(-activeIndex * slideWidth);
+    if (!slideWidth) return;
+    const controls = x.animate(-activeIndex * slideWidth, { duration: 0.6, ease: 'easeInOut' });
+    return () => controls.stop();
   }, [activeIndex, slideWidth, x]);
 
   useEffect(() => {
