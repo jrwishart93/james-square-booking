@@ -9,7 +9,7 @@ import FocusHighlight from '@/components/FocusHighlight';
 const iPhoneSteps = [
   {
     title: 'Open Safari',
-    text: 'Go to www.james-square.com, then tap the three dots in the bottom-right corner.',
+    text: 'Open Safari and go to www.james-square.com, then tap the three dots in the bottom-right corner.',
     image: '/images/brands/step1-removebg-preview.png',
   },
   {
@@ -41,12 +41,12 @@ const androidSteps = [
   'Confirm when prompted.',
 ];
 
-const IPHONE_FOCUS = [
-  { x: '66%', y: '79%', size: 78, label: 'Menu', enterFrom: 'right' as const },
-  { x: '42%', y: '48%', size: 82, label: 'Share', enterFrom: 'bottom' as const },
-  { x: '50%', y: '79%', size: 92, enterFrom: 'top' as const },
-  { x: '77%', y: '14%', size: 82, label: 'Add', enterFrom: 'right' as const },
-  { x: '72%', y: '58%', size: 68, enterFrom: 'left' as const },
+const iPhoneHotspots = [
+  { xPct: 78, yPct: 83, size: 54, label: 'MENU', enterFrom: 'right' as const },
+  { xPct: 44, yPct: 46, size: 62, label: 'SHARE', enterFrom: 'right' as const },
+  { xPct: 36, yPct: 79, size: 72, label: 'ADD', enterFrom: 'left' as const },
+  { xPct: 80, yPct: 16, size: 64, label: 'ADD', enterFrom: 'right' as const },
+  { xPct: 72, yPct: 52, size: 70, label: 'OPEN', enterFrom: 'left' as const },
 ];
 
 export default function HowToAppPage() {
@@ -155,7 +155,7 @@ export default function HowToAppPage() {
                     >
                       <div className="flex flex-col gap-4 md:flex-row md:items-start md:gap-6">
                         <motion.div
-                          className="relative w-full max-w-[260px] overflow-hidden rounded-2xl border border-white/60 bg-white/70 p-3 shadow-inner"
+                          className="relative w-full max-w-[260px] overflow-visible"
                           variants={{
                             hidden: { opacity: 0, scale: shouldReduceMotion ? 1 : 0.96 },
                             show: { opacity: 1, scale: 1 },
@@ -167,9 +167,9 @@ export default function HowToAppPage() {
                             alt={`Step ${index + 1} - ${step.title}`}
                             width={260}
                             height={520}
-                            className="h-auto w-full rounded-xl border border-black/5"
+                            className="h-auto w-full drop-shadow-[0_18px_40px_rgba(15,23,42,0.22)]"
                           />
-                          <FocusHighlight {...IPHONE_FOCUS[index]} isActive={isActive} />
+                          <FocusHighlight {...iPhoneHotspots[index]} isActive={isActive} />
                         </motion.div>
                         <motion.div
                           className="space-y-2"
