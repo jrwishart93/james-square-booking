@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useState } from 'react';
 import FocusHighlight from '@/components/FocusHighlight';
+import { HOW_TO_FOCUS } from '@/lib/howToFocusMap';
 
 const iPhoneSteps = [
   {
@@ -42,11 +43,11 @@ const androidSteps = [
 ];
 
 const iPhoneHotspots = [
-  { xPct: 78, yPct: 83, size: 54, label: 'MENU', enterFrom: 'right' as const },
-  { xPct: 44, yPct: 46, size: 62, label: 'SHARE', enterFrom: 'right' as const },
-  { xPct: 36, yPct: 79, size: 72, label: 'ADD', enterFrom: 'left' as const },
-  { xPct: 80, yPct: 16, size: 64, label: 'ADD', enterFrom: 'right' as const },
-  { xPct: 72, yPct: 52, size: 70, label: 'OPEN', enterFrom: 'left' as const },
+  HOW_TO_FOCUS.step1,
+  HOW_TO_FOCUS.step2,
+  HOW_TO_FOCUS.step3,
+  HOW_TO_FOCUS.step4,
+  HOW_TO_FOCUS.step5,
 ];
 
 export default function HowToAppPage() {
@@ -155,7 +156,7 @@ export default function HowToAppPage() {
                     >
                       <div className="flex flex-col gap-4 md:flex-row md:items-start md:gap-6">
                         <motion.div
-                          className="relative w-full max-w-[260px] overflow-visible"
+                          className="relative mx-auto w-full max-w-[320px] overflow-visible"
                           variants={{
                             hidden: { opacity: 0, scale: shouldReduceMotion ? 1 : 0.96 },
                             show: { opacity: 1, scale: 1 },
@@ -167,9 +168,17 @@ export default function HowToAppPage() {
                             alt={`Step ${index + 1} - ${step.title}`}
                             width={260}
                             height={520}
-                            className="h-auto w-full drop-shadow-[0_18px_40px_rgba(15,23,42,0.22)]"
+                            className="h-auto w-full drop-shadow-2xl"
                           />
-                          <FocusHighlight {...iPhoneHotspots[index]} isActive={isActive} />
+                          {isActive ? (
+                            <FocusHighlight
+                              percentX={iPhoneHotspots[index].x}
+                              percentY={iPhoneHotspots[index].y}
+                              size={iPhoneHotspots[index].size}
+                              label={iPhoneHotspots[index].label}
+                              isActive={isActive}
+                            />
+                          ) : null}
                         </motion.div>
                         <motion.div
                           className="space-y-2"
