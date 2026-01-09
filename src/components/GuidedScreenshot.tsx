@@ -14,8 +14,8 @@ interface GuidedScreenshotProps {
     y: number;
     size?: number;
     label?: string;
-    enterFrom?: 'left' | 'right';
-    labelOffset?: { x?: number; y?: number };
+    entryFrom?: 'left' | 'right' | 'top' | 'bottom';
+    entryDistance?: number;
   };
   isActive?: boolean;
   stepId?: number;
@@ -59,8 +59,8 @@ export default function GuidedScreenshot({
             y={highlight.y}
             size={highlight.size}
             label={highlight.label}
-            enterFrom={highlight.enterFrom}
-            labelOffset={highlight.labelOffset}
+            entryFrom={highlight.entryFrom}
+            entryDistance={highlight.entryDistance}
             isActive={isActive}
           />
         ) : null}
