@@ -3,23 +3,27 @@
 import { motion, useReducedMotion } from 'framer-motion';
 
 export interface FocusHighlightProps {
-  percentX: number;
-  percentY: number;
+  x: number;
+  y: number;
   size?: number;
   label?: string;
   isActive?: boolean;
+  enterFrom?: 'left' | 'right';
+  labelOffset?: { x?: number; y?: number };
 }
 
 export default function FocusHighlight({
-  percentX,
-  percentY,
+  x,
+  y,
   size = 44,
   label,
   isActive = false,
+  enterFrom = 'left',
+  labelOffset,
 }: FocusHighlightProps) {
   const shouldReduceMotion = useReducedMotion();
   const shouldAnimate = isActive && !shouldReduceMotion;
-  const entryOffset = percentX > 50 ? 40 : -40;
+  const entryOffset = enterFrom === 'right' ? 40 : -40;
   const pulseEase: [number, number, number, number] = [0.45, 0, 0.55, 1];
   const pulseTransition = shouldAnimate
     ? { duration: 2.1, repeat: Infinity, ease: pulseEase }
@@ -29,8 +33,8 @@ export default function FocusHighlight({
     <div
       className="pointer-events-none absolute"
       style={{
-        left: `${percentX}%`,
-        top: `${percentY}%`,
+        left: `${x}%`,
+        top: `${y}%`,
         transform: 'translate(-50%, -50%)',
       }}
       aria-hidden="true"
@@ -60,12 +64,21 @@ export default function FocusHighlight({
               transition={pulseTransition}
             />
           ) : null}
+          <motion.div
+            className="absolute left-1/2 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/90"
+            animate={shouldAnimate ? { scale: [1, 1.2, 1], opacity: [0.8, 1, 0.8] } : { scale: 1, opacity: 1 }}
+            transition={pulseTransition}
+          />
         </div>
       </motion.div>
       {label ? (
         <div
-          className="absolute mt-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-white/85 drop-shadow-sm"
-          style={{ left: '50%', top: '50%', transform: 'translate(-50%, calc(-50% + 2.4rem))' }}
+          className="absolute mt-2 rounded-full border border-white/15 bg-black/35 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-white/90 shadow-[0_0_24px_rgba(255,255,255,0.25)] backdrop-blur-md drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)]"
+          style={{
+            left: `calc(50% + ${labelOffset?.x ?? 0}px)`,
+            top: `calc(50% + ${labelOffset?.y ?? 36}px)`,
+            transform: 'translate(-50%, -50%)',
+          }}
         >
           {label}
         </div>

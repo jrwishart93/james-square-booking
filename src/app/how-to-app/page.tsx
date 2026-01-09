@@ -3,34 +3,43 @@
 import Link from 'next/link';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useState } from 'react';
-import { HOW_TO_FOCUS } from '@/lib/howToFocusMap';
 import GuidedScreenshot from '@/components/GuidedScreenshot';
 
-const iPhoneSteps = [
+const iPhoneStepMedia = [
   {
+    id: 1,
     title: 'Open Safari',
     text: 'Open Safari and go to www.james-square.com, then tap the three dots in the bottom-right corner.',
     image: '/images/brands/step1-removebg-preview.png',
+    highlight: { x: 73.5, y: 82, size: 54, label: 'MENU', enterFrom: 'right' as const },
   },
   {
+    id: 2,
     title: 'Tap Share',
     text: 'From the menu, tap Share to open the iOS sharing options.',
     image: '/images/brands/step2-removebg-preview.png',
+    highlight: { x: 44, y: 49, size: 62, label: 'SHARE', enterFrom: 'left' as const },
   },
   {
+    id: 3,
     title: 'Add to Home Screen',
     text: 'Scroll down and tap Add to Home Screen.',
     image: '/images/brands/step3-removebg-preview.png',
+    highlight: { x: 40.5, y: 79.5, size: 70, label: 'ADD', enterFrom: 'left' as const },
   },
   {
+    id: 4,
     title: 'Confirm details',
     text: 'Check the details and make sure Open as Web App is enabled, then tap Add.',
     image: '/images/brands/step4-removebg-preview.png',
+    highlight: { x: 86, y: 10.5, size: 68, label: 'ADD', enterFrom: 'right' as const },
   },
   {
+    id: 5,
     title: 'Launch James Square',
     text: 'James Square will now appear on your home screen. Tap it to open like an app.',
     image: '/images/brands/step5-removebg-preview.png',
+    highlight: { x: 74, y: 52.5, size: 74, label: 'OPEN', enterFrom: 'right' as const },
   },
 ];
 
@@ -41,19 +50,11 @@ const androidSteps = [
   'Confirm when prompted.',
 ];
 
-const iPhoneHotspots = [
-  { ...HOW_TO_FOCUS.step1 },
-  { ...HOW_TO_FOCUS.step2 },
-  { ...HOW_TO_FOCUS.step3 },
-  { ...HOW_TO_FOCUS.step4 },
-  { ...HOW_TO_FOCUS.step5 },
-];
-
 export default function HowToAppPage() {
   const shouldReduceMotion = useReducedMotion();
   const [activeStep, setActiveStep] = useState(0);
   const [isAndroidOpen, setIsAndroidOpen] = useState(false);
-  const progress = iPhoneSteps.length > 1 ? activeStep / (iPhoneSteps.length - 1) : 0;
+  const progress = iPhoneStepMedia.length > 1 ? activeStep / (iPhoneStepMedia.length - 1) : 0;
 
   const easedOut = [0.16, 1, 0.3, 1] as const;
   const stepTransition = shouldReduceMotion ? { duration: 0 } : { duration: 0.45, ease: easedOut };
@@ -118,12 +119,12 @@ export default function HowToAppPage() {
               transition={stepTransition}
             />
             <div className="space-y-6">
-              {iPhoneSteps.map((step, index) => {
+              {iPhoneStepMedia.map((step, index) => {
                 const isActive = index === activeStep;
                 const isPast = index < activeStep;
                 return (
                   <motion.div
-                    key={step.title}
+                    key={step.id}
                     className="grid grid-cols-[24px,1fr] items-start gap-4 sm:gap-6"
                     initial="hidden"
                     whileInView="show"
@@ -165,8 +166,9 @@ export default function HowToAppPage() {
                           <GuidedScreenshot
                             src={step.image}
                             alt={`Step ${index + 1} - ${step.title}`}
-                            highlight={iPhoneHotspots[index]}
+                            highlight={step.highlight}
                             isActive={isActive}
+                            stepId={step.id}
                           />
                         </motion.div>
                         <motion.div
