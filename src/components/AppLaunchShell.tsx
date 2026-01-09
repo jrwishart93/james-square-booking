@@ -11,7 +11,7 @@ export default function AppLaunchShell({ children }: { children: React.ReactNode
   }, []);
 
   return (
-    <div className="relative min-h-screen bg-[#0f172a]">
+    <div className="relative min-h-screen">
       {!hydrated && (
         <div
           className="pointer-events-none absolute inset-0 flex items-center justify-center bg-[#0f172a]"

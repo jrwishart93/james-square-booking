@@ -59,7 +59,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="apple-mobile-web-app-title" content="James Square" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-[#0f172a]`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`}>
         <AppLaunchShell>
           <AuthProvider>
             <Header />
