@@ -29,7 +29,7 @@ export default function FocusHighlight({
   const entryOffset = 28;
   const entryDelta = enterFrom === 'right' ? entryOffset : -entryOffset;
   const entryTransition = shouldAnimate
-    ? { type: 'spring', stiffness: 260, damping: 22, delay, ease: entryEase }
+    ? { type: 'spring' as const, stiffness: 260, damping: 22, delay, ease: entryEase }
     : { duration: 0 };
   const pulseTransition = shouldAnimate
     ? { duration: 1.9, ease: pulseEase, repeat: Infinity, delay: 0.4 }
