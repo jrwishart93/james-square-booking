@@ -18,6 +18,7 @@ import DashboardTabs from '@/components/DashboardTabs';
 import Button from '@/components/ui/Button';
 import GlassCard from '@/components/ui/GlassCard';
 import SegmentedControl from '@/components/ui/SegmentedControl';
+import MobileAppPoster from '@/components/home/MobileAppPoster';
 import { Calendar, CalendarDays, CalendarX2, Clock3, MapPin, User as UserIcon } from 'lucide-react';
 
 interface Booking {
@@ -496,19 +497,9 @@ export default function MyDashboardPage() {
           </GlassCard>
         </div>
 
-        <GlassCard
-          title="Use James Square like an app"
-          subtitle="Add the site to your phone’s home screen for quicker access."
-          className="lg:col-span-2"
-        >
-          <p className="text-sm text-[color:var(--text-secondary)]">
-            You can add this website to your phone’s home screen and open it like an app for faster access.
-          </p>
-          <Link href="/how-to-app" className="text-sm font-semibold text-[color:var(--text-primary)] underline">
-            View simple instructions
-          </Link>
-        </GlassCard>
       </div>
+
+      <MobileAppPoster />
 
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-6 sm:px-0">
