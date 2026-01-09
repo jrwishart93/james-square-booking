@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
+import MobileAppPoster from '@/components/home/MobileAppPoster';
 
 /** ------------------------------------------------
  *  Shared styles
@@ -303,6 +304,8 @@ export default function HomePageClient() {
           blurb="Access, bins & recycling, contacts and local picks (food, shops, coffee)."
         />
       </section>
+
+      <MobileAppPoster />
 
       {/* PHOTO CAROUSEL */}
       <PhotoCarousel />
