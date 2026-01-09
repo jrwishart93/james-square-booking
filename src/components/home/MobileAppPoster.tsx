@@ -1,7 +1,7 @@
 "use client";
 
 import Image from 'next/image';
-import { motion, useInView, useReducedMotion } from 'framer-motion';
+import { motion, useInView, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
 import AppPromoSection from '@/components/AppPromo/AppPromoSection';
 
@@ -10,6 +10,12 @@ export default function MobileAppPoster() {
   const visualsRef = useRef<HTMLDivElement | null>(null);
   const visualsInView = useInView(visualsRef, { margin: '-20% 0px -20% 0px' });
   const easing: [number, number, number, number] = [0.22, 1, 0.36, 1];
+  const { scrollYProgress } = useScroll({
+    target: visualsRef,
+    offset: ['start end', 'end start'],
+  });
+  const phoneScale = useTransform(scrollYProgress, [0.15, 0.5, 0.85], [0.96, 1.03, 0.98]);
+  const phoneLift = useTransform(scrollYProgress, [0.15, 0.5, 0.85], [12, 0, 8]);
 
   const leftPhoneInitial = shouldReduceMotion ? { opacity: 0 } : { x: -30, rotate: -12, opacity: 0 };
   const rightPhoneInitial = shouldReduceMotion ? { opacity: 0 } : { x: 30, rotate: 12, opacity: 0 };
@@ -66,6 +72,7 @@ export default function MobileAppPoster() {
             initial={leftPhoneInitial}
             animate={leftPhoneAnimation}
             transition={phoneTransition}
+            style={shouldReduceMotion ? undefined : { scale: phoneScale, y: phoneLift }}
             className="app-promo-phone left order-1 block visible z-20 md:absolute md:bottom-0 md:left-2 md:translate-x-6"
           >
             <Image
@@ -84,6 +91,7 @@ export default function MobileAppPoster() {
             initial={rightPhoneInitial}
             animate={rightPhoneAnimation}
             transition={phoneTransition}
+            style={shouldReduceMotion ? undefined : { scale: phoneScale, y: phoneLift }}
             className="app-promo-phone right order-3 block visible z-20 md:absolute md:bottom-0 md:right-2 md:-translate-x-6"
           >
             <Image

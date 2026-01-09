@@ -42,6 +42,8 @@ export default function AppPromoSection({ className = '' }: AppPromoSectionProps
                 ? { scale: [1, 1.02, 1] }
                 : { scale: 1 }
             }
+            whileHover={shouldReduceMotion ? undefined : { scale: 1.06 }}
+            whileTap={shouldReduceMotion ? undefined : { scale: 1.08 }}
             transition={
               isInView && !shouldReduceMotion
                 ? { duration: 2.8, repeat: Infinity, ease: 'easeInOut' }
