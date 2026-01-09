@@ -3,14 +3,17 @@
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { motion, useReducedMotion } from 'framer-motion';
+import { useState } from 'react';
 
 export default function MobileAppPoster() {
   const shouldReduceMotion = useReducedMotion();
   const router = useRouter();
+  const [iconReady, setIconReady] = useState(false);
 
-  const leftPhoneInitial = shouldReduceMotion ? false : { x: -120, opacity: 0 };
-  const rightPhoneInitial = shouldReduceMotion ? false : { y: 120, opacity: 0 };
-  const textInitial = shouldReduceMotion ? false : { y: 20, opacity: 0 };
+  const leftPhoneInitial = shouldReduceMotion ? { opacity: 0 } : { x: -120, rotate: -8, opacity: 0 };
+  const rightPhoneInitial = shouldReduceMotion ? { opacity: 0 } : { y: 140, rotate: 8, opacity: 0 };
+  const textInitial = shouldReduceMotion ? { opacity: 0 } : { y: 16, opacity: 0 };
+  const iconInitial = shouldReduceMotion ? { opacity: 0 } : { scale: 0.85, opacity: 0 };
 
   return (
     <section className="mt-16 sm:mt-20">
@@ -19,16 +22,17 @@ export default function MobileAppPoster() {
       >
         <motion.div
           initial={textInitial}
-          animate={{ y: 0, opacity: 1 }}
+          whileInView={{ y: 0, opacity: 1 }}
           transition={
             shouldReduceMotion
-              ? { duration: 0 }
+              ? { duration: 0.25 }
               : {
-                  delay: 0.2,
+                  delay: 0.15,
                   duration: 0.6,
                   ease: 'easeOut',
                 }
           }
+          viewport={{ once: true, amount: 0.3 }}
           className="text-center"
         >
           <h2 className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-white sm:text-4xl">
@@ -42,19 +46,20 @@ export default function MobileAppPoster() {
           </p>
         </motion.div>
 
-        <div className="mt-12 flex flex-col items-center gap-10 md:flex-row md:items-end md:justify-between">
+        <div className="relative mt-12 flex flex-col items-center gap-10 md:mt-16 md:h-[520px]">
           <motion.div
             initial={leftPhoneInitial}
-            animate={{ x: 0, opacity: 1 }}
+            whileInView={{ x: 0, rotate: shouldReduceMotion ? 0 : -6, opacity: 1 }}
             transition={
               shouldReduceMotion
-                ? { duration: 0 }
+                ? { duration: 0.25 }
                 : {
                     duration: 0.6,
                     ease: 'easeOut',
                   }
             }
-            className="order-3 md:order-1"
+            viewport={{ once: true, amount: 0.25 }}
+            className="order-3 md:absolute md:bottom-0 md:left-2 md:z-10 md:translate-x-6"
           >
             <Image
               src="/images/brands/step4-removebg-preview.png"
@@ -62,50 +67,73 @@ export default function MobileAppPoster() {
               width={260}
               height={520}
               sizes="(min-width: 1024px) 260px, (min-width: 768px) 220px, 180px"
-              className="h-auto w-40 sm:w-48 md:w-[240px]"
+              className="h-auto w-40 sm:w-48 md:w-[250px]"
             />
           </motion.div>
 
           <motion.button
             type="button"
             onClick={() => router.push('/how-to-app')}
-            animate={shouldReduceMotion ? {} : { scale: [1, 1.06, 1] }}
+            initial={iconInitial}
+            whileInView={{ scale: 1, opacity: 1 }}
+            onViewportEnter={() => setIconReady(true)}
             transition={
               shouldReduceMotion
-                ? { duration: 0 }
+                ? { duration: 0.25 }
                 : {
-                    duration: 2.2,
-                    repeat: Infinity,
-                    ease: 'easeInOut',
+                    duration: 0.5,
+                    ease: 'easeOut',
                   }
             }
-            className="group relative order-2 cursor-pointer rounded-full p-1 transition hover:shadow-[0_18px_45px_rgba(59,130,246,0.25)] focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70 md:order-2"
+            viewport={{ once: true, amount: 0.55 }}
+            whileHover={shouldReduceMotion ? {} : { scale: 1.05 }}
+            className="group relative order-2 cursor-pointer rounded-full p-1 transition hover:shadow-[0_18px_45px_rgba(59,130,246,0.25)] focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70 md:absolute md:bottom-2 md:left-1/2 md:z-30 md:-translate-x-1/2"
             aria-label="Open how to install the James Square app"
           >
-            <span className="pointer-events-none absolute inset-0 rounded-full bg-blue-400/30 blur-2xl transition-opacity duration-300 group-hover:opacity-80 dark:bg-blue-500/40" />
-            <Image
-              src="/images/icons/JS-app-icon-1024.png"
-              alt="James Square app icon"
-              width={160}
-              height={160}
-              sizes="(min-width: 1024px) 160px, 140px"
-              className="relative h-auto w-28 sm:w-32 md:w-40"
+            <motion.span
+              className="pointer-events-none absolute inset-0 rounded-full bg-blue-300/30 blur-2xl transition-opacity duration-500 dark:bg-blue-500/40"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: shouldReduceMotion ? 0.5 : 0.8 }}
+              transition={{ duration: 0.6, ease: 'easeOut' }}
             />
+            <motion.div
+              animate={iconReady && !shouldReduceMotion ? { scale: [1, 1.06, 1] } : { scale: 1 }}
+              transition={
+                iconReady && !shouldReduceMotion
+                  ? {
+                      duration: 2.4,
+                      repeat: Infinity,
+                      ease: 'easeInOut',
+                    }
+                  : { duration: 0 }
+              }
+              className="relative"
+            >
+              <Image
+                src="/images/icons/JS-app-icon-1024.png"
+                alt="James Square app icon"
+                width={160}
+                height={160}
+                sizes="(min-width: 1024px) 160px, 140px"
+                className="relative h-auto w-28 sm:w-32 md:w-40"
+              />
+            </motion.div>
           </motion.button>
 
           <motion.div
             initial={rightPhoneInitial}
-            animate={{ y: 0, opacity: 1 }}
+            whileInView={{ y: 0, rotate: shouldReduceMotion ? 0 : 6, opacity: 1 }}
             transition={
               shouldReduceMotion
-                ? { duration: 0 }
+                ? { duration: 0.25 }
                 : {
-                    delay: 0.2,
+                    delay: 0.15,
                     duration: 0.6,
                     ease: 'easeOut',
                   }
             }
-            className="order-4 md:order-3"
+            viewport={{ once: true, amount: 0.45 }}
+            className="order-4 md:absolute md:bottom-0 md:right-2 md:z-20 md:-translate-x-6"
           >
             <Image
               src="/images/brands/step5-removebg-preview.png"
@@ -113,7 +141,7 @@ export default function MobileAppPoster() {
               width={260}
               height={520}
               sizes="(min-width: 1024px) 260px, (min-width: 768px) 220px, 180px"
-              className="h-auto w-40 sm:w-48 md:w-[240px]"
+              className="h-auto w-40 sm:w-48 md:w-[250px]"
             />
           </motion.div>
         </div>
