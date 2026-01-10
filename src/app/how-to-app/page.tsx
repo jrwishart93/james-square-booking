@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import HowToCarousel from "@/components/howto/HowToCarousel";
 import AndroidCarousel from "@/components/howto/AndroidCarousel";
 import PlatformSwitcher from "@/components/howto/PlatformSwitcher";
@@ -86,9 +87,19 @@ export default function HowToAppPage() {
   ];
 
   return (
-    <main className="min-h-[calc(100vh-64px)] w-full bg-slate-50 text-slate-900 dark:bg-[#070B14] dark:text-white">
+    <motion.main
+      className="min-h-[calc(100vh-64px)] w-full bg-slate-50 text-slate-900 dark:bg-[#070B14] dark:text-white"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.4 }}
+    >
       <section className="mx-auto w-full max-w-6xl px-4 py-10 sm:py-14">
-        <div className="mb-8">
+        <motion.div
+          className="mb-8"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+        >
           <div className="mb-2 text-xs tracking-[0.28em] text-slate-500 dark:text-white/60">
             ADD TO HOME SCREEN
           </div>
@@ -96,14 +107,30 @@ export default function HowToAppPage() {
           <p className="mt-2 max-w-2xl text-slate-600 dark:text-white/70">
             Follow the steps below to install James Square on your phone.
           </p>
-        </div>
+        </motion.div>
 
-        <PlatformSwitcher platform={platform} setPlatform={setPlatform} />
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, ease: "easeOut", delay: 0.1 }}
+        >
+          <PlatformSwitcher platform={platform} setPlatform={setPlatform} />
+        </motion.div>
 
         <div className="mt-8">
-          {platform === "ios" ? <HowToCarousel steps={steps} /> : <AndroidCarousel />}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={platform}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.35, ease: "easeOut" }}
+            >
+              {platform === "ios" ? <HowToCarousel steps={steps} /> : <AndroidCarousel />}
+            </motion.div>
+          </AnimatePresence>
         </div>
       </section>
-    </main>
+    </motion.main>
   );
 }
