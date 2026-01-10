@@ -87,7 +87,7 @@ export default function DashboardTabs({ user: providedUser, isOwner, isAdmin }: 
   }, [adminAccess, ownerAccess]);
 
   return (
-    <nav aria-label="Dashboard navigation" className="mb-6">
+    <nav aria-label="Dashboard navigation" className="dashboard-tabs mb-6">
       <div className="relative overflow-hidden rounded-2xl border border-white/60 bg-white/80 p-1 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5">
         <ul className="grid grid-cols-2 gap-2 pb-1 text-sm font-semibold text-[color:var(--text-secondary)] sm:flex sm:flex-nowrap sm:items-stretch sm:gap-1 sm:pb-0">
           {visibleTabs.map((tab) => {
