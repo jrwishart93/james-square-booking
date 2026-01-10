@@ -204,7 +204,7 @@ export default function Header() {
         <header className="site-header mx-auto max-w-6xl px-4 sm:px-6">
           <div className="flex items-center justify-between px-3 sm:px-4 py-2">
             {/* Brand */}
-            <motion.div whileHover={{ scale: 1.02 }} className="rounded-xl">
+            <motion.div whileHover={{ scale: 1.02 }} className="nav-logo rounded-xl">
               <Link
                 href="/"
                 onClick={() => open && setOpen(false)}

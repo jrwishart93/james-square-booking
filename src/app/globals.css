@@ -92,18 +92,57 @@ body.app-mode {
   height: var(--nav-height);
   border-radius: 999px;
   overflow: hidden;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  background: hsl(var(--glass));
-  border: 1px solid hsl(var(--glass-border));
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  background: linear-gradient(
+    180deg,
+    rgba(18, 26, 45, 0.65),
+    rgba(12, 18, 34, 0.55)
+  );
+  backdrop-filter: blur(22px) saturate(140%);
+  -webkit-backdrop-filter: blur(22px) saturate(140%);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
   transform: translateZ(0);
   will-change: backdrop-filter;
   pointer-events: auto;
 }
 
-body.app-mode .site-header {
-  background: rgba(10, 14, 25, 0.85);
+.site-header:active {
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+}
+
+@media (prefers-color-scheme: light) {
+  .site-header {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(18px) saturate(120%);
+    -webkit-backdrop-filter: blur(18px) saturate(120%);
+    box-shadow:
+      0 6px 18px rgba(0, 0, 0, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .nav-logo {
+    position: relative;
+  }
+
+  .nav-logo::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle,
+      rgba(90, 160, 255, 0.35),
+      transparent 65%
+    );
+    filter: blur(10px);
+    opacity: 0.85;
+    pointer-events: none;
+    z-index: -1;
+  }
 }
 
 body.app-mode .site-content {
