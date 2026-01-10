@@ -18,6 +18,9 @@
   --glass: 0 0% 100% / 0.68;
   --glass-strong: 0 0% 100% / 0.82;
   --glass-border: 215 30% 62% / 0.24;
+  --nav-height: 64px;
+  --safe-top: 0px;
+  --content-gap: 12px;
 
   --status-emerald: 145 63% 49%;  /* #2ECC71 - your booking */
   --status-slate:   204 8% 52%;   /* #7F8C8D - booked by another */
@@ -64,12 +67,26 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-.safe-top {
-  padding-top: env(safe-area-inset-top);
+body.app-mode {
+  --safe-top: env(safe-area-inset-top, 0px);
 }
 
 .site-header {
   width: 100%;
+}
+
+body.app-mode .site-header {
+  padding-top: var(--safe-top);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+body.app-mode .site-header.is-fixed {
+  top: var(--safe-top);
+}
+
+body.app-mode .site-content {
+  padding-top: calc(var(--safe-top) + var(--nav-height) + var(--content-gap));
 }
 
 @supports (padding: env(safe-area-inset-top)) {
