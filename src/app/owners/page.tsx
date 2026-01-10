@@ -93,17 +93,6 @@ const OwnersPage = () => {
               <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
                 The access code will also be shared during the Extraordinary General Meeting.
               </p>
-
-              <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-                <a
-                  href={GOOGLE_CALENDAR_URL}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className="inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-50 px-4 py-2 text-sm font-semibold text-cyan-700 shadow-sm transition hover:border-cyan-500/50 hover:bg-cyan-100/80 dark:border-cyan-400/30 dark:bg-cyan-500/10 dark:text-cyan-200 dark:hover:border-cyan-300/60 dark:hover:bg-cyan-500/20"
-                >
-                  Add EGM to calendar
-                </a>
-              </p>
             </div>
 
             <form className="space-y-3 pt-2" onSubmit={handleOwnersAccessSubmit}>
