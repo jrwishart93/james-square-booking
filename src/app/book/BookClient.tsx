@@ -55,7 +55,7 @@ const OPENING_TIMES = [
 
 export default function BookClient() {
   return (
-    <main className="max-w-4xl mx-auto py-16 px-6 font-sans bg-white dark:bg-gray-900">
+    <div className="max-w-4xl mx-auto py-16 px-6 font-sans bg-white dark:bg-gray-900">
       <div className="flex flex-col items-center text-center gap-3">
         <h1 className="text-4xl font-bold text-black dark:text-white">Choose a facility</h1>
         <p className="text-base text-gray-600 dark:text-gray-300">Select a space to view schedules and book your spot.</p>
@@ -140,6 +140,6 @@ export default function BookClient() {
           </details>
         </GlassCard>
       </div>
-    </main>
+    </div>
   );
 }

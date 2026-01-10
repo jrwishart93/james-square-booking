@@ -639,12 +639,12 @@ export default function SchedulePageClientInner() {
 
   // back in SchedulePageClientInner component scope
   if (loading) {
-    return <main className="text-center py-12">Loading...</main>;
+    return <div className="text-center py-12">Loading...</div>;
   }
 
   return (
-    <main className="jqs-gradient-bg min-h-screen">
-      <div className="max-w-6xl mx-auto py-12 px-4">
+    <div className="jqs-gradient-bg min-h-screen">
+      <div className="max-w-6xl mx-auto py-12 px-4 sm:px-6">
         <AnimatePresence>
           {bookingConfirm && (
             <motion.div
@@ -765,6 +765,6 @@ export default function SchedulePageClientInner() {
           </Link>
         </div>
       </div>
-    </main>
+    </div>
   );
 } // end of export default function SchedulePageClientInner

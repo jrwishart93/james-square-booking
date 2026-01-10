@@ -37,15 +37,15 @@ export default function AccountPageClient() {
   }, []);
 
   if (loading) {
-    return <main className="text-center mt-20">Loading your account...</main>;
+    return <div className="text-center mt-20">Loading your account...</div>;
   }
 
   if (!profile) {
-    return <main className="text-center mt-20">No profile found.</main>;
+    return <div className="text-center mt-20">No profile found.</div>;
   }
 
   return (
-    <main className="max-w-lg mx-auto mt-20 p-6 bg-white dark:bg-gray-900 rounded-lg shadow">
+    <div className="max-w-lg mx-auto mt-20 p-6 bg-white dark:bg-gray-900 rounded-lg shadow">
       <h1 className="text-2xl font-bold mb-4 text-center">My Account</h1>
       <div className="space-y-3">
         <p><strong>Full Name:</strong> {profile.fullName}</p>
@@ -53,6 +53,6 @@ export default function AccountPageClient() {
         <p><strong>Building:</strong> {profile.building}</p>
         <p><strong>Flat:</strong> {profile.flat}</p>
       </div>
-    </main>
+    </div>
   );
 }

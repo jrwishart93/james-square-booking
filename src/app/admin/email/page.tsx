@@ -5,6 +5,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 
 import { auth } from '@/lib/firebase';
 import AdminEmailPanel from '../AdminEmailPanel';
+import PageContainer from '@/components/layout/PageContainer';
 
 type Status = 'idle' | 'checking' | 'denied';
 
@@ -36,37 +37,43 @@ export default function AdminEmailPage() {
 
   if (status === 'checking') {
     return (
-      <main className="jqs-gradient-bg min-h-screen">
-        <div className="max-w-4xl mx-auto p-6">
-          <div className="jqs-glass rounded-2xl p-4">Checking admin access…</div>
+      <PageContainer className="max-w-none px-0">
+        <div className="jqs-gradient-bg min-h-screen">
+          <div className="max-w-4xl mx-auto px-6 py-6">
+            <div className="jqs-glass rounded-2xl p-4">Checking admin access…</div>
+          </div>
         </div>
-      </main>
+      </PageContainer>
     );
   }
 
   if (status === 'denied') {
     return (
-      <main className="jqs-gradient-bg min-h-screen">
-        <div className="max-w-4xl mx-auto p-6">
-          <div className="jqs-glass rounded-2xl p-4 text-red-600 dark:text-red-400">
-            Access denied. Admins only.
+      <PageContainer className="max-w-none px-0">
+        <div className="jqs-gradient-bg min-h-screen">
+          <div className="max-w-4xl mx-auto px-6 py-6">
+            <div className="jqs-glass rounded-2xl p-4 text-red-600 dark:text-red-400">
+              Access denied. Admins only.
+            </div>
           </div>
         </div>
-      </main>
+      </PageContainer>
     );
   }
 
   return (
-    <main className="jqs-gradient-bg min-h-screen">
-      <div className="max-w-4xl mx-auto p-6 space-y-6">
-        <header>
-          <h1 className="text-3xl font-bold">Admin Email</h1>
-          <p className="text-sm opacity-80 mt-1">
-            Send announcements to James Square residents using the secure admin mailer.
-          </p>
-        </header>
-        <AdminEmailPanel />
+    <PageContainer className="max-w-none px-0">
+      <div className="jqs-gradient-bg min-h-screen">
+        <div className="max-w-4xl mx-auto px-6 py-6 space-y-6">
+          <header>
+            <h1 className="text-3xl font-bold">Admin Email</h1>
+            <p className="text-sm opacity-80 mt-1">
+              Send announcements to James Square residents using the secure admin mailer.
+            </p>
+          </header>
+          <AdminEmailPanel />
+        </div>
       </div>
-    </main>
+    </PageContainer>
   );
 }

@@ -11,6 +11,7 @@ import type { Question } from '@/app/voting/types';
 import { useAuth } from '@/context/AuthContext';
 import { useAdminVotes } from '@/hooks/useAdminVotes';
 import { db } from '@/lib/firebase';
+import PageContainer from '@/components/layout/PageContainer';
 
 type SortKey = 'createdAt' | 'flat' | 'option';
 
@@ -181,16 +182,19 @@ export default function AdminVotingAuditPage() {
 
   if (checkingAdmin || authLoading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 text-cyan-600 animate-spin" />
-      </div>
+      <PageContainer>
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="w-8 h-8 text-cyan-600 animate-spin" />
+        </div>
+      </PageContainer>
     );
   }
 
   if (!isAdmin) return null;
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+    <PageContainer>
+      <div className="max-w-6xl mx-auto py-10 space-y-8">
       <header className="space-y-2">
         <p className="text-xs uppercase tracking-[0.2em] text-cyan-700 font-semibold">
           Admin view – voting audit
@@ -396,7 +400,8 @@ export default function AdminVotingAuditPage() {
           </section>
         </>
       )}
-    </div>
+      </div>
+    </PageContainer>
   );
 }
 

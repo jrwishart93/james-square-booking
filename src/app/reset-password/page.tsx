@@ -6,6 +6,7 @@ import { sendPasswordResetEmail } from 'firebase/auth';
 import { FirebaseError } from 'firebase/app';
 import { auth, db } from '@/lib/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
+import PageContainer from '@/components/layout/PageContainer';
 
 export default function ResetPasswordPage() {
   const router = useRouter();
@@ -78,48 +79,50 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <main className="max-w-md mx-auto mt-20 p-8 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
-      <h1 className="text-3xl font-semibold mb-6 text-gray-900 dark:text-gray-100">
-        Reset Your Password
-      </h1>
+    <PageContainer>
+      <div className="max-w-md mx-auto mt-20 p-8 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+        <h1 className="text-3xl font-semibold mb-6 text-gray-900 dark:text-gray-100">
+          Reset Your Password
+        </h1>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <input
-          type="text"
-          placeholder="Email or Username"
-          className="w-full px-4 py-2 bg-gray-100 dark:bg-gray-700 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-300"
-          value={identifier}
-          onChange={(e) => setIdentifier(e.target.value)}
-          disabled={loading}
-          required
-        />
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <input
+            type="text"
+            placeholder="Email or Username"
+            className="w-full px-4 py-2 bg-gray-100 dark:bg-gray-700 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-300"
+            value={identifier}
+            onChange={(e) => setIdentifier(e.target.value)}
+            disabled={loading}
+            required
+          />
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-2 bg-blue-600 dark:bg-blue-500 text-white rounded hover:bg-blue-700 dark:hover:bg-blue-600 transition focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+          >
+            {loading ? 'Sending…' : 'Send Reset Email'}
+          </button>
+        </form>
+
+        {message && (
+          <p className="mt-4 text-sm text-green-600 dark:text-green-400">
+            {message}
+          </p>
+        )}
+        {error && (
+          <p className="mt-4 text-sm text-red-600 dark:text-red-400">
+            {error}
+          </p>
+        )}
 
         <button
-          type="submit"
-          disabled={loading}
-          className="w-full py-2 bg-blue-600 dark:bg-blue-500 text-white rounded hover:bg-blue-700 dark:hover:bg-blue-600 transition focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+          onClick={() => router.push('/login')}
+          className="mt-6 text-sm text-blue-600 dark:text-blue-400 underline focus:outline-none"
         >
-          {loading ? 'Sending…' : 'Send Reset Email'}
+          Back to login
         </button>
-      </form>
-
-      {message && (
-        <p className="mt-4 text-sm text-green-600 dark:text-green-400">
-          {message}
-        </p>
-      )}
-      {error && (
-        <p className="mt-4 text-sm text-red-600 dark:text-red-400">
-          {error}
-        </p>
-      )}
-
-      <button
-        onClick={() => router.push('/login')}
-        className="mt-6 text-sm text-blue-600 dark:text-blue-400 underline focus:outline-none"
-      >
-        Back to login
-      </button>
-    </main>
+      </div>
+    </PageContainer>
   );
 }

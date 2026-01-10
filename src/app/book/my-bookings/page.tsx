@@ -9,6 +9,7 @@ import { DateTime } from 'luxon';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import PageContainer from '@/components/layout/PageContainer';
 
 interface Booking {
   id: string;
@@ -119,77 +120,79 @@ export default function MyBookingsPage() {
   }
 
   return (
-    <main className="max-w-4xl mx-auto py-12 px-4 text-gray-800 dark:text-gray-100">
-      <div className="text-center mb-6">
-        <Link href="/book/schedule">
-          <button className="px-6 py-3 bg-green-700 text-white rounded-xl hover:bg-green-800 transition duration-300 shadow-md">
-            Make New Booking
-          </button>
-        </Link>
-      </div>
-      <h1 className="text-3xl font-bold text-center mb-6">🗓️ My Upcoming Bookings</h1>
-      {bookings.length === 0 ? (
-        <div className="text-center">
-          <p>You don&apos;t have any upcoming bookings.</p>
-          <Link href="/book" className="underline text-blue-600 dark:text-blue-400">Make a booking now</Link>
+    <PageContainer>
+      <div className="max-w-4xl mx-auto py-12 text-gray-800 dark:text-gray-100">
+        <div className="text-center mb-6">
+          <Link href="/book/schedule">
+            <button className="px-6 py-3 bg-green-700 text-white rounded-xl hover:bg-green-800 transition duration-300 shadow-md">
+              Make New Booking
+            </button>
+          </Link>
         </div>
-      ) : (
-        <>
-          <div className="mb-6 flex justify-center gap-4">
-            <button
-              className={`px-4 py-2 rounded-xl text-sm font-medium transition ${sortBy === 'date' ? 'bg-blue-800 text-white' : 'bg-gray-100 dark:bg-gray-700 dark:text-white'}`}
-              onClick={() => setSortBy('date')}
-            >
-              Sort by Date
-            </button>
-            <button
-              className={`px-4 py-2 rounded-xl text-sm font-medium transition ${sortBy === 'facility' ? 'bg-blue-800 text-white' : 'bg-gray-100 dark:bg-gray-700 dark:text-white'}`}
-              onClick={() => setSortBy('facility')}
-            >
-              Sort by Facility
-            </button>
+        <h1 className="text-3xl font-bold text-center mb-6">🗓️ My Upcoming Bookings</h1>
+        {bookings.length === 0 ? (
+          <div className="text-center">
+            <p>You don&apos;t have any upcoming bookings.</p>
+            <Link href="/book" className="underline text-blue-600 dark:text-blue-400">Make a booking now</Link>
           </div>
-
-          <ul className="space-y-6">
-            {sortedBookings.map(booking => (
-              <motion.li
-                key={booking.id}
-                layout
-                className="bg-white dark:bg-neutral-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-5 shadow-sm flex flex-col md:flex-row md:justify-between items-center"
+        ) : (
+          <>
+            <div className="mb-6 flex justify-center gap-4">
+              <button
+                className={`px-4 py-2 rounded-xl text-sm font-medium transition ${sortBy === 'date' ? 'bg-blue-800 text-white' : 'bg-gray-100 dark:bg-gray-700 dark:text-white'}`}
+                onClick={() => setSortBy('date')}
               >
-                <div className="flex items-center mb-4 md:mb-0">
-                  <Image
-                    src={facilityIcons[booking.facility]}
-                    alt={booking.facility}
-                    width={48}
-                    height={48}
-                    className="h-12 w-12 mr-4 rounded-xl bg-white/70 dark:bg-white/10"
-                  />
-                  <div>
-                    <p className="font-semibold text-lg">📍 {booking.facility}</p>
-                    <p className="text-sm">📅 {DateTime.fromISO(booking.date).toLocaleString(DateTime.DATE_MED)}</p>
-                    <p className="text-sm">🕒 {booking.time}</p>
+                Sort by Date
+              </button>
+              <button
+                className={`px-4 py-2 rounded-xl text-sm font-medium transition ${sortBy === 'facility' ? 'bg-blue-800 text-white' : 'bg-gray-100 dark:bg-gray-700 dark:text-white'}`}
+                onClick={() => setSortBy('facility')}
+              >
+                Sort by Facility
+              </button>
+            </div>
+
+            <ul className="space-y-6">
+              {sortedBookings.map(booking => (
+                <motion.li
+                  key={booking.id}
+                  layout
+                  className="bg-white dark:bg-neutral-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-5 shadow-sm flex flex-col md:flex-row md:justify-between items-center"
+                >
+                  <div className="flex items-center mb-4 md:mb-0">
+                    <Image
+                      src={facilityIcons[booking.facility]}
+                      alt={booking.facility}
+                      width={48}
+                      height={48}
+                      className="h-12 w-12 mr-4 rounded-xl bg-white/70 dark:bg-white/10"
+                    />
+                    <div>
+                      <p className="font-semibold text-lg">📍 {booking.facility}</p>
+                      <p className="text-sm">📅 {DateTime.fromISO(booking.date).toLocaleString(DateTime.DATE_MED)}</p>
+                      <p className="text-sm">🕒 {booking.time}</p>
+                    </div>
                   </div>
-                </div>
-                <div className="flex gap-3">
-                  <button
-                    className="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm transition shadow-md"
-                    onClick={() => addToCalendar(booking)}
-                  >
-                    Add to Calendar
-                  </button>
-                  <button
-                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm transition shadow-md"
-                    onClick={() => cancelBooking(booking.id)}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </motion.li>
-            ))}
-          </ul>
-        </>
-      )}
-    </main>
+                  <div className="flex gap-3">
+                    <button
+                      className="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm transition shadow-md"
+                      onClick={() => addToCalendar(booking)}
+                    >
+                      Add to Calendar
+                    </button>
+                    <button
+                      className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm transition shadow-md"
+                      onClick={() => cancelBooking(booking.id)}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </motion.li>
+              ))}
+            </ul>
+          </>
+        )}
+      </div>
+    </PageContainer>
   );
 }

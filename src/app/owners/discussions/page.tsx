@@ -6,6 +6,7 @@ import { addDoc, collection, getDocs, orderBy, query, serverTimestamp } from 'fi
 
 import { useAuth } from '@/context/AuthContext';
 import { db } from '@/lib/firebase';
+import PageContainer from '@/components/layout/PageContainer';
 
 interface DiscussionThread {
   id: string;
@@ -178,53 +179,61 @@ const OwnersDiscussionsPage = () => {
 
   if (loading || isChecking) {
     return (
-      <div className="max-w-3xl mx-auto p-6">
-        <p className="text-gray-600">Checking access...</p>
-      </div>
+      <PageContainer>
+        <div className="max-w-3xl mx-auto py-6">
+          <p className="text-gray-600">Checking access...</p>
+        </div>
+      </PageContainer>
     );
   }
 
   if (!user || !isOwner) {
-    return <AccessDenied />;
+    return (
+      <PageContainer>
+        <AccessDenied />
+      </PageContainer>
+    );
   }
 
   return (
-    <div className="max-w-3xl mx-auto p-6 space-y-4">
-      <h1 className="text-3xl font-semibold">Owners Discussions</h1>
-      <p className="text-gray-700">
-        Browse discussion starters and follow-up notes shared by fellow owners. Threads appear in
-        reverse chronological order.
-      </p>
+    <PageContainer>
+      <div className="max-w-3xl mx-auto py-6 space-y-4">
+        <h1 className="text-3xl font-semibold">Owners Discussions</h1>
+        <p className="text-gray-700">
+          Browse discussion starters and follow-up notes shared by fellow owners. Threads appear in
+          reverse chronological order.
+        </p>
 
-      <form onSubmit={handleCreateThread} className="space-y-3">
-        <div className="space-y-1">
-          <label htmlFor="owners-discussion-title" className="block text-sm font-medium">
-            New thread title
-          </label>
-          <input
-            id="owners-discussion-title"
-            type="text"
-            value={newTitle}
-            onChange={(event) => setNewTitle(event.target.value)}
-            className="w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-            placeholder="e.g. Roof maintenance schedule"
-            maxLength={200}
+        <form onSubmit={handleCreateThread} className="space-y-3">
+          <div className="space-y-1">
+            <label htmlFor="owners-discussion-title" className="block text-sm font-medium">
+              New thread title
+            </label>
+            <input
+              id="owners-discussion-title"
+              type="text"
+              value={newTitle}
+              onChange={(event) => setNewTitle(event.target.value)}
+              className="w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              placeholder="e.g. Roof maintenance schedule"
+              maxLength={200}
+              disabled={isCreating}
+              required
+            />
+          </div>
+          <button
+            type="submit"
             disabled={isCreating}
-            required
-          />
-        </div>
-        <button
-          type="submit"
-          disabled={isCreating}
-          className="inline-flex items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {isCreating ? 'Creating...' : 'Create thread'}
-        </button>
-        {formMessage && <p className="text-sm text-gray-600">{formMessage}</p>}
-      </form>
+            className="inline-flex items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isCreating ? 'Creating...' : 'Create thread'}
+          </button>
+          {formMessage && <p className="text-sm text-gray-600">{formMessage}</p>}
+        </form>
 
-      {content}
-    </div>
+        {content}
+      </div>
+    </PageContainer>
   );
 };
 

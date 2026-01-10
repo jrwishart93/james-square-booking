@@ -6,6 +6,7 @@ import { collection, doc, getDoc, getDocs, orderBy, query, serverTimestamp, setD
 import { useAuth } from '@/context/AuthContext';
 import { db } from '@/lib/firebase';
 import { lightHaptic } from '@/lib/haptics';
+import PageContainer from '@/components/layout/PageContainer';
 
 interface VoteOption {
   id: string;
@@ -262,54 +263,61 @@ const OwnersVotesPage = () => {
 
   if (loading || isChecking) {
     return (
-      <div className="max-w-3xl mx-auto p-6">
-        <p className="text-gray-600">Checking access...</p>
-      </div>
+      <PageContainer>
+        <div className="max-w-3xl mx-auto py-6">
+          <p className="text-gray-600">Checking access...</p>
+        </div>
+      </PageContainer>
     );
   }
 
   if (!user || !isOwner) {
-    return <AccessDenied />;
+    return (
+      <PageContainer>
+        <AccessDenied />
+      </PageContainer>
+    );
   }
 
   return (
-    <div className="max-w-3xl mx-auto p-6 space-y-4">
-      <h1 className="text-3xl font-semibold">Owners Votes</h1>
-      <p className="text-gray-700">
-        Access voting packs, ballot summaries, and outcomes. Items appear in reverse chronological
-        order.
-      </p>
+    <PageContainer>
+      <div className="max-w-3xl mx-auto py-6 space-y-4">
+        <h1 className="text-3xl font-semibold">Owners Votes</h1>
+        <p className="text-gray-700">
+          Access voting packs, ballot summaries, and outcomes. Items appear in reverse chronological
+          order.
+        </p>
 
-      {fetchState === 'loading' && <p className="text-gray-600">Loading votes...</p>}
-      {fetchState === 'error' && (
-        <p className="text-red-600">Failed to load votes. Please try again later.</p>
-      )}
-      {fetchState === 'success' && votes.length === 0 && (
-        <p className="text-gray-600">No votes have been posted yet.</p>
-      )}
+        {fetchState === 'loading' && <p className="text-gray-600">Loading votes...</p>}
+        {fetchState === 'error' && (
+          <p className="text-red-600">Failed to load votes. Please try again later.</p>
+        )}
+        {fetchState === 'success' && votes.length === 0 && (
+          <p className="text-gray-600">No votes have been posted yet.</p>
+        )}
 
-      {fetchState === 'success' && votes.length > 0 && (
-        <div className="space-y-5">
-          {votes.map((vote) => {
-            const selectedOptionId = selectedOptions[vote.id] ?? '';
-            const existingSelection = initialSelections[vote.id];
-            const existingOption = vote.options.find((option) => option.id === existingSelection);
-            const isOpen = vote.status === 'open';
-            const buttonLabel = existingSelection ? 'Update vote' : 'Cast vote';
-            const showButton = isOpen && vote.options.length > 0;
+        {fetchState === 'success' && votes.length > 0 && (
+          <div className="space-y-5">
+            {votes.map((vote) => {
+              const selectedOptionId = selectedOptions[vote.id] ?? '';
+              const existingSelection = initialSelections[vote.id];
+              const existingOption = vote.options.find((option) => option.id === existingSelection);
+              const isOpen = vote.status === 'open';
+              const buttonLabel = existingSelection ? 'Update vote' : 'Cast vote';
+              const showButton = isOpen && vote.options.length > 0;
 
-            return (
-              <div key={vote.id} className="rounded-2xl border border-gray-200 p-4 space-y-3">
-                <div className="space-y-1">
-                  <h2 className="text-xl font-semibold">{vote.title}</h2>
-                  <p className="text-sm text-gray-500">Posted {vote.createdAtLabel}</p>
-                  {vote.description && <p className="text-gray-700">{vote.description}</p>}
-                  {vote.url && (
-                    <a href={vote.url} target="_blank" rel="noopener noreferrer" className="underline text-sm">
-                      View supporting documents
-                    </a>
-                  )}
-                </div>
+              return (
+                <div key={vote.id} className="rounded-2xl border border-gray-200 p-4 space-y-3">
+                  <div className="space-y-1">
+                    <h2 className="text-xl font-semibold">{vote.title}</h2>
+                    <p className="text-sm text-gray-500">Posted {vote.createdAtLabel}</p>
+                    {vote.description && <p className="text-gray-700">{vote.description}</p>}
+                    {vote.url && (
+                      <a href={vote.url} target="_blank" rel="noopener noreferrer" className="underline text-sm">
+                        View supporting documents
+                      </a>
+                    )}
+                  </div>
 
                 {!isOpen && (
                   <div className="rounded-md bg-gray-50 p-3 text-sm text-gray-700">
@@ -370,10 +378,11 @@ const OwnersVotesPage = () => {
                 )}
               </div>
             );
-          })}
-        </div>
-      )}
-    </div>
+            })}
+          </div>
+        )}
+      </div>
+    </PageContainer>
   );
 };
 

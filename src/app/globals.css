@@ -8,6 +8,8 @@
   --card: 0 0% 100% / 0.7;
   --ring: 200 98% 60%;
   --border: 215 30% 62% / 0.22;
+  --nav-height: 64px;
+  --app-safe-top: 0px;
 
   /* Glass + status tokens */
   --glass-bg-light: hsla(210 42% 97% / 0.82);
@@ -23,6 +25,12 @@
   --status-slate:   204 8% 52%;   /* #7F8C8D - booked by another */
   --status-gold:     48 89% 50%;  /* #F1C40F - free use */
   --status-coral:     6 78% 57%;  /* #E74C3C - cleaning */
+}
+
+/* App / standalone mode */
+body.app-mode {
+  --nav-height: 72px;
+  --app-safe-top: env(safe-area-inset-top);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -65,11 +73,30 @@ body {
 }
 
 .safe-top {
-  padding-top: env(safe-area-inset-top);
+  padding-top: var(--app-safe-top);
 }
 
 .site-header {
   width: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+body.app-mode .site-header {
+  padding-top: var(--app-safe-top);
+  height: calc(var(--nav-height) + var(--app-safe-top));
+  min-height: 56px;
+  backdrop-filter: blur(18px);
+  background: rgba(10, 14, 25, 0.85);
+}
+
+.page-container {
+  padding-top: 2rem;
+}
+
+body.app-mode .page-container {
+  padding-top: calc(var(--nav-height) + var(--app-safe-top) + 16px);
 }
 
 @supports (padding: env(safe-area-inset-top)) {

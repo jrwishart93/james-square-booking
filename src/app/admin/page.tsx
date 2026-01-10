@@ -17,6 +17,7 @@ import {
 } from 'firebase/firestore';
 import OwnersPanel from './OwnersPanel';
 import AdminEmailPanel from './AdminEmailPanel';
+import PageContainer from '@/components/layout/PageContainer';
 
 /* ---------- Types (unchanged) ---------- */
 interface UserRegistration {
@@ -391,30 +392,35 @@ export default function AdminDashboard() {
   /* ---------- Guards (unchanged) ---------- */
   if (loading) {
     return (
-      <main className="jqs-gradient-bg min-h-screen">
-        <div className="max-w-7xl mx-auto p-6">
-          <div className="jqs-glass rounded-2xl p-4">Loading admin dashboard...</div>
+      <PageContainer className="max-w-none px-0">
+        <div className="jqs-gradient-bg min-h-screen">
+          <div className="max-w-7xl mx-auto px-6 py-6">
+            <div className="jqs-glass rounded-2xl p-4">Loading admin dashboard...</div>
+          </div>
         </div>
-      </main>
+      </PageContainer>
     );
   }
 
   if (!isAdmin) {
     return (
-      <main className="jqs-gradient-bg min-h-screen">
-        <div className="max-w-7xl mx-auto p-6">
-          <div className="jqs-glass rounded-2xl p-4 text-red-600 dark:text-red-400">
-            Access denied. Admins only.
+      <PageContainer className="max-w-none px-0">
+        <div className="jqs-gradient-bg min-h-screen">
+          <div className="max-w-7xl mx-auto px-6 py-6">
+            <div className="jqs-glass rounded-2xl p-4 text-red-600 dark:text-red-400">
+              Access denied. Admins only.
+            </div>
           </div>
         </div>
-      </main>
+      </PageContainer>
     );
   }
 
   /* ---------- Render ---------- */
   return (
-    <main className="jqs-gradient-bg min-h-screen">
-      <div className="max-w-7xl mx-auto p-6 space-y-6">
+    <PageContainer className="max-w-none px-0">
+      <div className="jqs-gradient-bg min-h-screen">
+        <div className="max-w-7xl mx-auto px-6 py-6 space-y-6">
         <header className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold">Admin Dashboard</h1>
@@ -817,7 +823,8 @@ export default function AdminDashboard() {
             </button>
           </div>
         </Section>
+        </div>
       </div>
-    </main>
+    </PageContainer>
   );
 }

@@ -194,7 +194,7 @@ export default function Header() {
   return (
     <header
       className={[
-        "site-header fixed top-0 left-0 right-0 z-50 safe-top",
+        "site-header safe-top",
         "transition-transform duration-300 ease-out",
         hidden ? "-translate-y-full" : "translate-y-0",
         "md:translate-y-0"

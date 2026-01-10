@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import HomePageClient from './HomePageClient';
+import PageContainer from '@/components/layout/PageContainer';
 
 const socialImage = 'https://www.james-square.com/images/james-square-website-photo-link.png';
 const socialTitle = 'James Square';
@@ -32,5 +33,9 @@ export const metadata: Metadata = {
 };
 
 export default function HomePage() {
-  return <HomePageClient />;
+  return (
+    <PageContainer>
+      <HomePageClient />
+    </PageContainer>
+  );
 }
