@@ -71,22 +71,50 @@ body.app-mode {
   --safe-top: env(safe-area-inset-top, 0px);
 }
 
+.header-safe-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  width: 100%;
+  pointer-events: none;
+}
+
+.header-safe-wrapper > * {
+  pointer-events: auto;
+}
+
 .site-header {
   width: 100%;
+  height: var(--nav-height);
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+body.app-mode .header-safe-wrapper {
+  padding-top: var(--safe-top);
+  background: transparent;
 }
 
 body.app-mode .site-header {
-  padding-top: var(--safe-top);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
-}
-
-body.app-mode .site-header.is-fixed {
-  top: var(--safe-top);
+  background: rgba(10, 14, 25, 0.85);
 }
 
 body.app-mode .site-content {
   padding-top: calc(var(--safe-top) + var(--nav-height) + var(--content-gap));
+  position: relative;
+  z-index: 1;
+}
+
+body.app-mode .site-content * {
+  scroll-margin-top: calc(var(--safe-top) + var(--nav-height) + 8px);
+}
+
+body.app-mode .dashboard-tabs {
+  top: calc(var(--safe-top) + var(--nav-height));
 }
 
 @supports (padding: env(safe-area-inset-top)) {
