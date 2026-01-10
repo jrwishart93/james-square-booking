@@ -71,22 +71,92 @@ body.app-mode {
   --safe-top: env(safe-area-inset-top, 0px);
 }
 
+.header-safe-wrapper {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  padding-top: var(--safe-top);
+  pointer-events: none;
+}
+
+.header-safe-wrapper > * {
+  pointer-events: auto;
+}
+
+.site-header-shell {
+  padding-bottom: 6px;
+}
+
 .site-header {
   width: 100%;
+  height: var(--nav-height);
+  border-radius: 999px;
+  overflow: hidden;
+  background: linear-gradient(
+    180deg,
+    rgba(18, 26, 45, 0.65),
+    rgba(12, 18, 34, 0.55)
+  );
+  backdrop-filter: blur(22px) saturate(140%);
+  -webkit-backdrop-filter: blur(22px) saturate(140%);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transform: translateZ(0);
+  will-change: backdrop-filter;
+  pointer-events: auto;
 }
 
-body.app-mode .site-header {
-  padding-top: var(--safe-top);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+.site-header:active {
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
 }
 
-body.app-mode .site-header.is-fixed {
-  top: var(--safe-top);
+@media (prefers-color-scheme: light) {
+  .site-header {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(18px) saturate(120%);
+    -webkit-backdrop-filter: blur(18px) saturate(120%);
+    box-shadow:
+      0 6px 18px rgba(0, 0, 0, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .nav-logo {
+    position: relative;
+  }
+
+  .nav-logo::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle,
+      rgba(90, 160, 255, 0.35),
+      transparent 65%
+    );
+    filter: blur(10px);
+    opacity: 0.85;
+    pointer-events: none;
+    z-index: -1;
+  }
 }
 
 body.app-mode .site-content {
   padding-top: calc(var(--safe-top) + var(--nav-height) + var(--content-gap));
+  position: relative;
+  z-index: 1;
+}
+
+body.app-mode .site-content * {
+  scroll-margin-top: calc(var(--safe-top) + var(--nav-height) + 8px);
+}
+
+body.app-mode .dashboard-tabs {
+  top: calc(var(--safe-top) + var(--nav-height));
 }
 
 @supports (padding: env(safe-area-inset-top)) {
