@@ -11,7 +11,6 @@ import {
   User,
 } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { DateTime } from 'luxon';
 import Image from 'next/image';
 import DashboardTabs from '@/components/DashboardTabs';

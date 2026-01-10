@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, type ReactNode } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { Calendar, CalendarPlus, ClipboardCheck, Clock, FileText, Mail, Monitor, Users } from 'lucide-react';
 
 import { GlassCard } from '@/components/GlassCard';
