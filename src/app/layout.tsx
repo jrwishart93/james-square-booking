@@ -5,6 +5,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import { AuthProvider } from "@/context/AuthContext";
 import AppLaunchShell from "@/components/AppLaunchShell";
+import AppModeGate from "@/components/layout/AppModeGate";
 
 const geistSans = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
 const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono" });
@@ -60,10 +61,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`}>
+        <AppModeGate />
         <AppLaunchShell>
           <AuthProvider>
             <Header />
-            <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">{children}</main>
+            <main className="site-content max-w-6xl mx-auto px-4 sm:px-6 py-8">{children}</main>
           </AuthProvider>
         </AppLaunchShell>
       </body>

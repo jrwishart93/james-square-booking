@@ -88,7 +88,7 @@ export default function HowToAppPage() {
 
   return (
     <motion.main
-      className="min-h-[calc(100vh-64px)] w-full bg-slate-50 text-slate-900 dark:bg-[#070B14] dark:text-white"
+      className="min-h-screen w-full bg-slate-50 text-slate-900 dark:bg-[#070B14] dark:text-white"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
