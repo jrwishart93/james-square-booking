@@ -65,27 +65,20 @@ const OwnersPage = () => {
             titleClassName="text-slate-800/80 dark:text-slate-100/90"
             className="bg-white/80 border-white/80 shadow-[0_18px_45px_rgba(15,23,42,0.08)] dark:bg-slate-900/30"
           >
-            <p className="text-sm text-slate-700 dark:text-slate-200">A private area for James Square owners.</p>
             <p className="text-sm text-slate-700 dark:text-slate-200">
-              This section provides access to secure documents and owners-only updates.
+              This is a private area for owners of James Square.
+            </p>
+            <p className="text-sm text-slate-700 dark:text-slate-200">
+              Owners can access secure documents, building updates, and the current voting area using an access code.
             </p>
             <div className="space-y-2 pt-2 text-left">
               <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-                Voting is currently open to <strong>owners of James Square</strong>.
+                The access code is available from a committee member, another owner, or at the upcoming Extraordinary
+                General Meeting.
               </p>
 
               <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-                To access the voting area, you will need an access code. This code can be obtained by contacting
-                committee members or by asking another owner to share the code with you.
-              </p>
-
-              <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-                The owners access code can be requested from the James Square committee or obtained by attending the
-                upcoming Extraordinary General Meeting, where it will be shared with owners.
-              </p>
-
-              <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-                Please note that the access code should only be shared amongst owners of James Square.
+                The code should only be shared with owners of James Square.
               </p>
 
               <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
@@ -98,19 +91,7 @@ const OwnersPage = () => {
               </p>
 
               <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-                Alternatively, you may join the upcoming Extraordinary General Meeting where the access code will be
-                shared with owners.
-              </p>
-
-              <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-                <a
-                  href={GOOGLE_CALENDAR_URL}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className="inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-50 px-4 py-2 text-sm font-semibold text-cyan-700 shadow-sm transition hover:border-cyan-500/50 hover:bg-cyan-100/80 dark:border-cyan-400/30 dark:bg-cyan-500/10 dark:text-cyan-200 dark:hover:border-cyan-300/60 dark:hover:bg-cyan-500/20"
-                >
-                  Add EGM to calendar
-                </a>
+                The access code will also be shared during the Extraordinary General Meeting.
               </p>
             </div>
 
