@@ -192,93 +192,98 @@ export default function Header() {
   }
 
   return (
-    <header
+    <div
       className={[
-        "site-header is-fixed fixed top-0 left-0 right-0 z-50",
+        "header-safe-wrapper",
         "transition-transform duration-300 ease-out",
         hidden ? "-translate-y-full" : "translate-y-0",
         "md:translate-y-0"
       ].join(" ")}
     >
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 py-3">
-        <div className="glass border flex items-center justify-between px-3 sm:px-4 py-2">
-          {/* Brand */}
-          <motion.div whileHover={{ scale: 1.02 }} className="rounded-xl">
-            <Link
-              href="/"
-              onClick={() => open && setOpen(false)}
-              className="flex items-center gap-2 font-semibold tracking-tight rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/40"
-              aria-label="Go to homepage"
-            >
-              <span className="relative inline-flex items-center justify-center">
-                <Image
-                  src="/images/logo/Logo.png"
-                  alt="James Square logo"
-                  width={36}
-                  height={36}
-                  priority
-                  className="rounded-lg"
-                />
-                <span
-                  className="absolute -inset-1 rounded-2xl bg-white/30 blur-md opacity-0 hover:opacity-100 transition-opacity"
-                  aria-hidden="true"
-                />
-              </span>
-              <span className="text-lg sm:text-xl">
-                James <span className="text-slate-500">Square</span>
-              </span>
-            </Link>
-          </motion.div>
+      <header className="site-header">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 py-3">
+          <div className="glass border flex items-center justify-between px-3 sm:px-4 py-2">
+            {/* Brand */}
+            <motion.div whileHover={{ scale: 1.02 }} className="rounded-xl">
+              <Link
+                href="/"
+                onClick={() => open && setOpen(false)}
+                className="flex items-center gap-2 font-semibold tracking-tight rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/40"
+                aria-label="Go to homepage"
+              >
+                <span className="relative inline-flex items-center justify-center">
+                  <Image
+                    src="/images/logo/Logo.png"
+                    alt="James Square logo"
+                    width={36}
+                    height={36}
+                    priority
+                    className="rounded-lg"
+                  />
+                  <span
+                    className="absolute -inset-1 rounded-2xl bg-white/30 blur-md opacity-0 hover:opacity-100 transition-opacity"
+                    aria-hidden="true"
+                  />
+                </span>
+                <span className="text-lg sm:text-xl">
+                  James <span className="text-slate-500">Square</span>
+                </span>
+              </Link>
+            </motion.div>
 
-          {/* Desktop nav */}
-          <nav className="hidden sm:block">
-            <ul className="flex items-center gap-2 text-sm">
-              <NavLink href="/book" label="Book Facilities" />
-              <NavLink href="/dashboard" label="My Dashboard" />
-              <NavLink href="/message-board" label="Message Board" showUnread={hasUnreadMessageBoard} />
-              {user && <NavLink href="/owners" label="Owners" />}
-              <NavLink href="/local" label="Useful Info" />
-              {isAdmin && <NavLink href="/admin" label="Admin" />}
+            {/* Desktop nav */}
+            <nav className="hidden sm:block">
+              <ul className="flex items-center gap-2 text-sm">
+                <NavLink href="/book" label="Book Facilities" />
+                <NavLink href="/dashboard" label="My Dashboard" />
+                <NavLink href="/message-board" label="Message Board" showUnread={hasUnreadMessageBoard} />
+                {user && <NavLink href="/owners" label="Owners" />}
+                <NavLink href="/local" label="Useful Info" />
+                {isAdmin && <NavLink href="/admin" label="Admin" />}
 
-              {user ? (
-                <>
-                  {userName && (
-                    <li className="px-2 py-1 text-slate-600 dark:text-slate-300 hidden md:block">
-                      Hi, {userName.split(" ")[0]}
+                {user ? (
+                  <>
+                    {userName && (
+                      <li className="px-2 py-1 text-slate-600 dark:text-slate-300 hidden md:block">
+                        Hi, {userName.split(" ")[0]}
+                      </li>
+                    )}
+                    <li>
+                      <motion.button
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.97 }}
+                        onClick={() => signOut(auth)}
+                        className="px-3 py-2 rounded-xl bg-black/80 text-white hover:bg-black"
+                      >
+                        Sign Out
+                      </motion.button>
                     </li>
-                  )}
-                  <li>
-                    <motion.button
-                      whileHover={{ scale: 1.03 }}
-                      whileTap={{ scale: 0.97 }}
-                      onClick={() => signOut(auth)}
-                      className="px-3 py-2 rounded-xl bg-black/80 text-white hover:bg-black"
-                    >
-                      Sign Out
-                    </motion.button>
-                  </li>
-                </>
-              ) : (
-                <NavLink href="/login" label="Sign In" />
-              )}
-            </ul>
-          </nav>
+                  </>
+                ) : (
+                  <NavLink href="/login" label="Sign In" />
+                )}
+              </ul>
+            </nav>
 
-          {/* Mobile toggle */}
-          <motion.button
-            whileTap={{ scale: 0.96 }}
-            className="sm:hidden px-3 py-2 rounded-xl bg-white/50"
-            aria-expanded={open}
-            aria-label="Toggle menu"
-            onClick={handleMenuToggle}
-          >
-            {open ? "Close" : "Menu"}
-          </motion.button>
+            {/* Mobile toggle */}
+            <motion.button
+              whileTap={{ scale: 0.96 }}
+              className="sm:hidden px-3 py-2 rounded-xl bg-white/50"
+              aria-expanded={open}
+              aria-label="Toggle menu"
+              onClick={handleMenuToggle}
+            >
+              {open ? "Close" : "Menu"}
+            </motion.button>
+          </div>
+
         </div>
+      </header>
 
-        {/* Mobile sheet */}
-        {open && (
-          <div className="mt-2 glass p-3 sm:hidden">
+      {/* Mobile sheet */}
+      {open && (
+        <div className="mt-2 px-4 sm:px-6">
+          <div className="glass p-3 sm:hidden">
             <ul className="flex flex-col gap-2">
               <NavLink href="/book" label="Book Facilities" />
               <NavLink href="/dashboard" label="My Dashboard" />
@@ -312,8 +317,8 @@ export default function Header() {
               )}
             </ul>
           </div>
-        )}
-      </div>
-    </header>
+        </div>
+      )}
+    </div>
   );
 }
