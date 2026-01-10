@@ -459,7 +459,7 @@ function FiorFactorUpdateSection() {
             exit={{ opacity: 0 }}
           >
             <motion.div
-              className="glass-surface glass-outline w-full max-w-3xl p-6 sm:p-8"
+              className="glass-surface glass-outline w-full max-w-3xl p-6 sm:p-8 max-h-[85vh] overflow-y-auto"
               initial={{ opacity: 0, y: 12, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 12, scale: 0.98 }}
@@ -485,7 +485,7 @@ function FiorFactorUpdateSection() {
                 The following is the original email received from Fior Asset &amp; Property Management on 19 December 2025.
               </p>
 
-              <div className="mt-4 rounded-2xl border border-black/10 bg-white/80 p-5 text-sm text-slate-800 shadow-inner dark:border-white/15 dark:bg-white/5 dark:text-slate-100">
+              <div className="mt-4 rounded-2xl border border-black/10 bg-white/90 p-5 text-sm text-slate-800 shadow-inner dark:border-white/15 dark:bg-slate-950/40 dark:text-slate-100">
                 <div className="space-y-2">
                   <p>
                     <span className="font-semibold text-slate-900 dark:text-slate-100">From:</span> Pedrom Aghabala, Director – Fior Asset
