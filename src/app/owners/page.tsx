@@ -9,6 +9,20 @@ import GradientBG from '@/components/GradientBG';
 
 const OWNERS_ACCESS_CODE = '3579';
 const OWNERS_ACCESS_KEY = 'owners_secure_access';
+const COMMITTEE_EMAIL = 'committee@jamessquare.org';
+const EMAIL_SUBJECT = 'Request for owners access code – James Square';
+const EMAIL_BODY =
+  'I am an owner at James Square and would like to request the access code to the owners section of the website: https://www.james-square.com/owners';
+const EMAIL_LINK = `mailto:${COMMITTEE_EMAIL}?subject=${encodeURIComponent(
+  EMAIL_SUBJECT
+)}&body=${encodeURIComponent(EMAIL_BODY)}`;
+const TEAMS_LINK =
+  'https://teams.microsoft.com/l/meetup-join/19%3ameeting_ZjI4NmMzZjYtYmI3OS00ZDk3LTg1ZDgtNGE5NDI3YmExNzA1%40thread.v2/0?context=%7b%22Tid%22%3a%22f5c44b19-1c42-4ad7-b10e-1d2fcf2b71d3%22%2c%22Oid%22%3a%2290c27962-4d1a-4d45-8e9e-ff0f7b30452b%22%7d';
+const GOOGLE_CALENDAR_URL = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
+  'Extraordinary General Meeting (EGM) – James Square'
+)}&dates=20260121T180000Z/20260121T203000Z&details=${encodeURIComponent(
+  `Online via Microsoft Teams\nThe access code will be shared with owners during the meeting.\n\nJoin online via Microsoft Teams: ${TEAMS_LINK}`
+)}&location=${encodeURIComponent('Online via Microsoft Teams')}`;
 
 const OwnersPage = () => {
   const router = useRouter();
@@ -66,12 +80,37 @@ const OwnersPage = () => {
               </p>
 
               <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-                The access code will be shared during the upcoming General Special Meeting taking place at{' '}
-                <strong>18:00 on 21/01/2026</strong>. Further details will be published shortly.
+                The owners access code can be requested from the James Square committee or obtained by attending the
+                upcoming Extraordinary General Meeting, where it will be shared with owners.
               </p>
 
               <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-                Any owner without the access code will be provided with the relevant details during this meeting.
+                Please note that the access code should only be shared amongst owners of James Square.
+              </p>
+
+              <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+                <a
+                  href={EMAIL_LINK}
+                  className="font-semibold text-cyan-700 transition-colors hover:text-cyan-600 dark:text-cyan-300 dark:hover:text-cyan-200"
+                >
+                  Request access code by email
+                </a>
+              </p>
+
+              <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+                Alternatively, you may join the upcoming Extraordinary General Meeting where the access code will be
+                shared with owners.
+              </p>
+
+              <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+                <a
+                  href={GOOGLE_CALENDAR_URL}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-50 px-4 py-2 text-sm font-semibold text-cyan-700 shadow-sm transition hover:border-cyan-500/50 hover:bg-cyan-100/80 dark:border-cyan-400/30 dark:bg-cyan-500/10 dark:text-cyan-200 dark:hover:border-cyan-300/60 dark:hover:bg-cyan-500/20"
+                >
+                  Add EGM to calendar
+                </a>
               </p>
             </div>
 
