@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, type ReactNode } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { Calendar, CalendarPlus, ClipboardCheck, Clock, FileText, Monitor, Users } from 'lucide-react';
+import { Calendar, CalendarPlus, ClipboardCheck, Clock, FileText, Mail, Monitor, Users } from 'lucide-react';
 
 import { GlassCard } from '@/components/GlassCard';
 import GradientBG from '@/components/GradientBG';
@@ -450,63 +450,81 @@ function FiorFactorUpdateSection() {
         </button>
       </div>
 
-      {showEmail && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-6 sm:px-0">
-          <div className="glass-surface glass-outline w-full max-w-3xl p-6 sm:p-8">
-            <div className="flex items-start justify-between gap-4">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Original email</h3>
-              <button
-                type="button"
-                onClick={() => setShowEmail(false)}
-                className="text-sm font-semibold text-slate-600 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 dark:text-slate-300 dark:hover:text-white"
-              >
-                Close
-              </button>
-            </div>
-
-            <p className="mt-4 text-sm text-slate-600 dark:text-slate-300">
-              The following is the original email received from Fior Asset &amp; Property Management on 19 December 2025.
-            </p>
-
-            <div className="mt-4 rounded-2xl border border-black/10 bg-white/80 p-5 text-sm text-slate-800 shadow-inner dark:border-white/15 dark:bg-white/5 dark:text-slate-100">
-              <div className="space-y-2">
-                <p>
-                  <span className="font-semibold text-slate-900 dark:text-slate-100">From:</span> Pedrom Aghabala, Director – Fior Asset &amp;
-                  Property
-                </p>
-                <p>
-                  <span className="font-semibold text-slate-900 dark:text-slate-100">Date:</span> 19 December 2025
-                </p>
-                <p>
-                  <span className="font-semibold text-slate-900 dark:text-slate-100">Subject:</span> Correspondence regarding James Square
-                </p>
+      <AnimatePresence>
+        {showEmail && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-6 sm:px-0"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="glass-surface glass-outline w-full max-w-3xl p-6 sm:p-8"
+              initial={{ opacity: 0, y: 12, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 12, scale: 0.98 }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-700 dark:bg-white/10 dark:text-slate-200">
+                    <Mail className="h-5 w-5" aria-hidden="true" />
+                  </span>
+                  <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Original email</h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowEmail(false)}
+                  className="text-sm font-semibold text-slate-600 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 dark:text-slate-300 dark:hover:text-white"
+                >
+                  Close
+                </button>
               </div>
-              <div className="mt-4 space-y-4 whitespace-pre-line">
-                <p>Dear Owners,</p>
-                <p>
-                  We are writing to confirm that Fior Asset &amp; Property Management intends to step down as factor for James Square. We are
-                  proposing a managed departure to allow outstanding matters to be addressed, including completion of financial
-                  reconciliation, recovery of outstanding and historic debts, resolution of ongoing utility matters, and the orderly
-                  handover of information to a new factor.
-                </p>
-                <p>
-                  Updated invoices were issued to owners prior to the Christmas period and a full financial report will follow. Several
-                  active building issues are currently being dealt with, including multiple water leaks across the development, and
-                  actions agreed at the AGM, such as the pool window works and clarification of staff roles, are being progressed.
-                </p>
-                <p>
-                  Plans are now in place to review and appoint a new factor for James Square, and further information will be shared as
-                  this process moves forward. A meeting has been arranged for owners on Wednesday 21 January at 6:00 pm to discuss the
-                  factoring arrangements and next steps in more detail.
-                </p>
-                <p>Kind regards,</p>
-                <p>Pedrom Aghabala</p>
-                <p>Director – Fior Asset &amp; Property</p>
+
+              <p className="mt-4 text-sm text-slate-600 dark:text-slate-300">
+                The following is the original email received from Fior Asset &amp; Property Management on 19 December 2025.
+              </p>
+
+              <div className="mt-4 rounded-2xl border border-black/10 bg-white/80 p-5 text-sm text-slate-800 shadow-inner dark:border-white/15 dark:bg-white/5 dark:text-slate-100">
+                <div className="space-y-2">
+                  <p>
+                    <span className="font-semibold text-slate-900 dark:text-slate-100">From:</span> Pedrom Aghabala, Director – Fior Asset
+                    &amp; Property
+                  </p>
+                  <p>
+                    <span className="font-semibold text-slate-900 dark:text-slate-100">Date:</span> 19 December 2025
+                  </p>
+                  <p>
+                    <span className="font-semibold text-slate-900 dark:text-slate-100">Subject:</span> Correspondence regarding James Square
+                  </p>
+                </div>
+                <div className="mt-4 space-y-4 whitespace-pre-line">
+                  <p>Dear Owners,</p>
+                  <p>
+                    We are writing to confirm that Fior Asset &amp; Property Management intends to step down as factor for James Square. We
+                    are proposing a managed departure to allow outstanding matters to be addressed, including completion of financial
+                    reconciliation, recovery of outstanding and historic debts, resolution of ongoing utility matters, and the orderly
+                    handover of information to a new factor.
+                  </p>
+                  <p>
+                    Updated invoices were issued to owners prior to the Christmas period and a full financial report will follow. Several
+                    active building issues are currently being dealt with, including multiple water leaks across the development, and
+                    actions agreed at the AGM, such as the pool window works and clarification of staff roles, are being progressed.
+                  </p>
+                  <p>
+                    Plans are now in place to review and appoint a new factor for James Square, and further information will be shared as
+                    this process moves forward. A meeting has been arranged for owners on Wednesday 21 January at 6:00 pm to discuss the
+                    factoring arrangements and next steps in more detail.
+                  </p>
+                  <p>Kind regards,</p>
+                  <p>Pedrom Aghabala</p>
+                  <p>Director – Fior Asset &amp; Property</p>
+                </div>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </GlassCard>
   );
 }
