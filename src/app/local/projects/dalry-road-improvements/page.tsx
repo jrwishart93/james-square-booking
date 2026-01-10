@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import PageContainer from '@/components/layout/PageContainer';
 
 const pageTitle = 'Dalry Road & Caledonian Area Road Improvements';
 const pageDescription =
@@ -37,8 +38,8 @@ export const metadata: Metadata = {
 
 export default function DalryRoadImprovementsPage() {
   return (
-    <main className="mx-auto w-full max-w-5xl px-6 sm:px-8 py-12">
-      <div className="space-y-10">
+    <PageContainer>
+      <div className="mx-auto w-full max-w-5xl py-12 space-y-10">
         <Link
           href="/local#local-projects"
           className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700"
@@ -128,6 +129,6 @@ export default function DalryRoadImprovementsPage() {
           Back to Local Projects
         </Link>
       </div>
-    </main>
+    </PageContainer>
   );
 }

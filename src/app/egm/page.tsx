@@ -1,6 +1,7 @@
 import Image from "next/image";
 import type { Metadata } from "next";
 import { Calendar, Clock, MonitorSmartphone, Users } from "lucide-react";
+import PageContainer from "@/components/layout/PageContainer";
 
 const meetingTitle = "James Square – Extraordinary General Meeting";
 const pageUrl = "https://www.james-square.com/egm";
@@ -51,8 +52,9 @@ export default function EGMPage() {
   const logoSize = { width: 22, height: 22 };
 
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-slate-200/70 dark:border-slate-800/70 bg-white/80 dark:bg-slate-900/70 shadow-xl px-6 sm:px-10 py-10 max-w-5xl mx-auto">
-      <GradientGlow />
+    <PageContainer>
+      <div className="relative overflow-hidden rounded-3xl border border-slate-200/70 dark:border-slate-800/70 bg-white/80 dark:bg-slate-900/70 shadow-xl px-6 sm:px-10 py-10 max-w-5xl mx-auto">
+        <GradientGlow />
 
       <div className="space-y-8 relative">
         <header className="space-y-4">
@@ -181,7 +183,7 @@ export default function EGMPage() {
           documentation and participate in voting.
         </p>
       </div>
-    </div>
+    </PageContainer>
   );
 }
 

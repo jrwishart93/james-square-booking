@@ -6,6 +6,7 @@ import { FormEvent, useState } from 'react';
 
 import { GlassCard } from '@/components/GlassCard';
 import GradientBG from '@/components/GradientBG';
+import PageContainer from '@/components/layout/PageContainer';
 
 const OWNERS_ACCESS_CODE = '3579';
 const OWNERS_ACCESS_KEY = 'owners_secure_access';
@@ -34,8 +35,9 @@ const OwnersPage = () => {
   };
 
   return (
-    <GradientBG className="relative isolate min-h-screen w-screen -ml-[calc((100vw-100%)/2)] -mr-[calc((100vw-100%)/2)] px-4 md:px-8 py-12">
-      <div className="relative mx-auto max-w-5xl px-2 sm:px-4 md:px-0 space-y-10">
+    <PageContainer className="max-w-none px-0">
+      <GradientBG className="relative isolate min-h-screen w-screen -ml-[calc((100vw-100%)/2)] -mr-[calc((100vw-100%)/2)] px-4 md:px-8 py-12">
+        <div className="relative mx-auto max-w-5xl px-2 sm:px-4 md:px-0 space-y-10">
         <header className="pt-5 md:pt-6 space-y-4 md:space-y-5 text-center md:text-left">
           <h1 className="text-3xl md:text-4xl font-semibold text-neutral-900 dark:text-white">
             Owners Area
@@ -118,8 +120,9 @@ const OwnersPage = () => {
             </AnimatePresence>
           </GlassCard>
         </div>
-      </div>
-    </GradientBG>
+        </div>
+      </GradientBG>
+    </PageContainer>
   );
 };
 

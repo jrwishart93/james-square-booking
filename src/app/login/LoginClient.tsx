@@ -159,17 +159,17 @@ export default function LoginClient() {
 
   if (isRedirecting) {
     return (
-      <main className="flex items-center justify-center h-screen text-center">
+      <div className="flex items-center justify-center h-screen text-center">
         <div>
           <div className="animate-spin h-10 w-10 border-4 border-blue-500 dark:border-blue-400 border-t-transparent rounded-full mx-auto mb-4" />
           <p className="text-lg text-gray-800 dark:text-gray-200">Signing you in...</p>
         </div>
-      </main>
+      </div>
     );
   }
 
   return (
-    <main className="max-w-md mx-auto mt-20 p-8 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+    <div className="max-w-md mx-auto mt-20 p-8 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
       <h1 className="text-3xl font-semibold mb-6 text-gray-900 dark:text-gray-100">
         {isRegistering ? 'Register' : 'Log In'}
       </h1>
@@ -334,6 +334,6 @@ export default function LoginClient() {
       {message && <p className="mt-4 text-sm text-red-600 dark:text-red-400">{message}</p>}
 
       <TermsModal open={showTermsModal} onClose={() => setShowTermsModal(false)} />
-    </main>
+    </div>
   );
 }

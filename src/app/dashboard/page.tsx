@@ -20,6 +20,7 @@ import GlassCard from '@/components/ui/GlassCard';
 import SegmentedControl from '@/components/ui/SegmentedControl';
 import MobileAppPoster from '@/components/home/MobileAppPoster';
 import { Calendar, CalendarDays, CalendarX2, Clock3, MapPin, User as UserIcon } from 'lucide-react';
+import PageContainer from '@/components/layout/PageContainer';
 
 interface Booking {
   id: string;
@@ -229,22 +230,27 @@ export default function MyDashboardPage() {
   });
 
   if (loading) {
-    return <div className="py-12 text-center text-[color:var(--text-secondary)]">Loading...</div>;
+    return (
+      <PageContainer className="max-w-none px-0">
+        <div className="py-12 text-center text-[color:var(--text-secondary)]">Loading...</div>
+      </PageContainer>
+    );
   }
 
   const bookingView = showUpcoming ? 'upcoming' : 'past';
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[linear-gradient(180deg,#f6f8fb_0%,#e7edf6_100%)] text-[color:var(--text-primary)] dark:bg-[linear-gradient(180deg,#070d1a_0%,#0a1426_58%,#060b18_100%)]">
-      <div className="pointer-events-none absolute inset-0 -z-10 opacity-95">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_18%,rgba(255,255,255,0.75),transparent_38%),radial-gradient(circle_at_85%_12%,rgba(221,234,255,0.55),transparent_36%),radial-gradient(circle_at_50%_115%,rgba(184,206,238,0.28),transparent_48%)] dark:bg-[radial-gradient(circle_at_18%_12%,rgba(66,106,165,0.18),transparent_42%),radial-gradient(circle_at_82%_18%,rgba(37,99,235,0.12),transparent_40%),radial-gradient(circle_at_50%_118%,rgba(21,94,149,0.24),transparent_50%)]" />
-      </div>
+    <PageContainer className="max-w-none px-0">
+      <div className="relative min-h-screen overflow-hidden bg-[linear-gradient(180deg,#f6f8fb_0%,#e7edf6_100%)] text-[color:var(--text-primary)] dark:bg-[linear-gradient(180deg,#070d1a_0%,#0a1426_58%,#060b18_100%)]">
+        <div className="pointer-events-none absolute inset-0 -z-10 opacity-95">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_18%,rgba(255,255,255,0.75),transparent_38%),radial-gradient(circle_at_85%_12%,rgba(221,234,255,0.55),transparent_36%),radial-gradient(circle_at_50%_115%,rgba(184,206,238,0.28),transparent_48%)] dark:bg-[radial-gradient(circle_at_18%_12%,rgba(66,106,165,0.18),transparent_42%),radial-gradient(circle_at_82%_18%,rgba(37,99,235,0.12),transparent_40%),radial-gradient(circle_at_50%_118%,rgba(21,94,149,0.24),transparent_50%)]" />
+        </div>
 
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-4">
-        <DashboardTabs user={user} />
-      </div>
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-4">
+          <DashboardTabs user={user} />
+        </div>
 
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-10 space-y-6 leading-relaxed">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-10 space-y-6 leading-relaxed">
         <div className="flex flex-col gap-3 text-center sm:text-left">
           <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[color:var(--muted)]">My dashboard</p>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4">
@@ -517,6 +523,7 @@ export default function MyDashboardPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </PageContainer>
   );
 }

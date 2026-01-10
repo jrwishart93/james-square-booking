@@ -16,6 +16,7 @@ import {
 
 import { useAuth } from '@/context/AuthContext';
 import { db } from '@/lib/firebase';
+import PageContainer from '@/components/layout/PageContainer';
 
 interface DiscussionThread {
   title: string;
@@ -253,41 +254,50 @@ const OwnersDiscussionDetailPage = () => {
 
   if (loading || isChecking) {
     return (
-      <div className="w-full px-4 py-6 sm:px-6 sm:max-w-4xl sm:mx-auto">
-        <p className="text-gray-600">Checking access...</p>
-      </div>
+      <PageContainer>
+        <div className="w-full py-6 sm:max-w-4xl sm:mx-auto">
+          <p className="text-gray-600">Checking access...</p>
+        </div>
+      </PageContainer>
     );
   }
 
   if (!user || !isOwner) {
-    return <AccessDenied />;
+    return (
+      <PageContainer>
+        <AccessDenied />
+      </PageContainer>
+    );
   }
 
   if (!threadId) {
     return (
-      <div className="w-full px-4 py-6 sm:px-6 sm:max-w-4xl sm:mx-auto">
-        <p className="text-red-600">Thread id is missing.</p>
-      </div>
+      <PageContainer>
+        <div className="w-full py-6 sm:max-w-4xl sm:mx-auto">
+          <p className="text-red-600">Thread id is missing.</p>
+        </div>
+      </PageContainer>
     );
   }
 
   return (
-    <div className="w-full px-4 py-6 sm:px-6 sm:max-w-4xl sm:mx-auto space-y-5">
-      <div className="flex items-center gap-3 text-sm">
-        <Link href="/owners/discussions" className="underline">
-          ← Back to discussions
-        </Link>
-      </div>
+    <PageContainer>
+      <div className="w-full py-6 sm:max-w-4xl sm:mx-auto space-y-5">
+        <div className="flex items-center gap-3 text-sm">
+          <Link href="/owners/discussions" className="underline">
+            ← Back to discussions
+          </Link>
+        </div>
 
-      {threadState === 'loading' && <p className="text-gray-600">Loading thread...</p>}
-      {threadState === 'error' && <p className="text-red-600">Failed to load thread.</p>}
-      {threadState === 'not-found' && (
-        <p className="text-red-600">Thread not found or has been removed.</p>
-      )}
+        {threadState === 'loading' && <p className="text-gray-600">Loading thread...</p>}
+        {threadState === 'error' && <p className="text-red-600">Failed to load thread.</p>}
+        {threadState === 'not-found' && (
+          <p className="text-red-600">Thread not found or has been removed.</p>
+        )}
 
-      {threadState === 'success' && thread && (
-        <>
-          <h1 className="text-3xl font-semibold leading-snug">{thread.title}</h1>
+        {threadState === 'success' && thread && (
+          <>
+            <h1 className="text-3xl font-semibold leading-snug">{thread.title}</h1>
           <section className="space-y-5">
             <div className="border-t border-gray-200 pt-4 space-y-3">
               <div className="flex items-center justify-between">
@@ -325,8 +335,9 @@ const OwnersDiscussionDetailPage = () => {
             </form>
           </section>
         </>
-      )}
-    </div>
+        )}
+      </div>
+    </PageContainer>
   );
 };
 

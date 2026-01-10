@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import type { Metadata, Viewport } from "next";
 import LoginClient from "./LoginClient";
+import PageContainer from "@/components/layout/PageContainer";
 
 export const metadata: Metadata = {
   title: "Login",
@@ -15,7 +16,9 @@ export const viewport: Viewport = {
 export default function LoginPage() {
   return (
     <Suspense fallback={<div />}>
-      <LoginClient />
+      <PageContainer>
+        <LoginClient />
+      </PageContainer>
     </Suspense>
   );
 }

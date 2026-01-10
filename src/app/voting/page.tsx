@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import VotingClientRedirect from "./client-redirect";
+import PageContainer from "@/components/layout/PageContainer";
 
 export const metadata: Metadata = {
   title: "James Square – Voting",
@@ -30,5 +31,9 @@ export const metadata: Metadata = {
 };
 
 export default function VotingSharePage() {
-  return <VotingClientRedirect />;
+  return (
+    <PageContainer>
+      <VotingClientRedirect />
+    </PageContainer>
+  );
 }

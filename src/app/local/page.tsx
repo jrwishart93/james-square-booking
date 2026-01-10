@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import Tabs from '@/components/Tabs';
 import FireAction from '@/components/fire-action/FireAction';
+import PageContainer from '@/components/layout/PageContainer';
 
 /* -------------------------------------------------
    Helpers / Types
@@ -248,7 +249,8 @@ export default function UsefulInfoPage() {
   };
 
   return (
-    <main className="relative max-w-6xl mx-auto py-10 px-4 pb-24 lg:pb-32">
+    <PageContainer>
+      <div className="relative py-10 pb-24 lg:pb-32">
       <BackgroundOrbs />
 
       {/* Hero */}
@@ -975,7 +977,8 @@ export default function UsefulInfoPage() {
           />
         )}
       </AnimatePresence>
-    </main>
+      </div>
+    </PageContainer>
   );
 }
 

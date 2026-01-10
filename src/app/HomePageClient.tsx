@@ -193,7 +193,7 @@ function PhotoCarousel() {
  *  ------------------------------------------------ */
 export default function HomePageClient() {
   return (
-    <main className="px-4 py-10 sm:py-14">
+    <div className="py-10 sm:py-14">
       {/* HERO */}
       <section className="mx-auto max-w-6xl">
         <motion.div
@@ -309,6 +309,6 @@ export default function HomePageClient() {
       <PhotoCarousel />
 
       <MobileAppPoster />
-    </main>
+    </div>
   );
 }

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { MessageCircle, ThumbsDown, ThumbsUp } from 'lucide-react';
 import { auth, db } from '@/lib/firebase';
+import PageContainer from '@/components/layout/PageContainer';
 import {
   collection,
   doc,
@@ -281,12 +282,13 @@ export default function MessageBoardPage() {
   }
 
   return (
-    <main className="w-full px-4 py-8 sm:px-6 sm:max-w-5xl sm:mx-auto space-y-6">
-      <header
-        className={`relative overflow-hidden rounded-3xl bg-gradient-to-br from-white/80 via-white/60 to-slate-100/60 dark:from-slate-900/60 dark:via-slate-900/52 dark:to-slate-800/50 backdrop-blur-xl px-6 py-8 text-center shadow-[0_20px_70px_rgba(15,23,42,0.16)] ring-1 ring-black/5 dark:ring-white/10 transition-all duration-500 ease-out ${
-          mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
-        }`}
-      >
+    <PageContainer>
+      <div className="space-y-6 sm:max-w-5xl sm:mx-auto">
+        <header
+          className={`relative overflow-hidden rounded-3xl bg-gradient-to-br from-white/80 via-white/60 to-slate-100/60 dark:from-slate-900/60 dark:via-slate-900/52 dark:to-slate-800/50 backdrop-blur-xl px-6 py-8 text-center shadow-[0_20px_70px_rgba(15,23,42,0.16)] ring-1 ring-black/5 dark:ring-white/10 transition-all duration-500 ease-out ${
+            mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
+          }`}
+        >
         <div className="pointer-events-none absolute inset-0 opacity-70 blur-3xl">
           <div className="absolute inset-x-6 -top-10 h-36 rounded-full bg-gradient-to-r from-cyan-200/50 via-blue-200/40 to-purple-200/40 dark:from-cyan-500/20 dark:via-blue-500/15 dark:to-purple-500/20" />
         </div>
@@ -352,7 +354,8 @@ export default function MessageBoardPage() {
           />
         ))}
       </ul>
-    </main>
+      </div>
+    </PageContainer>
   );
 }
 

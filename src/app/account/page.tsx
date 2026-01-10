@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import AccountPageClient from "./AccountPageClient";
+import PageContainer from "@/components/layout/PageContainer";
 
 export const metadata: Metadata = {
   title: "Account",
@@ -12,5 +13,9 @@ export const viewport: Viewport = {
 };
 
 export default function AccountPage() {
-  return <AccountPageClient />;
+  return (
+    <PageContainer>
+      <AccountPageClient />
+    </PageContainer>
+  );
 }

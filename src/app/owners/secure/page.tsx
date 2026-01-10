@@ -8,6 +8,7 @@ import { Calendar, CalendarPlus, ClipboardCheck, Clock, FileText, Monitor, Users
 
 import { GlassCard } from '@/components/GlassCard';
 import GradientBG from '@/components/GradientBG';
+import PageContainer from '@/components/layout/PageContainer';
 
 const OWNERS_ACCESS_KEY = 'owners_secure_access';
 const EGM_END = new Date('2026-01-21T20:30:00Z');
@@ -73,13 +74,14 @@ const OwnersSecurePage = () => {
   };
 
   return (
-    <GradientBG className="relative isolate min-h-screen w-screen -ml-[calc((100vw-100%)/2)] -mr-[calc((100vw-100%)/2)] px-4 md:px-8 py-12">
-      <motion.div
-        className="relative mx-auto max-w-5xl px-2 sm:px-4 md:px-0 space-y-10"
-        variants={containerVariants}
-        initial="hidden"
-        animate="show"
-      >
+    <PageContainer className="max-w-none px-0">
+      <GradientBG className="relative isolate min-h-screen w-screen -ml-[calc((100vw-100%)/2)] -mr-[calc((100vw-100%)/2)] px-4 md:px-8 py-12">
+        <motion.div
+          className="relative mx-auto max-w-5xl px-2 sm:px-4 md:px-0 space-y-10"
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
+        >
         <motion.header variants={itemVariants} className="pt-5 md:pt-6 space-y-4 md:space-y-5 text-center md:text-left">
           <h1 className="text-3xl md:text-4xl font-semibold text-neutral-900 dark:text-white">Owners area</h1>
           <p className="max-w-3xl text-sm md:text-base text-slate-600 dark:text-slate-300">
@@ -137,8 +139,9 @@ const OwnersSecurePage = () => {
             <AgmSection />
           </motion.div>
         </div>
-      </motion.div>
-    </GradientBG>
+        </motion.div>
+      </GradientBG>
+    </PageContainer>
   );
 };
 
