@@ -123,19 +123,36 @@ body.app-mode .site-header:active {
   -webkit-backdrop-filter: blur(24px) saturate(150%);
 }
 
-body.app-mode.dark .nav-logo::before {
-  content: '';
+body.app-mode nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  overflow: visible;
+}
+
+.nav-brand {
+  position: relative;
+  z-index: 2;
+}
+
+body.app-mode.dark .nav-brand-glow {
   position: absolute;
-  inset: -18px;
+  inset: -24px -32px;
   background: radial-gradient(
-    circle,
+    ellipse at left center,
     rgba(120, 170, 255, 0.35),
-    rgba(120, 170, 255, 0.15),
+    rgba(120, 170, 255, 0.18),
     transparent 70%
   );
-  filter: blur(18px);
-  z-index: -1;
+  filter: blur(22px);
+  z-index: 0;
   pointer-events: none;
+}
+
+body.app-mode.dark .nav-title {
+  text-shadow:
+    0 0 18px rgba(120, 170, 255, 0.35),
+    0 0 2px rgba(255, 255, 255, 0.25);
 }
 
 body.app-mode .menu-button {
