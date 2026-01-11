@@ -204,7 +204,7 @@ export default function Header() {
         <header className="site-header mx-auto max-w-6xl px-4 sm:px-6">
           <div className="flex items-center justify-between px-3 sm:px-4 py-2">
             {/* Brand */}
-            <motion.div whileHover={{ scale: 1.02 }} className="nav-logo rounded-xl">
+            <motion.div whileHover={{ scale: 1.02 }} className="nav-logo relative rounded-xl">
               <Link
                 href="/"
                 onClick={() => open && setOpen(false)}
@@ -268,7 +268,7 @@ export default function Header() {
             {/* Mobile toggle */}
             <motion.button
               whileTap={{ scale: 0.96 }}
-              className="sm:hidden px-3 py-2 rounded-xl bg-white/50"
+              className="menu-button sm:hidden px-4 py-2 rounded-full bg-white/35 dark:bg-white/12 backdrop-blur-md border border-white/30 dark:border-white/20 text-black/80 dark:text-white shadow-sm hover:bg-white/45 dark:hover:bg-white/18 transition"
               aria-expanded={open}
               aria-label="Toggle menu"
               onClick={handleMenuToggle}
