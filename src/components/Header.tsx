@@ -139,21 +139,30 @@ export default function Header() {
 
     return (
       <li>
-        <motion.div
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.98 }}
-          className="relative group rounded-xl"
-        >
+        <motion.div className="relative group rounded-xl">
           <Link
             href={href}
             onClick={() => open && setOpen(false)}
             aria-current={active ? "page" : undefined}
             className={[
-              "px-3 py-2 rounded-xl transition-colors",
-              "hover:bg-white/55 hover:backdrop-blur",
-              active ? "bg-white/60 font-semibold" : "bg-transparent"
+              "relative px-3 py-2 rounded-xl transition-all active:scale-[0.97]",
+              active
+                ? "bg-white/25 dark:bg-white/10 border border-white/30 dark:border-white/20 text-black dark:text-white shadow-[0_4px_20px_rgba(96,165,250,0.25)] backdrop-blur-xl font-semibold"
+                : "text-black/80 dark:text-white/80 hover:bg-white/15 dark:hover:bg-white/10"
             ].join(" ")}
           >
+            {active ? (
+              <>
+                <span
+                  className="pointer-events-none absolute inset-0 rounded-xl bg-[linear-gradient(180deg,rgba(255,255,255,0.35),rgba(255,255,255,0))] opacity-60"
+                  aria-hidden="true"
+                />
+                <span
+                  className="pointer-events-none absolute -inset-2 rounded-2xl bg-[radial-gradient(circle_at_30%_50%,rgba(96,165,250,0.35),transparent_70%)] blur-xl opacity-60"
+                  aria-hidden="true"
+                />
+              </>
+            ) : null}
             <span className="relative z-10 inline-flex items-center gap-2">
               {label}
               {showUnread ? (
@@ -192,93 +201,107 @@ export default function Header() {
   }
 
   return (
-    <header
+    <div
       className={[
-        "site-header is-fixed fixed top-0 left-0 right-0 z-50",
+        "header-safe-wrapper",
         "transition-transform duration-300 ease-out",
         hidden ? "-translate-y-full" : "translate-y-0",
         "md:translate-y-0"
       ].join(" ")}
     >
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 py-3">
-        <div className="glass border flex items-center justify-between px-3 sm:px-4 py-2">
-          {/* Brand */}
-          <motion.div whileHover={{ scale: 1.02 }} className="rounded-xl">
-            <Link
-              href="/"
-              onClick={() => open && setOpen(false)}
-              className="flex items-center gap-2 font-semibold tracking-tight rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/40"
-              aria-label="Go to homepage"
-            >
-              <span className="relative inline-flex items-center justify-center">
-                <Image
-                  src="/images/logo/Logo.png"
-                  alt="James Square logo"
-                  width={36}
-                  height={36}
-                  priority
-                  className="rounded-lg"
-                />
-                <span
-                  className="absolute -inset-1 rounded-2xl bg-white/30 blur-md opacity-0 hover:opacity-100 transition-opacity"
-                  aria-hidden="true"
-                />
-              </span>
-              <span className="text-lg sm:text-xl">
-                James <span className="text-slate-500">Square</span>
-              </span>
-            </Link>
-          </motion.div>
+      <div className="site-header-shell">
+        <header className="site-header mx-auto max-w-6xl px-4 sm:px-6">
+          <div className="flex items-center justify-between px-3 sm:px-4 py-2">
+            {/* Brand */}
+            <motion.div whileHover={{ scale: 1.02 }} className="rounded-xl">
+              <Link
+                href="/"
+                onClick={() => open && setOpen(false)}
+                className="flex items-center gap-2 font-semibold tracking-tight rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/40"
+                aria-label="Go to homepage"
+              >
+                <span className="relative inline-flex items-center justify-center">
+                  <span
+                    className="pointer-events-none absolute -inset-2 rounded-2xl blur-xl opacity-0 dark:opacity-70 bg-[radial-gradient(circle_at_30%_30%,rgba(96,165,250,0.55),rgba(96,165,250,0.18),transparent_70%)]"
+                    aria-hidden="true"
+                  />
+                  <Image
+                    src="/images/logo/Logo.png"
+                    alt="James Square logo"
+                    width={36}
+                    height={36}
+                    priority
+                    className="relative z-10 rounded-lg"
+                  />
+                </span>
+                <span className="relative text-lg sm:text-xl">
+                  <span
+                    className="pointer-events-none absolute -inset-x-3 -inset-y-2 rounded-2xl blur-2xl opacity-0 dark:opacity-50 bg-[radial-gradient(circle_at_20%_50%,rgba(96,165,250,0.35),transparent_70%)]"
+                    aria-hidden="true"
+                  />
+                  <span className="relative z-10">
+                    James <span className="text-slate-500">Square</span>
+                  </span>
+                </span>
+              </Link>
+            </motion.div>
 
-          {/* Desktop nav */}
-          <nav className="hidden sm:block">
-            <ul className="flex items-center gap-2 text-sm">
-              <NavLink href="/book" label="Book Facilities" />
-              <NavLink href="/dashboard" label="My Dashboard" />
-              <NavLink href="/message-board" label="Message Board" showUnread={hasUnreadMessageBoard} />
-              {user && <NavLink href="/owners" label="Owners" />}
-              <NavLink href="/local" label="Useful Info" />
-              {isAdmin && <NavLink href="/admin" label="Admin" />}
+            {/* Desktop nav */}
+            <nav className="hidden sm:block">
+              <ul className="flex items-center gap-2 text-sm">
+                <NavLink href="/book" label="Book Facilities" />
+                <NavLink href="/dashboard" label="My Dashboard" />
+                <NavLink href="/message-board" label="Message Board" showUnread={hasUnreadMessageBoard} />
+                {user && <NavLink href="/owners" label="Owners" />}
+                <NavLink href="/local" label="Useful Info" />
+                {isAdmin && <NavLink href="/admin" label="Admin" />}
 
-              {user ? (
-                <>
-                  {userName && (
-                    <li className="px-2 py-1 text-slate-600 dark:text-slate-300 hidden md:block">
-                      Hi, {userName.split(" ")[0]}
+                {user ? (
+                  <>
+                    {userName && (
+                      <li className="px-2 py-1 text-slate-600 dark:text-slate-300 hidden md:block">
+                        Hi, {userName.split(" ")[0]}
+                      </li>
+                    )}
+                    <li>
+                      <motion.button
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.97 }}
+                        onClick={() => signOut(auth)}
+                        className="px-3 py-2 rounded-xl bg-black/80 text-white hover:bg-black"
+                      >
+                        Sign Out
+                      </motion.button>
                     </li>
-                  )}
-                  <li>
-                    <motion.button
-                      whileHover={{ scale: 1.03 }}
-                      whileTap={{ scale: 0.97 }}
-                      onClick={() => signOut(auth)}
-                      className="px-3 py-2 rounded-xl bg-black/80 text-white hover:bg-black"
-                    >
-                      Sign Out
-                    </motion.button>
-                  </li>
-                </>
-              ) : (
-                <NavLink href="/login" label="Sign In" />
-              )}
-            </ul>
-          </nav>
+                  </>
+                ) : (
+                  <NavLink href="/login" label="Sign In" />
+                )}
+              </ul>
+            </nav>
 
-          {/* Mobile toggle */}
-          <motion.button
-            whileTap={{ scale: 0.96 }}
-            className="sm:hidden px-3 py-2 rounded-xl bg-white/50"
-            aria-expanded={open}
-            aria-label="Toggle menu"
-            onClick={handleMenuToggle}
-          >
-            {open ? "Close" : "Menu"}
-          </motion.button>
-        </div>
+            {/* Mobile toggle */}
+            <motion.button
+              whileTap={{ scale: 0.96 }}
+              className="sm:hidden px-4 py-2 rounded-2xl border backdrop-blur-xl bg-white/55 dark:bg-white/10 border-black/10 dark:border-white/15 shadow-[0_8px_24px_rgba(0,0,0,0.10)] text-black/80 dark:text-white/90 relative overflow-hidden"
+              aria-expanded={open}
+              aria-label="Toggle menu"
+              onClick={() => setOpen((value) => !value)}
+            >
+              <span
+                className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.35),rgba(255,255,255,0.08),rgba(255,255,255,0))] opacity-60 dark:opacity-40"
+                aria-hidden="true"
+              />
+              <span className="relative z-10">{open ? "Close" : "Menu"}</span>
+            </motion.button>
+          </div>
+        </header>
+      </div>
 
-        {/* Mobile sheet */}
-        {open && (
-          <div className="mt-2 glass p-3 sm:hidden">
+      {/* Mobile sheet */}
+      {open && (
+        <div className="mt-2 px-4 sm:px-6">
+          <div className="glass p-3 sm:hidden">
             <ul className="flex flex-col gap-2">
               <NavLink href="/book" label="Book Facilities" />
               <NavLink href="/dashboard" label="My Dashboard" />
@@ -312,8 +335,8 @@ export default function Header() {
               )}
             </ul>
           </div>
-        )}
-      </div>
-    </header>
+        </div>
+      )}
+    </div>
   );
 }
