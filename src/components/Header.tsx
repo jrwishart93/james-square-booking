@@ -139,21 +139,30 @@ export default function Header() {
 
     return (
       <li>
-        <motion.div
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.98 }}
-          className="relative group rounded-xl"
-        >
+        <motion.div className="relative group rounded-xl">
           <Link
             href={href}
             onClick={() => open && setOpen(false)}
             aria-current={active ? "page" : undefined}
             className={[
-              "px-3 py-2 rounded-xl transition-colors",
-              "hover:bg-white/55 hover:backdrop-blur",
-              active ? "bg-white/60 font-semibold" : "bg-transparent"
+              "relative px-3 py-2 rounded-xl transition-all active:scale-[0.97]",
+              active
+                ? "bg-white/25 dark:bg-white/10 border border-white/30 dark:border-white/20 text-black dark:text-white shadow-[0_4px_20px_rgba(96,165,250,0.25)] backdrop-blur-xl font-semibold"
+                : "text-black/80 dark:text-white/80 hover:bg-white/15 dark:hover:bg-white/10"
             ].join(" ")}
           >
+            {active ? (
+              <>
+                <span
+                  className="pointer-events-none absolute inset-0 rounded-xl bg-[linear-gradient(180deg,rgba(255,255,255,0.35),rgba(255,255,255,0))] opacity-60"
+                  aria-hidden="true"
+                />
+                <span
+                  className="pointer-events-none absolute -inset-2 rounded-2xl bg-[radial-gradient(circle_at_30%_50%,rgba(96,165,250,0.35),transparent_70%)] blur-xl opacity-60"
+                  aria-hidden="true"
+                />
+              </>
+            ) : null}
             <span className="relative z-10 inline-flex items-center gap-2">
               {label}
               {showUnread ? (
