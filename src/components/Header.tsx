@@ -204,30 +204,35 @@ export default function Header() {
         <header className="site-header mx-auto max-w-6xl px-4 sm:px-6">
           <div className="flex items-center justify-between px-3 sm:px-4 py-2">
             {/* Brand */}
-            <motion.div whileHover={{ scale: 1.02 }} className="nav-brand relative">
-              <div className="nav-brand-glow" aria-hidden="true" />
+            <motion.div whileHover={{ scale: 1.02 }} className="rounded-xl">
               <Link
                 href="/"
                 onClick={() => open && setOpen(false)}
-                className="nav-brand-content relative z-10 flex items-center gap-2 font-semibold tracking-tight rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/40"
+                className="flex items-center gap-2 font-semibold tracking-tight rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/40"
                 aria-label="Go to homepage"
               >
                 <span className="relative inline-flex items-center justify-center">
+                  <span
+                    className="pointer-events-none absolute -inset-2 rounded-2xl blur-xl opacity-0 dark:opacity-70 bg-[radial-gradient(circle_at_30%_30%,rgba(96,165,250,0.55),rgba(96,165,250,0.18),transparent_70%)]"
+                    aria-hidden="true"
+                  />
                   <Image
                     src="/images/logo/Logo.png"
                     alt="James Square logo"
                     width={36}
                     height={36}
                     priority
-                    className="rounded-lg"
-                  />
-                  <span
-                    className="absolute -inset-1 rounded-2xl bg-white/30 blur-md opacity-0 hover:opacity-100 transition-opacity"
-                    aria-hidden="true"
+                    className="relative z-10 rounded-lg"
                   />
                 </span>
-                <span className="nav-title text-lg sm:text-xl">
-                  James <span className="text-slate-500">Square</span>
+                <span className="relative text-lg sm:text-xl">
+                  <span
+                    className="pointer-events-none absolute -inset-x-3 -inset-y-2 rounded-2xl blur-2xl opacity-0 dark:opacity-50 bg-[radial-gradient(circle_at_20%_50%,rgba(96,165,250,0.35),transparent_70%)]"
+                    aria-hidden="true"
+                  />
+                  <span className="relative z-10">
+                    James <span className="text-slate-500">Square</span>
+                  </span>
                 </span>
               </Link>
             </motion.div>
@@ -269,12 +274,16 @@ export default function Header() {
             {/* Mobile toggle */}
             <motion.button
               whileTap={{ scale: 0.96 }}
-              className="menu-button sm:hidden px-4 py-2 rounded-full bg-white/35 dark:bg-white/12 backdrop-blur-md border border-white/30 dark:border-white/20 text-black/80 dark:text-white shadow-sm hover:bg-white/45 dark:hover:bg-white/18 transition"
+              className="sm:hidden px-4 py-2 rounded-2xl border backdrop-blur-xl bg-white/55 dark:bg-white/10 border-black/10 dark:border-white/15 shadow-[0_8px_24px_rgba(0,0,0,0.10)] text-black/80 dark:text-white/90 relative overflow-hidden"
               aria-expanded={open}
               aria-label="Toggle menu"
-              onClick={handleMenuToggle}
+              onClick={() => setOpen((value) => !value)}
             >
-              {open ? "Close" : "Menu"}
+              <span
+                className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.35),rgba(255,255,255,0.08),rgba(255,255,255,0))] opacity-60 dark:opacity-40"
+                aria-hidden="true"
+              />
+              <span className="relative z-10">{open ? "Close" : "Menu"}</span>
             </motion.button>
           </div>
         </header>

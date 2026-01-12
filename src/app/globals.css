@@ -130,37 +130,6 @@ body.app-mode nav {
   overflow: visible;
 }
 
-.nav-brand {
-  position: relative;
-  z-index: 2;
-}
-
-body.app-mode.dark .nav-brand-glow {
-  position: absolute;
-  inset: -24px -32px;
-  background: radial-gradient(
-    ellipse at left center,
-    rgba(120, 170, 255, 0.35),
-    rgba(120, 170, 255, 0.18),
-    transparent 70%
-  );
-  filter: blur(22px);
-  z-index: 0;
-  pointer-events: none;
-}
-
-body.app-mode.dark .nav-title {
-  text-shadow:
-    0 0 18px rgba(120, 170, 255, 0.35),
-    0 0 2px rgba(255, 255, 255, 0.25);
-}
-
-body.app-mode .menu-button {
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.35),
-    0 4px 14px rgba(0, 0, 0, 0.18);
-}
-
 body.app-mode .site-content {
   padding-top: calc(var(--safe-top) + var(--nav-height) + var(--content-gap));
   position: relative;
@@ -183,6 +152,11 @@ body.app-mode .dashboard-tabs {
 }
 
 @media (prefers-color-scheme: dark) {
+  header .glass {
+    background: color-mix(in oklab, hsl(var(--glass-strong)) 70%, transparent);
+    border-color: color-mix(in oklab, hsl(var(--glass-border)) 70%, transparent);
+  }
+
   html, body {
     background-color: #0f172a;
   }
