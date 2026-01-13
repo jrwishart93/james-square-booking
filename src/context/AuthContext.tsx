@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
-import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { doc, getDoc, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
 
 interface AuthContextType {
   user: User | null;
@@ -39,6 +39,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const updateLastLogin = async (firebaseUser: User) => {
+    try {
+      const ref = doc(db, 'users', firebaseUser.uid);
+      await updateDoc(ref, { lastLoginAt: serverTimestamp() });
+    } catch (error) {
+      console.error('Failed to update last login timestamp', error);
+    }
+  };
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       try {
@@ -46,6 +55,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           await firebaseUser.getIdToken(true);
           setUser(firebaseUser);
           await ensureUserDoc(firebaseUser);
+          void updateLastLogin(firebaseUser);
         } else {
           setUser(null);
         }

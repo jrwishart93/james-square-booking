@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState, ChangeEvent } from 'react';
+import Link from 'next/link';
 import { auth, db } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import {
@@ -17,6 +18,8 @@ import {
 } from 'firebase/firestore';
 import OwnersPanel from './OwnersPanel';
 import AdminEmailPanel from './AdminEmailPanel';
+import { getQuestions } from '@/app/voting/services/storageService';
+import type { Question } from '@/app/voting/types';
 
 /* ---------- Types (unchanged) ---------- */
 interface UserRegistration {
@@ -26,11 +29,13 @@ interface UserRegistration {
   username: string;
   property: string;
   createdAt?: string | Date | { toDate: () => Date };
+  lastLoginAt?: string | Date | { toDate: () => Date };
   residentType?: string;
   residentTypeLabel?: string;
   isFlagged?: boolean;
   isAdmin?: boolean;
   disabled?: boolean;
+  requiresResidentTypeConfirmation?: boolean;
 }
 interface BookingActivity {
   id: string;
@@ -129,12 +134,21 @@ export default function AdminDashboard() {
   const [bookings, setBookings] = useState<BookingActivity[]>([]);
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
+  const [votingQuestions, setVotingQuestions] = useState<Question[]>([]);
+  const [votingLoading, setVotingLoading] = useState<boolean>(true);
+  const [votingError, setVotingError] = useState<string | null>(null);
 
   /* ---------- UI state (unchanged) ---------- */
   const [editingUser, setEditingUser] = useState<UserRegistration | null>(null);
   const [customNotice, setCustomNotice] = useState<string>('');
   const [facilityRules, setFacilityRules] = useState<string>('');
   const [debugMode, setDebugMode] = useState<boolean>(false);
+  const [residentFilter, setResidentFilter] = useState<
+    'all' | 'owners' | 'renters' | 'unknown'
+  >('all');
+  const [activityFilter, setActivityFilter] = useState<
+    'all' | 'active' | 'inactive' | 'never'
+  >('all');
 
 
   /* ---------- Auth check (unchanged) ---------- */
@@ -206,11 +220,26 @@ export default function AdminDashboard() {
       }
     };
 
+    const fetchVotingQuestions = async () => {
+      setVotingLoading(true);
+      setVotingError(null);
+      try {
+        const list = await getQuestions();
+        setVotingQuestions(list);
+      } catch (error) {
+        console.error('Failed to load voting questions:', error);
+        setVotingError('Unable to load voting questions.');
+      } finally {
+        setVotingLoading(false);
+      }
+    };
+
     fetchUsers();
     fetchBookings();
     fetchActivityLogs();
     fetchFeedbacks();
     fetchFacilityConfig();
+    fetchVotingQuestions();
   }, [isAdmin]);
 
   /* ---------- User Editing & Controls (unchanged) ---------- */
@@ -283,6 +312,27 @@ export default function AdminDashboard() {
     }
   };
 
+  const requireResidentTypeConfirmation = async (user: UserRegistration) => {
+    try {
+      const userRef = doc(db, 'users', user.id);
+      await updateDoc(userRef, { requiresResidentTypeConfirmation: true });
+      setUsers((prev) =>
+        prev.map((u) =>
+          u.id === user.id
+            ? { ...u, requiresResidentTypeConfirmation: true }
+            : u
+        )
+      );
+      await addDoc(collection(db, 'activityLogs'), {
+        action: 'Flagged resident type confirmation requirement',
+        admin: auth.currentUser?.email || 'unknown',
+        timestamp: new Date(),
+      });
+    } catch (error) {
+      console.error('Failed to require resident type confirmation:', error);
+    }
+  };
+
   /* ---------- Booking / Logs controls (unchanged) ---------- */
   const resetBookings = async () => {
     if (window.confirm('Are you sure you want to reset all bookings? This action cannot be undone.')) {
@@ -340,7 +390,10 @@ export default function AdminDashboard() {
 
     let csvContent = '';
     if (users.length > 0) {
-      csvContent += 'Users:\n' + convertToCSV(users.map(u => ({ ...u }))) + '\n\n';
+      csvContent += 'Users:\n' + convertToCSV(users.map(u => ({
+        ...u,
+        lastLoginAt: formatLastLoginForExport(u),
+      }))) + '\n\n';
     }
     if (bookings.length > 0) {
       csvContent += 'Bookings:\n' + convertToCSV(bookings.map(b => ({ ...b }))) + '\n\n';
@@ -382,6 +435,54 @@ export default function AdminDashboard() {
     return 'Unknown';
   };
 
+  const formatLastLoginForExport = (user: UserRegistration) => {
+    const lastLoginDate = getLastLoginDate(user.lastLoginAt);
+    return lastLoginDate ? lastLoginDate.toISOString() : 'Before tracking enabled';
+  };
+
+  const getLastLoginDate = (dateValue: UserRegistration['lastLoginAt']) => {
+    if (!dateValue) return null;
+
+    if (typeof dateValue === 'string' || dateValue instanceof Date) {
+      const parsed = new Date(dateValue);
+      return Number.isNaN(parsed.getTime()) ? null : parsed;
+    }
+
+    const timestamp = dateValue as { toDate?: () => Date };
+
+    if (typeof timestamp.toDate === 'function') {
+      return timestamp.toDate();
+    }
+
+    return null;
+  };
+
+  const getLastLoginDisplay = (user: UserRegistration) => {
+    const lastLoginDate = getLastLoginDate(user.lastLoginAt);
+    if (!lastLoginDate) {
+      return {
+        label: 'Before tracking enabled',
+        status: 'never',
+      } as const;
+    }
+
+    const daysSinceLogin = Math.floor(
+      (Date.now() - lastLoginDate.getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    const label = lastLoginDate.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: '2-digit',
+    });
+
+    if (daysSinceLogin >= 30) {
+      return { label, status: 'inactive' } as const;
+    }
+
+    return { label, status: 'active' } as const;
+  };
+
   const getResidentTypeLabel = (user: UserRegistration) => {
     const rawLabel = user.residentTypeLabel?.trim();
     if (!rawLabel) {
@@ -391,6 +492,17 @@ export default function AdminDashboard() {
       };
     }
     return { label: rawLabel, isMissing: false };
+  };
+
+  const getResidentCategory = (user: UserRegistration) => {
+    const label = (user.residentTypeLabel || user.residentType || '').toLowerCase();
+    if (label.includes('owner')) {
+      return 'owners';
+    }
+    if (label.includes('rent')) {
+      return 'renters';
+    }
+    return 'unknown';
   };
 
   /* ---------- Derived stats (unchanged) ---------- */
@@ -403,10 +515,10 @@ export default function AdminDashboard() {
     const nonAdminUsers = users.filter((user) => !user.isAdmin);
     const stats = nonAdminUsers.reduce(
       (acc, user) => {
-        const label = (user.residentTypeLabel || user.residentType || '').toLowerCase();
-        if (label.includes('owner')) {
+        const category = getResidentCategory(user);
+        if (category === 'owners') {
           acc.owners += 1;
-        } else if (label.includes('rent')) {
+        } else if (category === 'renters') {
           acc.renters += 1;
         } else {
           acc.unknown += 1;
@@ -418,6 +530,65 @@ export default function AdminDashboard() {
 
     return { ...stats };
   }, [users]);
+
+  const activityStats = useMemo(() => {
+    const nonAdminUsers = users.filter((user) => !user.isAdmin);
+    return nonAdminUsers.reduce(
+      (acc, user) => {
+        const status = getLastLoginDisplay(user).status;
+        if (status === 'inactive') {
+          acc.inactive += 1;
+        }
+        if (status === 'never') {
+          acc.never += 1;
+        }
+        return acc;
+      },
+      { inactive: 0, never: 0 }
+    );
+  }, [users]);
+
+  const votingOverview = useMemo(() => {
+    const activeVotes = votingQuestions.filter((question) => question.status === 'open');
+    const totalsByQuestion = votingQuestions.map((question) => {
+      const total = Object.values(question.voteTotals ?? {}).reduce(
+        (sum, count) => sum + count,
+        0
+      );
+      return { id: question.id, title: question.title, total };
+    });
+    const totalBallotsCast = totalsByQuestion.reduce((sum, q) => sum + q.total, 0);
+
+    return {
+      activeCount: activeVotes.length,
+      totalBallotsCast,
+      totalsByQuestion,
+    };
+  }, [votingQuestions]);
+
+  const filteredUsers = useMemo(() => {
+    const nonAdminUsers = users.filter((user) => !user.isAdmin);
+    const residentFiltered = residentFilter === 'all'
+      ? nonAdminUsers
+      : nonAdminUsers.filter(
+        (user) => getResidentCategory(user) === residentFilter
+      );
+
+    if (activityFilter === 'all') {
+      return residentFiltered;
+    }
+
+    return residentFiltered.filter((user) => {
+      const status = getLastLoginDisplay(user).status;
+      if (activityFilter === 'active') {
+        return status === 'active';
+      }
+      if (activityFilter === 'inactive') {
+        return status === 'inactive';
+      }
+      return status === 'never';
+    });
+  }, [activityFilter, residentFilter, users]);
 
   /* ---------- Guards (unchanged) ---------- */
   if (loading) {
@@ -471,12 +642,17 @@ export default function AdminDashboard() {
             </div>
             <div className="text-xs opacity-70">Matches the filtered user list.</div>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
             <StatPill label="Total Residents" value={residentStats.total} />
             <StatPill label="Owners" value={residentStats.owners} />
             <StatPill label="Renters" value={residentStats.renters} />
             <StatPill label="Unknown" value={residentStats.unknown} />
+            <StatPill label="Inactive 30+ days" value={activityStats.inactive} />
           </div>
+        </div>
+        <div className="jqs-glass rounded-2xl px-4 py-3 text-xs opacity-80">
+          Some residents signed up before resident-type confirmation existed. Unknown residents will be
+          asked to confirm their status later. (Admin-only notice)
         </div>
 
         <Section
@@ -494,17 +670,124 @@ export default function AdminDashboard() {
           <AdminEmailPanel />
         </Section>
 
+        <Section
+          title="Voting Overview"
+          subtitle="High-level totals with quick access to the full audit"
+          defaultOpen
+        >
+          <div className="space-y-4">
+            {votingLoading ? (
+              <div className="jqs-glass rounded-xl p-3">Loading voting overview...</div>
+            ) : votingError ? (
+              <div className="jqs-glass rounded-xl p-3 text-red-600 dark:text-red-400">
+                {votingError}
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <StatPill label="Active votes" value={votingOverview.activeCount} />
+                  <StatPill label="Total ballots cast" value={votingOverview.totalBallotsCast} />
+                  <div className="jqs-glass rounded-2xl px-4 py-3 text-sm flex flex-col justify-between gap-2">
+                    <div className="opacity-80">Voting audit</div>
+                    <Link
+                      href="/admin/voting"
+                      className="text-sm font-semibold text-indigo-600 hover:underline"
+                    >
+                      Open detailed audit →
+                    </Link>
+                  </div>
+                </div>
+                <div className="jqs-glass rounded-2xl p-4">
+                  <h3 className="text-sm font-semibold mb-3">Votes per question</h3>
+                  {votingOverview.totalsByQuestion.length === 0 ? (
+                    <div className="text-sm opacity-80">No questions created yet.</div>
+                  ) : (
+                    <div className="space-y-2 text-sm">
+                      {votingOverview.totalsByQuestion.map((question) => (
+                        <div key={question.id} className="flex flex-wrap justify-between gap-2">
+                          <span className="font-medium">{question.title}</span>
+                          <span className="opacity-80">{question.total} ballots</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        </Section>
+
         {/* Users */}
         <Section
           title="Users"
           subtitle="Manage accounts, roles, and access"
-          count={users.length}
+          count={filteredUsers.length}
           defaultOpen
         >
-          {users.length === 0 ? (
+          {filteredUsers.length === 0 ? (
             <div className="jqs-glass rounded-xl p-3">No users found.</div>
           ) : (
             <>
+              <div className="flex flex-col gap-3 mb-4">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-xs font-semibold uppercase tracking-wide opacity-70">Resident type</span>
+                  {[
+                    { id: 'all', label: 'All' },
+                    { id: 'owners', label: 'Owners' },
+                    { id: 'renters', label: 'Renters' },
+                    { id: 'unknown', label: 'Unknown' },
+                  ].map((filter) => {
+                    const isActive = residentFilter === filter.id;
+                    return (
+                      <button
+                        key={filter.id}
+                        type="button"
+                        onClick={() =>
+                          setResidentFilter(
+                            filter.id as 'all' | 'owners' | 'renters' | 'unknown'
+                          )
+                        }
+                        className={`rounded-full px-4 py-2 text-xs font-semibold transition ${
+                          isActive
+                            ? 'bg-indigo-600 text-white shadow'
+                            : 'jqs-glass hover:brightness-[1.05]'
+                        }`}
+                      >
+                        {filter.label}
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-xs font-semibold uppercase tracking-wide opacity-70">Activity</span>
+                  {[
+                    { id: 'all', label: 'All' },
+                    { id: 'active', label: 'Active' },
+                    { id: 'inactive', label: 'Inactive 30+ days' },
+                    { id: 'never', label: 'Never logged in' },
+                  ].map((filter) => {
+                    const isActive = activityFilter === filter.id;
+                    return (
+                      <button
+                        key={filter.id}
+                        type="button"
+                        onClick={() =>
+                          setActivityFilter(
+                            filter.id as 'all' | 'active' | 'inactive' | 'never'
+                          )
+                        }
+                        className={`rounded-full px-4 py-2 text-xs font-semibold transition ${
+                          isActive
+                            ? 'bg-emerald-600 text-white shadow'
+                            : 'jqs-glass hover:brightness-[1.05]'
+                        }`}
+                      >
+                        {filter.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
               {/* Desktop Table */}
               <div className="hidden md:block overflow-x-auto jqs-glass rounded-2xl">
                 <table className="min-w-full text-sm">
@@ -517,6 +800,7 @@ export default function AdminDashboard() {
                         'Property',
                         'Type',
                         'Registered',
+                        'Last login',
                         'Flagged',
                         'Admin',
                         'Disabled',
@@ -529,7 +813,7 @@ export default function AdminDashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {users.map((user) =>
+                    {filteredUsers.map((user) =>
                       editingUser && editingUser.id === user.id ? (
                         <tr key={user.id} className="align-top">
                           <td className="px-3 py-2">{user.email}</td>
@@ -573,6 +857,22 @@ export default function AdminDashboard() {
                           <td className="px-3 py-2">
                             {formatDate(user.createdAt)}
                           </td>
+                          <td className="px-3 py-2">
+                            {(() => {
+                              const lastLogin = getLastLoginDisplay(user);
+                              return (
+                                <div className="space-y-1">
+                                  <div>{lastLogin.label}</div>
+                                  {lastLogin.status === 'inactive' && (
+                                    <div className="text-xs text-amber-600">Inactive 30+ days</div>
+                                  )}
+                                  {lastLogin.status === 'never' && (
+                                    <div className="text-xs text-slate-500">Never logged in</div>
+                                  )}
+                                </div>
+                              );
+                            })()}
+                          </td>
                           <td className="px-3 py-2">{user.isFlagged ? 'Yes' : 'No'}</td>
                           <td className="px-3 py-2">{user.isAdmin ? 'Yes' : 'No'}</td>
                           <td className="px-3 py-2">{user.disabled ? 'Yes' : 'No'}</td>
@@ -583,6 +883,14 @@ export default function AdminDashboard() {
                             <button onClick={cancelEditing} className="rounded-full px-3 py-1 text-xs jqs-glass">
                               Cancel
                             </button>
+                            {getResidentCategory(user) === 'unknown' && (
+                              <button
+                                onClick={() => requireResidentTypeConfirmation(user)}
+                                className="rounded-full px-3 py-1 text-xs bg-slate-700 text-white"
+                              >
+                                Require confirmation
+                              </button>
+                            )}
                             <button onClick={() => removeUser(user.id)} className="rounded-full px-3 py-1 text-xs bg-red-600 text-white">
                               Remove
                             </button>
@@ -607,6 +915,22 @@ export default function AdminDashboard() {
                           <td className="px-3 py-2">
                             {formatDate(user.createdAt)}
                           </td>
+                          <td className="px-3 py-2">
+                            {(() => {
+                              const lastLogin = getLastLoginDisplay(user);
+                              return (
+                                <div className="space-y-1">
+                                  <div>{lastLogin.label}</div>
+                                  {lastLogin.status === 'inactive' && (
+                                    <div className="text-xs text-amber-600">Inactive 30+ days</div>
+                                  )}
+                                  {lastLogin.status === 'never' && (
+                                    <div className="text-xs text-slate-500">Never logged in</div>
+                                  )}
+                                </div>
+                              );
+                            })()}
+                          </td>
                           <td className="px-3 py-2">{user.isFlagged ? 'Yes' : 'No'}</td>
                           <td className="px-3 py-2">{user.isAdmin ? 'Yes' : 'No'}</td>
                           <td className="px-3 py-2">{user.disabled ? 'Yes' : 'No'}</td>
@@ -620,6 +944,14 @@ export default function AdminDashboard() {
                             <button onClick={() => toggleDisabledStatus(user)} className="rounded-full px-3 py-1 text-xs bg-amber-500 text-black">
                               {user.disabled ? 'Enable' : 'Disable'}
                             </button>
+                            {getResidentCategory(user) === 'unknown' && (
+                              <button
+                                onClick={() => requireResidentTypeConfirmation(user)}
+                                className="rounded-full px-3 py-1 text-xs bg-slate-700 text-white"
+                              >
+                                Require confirmation
+                              </button>
+                            )}
                             <button onClick={() => removeUser(user.id)} className="rounded-full px-3 py-1 text-xs bg-red-600 text-white">
                               Remove
                             </button>
@@ -633,34 +965,70 @@ export default function AdminDashboard() {
 
               {/* Mobile Cards */}
               <div className="md:hidden space-y-4 mt-4">
-                {users.map((user) => (
+                {filteredUsers.map((user) => (
                   <div key={user.id} className="jqs-glass rounded-2xl p-3 text-sm">
-                    <p><strong>Email:</strong> {user.email}</p>
-                    <p><strong>Name:</strong> {user.fullName}</p>
-                    <p><strong>Username:</strong> {user.username}</p>
-                    <p><strong>Property:</strong> {user.property}</p>
-                    <p>
-                      <strong>Type:</strong>{' '}
-                      <span className={getResidentTypeLabel(user).isMissing ? 'text-amber-600 font-semibold' : undefined}>
-                        {getResidentTypeLabel(user).label}
-                      </span>
-                    </p>
+                    <div className="flex flex-col gap-1">
+                      <div className="text-base font-semibold">{user.fullName}</div>
+                      <div className="text-sm opacity-80">{user.property}</div>
+                    </div>
+                    <div className="mt-2 space-y-1">
+                      <p>
+                        <strong>Status:</strong>{' '}
+                        <span className={getResidentTypeLabel(user).isMissing ? 'text-amber-600 font-semibold' : undefined}>
+                          {getResidentTypeLabel(user).label}
+                        </span>
+                      </p>
+                      <p><strong>Email:</strong> {user.email}</p>
+                      <p><strong>Username:</strong> {user.username}</p>
+                    </div>
                     <p>
                       <strong>Registered:</strong>{' '}
                       {formatDate(user.createdAt)}
                     </p>
+                    <p>
+                      <strong>Last login:</strong>{' '}
+                      <span>{getLastLoginDisplay(user).label}</span>
+                    </p>
+                    {getLastLoginDisplay(user).status === 'inactive' && (
+                      <p className="text-xs text-amber-600">Inactive 30+ days</p>
+                    )}
+                    {getLastLoginDisplay(user).status === 'never' && (
+                      <p className="text-xs text-slate-500">Never logged in</p>
+                    )}
                     <p><strong>Flagged:</strong> {user.isFlagged ? 'Yes' : 'No'}</p>
                     <p><strong>Admin:</strong> {user.isAdmin ? 'Yes' : 'No'}</p>
                     <p><strong>Disabled:</strong> {user.disabled ? 'Yes' : 'No'}</p>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      <button onClick={() => startEditing(user)} className="jqs-glass px-3 py-1 rounded-full text-xs">Edit</button>
-                      <button onClick={() => toggleAdminStatus(user)} className="px-3 py-1 rounded-full text-xs bg-indigo-600 text-white">
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      <button
+                        onClick={() => startEditing(user)}
+                        className="jqs-glass px-4 py-2 rounded-full text-xs font-semibold"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => toggleAdminStatus(user)}
+                        className="px-4 py-2 rounded-full text-xs font-semibold bg-indigo-600 text-white"
+                      >
                         {user.isAdmin ? 'Revoke Admin' : 'Make Admin'}
                       </button>
-                      <button onClick={() => toggleDisabledStatus(user)} className="px-3 py-1 rounded-full text-xs bg-amber-500 text-black">
+                      <button
+                        onClick={() => toggleDisabledStatus(user)}
+                        className="px-4 py-2 rounded-full text-xs font-semibold bg-amber-500 text-black"
+                      >
                         {user.disabled ? 'Enable' : 'Disable'}
                       </button>
-                      <button onClick={() => removeUser(user.id)} className="px-3 py-1 rounded-full text-xs bg-red-600 text-white">
+                      {getResidentCategory(user) === 'unknown' && (
+                        <button
+                          onClick={() => requireResidentTypeConfirmation(user)}
+                          className="px-4 py-2 rounded-full text-xs font-semibold bg-slate-700 text-white"
+                        >
+                          Require confirmation
+                        </button>
+                      )}
+                      <button
+                        onClick={() => removeUser(user.id)}
+                        className="px-4 py-2 rounded-full text-xs font-semibold bg-red-600 text-white"
+                      >
                         Remove
                       </button>
                     </div>
