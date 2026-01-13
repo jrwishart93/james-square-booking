@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, ChangeEvent } from 'react';
+import React, { useEffect, useMemo, useState, ChangeEvent } from 'react';
 import { auth, db } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import {
@@ -382,11 +382,42 @@ export default function AdminDashboard() {
     return 'Unknown';
   };
 
+  const getResidentTypeLabel = (user: UserRegistration) => {
+    const rawLabel = user.residentTypeLabel?.trim();
+    if (!rawLabel) {
+      return {
+        label: 'Unknown – confirmation required',
+        isMissing: true,
+      };
+    }
+    return { label: rawLabel, isMissing: false };
+  };
+
   /* ---------- Derived stats (unchanged) ---------- */
   const bookingStats = bookings.reduce((stats: { [key: string]: number }, booking) => {
     stats[booking.facility] = (stats[booking.facility] || 0) + 1;
     return stats;
   }, {});
+
+  const residentStats = useMemo(() => {
+    const nonAdminUsers = users.filter((user) => !user.isAdmin);
+    const stats = nonAdminUsers.reduce(
+      (acc, user) => {
+        const label = (user.residentTypeLabel || user.residentType || '').toLowerCase();
+        if (label.includes('owner')) {
+          acc.owners += 1;
+        } else if (label.includes('rent')) {
+          acc.renters += 1;
+        } else {
+          acc.unknown += 1;
+        }
+        return acc;
+      },
+      { total: nonAdminUsers.length, owners: 0, renters: 0, unknown: 0 }
+    );
+
+    return { ...stats };
+  }, [users]);
 
   /* ---------- Guards (unchanged) ---------- */
   if (loading) {
@@ -429,6 +460,24 @@ export default function AdminDashboard() {
             <StatPill label="Feedback" value={feedbacks.length} />
           </div>
         </header>
+
+        <div className="jqs-glass rounded-2xl p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <div>
+              <h2 className="text-lg font-semibold">Resident Breakdown</h2>
+              <p className="text-xs opacity-75">
+                Admin/system accounts excluded from totals.
+              </p>
+            </div>
+            <div className="text-xs opacity-70">Matches the filtered user list.</div>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <StatPill label="Total Residents" value={residentStats.total} />
+            <StatPill label="Owners" value={residentStats.owners} />
+            <StatPill label="Renters" value={residentStats.renters} />
+            <StatPill label="Unknown" value={residentStats.unknown} />
+          </div>
+        </div>
 
         <Section
           title="Owners"
@@ -512,7 +561,14 @@ export default function AdminDashboard() {
                             />
                           </td>
                           <td className="px-3 py-2">
-                            {user.residentTypeLabel || 'Unknown'}
+                            {(() => {
+                              const status = getResidentTypeLabel(user);
+                              return (
+                                <span className={status.isMissing ? 'text-amber-600 font-semibold' : undefined}>
+                                  {status.label}
+                                </span>
+                              );
+                            })()}
                           </td>
                           <td className="px-3 py-2">
                             {formatDate(user.createdAt)}
@@ -538,7 +594,16 @@ export default function AdminDashboard() {
                           <td className="px-3 py-2">{user.fullName}</td>
                           <td className="px-3 py-2">{user.username}</td>
                           <td className="px-3 py-2">{user.property}</td>
-                          <td className="px-3 py-2">{user.residentTypeLabel || 'Unknown'}</td>
+                          <td className="px-3 py-2">
+                            {(() => {
+                              const status = getResidentTypeLabel(user);
+                              return (
+                                <span className={status.isMissing ? 'text-amber-600 font-semibold' : undefined}>
+                                  {status.label}
+                                </span>
+                              );
+                            })()}
+                          </td>
                           <td className="px-3 py-2">
                             {formatDate(user.createdAt)}
                           </td>
@@ -574,7 +639,12 @@ export default function AdminDashboard() {
                     <p><strong>Name:</strong> {user.fullName}</p>
                     <p><strong>Username:</strong> {user.username}</p>
                     <p><strong>Property:</strong> {user.property}</p>
-                    <p><strong>Type:</strong> {user.residentTypeLabel || 'Unknown'}</p>
+                    <p>
+                      <strong>Type:</strong>{' '}
+                      <span className={getResidentTypeLabel(user).isMissing ? 'text-amber-600 font-semibold' : undefined}>
+                        {getResidentTypeLabel(user).label}
+                      </span>
+                    </p>
                     <p>
                       <strong>Registered:</strong>{' '}
                       {formatDate(user.createdAt)}
