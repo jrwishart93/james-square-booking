@@ -58,6 +58,19 @@ interface Feedback {
   timestamp: number | Date;
 }
 
+const PEAK_TIMES = new Set([
+  '17:00',
+  '17:30',
+  '18:00',
+  '18:30',
+  '19:00',
+  '19:30',
+  '20:00',
+  '20:30',
+]);
+
+const isPeakTime = (time: string) => PEAK_TIMES.has(time);
+
 /* ---------- Small UI helpers (visual-only) ---------- */
 function Section({
   title,
@@ -149,6 +162,17 @@ export default function AdminDashboard() {
   const [activityFilter, setActivityFilter] = useState<
     'all' | 'active' | 'inactive' | 'never'
   >('all');
+  const [bookingFacilityFilter, setBookingFacilityFilter] = useState<
+    'all' | 'Pool' | 'Gym' | 'Sauna'
+  >('all');
+  const [bookingTimeFilter, setBookingTimeFilter] = useState<
+    'all' | 'peak' | 'off-peak'
+  >('all');
+  const [bookingUserFilter, setBookingUserFilter] = useState<string>('all');
+  const [bookingViewMode, setBookingViewMode] = useState<
+    'chronological' | 'grouped'
+  >('chronological');
+  const [showBookingFilters, setShowBookingFilters] = useState<boolean>(false);
 
 
   /* ---------- Auth check (unchanged) ---------- */
@@ -505,11 +529,200 @@ export default function AdminDashboard() {
     return 'unknown';
   };
 
+  const formatPercentage = (value: number) => `${value.toFixed(1)}%`;
+
   /* ---------- Derived stats (unchanged) ---------- */
   const bookingStats = bookings.reduce((stats: { [key: string]: number }, booking) => {
     stats[booking.facility] = (stats[booking.facility] || 0) + 1;
     return stats;
   }, {});
+
+  const nonAdminBookings = useMemo(() => {
+    const adminEmails = new Set(
+      users.filter((user) => user.isAdmin).map((user) => user.email)
+    );
+    return bookings.filter((booking) => !adminEmails.has(booking.user));
+  }, [bookings, users]);
+
+  const bookingInsights = useMemo(() => {
+    const totalBookings = nonAdminBookings.length;
+    const uniqueUsers = new Set(nonAdminBookings.map((booking) => booking.user));
+    const uniqueUsersCount = uniqueUsers.size;
+    const averageBookingsPerUser = uniqueUsersCount
+      ? totalBookings / uniqueUsersCount
+      : 0;
+    const peakBookings = nonAdminBookings.filter((booking) =>
+      isPeakTime(booking.time)
+    ).length;
+    const peakPercentage = totalBookings
+      ? (peakBookings / totalBookings) * 100
+      : 0;
+
+    return {
+      totalBookings,
+      uniqueUsersCount,
+      averageBookingsPerUser,
+      peakBookings,
+      peakPercentage,
+    };
+  }, [nonAdminBookings]);
+
+  const bookingFilterOptions = useMemo(() => {
+    const uniqueUsers = Array.from(
+      new Set(nonAdminBookings.map((booking) => booking.user))
+    ).sort((a, b) => a.localeCompare(b));
+    return uniqueUsers;
+  }, [nonAdminBookings]);
+
+  const filteredBookings = useMemo(() => {
+    return nonAdminBookings.filter((booking) => {
+      if (bookingFacilityFilter !== 'all' && booking.facility !== bookingFacilityFilter) {
+        return false;
+      }
+      if (bookingTimeFilter === 'peak' && !isPeakTime(booking.time)) {
+        return false;
+      }
+      if (bookingTimeFilter === 'off-peak' && isPeakTime(booking.time)) {
+        return false;
+      }
+      if (bookingUserFilter !== 'all' && booking.user !== bookingUserFilter) {
+        return false;
+      }
+      return true;
+    });
+  }, [bookingFacilityFilter, bookingTimeFilter, bookingUserFilter, nonAdminBookings]);
+
+  const bookingUserBreakdown = useMemo(() => {
+    const totals = new Map<
+      string,
+      { total: number; peak: number }
+    >();
+    filteredBookings.forEach((booking) => {
+      const current = totals.get(booking.user) ?? { total: 0, peak: 0 };
+      const next = {
+        total: current.total + 1,
+        peak: current.peak + (isPeakTime(booking.time) ? 1 : 0),
+      };
+      totals.set(booking.user, next);
+    });
+
+    const overallTotal = filteredBookings.length;
+    const averagePerUser = totals.size ? overallTotal / totals.size : 0;
+
+    const breakdown = Array.from(totals.entries()).map(([user, stats]) => {
+      const share = overallTotal ? (stats.total / overallTotal) * 100 : 0;
+      let indicator: 'High usage' | 'Above average' | null = null;
+      if (averagePerUser > 0 && stats.total > averagePerUser * 2) {
+        indicator = 'High usage';
+      } else if (averagePerUser > 0 && stats.total > averagePerUser * 1.5) {
+        indicator = 'Above average';
+      }
+      return {
+        user,
+        total: stats.total,
+        peak: stats.peak,
+        share,
+        indicator,
+      };
+    });
+
+    breakdown.sort((a, b) => b.total - a.total);
+
+    return { breakdown, averagePerUser };
+  }, [filteredBookings]);
+
+  const timeSlotBreakdown = useMemo(() => {
+    const totals = new Map<string, number>();
+    filteredBookings.forEach((booking) => {
+      totals.set(booking.time, (totals.get(booking.time) ?? 0) + 1);
+    });
+    const breakdown = Array.from(totals.entries()).map(([time, total]) => ({
+      time,
+      total,
+    }));
+    breakdown.sort((a, b) => b.total - a.total || a.time.localeCompare(b.time));
+    const topTimes = new Set(breakdown.slice(0, 5).map((item) => item.time));
+
+    return {
+      breakdown,
+      topTimes,
+    };
+  }, [filteredBookings]);
+
+  const peakOffPeakStats = useMemo(() => {
+    const peakBookings = filteredBookings.filter((booking) =>
+      isPeakTime(booking.time)
+    ).length;
+    const totalBookings = filteredBookings.length;
+    const offPeakBookings = totalBookings - peakBookings;
+    const peakPercentage = totalBookings ? (peakBookings / totalBookings) * 100 : 0;
+    const offPeakPercentage = totalBookings ? 100 - peakPercentage : 0;
+    return {
+      peakBookings,
+      offPeakBookings,
+      peakPercentage,
+      offPeakPercentage,
+    };
+  }, [filteredBookings]);
+
+  const facilityUsage = useMemo(() => {
+    const totals = new Map<
+      string,
+      { total: number; peak: number }
+    >();
+    filteredBookings.forEach((booking) => {
+      const current = totals.get(booking.facility) ?? { total: 0, peak: 0 };
+      totals.set(booking.facility, {
+        total: current.total + 1,
+        peak: current.peak + (isPeakTime(booking.time) ? 1 : 0),
+      });
+    });
+
+    const overallTotal = filteredBookings.length || 1;
+
+    const breakdown = Array.from(totals.entries()).map(([facility, stats]) => ({
+      facility,
+      total: stats.total,
+      peak: stats.peak,
+      share: (stats.total / overallTotal) * 100,
+    }));
+
+    breakdown.sort((a, b) => b.total - a.total);
+
+    return breakdown;
+  }, [filteredBookings]);
+
+  const groupedBookingsByUser = useMemo(() => {
+    const grouped = new Map<string, BookingActivity[]>();
+    filteredBookings.forEach((booking) => {
+      const current = grouped.get(booking.user) ?? [];
+      current.push(booking);
+      grouped.set(booking.user, current);
+    });
+    const entries = Array.from(grouped.entries()).map(([user, entries]) => ({
+      user,
+      entries,
+      total: entries.length,
+    }));
+    entries.sort((a, b) => b.total - a.total);
+    return entries;
+  }, [filteredBookings]);
+
+  const mobileBookingGroups = useMemo(() => {
+    const groups: Array<{ user: string; entries: BookingActivity[] }> = [];
+    let currentGroup: { user: string; entries: BookingActivity[] } | null = null;
+
+    filteredBookings.forEach((booking) => {
+      if (!currentGroup || currentGroup.user !== booking.user) {
+        currentGroup = { user: booking.user, entries: [booking] };
+        groups.push(currentGroup);
+        return;
+      }
+      currentGroup.entries.push(booking);
+    });
+
+    return groups;
+  }, [filteredBookings]);
 
   const residentStats = useMemo(() => {
     const nonAdminUsers = users.filter((user) => !user.isAdmin);
@@ -1039,43 +1252,443 @@ export default function AdminDashboard() {
           )}
         </Section>
 
+        <Section
+          title="Booking Insights"
+          subtitle="Read-only analysis of facility usage patterns"
+          defaultOpen
+        >
+          <div className="space-y-4">
+            <div>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <h3 className="text-lg font-semibold">Overview</h3>
+                  <p className="text-xs opacity-75">
+                    Admin and system accounts are excluded from insight totals.
+                  </p>
+                </div>
+                <div className="text-xs opacity-70">
+                  Based on all bookings in the system.
+                </div>
+              </div>
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-3">
+                <StatPill label="Total bookings" value={bookingInsights.totalBookings} />
+                <StatPill label="Unique booking users" value={bookingInsights.uniqueUsersCount} />
+                <StatPill
+                  label="Average bookings per user"
+                  value={bookingInsights.averageBookingsPerUser.toFixed(1)}
+                />
+                <StatPill
+                  label="Peak-time bookings"
+                  value={`${bookingInsights.peakBookings} (${formatPercentage(
+                    bookingInsights.peakPercentage
+                  )})`}
+                />
+              </div>
+            </div>
+
+            <div className="jqs-glass rounded-2xl p-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-sm font-semibold">Booking filters</h3>
+                  <p className="text-xs opacity-75">
+                    Filters apply to the insights and recent activity list below.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowBookingFilters((prev) => !prev)}
+                  className="md:hidden text-xs font-semibold rounded-full px-3 py-1 jqs-glass"
+                >
+                  {showBookingFilters ? 'Hide filters' : 'Show filters'}
+                </button>
+              </div>
+              <div
+                className={`mt-4 space-y-4 md:space-y-0 md:grid md:grid-cols-3 md:gap-4 ${
+                  showBookingFilters ? 'block' : 'hidden md:grid'
+                }`}
+              >
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide opacity-70 mb-2">
+                    Facility
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { id: 'all', label: 'All' },
+                      { id: 'Pool', label: 'Pool' },
+                      { id: 'Gym', label: 'Gym' },
+                      { id: 'Sauna', label: 'Sauna' },
+                    ].map((filter) => {
+                      const isActive = bookingFacilityFilter === filter.id;
+                      return (
+                        <button
+                          key={filter.id}
+                          type="button"
+                          onClick={() =>
+                            setBookingFacilityFilter(
+                              filter.id as 'all' | 'Pool' | 'Gym' | 'Sauna'
+                            )
+                          }
+                          className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
+                            isActive
+                              ? 'bg-indigo-600 text-white shadow'
+                              : 'jqs-glass hover:brightness-[1.05]'
+                          }`}
+                        >
+                          {filter.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide opacity-70 mb-2">
+                    Time category
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { id: 'all', label: 'All' },
+                      { id: 'peak', label: 'Peak' },
+                      { id: 'off-peak', label: 'Off-peak' },
+                    ].map((filter) => {
+                      const isActive = bookingTimeFilter === filter.id;
+                      return (
+                        <button
+                          key={filter.id}
+                          type="button"
+                          onClick={() =>
+                            setBookingTimeFilter(filter.id as 'all' | 'peak' | 'off-peak')
+                          }
+                          className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
+                            isActive
+                              ? 'bg-emerald-600 text-white shadow'
+                              : 'jqs-glass hover:brightness-[1.05]'
+                          }`}
+                        >
+                          {filter.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide opacity-70 mb-2">
+                    User
+                  </p>
+                  <select
+                    value={bookingUserFilter}
+                    onChange={(event) => setBookingUserFilter(event.target.value)}
+                    className="w-full rounded-xl border border-transparent bg-transparent jqs-glass px-3 py-2 text-sm"
+                  >
+                    <option value="all">All users</option>
+                    {bookingFilterOptions.map((email) => (
+                      <option key={email} value={email}>
+                        {email}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid gap-4 lg:grid-cols-2">
+              <div className="jqs-glass rounded-2xl p-4">
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                  <div>
+                    <h3 className="text-sm font-semibold">Bookings per user</h3>
+                    <p className="text-xs opacity-75">
+                      Compare booking share by resident email.
+                    </p>
+                  </div>
+                  <div className="text-xs opacity-70">
+                    Baseline: {bookingUserBreakdown.averagePerUser.toFixed(1)} avg per user
+                  </div>
+                </div>
+                {bookingUserBreakdown.breakdown.length === 0 ? (
+                  <div className="text-sm opacity-80">No bookings match the filters.</div>
+                ) : (
+                  <>
+                    <div className="hidden md:block overflow-x-auto">
+                      <table className="min-w-full text-sm">
+                        <thead>
+                          <tr className="text-left">
+                            {['User', 'Total', '% of all', 'Peak-time', 'Indicator'].map((h) => (
+                              <th
+                                key={h}
+                                className="px-3 py-2 border-b border-[color:var(--glass-border)]"
+                              >
+                                {h}
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {bookingUserBreakdown.breakdown.map((item) => (
+                            <tr key={item.user}>
+                              <td className="px-3 py-2">{item.user}</td>
+                              <td className="px-3 py-2">{item.total}</td>
+                              <td className="px-3 py-2">{formatPercentage(item.share)}</td>
+                              <td className="px-3 py-2">{item.peak}</td>
+                              <td className="px-3 py-2">
+                                {item.indicator ? (
+                                  <span className="text-xs font-semibold px-2 py-1 rounded-full jqs-glass">
+                                    {item.indicator}
+                                  </span>
+                                ) : (
+                                  <span className="text-xs opacity-70">In line with average</span>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    <div className="md:hidden space-y-3">
+                      {bookingUserBreakdown.breakdown.map((item) => (
+                        <div key={item.user} className="jqs-glass rounded-2xl p-3 text-sm">
+                          <div className="font-semibold">{item.user}</div>
+                          <div className="mt-2 space-y-1">
+                            <p>
+                              <strong>Total bookings:</strong> {item.total} (
+                              {formatPercentage(item.share)})
+                            </p>
+                            <p>
+                              <strong>Peak-time bookings:</strong> {item.peak}
+                            </p>
+                            <div className="pt-1">
+                              <span className="text-xs font-semibold px-2 py-1 rounded-full jqs-glass">
+                                {item.indicator ?? 'In line with average'}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+
+              <div className="jqs-glass rounded-2xl p-4">
+                <h3 className="text-sm font-semibold">Peak vs off-peak usage</h3>
+                <p className="text-xs opacity-75 mt-1">
+                  Peak time is defined as 5pm–8:30pm, matching the booking system&apos;s fair-use
+                  logic.
+                </p>
+                <div className="grid grid-cols-2 gap-3 mt-3">
+                  <StatPill
+                    label="Peak bookings"
+                    value={`${peakOffPeakStats.peakBookings} (${formatPercentage(
+                      peakOffPeakStats.peakPercentage
+                    )})`}
+                  />
+                  <StatPill
+                    label="Off-peak bookings"
+                    value={`${peakOffPeakStats.offPeakBookings} (${formatPercentage(
+                      peakOffPeakStats.offPeakPercentage
+                    )})`}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="grid gap-4 lg:grid-cols-2">
+              <div className="jqs-glass rounded-2xl p-4">
+                <h3 className="text-sm font-semibold mb-3">Busiest time slots</h3>
+                {timeSlotBreakdown.breakdown.length === 0 ? (
+                  <div className="text-sm opacity-80">No time slots to display yet.</div>
+                ) : (
+                  <>
+                    <div className="hidden md:block overflow-x-auto">
+                      <table className="min-w-full text-sm">
+                        <thead>
+                          <tr className="text-left">
+                            {['Time', 'Bookings'].map((h) => (
+                              <th
+                                key={h}
+                                className="px-3 py-2 border-b border-[color:var(--glass-border)]"
+                              >
+                                {h}
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {timeSlotBreakdown.breakdown.map((item) => (
+                            <tr
+                              key={item.time}
+                              className={
+                                timeSlotBreakdown.topTimes.has(item.time)
+                                  ? 'bg-amber-500/10'
+                                  : undefined
+                              }
+                            >
+                              <td className="px-3 py-2 font-medium">{item.time}</td>
+                              <td className="px-3 py-2">{item.total}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    <div className="md:hidden space-y-3">
+                      {timeSlotBreakdown.breakdown.map((item) => {
+                        const maxCount = timeSlotBreakdown.breakdown[0]?.total ?? 0;
+                        const width = maxCount ? Math.round((item.total / maxCount) * 100) : 0;
+                        return (
+                          <div key={item.time} className="text-sm">
+                            <div className="flex items-center justify-between">
+                              <span className="font-medium">{item.time}</span>
+                              <span className="opacity-70">{item.total} bookings</span>
+                            </div>
+                            <div className="mt-2 h-2 rounded-full bg-slate-200/40 overflow-hidden">
+                              <div
+                                className={`h-full ${
+                                  timeSlotBreakdown.topTimes.has(item.time)
+                                    ? 'bg-amber-500'
+                                    : 'bg-slate-500'
+                                }`}
+                                style={{ width: `${width}%` }}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
+              </div>
+
+              <div className="jqs-glass rounded-2xl p-4">
+                <h3 className="text-sm font-semibold mb-3">Facility usage comparison</h3>
+                {facilityUsage.length === 0 ? (
+                  <div className="text-sm opacity-80">No facility usage data available.</div>
+                ) : (
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {facilityUsage.map((facility) => (
+                      <div key={facility.facility} className="jqs-glass rounded-2xl p-3 text-sm">
+                        <div className="text-base font-semibold">{facility.facility}</div>
+                        <div className="mt-2 space-y-1">
+                          <p>
+                            <strong>Total bookings:</strong> {facility.total} (
+                            {formatPercentage(facility.share)})
+                          </p>
+                          <p>
+                            <strong>Peak-time bookings:</strong> {facility.peak}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </Section>
+
         {/* Booking Activities */}
         <Section
           title="Recent Booking Activities"
           subtitle="Newest first"
-          count={bookings.length}
+          count={filteredBookings.length}
         >
-          {bookings.length === 0 ? (
+          {filteredBookings.length === 0 ? (
             <div className="jqs-glass rounded-xl p-3">No booking activities found.</div>
           ) : (
-            <div className="overflow-x-auto jqs-glass rounded-2xl">
-              <table className="min-w-full text-sm">
-                <thead>
-                  <tr className="text-left">
-                    {['Facility', 'Time', 'User', 'Date', 'Timestamp'].map((h) => (
-                      <th key={h} className="px-3 py-2 border-b border-[color:var(--glass-border)]">
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {bookings.map((b) => (
-                    <tr key={b.id}>
-                      <td className="px-3 py-2">{b.facility}</td>
-                      <td className="px-3 py-2">{b.time}</td>
-                      <td className="px-3 py-2">{b.user}</td>
-                      <td className="px-3 py-2">{b.date}</td>
-                      <td className="px-3 py-2">
-                        {b.timestamp instanceof Date
-                          ? b.timestamp.toLocaleString()
-                          : new Date(b.timestamp).toLocaleString()}
-                      </td>
+            <>
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                <div className="text-xs opacity-70">
+                  Showing {filteredBookings.length} of {nonAdminBookings.length} bookings.
+                </div>
+                <div className="flex items-center gap-2 md:hidden">
+                  <button
+                    type="button"
+                    onClick={() => setBookingViewMode('chronological')}
+                    className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
+                      bookingViewMode === 'chronological'
+                        ? 'bg-indigo-600 text-white shadow'
+                        : 'jqs-glass hover:brightness-[1.05]'
+                    }`}
+                  >
+                    Chronological
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setBookingViewMode('grouped')}
+                    className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
+                      bookingViewMode === 'grouped'
+                        ? 'bg-indigo-600 text-white shadow'
+                        : 'jqs-glass hover:brightness-[1.05]'
+                    }`}
+                  >
+                    Grouped by user
+                  </button>
+                </div>
+              </div>
+              <div className="hidden md:block overflow-x-auto jqs-glass rounded-2xl">
+                <table className="min-w-full text-sm">
+                  <thead>
+                    <tr className="text-left">
+                      {['Facility', 'Time', 'User', 'Date', 'Timestamp'].map((h) => (
+                        <th key={h} className="px-3 py-2 border-b border-[color:var(--glass-border)]">
+                          {h}
+                        </th>
+                      ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {filteredBookings.map((b) => (
+                      <tr key={b.id}>
+                        <td className="px-3 py-2">{b.facility}</td>
+                        <td className="px-3 py-2">{b.time}</td>
+                        <td className="px-3 py-2">{b.user}</td>
+                        <td className="px-3 py-2">{b.date}</td>
+                        <td className="px-3 py-2">
+                          {b.timestamp instanceof Date
+                            ? b.timestamp.toLocaleString()
+                            : new Date(b.timestamp).toLocaleString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="md:hidden space-y-4">
+                {bookingViewMode === 'chronological' ? (
+                  mobileBookingGroups.map((group, index) => (
+                    <div key={`${group.user}-${index}`} className="jqs-glass rounded-2xl p-3">
+                      <div className="text-sm font-semibold">{group.user}</div>
+                      <div className="mt-2 space-y-2">
+                        {group.entries.map((booking) => (
+                          <div key={booking.id} className="text-sm">
+                            <div className="font-medium">{booking.facility}</div>
+                            <div className="text-xs opacity-80">
+                              {booking.date} · {booking.time}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  groupedBookingsByUser.map((group) => (
+                    <div key={group.user} className="jqs-glass rounded-2xl p-3">
+                      <div className="text-sm font-semibold">{group.user}</div>
+                      <div className="text-xs opacity-80">
+                        {group.total} bookings
+                      </div>
+                      <div className="mt-2 space-y-2">
+                        {group.entries.map((booking) => (
+                          <div key={booking.id} className="text-sm">
+                            <div className="font-medium">{booking.facility}</div>
+                            <div className="text-xs opacity-80">
+                              {booking.date} · {booking.time}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </>
           )}
         </Section>
 
