@@ -323,7 +323,7 @@ export default function AdminVotingAuditPage() {
               </div>
             </div>
 
-            <div className="overflow-x-auto">
+            <div className="hidden md:block overflow-x-auto">
               <table className="min-w-full divide-y divide-slate-200 text-sm">
                 <thead className="bg-slate-50">
                   <tr>
@@ -392,6 +392,40 @@ export default function AdminVotingAuditPage() {
                   )}
                 </tbody>
               </table>
+            </div>
+
+            <div className="md:hidden space-y-3">
+              {votesLoading ? (
+                <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                  <span className="inline-flex items-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin text-cyan-600" /> Loading ballots…
+                  </span>
+                </div>
+              ) : votesError ? (
+                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+                  {votesError}
+                </div>
+              ) : filteredVotes.length === 0 ? (
+                <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                  No ballots recorded yet.
+                </div>
+              ) : (
+                filteredVotes.map((vote) => (
+                  <div key={vote.id} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="font-semibold text-slate-900">{vote.userName}</div>
+                      <div className="text-sm text-slate-600">Flat {vote.flat}</div>
+                    </div>
+                    <div className="mt-2 text-sm text-slate-700">
+                      <span className="font-medium">Option:</span>{' '}
+                      {optionLabelMap[vote.optionId] ?? vote.optionId}
+                    </div>
+                    <div className="mt-1 text-xs text-slate-500">
+                      Cast at {formatDateTime(vote.createdAt)}
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </section>
         </>
