@@ -18,6 +18,7 @@ import {
 } from 'firebase/firestore';
 import OwnersPanel from './OwnersPanel';
 import AdminEmailPanel from './AdminEmailPanel';
+import AdminVoteAuditPanel from './AdminVoteAuditPanel';
 import { getQuestions } from '@/app/voting/services/storageService';
 import type { Question } from '@/app/voting/types';
 
@@ -928,6 +929,10 @@ export default function AdminDashboard() {
               </>
             )}
           </div>
+        </Section>
+
+        <Section title="Voting Audit" subtitle="Review ballot details by voter">
+          <AdminVoteAuditPanel />
         </Section>
 
         {/* Users */}
