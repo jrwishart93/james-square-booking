@@ -56,7 +56,7 @@ const getEpochValue = (value?: number | { toDate: () => Date }) => {
 
 const formatTimestamp = (value?: { toDate: () => Date } | number) => {
   if (!value) {
-    return 'Unknown';
+    return '—';
   }
   if (typeof value === 'number') {
     return UK_DATE_TIME.format(new Date(value));
@@ -64,7 +64,7 @@ const formatTimestamp = (value?: { toDate: () => Date } | number) => {
   if ('toDate' in value) {
     return UK_DATE_TIME.format(value.toDate());
   }
-  return 'Unknown';
+  return '—';
 };
 
 const AdminVoteAuditPanel = () => {
@@ -182,7 +182,7 @@ const AdminVoteAuditPanel = () => {
       const optionMap = new Map<string, string>();
       question.options?.forEach((option) => {
         if (option?.id) {
-          optionMap.set(option.id, option.label ?? 'Unknown');
+          optionMap.set(option.id, option.label ?? '—');
         }
       });
       map.set(question.id, optionMap);
@@ -229,25 +229,23 @@ const AdminVoteAuditPanel = () => {
 
   return (
     <div className="space-y-4">
-      <div className="jqs-glass rounded-2xl p-4 text-sm">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div>
-            <h3 className="text-base font-semibold">Voting Audit</h3>
-            <p className="text-xs opacity-75">
-              Review who voted for each option and when.
-            </p>
-          </div>
-          <div className="text-xs opacity-70">{totalVotes} total votes</div>
+      <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
+        <div>
+          <h3 className="text-base font-semibold">Voting Audit</h3>
+          <p className="text-xs opacity-75">
+            Review who voted for each option and when.
+          </p>
         </div>
+        <div className="text-xs opacity-70">{totalVotes} total votes</div>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-4 divide-y divide-white/10">
         {questions.map((question) => {
           const votes = votesByQuestion[question.id] ?? [];
           const isExpanded = expandedQuestions[question.id] ?? false;
           const optionMap = optionLabelMap.get(question.id);
           return (
-            <div key={question.id} className="jqs-glass rounded-2xl p-4">
+            <div key={question.id} className="pt-4 first:pt-0">
               <button
                 className="w-full flex flex-wrap items-start justify-between gap-3 text-left"
                 onClick={() =>
@@ -277,31 +275,29 @@ const AdminVoteAuditPanel = () => {
                   {votes.length === 0 ? (
                     <div className="text-xs opacity-70">No votes recorded yet.</div>
                   ) : (
-                    <div className="grid gap-3">
+                    <div className="space-y-2">
                       {votes.map((vote) => (
                         <div
                           key={vote.id}
-                          className="rounded-xl border border-white/10 bg-white/5 px-3 py-2"
+                          className="rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-900 dark:bg-white/5 dark:text-slate-100"
                         >
-                          <div className="flex flex-wrap justify-between gap-2">
-                            <div>
-                              <div className="font-semibold">
-                                {vote.userName ?? 'Unknown'}
+                          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                            <div className="space-y-1">
+                              <div className="flex flex-wrap items-center gap-2 text-sm">
+                                <span className="font-medium">
+                                  {vote.userName ?? '—'}
+                                </span>
+                                <span className="text-slate-500 dark:text-slate-400">
+                                  {vote.flat ?? '—'}
+                                </span>
                               </div>
-                              <div className="text-xs opacity-70">
-                                {vote.userEmail ?? 'Unknown'}
+                              <div className="text-sm">
+                                {optionMap?.get(vote.optionId) ?? '—'}
                               </div>
                             </div>
-                            <div className="text-xs opacity-70">
+                            <div className="text-xs text-slate-500 dark:text-slate-400">
                               {formatTimestamp(vote.createdAt)}
                             </div>
-                          </div>
-                          <div className="mt-2 flex flex-wrap gap-3 text-xs opacity-80">
-                            <span>Flat: {vote.flat ?? 'Unknown'}</span>
-                            <span>
-                              Choice:{' '}
-                              {optionMap?.get(vote.optionId) ?? 'Unknown'}
-                            </span>
                           </div>
                         </div>
                       ))}
