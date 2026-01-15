@@ -18,6 +18,7 @@ import {
 } from 'firebase/firestore';
 import OwnersPanel from './OwnersPanel';
 import AdminEmailPanel from './AdminEmailPanel';
+import AdminVoteAuditPanel from './AdminVoteAuditPanel';
 import { getQuestions } from '@/app/voting/services/storageService';
 import type { Question } from '@/app/voting/types';
 
@@ -165,6 +166,9 @@ export default function AdminDashboard() {
   const [bookingFacilityFilter, setBookingFacilityFilter] = useState<
     'all' | 'Pool' | 'Gym' | 'Sauna'
   >('all');
+  const [activeTab, setActiveTab] = useState<
+    'overview' | 'voting' | 'users' | 'owners' | 'comms' | 'system'
+  >('overview');
   const [bookingTimeFilter, setBookingTimeFilter] = useState<
     'all' | 'peak' | 'off-peak'
   >('all');
@@ -827,6 +831,15 @@ export default function AdminDashboard() {
   }
 
   /* ---------- Render ---------- */
+  const tabs = [
+    { id: 'overview', label: 'Overview' },
+    { id: 'voting', label: 'Voting' },
+    { id: 'users', label: 'Users' },
+    { id: 'owners', label: 'Owners' },
+    { id: 'comms', label: 'Comms' },
+    { id: 'system', label: 'System' },
+  ] as const;
+
   return (
     <main className="jqs-gradient-bg min-h-screen">
       <div className="max-w-7xl mx-auto p-6 space-y-6">
@@ -845,102 +858,94 @@ export default function AdminDashboard() {
           </div>
         </header>
 
-        <div className="jqs-glass rounded-2xl p-4">
-          <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-            <div>
-              <h2 className="text-lg font-semibold">Resident Breakdown</h2>
-              <p className="text-xs opacity-75">
-                Admin/system accounts excluded from totals.
-              </p>
+        <div className="sticky top-0 z-20 -mx-6 px-6 py-2 md:static">
+          <div className="jqs-glass rounded-full px-2 py-2">
+            <div className="flex gap-2 overflow-x-auto whitespace-nowrap scrollbar-thin">
+              {tabs.map((tab) => {
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`px-4 py-2 rounded-full text-xs font-semibold transition ${
+                      isActive
+                        ? 'bg-indigo-600 text-white shadow'
+                        : 'text-slate-600 dark:text-slate-200 hover:bg-white/10'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                );
+              })}
             </div>
-            <div className="text-xs opacity-70">Matches the filtered user list.</div>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-            <StatPill label="Total Residents" value={residentStats.total} />
-            <StatPill label="Owners" value={residentStats.owners} />
-            <StatPill label="Renters" value={residentStats.renters} />
-            <StatPill label="Unknown" value={residentStats.unknown} />
-            <StatPill label="Inactive 30+ days" value={activityStats.inactive} />
           </div>
         </div>
-        <div className="jqs-glass rounded-2xl px-4 py-3 text-xs opacity-80">
-          Some residents signed up before resident-type confirmation existed. Unknown residents will be
-          asked to confirm their status later. (Admin-only notice)
-        </div>
 
-        <Section
-          title="Owners"
-          subtitle="Grant or revoke owner access without sharing the passcode"
-          defaultOpen
-        >
-          <OwnersPanel />
-        </Section>
-
-        <Section
-          title="Email Residents"
-          subtitle="Send announcements to selected owners or all residents"
-        >
-          <AdminEmailPanel />
-        </Section>
-
-        <Section
-          title="Voting Overview"
-          subtitle="High-level totals with quick access to the full audit"
-          defaultOpen
-        >
-          <div className="space-y-4">
-            {votingLoading ? (
-              <div className="jqs-glass rounded-xl p-3">Loading voting overview...</div>
-            ) : votingError ? (
-              <div className="jqs-glass rounded-xl p-3 text-red-600 dark:text-red-400">
-                {votingError}
+        {activeTab === 'overview' && (
+          <>
+            <div className="jqs-glass rounded-2xl p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                <div>
+                  <h2 className="text-lg font-semibold">Resident Breakdown</h2>
+                  <p className="text-xs opacity-75">
+                    Admin/system accounts excluded from totals.
+                  </p>
+                </div>
+                <div className="text-xs opacity-70">Matches the filtered user list.</div>
               </div>
-            ) : (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <StatPill label="Active votes" value={votingOverview.activeCount} />
-                  <StatPill label="Total ballots cast" value={votingOverview.totalBallotsCast} />
-                  <div className="jqs-glass rounded-2xl px-4 py-3 text-sm flex flex-col justify-between gap-2">
-                    <div className="opacity-80">Voting audit</div>
-                    <Link
-                      href="/admin/voting"
-                      className="text-sm font-semibold text-indigo-600 hover:underline"
-                    >
-                      Open detailed audit →
-                    </Link>
-                  </div>
-                </div>
-                <div className="jqs-glass rounded-2xl p-4">
-                  <h3 className="text-sm font-semibold mb-3">Votes per question</h3>
-                  {votingOverview.totalsByQuestion.length === 0 ? (
-                    <div className="text-sm opacity-80">No questions created yet.</div>
-                  ) : (
-                    <div className="space-y-2 text-sm">
-                      {votingOverview.totalsByQuestion.map((question) => (
-                        <div key={question.id} className="flex flex-wrap justify-between gap-2">
-                          <span className="font-medium">{question.title}</span>
-                          <span className="opacity-80">{question.total} ballots</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
-          </div>
-        </Section>
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                <StatPill label="Total Residents" value={residentStats.total} />
+                <StatPill label="Owners" value={residentStats.owners} />
+                <StatPill label="Renters" value={residentStats.renters} />
+                <StatPill label="Unknown" value={residentStats.unknown} />
+                <StatPill label="Inactive 30+ days" value={activityStats.inactive} />
+              </div>
+            </div>
+            <div className="jqs-glass rounded-2xl px-4 py-3 text-xs opacity-80">
+              Some residents signed up before resident-type confirmation existed. Unknown residents will be
+              asked to confirm their status later. (Admin-only notice)
+            </div>
+          </>
+        )}
+
+        {activeTab === 'owners' && (
+          <Section
+            title="Owners"
+            subtitle="Grant or revoke owner access without sharing the passcode"
+            defaultOpen
+          >
+            <OwnersPanel />
+          </Section>
+        )}
+
+        {activeTab === 'comms' && (
+          <Section
+            title="Email Residents"
+            subtitle="Send announcements to selected owners or all residents"
+          >
+            <AdminEmailPanel />
+          </Section>
+        )}
+
+        {activeTab === 'voting' && (
+          <Section title="Voting Audit" subtitle="Review ballot details by voter">
+            <AdminVoteAuditPanel />
+          </Section>
+        )}
 
         {/* Users */}
-        <Section
-          title="Users"
-          subtitle="Manage accounts, roles, and access"
-          count={filteredUsers.length}
-          defaultOpen
-        >
-          {filteredUsers.length === 0 ? (
-            <div className="jqs-glass rounded-xl p-3">No users found.</div>
-          ) : (
-            <>
+        {activeTab === 'users' && (
+          <Section
+            title="Users"
+            subtitle="Manage accounts, roles, and access"
+            count={filteredUsers.length}
+            defaultOpen
+          >
+            {filteredUsers.length === 0 ? (
+              <div className="jqs-glass rounded-xl p-3">No users found.</div>
+            ) : (
+              <>
               <div className="flex flex-col gap-3 mb-4">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-xs font-semibold uppercase tracking-wide opacity-70">Resident type</span>
@@ -1248,16 +1253,18 @@ export default function AdminDashboard() {
                   </div>
                 ))}
               </div>
-            </>
-          )}
-        </Section>
+              </>
+            )}
+          </Section>
+        )}
 
-        <Section
-          title="Booking Insights"
-          subtitle="Read-only analysis of facility usage patterns"
-          defaultOpen
-        >
-          <div className="space-y-4">
+        {activeTab === 'system' && (
+          <Section
+            title="Booking Insights"
+            subtitle="Read-only analysis of facility usage patterns"
+            defaultOpen
+          >
+            <div className="space-y-4">
             <div>
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
@@ -1580,241 +1587,157 @@ export default function AdminDashboard() {
                 )}
               </div>
             </div>
-          </div>
-        </Section>
+            </div>
+          </Section>
+        )}
 
         {/* Booking Activities */}
-        <Section
-          title="Recent Booking Activities"
-          subtitle="Newest first"
-          count={filteredBookings.length}
-        >
-          {filteredBookings.length === 0 ? (
-            <div className="jqs-glass rounded-xl p-3">No booking activities found.</div>
-          ) : (
-            <>
-              <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-                <div className="text-xs opacity-70">
-                  Showing {filteredBookings.length} of {nonAdminBookings.length} bookings.
+        {activeTab === 'system' && (
+          <Section
+            title="Recent Booking Activities"
+            subtitle="Newest first"
+            count={filteredBookings.length}
+          >
+            {filteredBookings.length === 0 ? (
+              <div className="jqs-glass rounded-xl p-3">No booking activities found.</div>
+            ) : (
+              <>
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                  <div className="text-xs opacity-70">
+                    Showing {filteredBookings.length} of {nonAdminBookings.length} bookings.
+                  </div>
+                  <div className="flex items-center gap-2 md:hidden">
+                    <button
+                      type="button"
+                      onClick={() => setBookingViewMode('chronological')}
+                      className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
+                        bookingViewMode === 'chronological'
+                          ? 'bg-indigo-600 text-white shadow'
+                          : 'jqs-glass hover:brightness-[1.05]'
+                      }`}
+                    >
+                      Chronological
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setBookingViewMode('grouped')}
+                      className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
+                        bookingViewMode === 'grouped'
+                          ? 'bg-indigo-600 text-white shadow'
+                          : 'jqs-glass hover:brightness-[1.05]'
+                      }`}
+                    >
+                      Grouped by user
+                    </button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 md:hidden">
-                  <button
-                    type="button"
-                    onClick={() => setBookingViewMode('chronological')}
-                    className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
-                      bookingViewMode === 'chronological'
-                        ? 'bg-indigo-600 text-white shadow'
-                        : 'jqs-glass hover:brightness-[1.05]'
-                    }`}
-                  >
-                    Chronological
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setBookingViewMode('grouped')}
-                    className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
-                      bookingViewMode === 'grouped'
-                        ? 'bg-indigo-600 text-white shadow'
-                        : 'jqs-glass hover:brightness-[1.05]'
-                    }`}
-                  >
-                    Grouped by user
-                  </button>
-                </div>
-              </div>
-              <div className="hidden md:block overflow-x-auto jqs-glass rounded-2xl">
-                <table className="min-w-full text-sm">
-                  <thead>
-                    <tr className="text-left">
-                      {['Facility', 'Time', 'User', 'Date', 'Timestamp'].map((h) => (
-                        <th key={h} className="px-3 py-2 border-b border-[color:var(--glass-border)]">
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredBookings.map((b) => (
-                      <tr key={b.id}>
-                        <td className="px-3 py-2">{b.facility}</td>
-                        <td className="px-3 py-2">{b.time}</td>
-                        <td className="px-3 py-2">{b.user}</td>
-                        <td className="px-3 py-2">{b.date}</td>
-                        <td className="px-3 py-2">
-                          {b.timestamp instanceof Date
-                            ? b.timestamp.toLocaleString()
-                            : new Date(b.timestamp).toLocaleString()}
-                        </td>
+                <div className="hidden md:block overflow-x-auto jqs-glass rounded-2xl">
+                  <table className="min-w-full text-sm">
+                    <thead>
+                      <tr className="text-left">
+                        {['Facility', 'Time', 'User', 'Date', 'Timestamp'].map((h) => (
+                          <th key={h} className="px-3 py-2 border-b border-[color:var(--glass-border)]">
+                            {h}
+                          </th>
+                        ))}
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              <div className="md:hidden space-y-4">
-                {bookingViewMode === 'chronological' ? (
-                  mobileBookingGroups.map((group, index) => (
-                    <div key={`${group.user}-${index}`} className="jqs-glass rounded-2xl p-3">
-                      <div className="text-sm font-semibold">{group.user}</div>
-                      <div className="mt-2 space-y-2">
-                        {group.entries.map((booking) => (
-                          <div key={booking.id} className="text-sm">
-                            <div className="font-medium">{booking.facility}</div>
-                            <div className="text-xs opacity-80">
-                              {booking.date} · {booking.time}
+                    </thead>
+                    <tbody>
+                      {filteredBookings.map((b) => (
+                        <tr key={b.id}>
+                          <td className="px-3 py-2">{b.facility}</td>
+                          <td className="px-3 py-2">{b.time}</td>
+                          <td className="px-3 py-2">{b.user}</td>
+                          <td className="px-3 py-2">{b.date}</td>
+                          <td className="px-3 py-2">
+                            {b.timestamp instanceof Date
+                              ? b.timestamp.toLocaleString()
+                              : new Date(b.timestamp).toLocaleString()}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="md:hidden space-y-4">
+                  {bookingViewMode === 'chronological' ? (
+                    mobileBookingGroups.map((group, index) => (
+                      <div key={`${group.user}-${index}`} className="jqs-glass rounded-2xl p-3">
+                        <div className="text-sm font-semibold">{group.user}</div>
+                        <div className="mt-2 space-y-2">
+                          {group.entries.map((booking) => (
+                            <div key={booking.id} className="text-sm">
+                              <div className="font-medium">{booking.facility}</div>
+                              <div className="text-xs opacity-80">
+                                {booking.date} · {booking.time}
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ))
-                ) : (
-                  groupedBookingsByUser.map((group) => (
-                    <div key={group.user} className="jqs-glass rounded-2xl p-3">
-                      <div className="text-sm font-semibold">{group.user}</div>
-                      <div className="text-xs opacity-80">
-                        {group.total} bookings
-                      </div>
-                      <div className="mt-2 space-y-2">
-                        {group.entries.map((booking) => (
-                          <div key={booking.id} className="text-sm">
-                            <div className="font-medium">{booking.facility}</div>
-                            <div className="text-xs opacity-80">
-                              {booking.date} · {booking.time}
+                    ))
+                  ) : (
+                    groupedBookingsByUser.map((group) => (
+                      <div key={group.user} className="jqs-glass rounded-2xl p-3">
+                        <div className="text-sm font-semibold">{group.user}</div>
+                        <div className="text-xs opacity-80">
+                          {group.total} bookings
+                        </div>
+                        <div className="mt-2 space-y-2">
+                          {group.entries.map((booking) => (
+                            <div key={booking.id} className="text-sm">
+                              <div className="font-medium">{booking.facility}</div>
+                              <div className="text-xs opacity-80">
+                                {booking.date} · {booking.time}
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </>
-          )}
-        </Section>
+                    ))
+                  )}
+                </div>
+              </>
+            )}
+          </Section>
+        )}
 
         {/* Booking Statistics */}
-        <Section
-          title="Booking Statistics"
-          subtitle="Quick totals by facility"
-        >
-          {Object.keys(bookingStats).length === 0 ? (
-            <div className="jqs-glass rounded-xl p-3">No booking data available.</div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {Object.entries(bookingStats).map(([facility, count]) => (
-                <div key={facility} className="jqs-glass p-4 rounded-2xl">
-                  <h3 className="text-lg font-semibold">{facility}</h3>
-                  <p className="opacity-80">{count} bookings</p>
-                </div>
-              ))}
-            </div>
-          )}
-        </Section>
+        {activeTab === 'system' && (
+          <Section
+            title="Booking Statistics"
+            subtitle="Quick totals by facility"
+          >
+            {Object.keys(bookingStats).length === 0 ? (
+              <div className="jqs-glass rounded-xl p-3">No booking data available.</div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {Object.entries(bookingStats).map(([facility, count]) => (
+                  <div key={facility} className="jqs-glass p-4 rounded-2xl">
+                    <h3 className="text-lg font-semibold">{facility}</h3>
+                    <p className="opacity-80">{count} bookings</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Section>
+        )}
 
         {/* Activity Logs */}
-        <Section
-          title="Activity Logs"
-          subtitle="Admin actions recorded by the system"
-          count={activityLogs.length}
-        >
-          {activityLogs.length === 0 ? (
-            <div className="jqs-glass rounded-xl p-3">No activity logs found.</div>
-          ) : (
-            <div className="overflow-x-auto jqs-glass rounded-2xl">
-              <table className="min-w-full text-sm">
-                <thead>
-                  <tr className="text-left">
-                    {['Action', 'Admin', 'Timestamp'].map((h) => (
-                      <th key={h} className="px-3 py-2 border-b border-[color:var(--glass-border)]">
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {activityLogs.map((log) => (
-                    <tr key={log.id}>
-                      <td className="px-3 py-2">{log.action}</td>
-                      <td className="px-3 py-2">{log.admin}</td>
-                      <td className="px-3 py-2">
-                        {log.timestamp instanceof Date
-                          ? log.timestamp.toLocaleString()
-                          : new Date(log.timestamp).toLocaleString()}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </Section>
-
-        {/* Facility Management */}
-        <Section
-          title="Facility Management"
-          subtitle="Notice and rules displayed to users"
-          defaultOpen
-        >
-          <div className="grid gap-4">
-            <div className="jqs-glass rounded-2xl p-4">
-              <label className="block font-medium mb-1">Custom Notice:</label>
-              <textarea
-                value={customNotice}
-                onChange={(e) => setCustomNotice(e.target.value)}
-                rows={3}
-                className="w-full border rounded p-2 bg-transparent"
-              />
-            </div>
-            <div className="jqs-glass rounded-2xl p-4">
-              <label className="block font-medium mb-1">Facility Rules:</label>
-              <textarea
-                value={facilityRules}
-                onChange={(e) => setFacilityRules(e.target.value)}
-                rows={3}
-                className="w-full border rounded p-2 bg-transparent"
-              />
-            </div>
-            <div>
-              <button
-                onClick={updateFacilityConfig}
-                className="px-4 py-2 rounded-full jqs-glass font-semibold hover:brightness-[1.05] transition"
-              >
-                Update Facility Info
-              </button>
-            </div>
-          </div>
-        </Section>
-
-        {/* Technical Tools */}
-        <Section
-          title="Technical Tools"
-          subtitle="Debug and data export"
-        >
-          <div className="flex flex-wrap gap-3 mb-4">
-            <button
-              onClick={toggleDebugMode}
-              className="px-4 py-2 rounded-full jqs-glass font-semibold hover:brightness-[1.05] transition"
-            >
-              {debugMode ? 'Disable Debug Mode' : 'Enable Debug Mode'}
-            </button>
-            <button
-              onClick={exportDataAsCSV}
-              className="px-4 py-2 rounded-full jqs-glass font-semibold hover:brightness-[1.05] transition"
-            >
-              Export Data as CSV
-            </button>
-          </div>
-
-          <div className="jqs-glass rounded-2xl p-4">
-            <h3 className="text-lg font-semibold mb-2">Feedback Inbox</h3>
-            {feedbacks.length === 0 ? (
-              <div>No feedback found.</div>
+        {activeTab === 'system' && (
+          <Section
+            title="Activity Logs"
+            subtitle="Admin actions recorded by the system"
+            count={activityLogs.length}
+          >
+            {activityLogs.length === 0 ? (
+              <div className="jqs-glass rounded-xl p-3">No activity logs found.</div>
             ) : (
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto jqs-glass rounded-2xl">
                 <table className="min-w-full text-sm">
                   <thead>
                     <tr className="text-left">
-                      {['User', 'Message', 'Timestamp'].map((h) => (
+                      {['Action', 'Admin', 'Timestamp'].map((h) => (
                         <th key={h} className="px-3 py-2 border-b border-[color:var(--glass-border)]">
                           {h}
                         </th>
@@ -1822,14 +1745,14 @@ export default function AdminDashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {feedbacks.map((fb) => (
-                      <tr key={fb.id}>
-                        <td className="px-3 py-2">{fb.user}</td>
-                        <td className="px-3 py-2">{fb.message}</td>
+                    {activityLogs.map((log) => (
+                      <tr key={log.id}>
+                        <td className="px-3 py-2">{log.action}</td>
+                        <td className="px-3 py-2">{log.admin}</td>
                         <td className="px-3 py-2">
-                          {fb.timestamp instanceof Date
-                            ? fb.timestamp.toLocaleString()
-                            : new Date(fb.timestamp).toLocaleString()}
+                          {log.timestamp instanceof Date
+                            ? log.timestamp.toLocaleString()
+                            : new Date(log.timestamp).toLocaleString()}
                         </td>
                       </tr>
                     ))}
@@ -1837,37 +1760,134 @@ export default function AdminDashboard() {
                 </table>
               </div>
             )}
-          </div>
+          </Section>
+        )}
 
-          {debugMode && (
-            <div className="jqs-glass rounded-2xl p-4 mt-4">
-              <h3 className="text-lg font-semibold mb-2">Debug Information</h3>
-              <pre className="text-xs overflow-auto">
-                {JSON.stringify({ users, bookings, activityLogs, feedbacks }, null, 2)}
-              </pre>
+        {/* Facility Management */}
+        {activeTab === 'system' && (
+          <Section
+            title="Facility Management"
+            subtitle="Notice and rules displayed to users"
+            defaultOpen
+          >
+            <div className="grid gap-4">
+              <div className="jqs-glass rounded-2xl p-4">
+                <label className="block font-medium mb-1">Custom Notice:</label>
+                <textarea
+                  value={customNotice}
+                  onChange={(e) => setCustomNotice(e.target.value)}
+                  rows={3}
+                  className="w-full border rounded p-2 bg-transparent"
+                />
+              </div>
+              <div className="jqs-glass rounded-2xl p-4">
+                <label className="block font-medium mb-1">Facility Rules:</label>
+                <textarea
+                  value={facilityRules}
+                  onChange={(e) => setFacilityRules(e.target.value)}
+                  rows={3}
+                  className="w-full border rounded p-2 bg-transparent"
+                />
+              </div>
+              <div>
+                <button
+                  onClick={updateFacilityConfig}
+                  className="px-4 py-2 rounded-full jqs-glass font-semibold hover:brightness-[1.05] transition"
+                >
+                  Update Facility Info
+                </button>
+              </div>
             </div>
-          )}
-        </Section>
+          </Section>
+        )}
+
+        {/* Technical Tools */}
+        {(activeTab === 'comms' || activeTab === 'system') && (
+          <Section
+            title="Technical Tools"
+            subtitle="Debug and data export"
+          >
+            <div className="flex flex-wrap gap-3 mb-4">
+              <button
+                onClick={toggleDebugMode}
+                className="px-4 py-2 rounded-full jqs-glass font-semibold hover:brightness-[1.05] transition"
+              >
+                {debugMode ? 'Disable Debug Mode' : 'Enable Debug Mode'}
+              </button>
+              <button
+                onClick={exportDataAsCSV}
+                className="px-4 py-2 rounded-full jqs-glass font-semibold hover:brightness-[1.05] transition"
+              >
+                Export Data as CSV
+              </button>
+            </div>
+
+            <div className="jqs-glass rounded-2xl p-4">
+              <h3 className="text-lg font-semibold mb-2">Feedback Inbox</h3>
+              {feedbacks.length === 0 ? (
+                <div>No feedback found.</div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="min-w-full text-sm">
+                    <thead>
+                      <tr className="text-left">
+                        {['User', 'Message', 'Timestamp'].map((h) => (
+                          <th key={h} className="px-3 py-2 border-b border-[color:var(--glass-border)]">
+                            {h}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {feedbacks.map((fb) => (
+                        <tr key={fb.id}>
+                          <td className="px-3 py-2">{fb.user}</td>
+                          <td className="px-3 py-2">{fb.message}</td>
+                          <td className="px-3 py-2">
+                            {fb.timestamp instanceof Date
+                              ? fb.timestamp.toLocaleString()
+                              : new Date(fb.timestamp).toLocaleString()}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
+            {debugMode && (
+              <div className="jqs-glass rounded-2xl p-4 mt-4">
+                <h3 className="text-lg font-semibold mb-2">Debug Information</h3>
+                <pre className="text-xs overflow-auto">
+                  {JSON.stringify({ users, bookings, activityLogs, feedbacks }, null, 2)}
+                </pre>
+              </div>
+            )}
+          </Section>
+        )}
 
         {/* Danger Zone */}
-        <Section
-          title="Danger Zone"
-          subtitle="Irreversible system actions — use with caution"
-        >
-          <div className="jqs-glass p-4 rounded-2xl">
-            <p className="text-sm opacity-90 mb-3">
-              Clicking the button below will <strong>delete all existing facility bookings</strong> from the system.
-              This action is <strong>permanent and cannot be undone</strong>.
-            </p>
-            <button
-              aria-label="Reset all facility bookings permanently"
-              onClick={resetBookings}
-              className="bg-red-600 text-white px-4 py-2 rounded-full hover:bg-red-700 transition font-semibold shadow"
-            >
-              Reset All Bookings
-            </button>
-          </div>
-        </Section>
+        {activeTab === 'system' && (
+          <Section
+            title="Danger Zone"
+            subtitle="Irreversible system actions — use with caution"
+          >
+            <div className="jqs-glass p-4 rounded-2xl">
+              <p className="text-sm opacity-90 mb-3">
+                Clicking the button below will <strong>delete all existing facility bookings</strong> from the system.
+                This action is <strong>permanent and cannot be undone</strong>.
+              </p>
+              <button
+                aria-label="Reset all facility bookings permanently"
+                onClick={resetBookings}
+                className="bg-red-600 text-white px-4 py-2 rounded-full hover:bg-red-700 transition font-semibold shadow"
+              >
+                Reset All Bookings
+              </button>
+            </div>
+          </Section>
+        )}
       </div>
     </main>
   );
