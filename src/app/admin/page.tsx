@@ -159,6 +159,9 @@ export default function AdminDashboard() {
   const [residentFilter, setResidentFilter] = useState<
     'all' | 'owners' | 'renters' | 'unknown'
   >('all');
+  const [activeTab, setActiveTab] = useState<
+    'overview' | 'voting' | 'users' | 'owners' | 'comms'
+  >('overview');
   const [activityFilter, setActivityFilter] = useState<
     'all' | 'active' | 'inactive' | 'never'
   >('all');
@@ -845,6 +848,39 @@ export default function AdminDashboard() {
           </div>
         </header>
 
+        <div className="sticky top-0 z-10 -mx-6 px-6 py-2 backdrop-blur">
+          <div className="flex gap-2 overflow-x-auto">
+            {[
+              { id: 'overview', label: 'Overview' },
+              { id: 'voting', label: 'Voting' },
+              { id: 'users', label: 'Users' },
+              { id: 'owners', label: 'Owners' },
+              { id: 'comms', label: 'Comms' },
+            ].map((tab) => {
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() =>
+                    setActiveTab(
+                      tab.id as 'overview' | 'voting' | 'users' | 'owners' | 'comms'
+                    )
+                  }
+                  className={`rounded-full px-4 py-2 text-xs font-semibold transition whitespace-nowrap ${
+                    isActive
+                      ? 'bg-indigo-600 text-white shadow'
+                      : 'jqs-glass hover:brightness-[1.05]'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className={activeTab === 'overview' ? 'space-y-6' : 'hidden'}>
         <div className="jqs-glass rounded-2xl p-4">
           <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
             <div>
@@ -867,7 +903,9 @@ export default function AdminDashboard() {
           Some residents signed up before resident-type confirmation existed. Unknown residents will be
           asked to confirm their status later. (Admin-only notice)
         </div>
+        </div>
 
+        <div className={activeTab === 'owners' ? 'space-y-6' : 'hidden'}>
         <Section
           title="Owners"
           subtitle="Grant or revoke owner access without sharing the passcode"
@@ -875,14 +913,18 @@ export default function AdminDashboard() {
         >
           <OwnersPanel />
         </Section>
+        </div>
 
+        <div className={activeTab === 'comms' ? 'space-y-6' : 'hidden'}>
         <Section
           title="Email Residents"
           subtitle="Send announcements to selected owners or all residents"
         >
           <AdminEmailPanel />
         </Section>
+        </div>
 
+        <div className={activeTab === 'voting' ? 'space-y-6' : 'hidden'}>
         <Section
           title="Voting Overview"
           subtitle="High-level totals with quick access to the full audit"
@@ -894,8 +936,10 @@ export default function AdminDashboard() {
             legacyError={votingError}
           />
         </Section>
+        </div>
 
         {/* Users */}
+        <div className={activeTab === 'users' ? 'space-y-6' : 'hidden'}>
         <Section
           title="Users"
           subtitle="Manage accounts, roles, and access"
@@ -1216,7 +1260,9 @@ export default function AdminDashboard() {
             </>
           )}
         </Section>
+        </div>
 
+        <div className={activeTab === 'overview' ? 'space-y-6' : 'hidden'}>
         <Section
           title="Booking Insights"
           subtitle="Read-only analysis of facility usage patterns"
@@ -1833,6 +1879,7 @@ export default function AdminDashboard() {
             </button>
           </div>
         </Section>
+        </div>
       </div>
     </main>
   );
