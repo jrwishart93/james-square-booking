@@ -807,6 +807,23 @@ export default function AdminDashboard() {
     });
   }, [activityFilter, residentFilter, users]);
 
+  const usersById = useMemo(() => {
+    const map: Record<
+      string,
+      { id: string; fullName?: string; username?: string; email?: string; property?: string }
+    > = {};
+    users.forEach((user) => {
+      map[user.id] = {
+        id: user.id,
+        fullName: user.fullName,
+        username: user.username,
+        email: user.email,
+        property: user.property,
+      };
+    });
+    return map;
+  }, [users]);
+
   /* ---------- Guards (unchanged) ---------- */
   if (loading) {
     return (
@@ -979,7 +996,7 @@ export default function AdminDashboard() {
 
         {activeTab === 'voting' && (
           <Section title="Voting Audit" subtitle="Review ballot details by voter">
-            <AdminVoteAuditPanel />
+            <AdminVoteAuditPanel usersById={usersById} />
           </Section>
         )}
 

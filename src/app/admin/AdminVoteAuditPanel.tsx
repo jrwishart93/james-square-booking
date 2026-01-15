@@ -27,10 +27,19 @@ type VotingVote = {
   id: string;
   questionId: string;
   optionId: string;
+  userId?: string;
   userName?: string;
   userEmail?: string;
   flat?: string;
   createdAt?: { toDate: () => Date } | number;
+};
+
+type UserLookup = {
+  id: string;
+  fullName?: string;
+  username?: string;
+  email?: string;
+  property?: string;
 };
 
 type AuditState =
@@ -67,7 +76,11 @@ const formatTimestamp = (value?: { toDate: () => Date } | number) => {
   return '—';
 };
 
-const AdminVoteAuditPanel = () => {
+const AdminVoteAuditPanel = ({
+  usersById,
+}: {
+  usersById: Record<string, UserLookup>;
+}) => {
   const [state, setState] = useState<AuditState>({ status: 'loading-auth' });
   const [questions, setQuestions] = useState<VotingQuestion[]>([]);
   const [votesByQuestion, setVotesByQuestion] = useState<
@@ -143,6 +156,7 @@ const AdminVoteAuditPanel = () => {
                 id: voteSnap.id,
                 questionId: data.questionId ?? question.id,
                 optionId: data.optionId ?? 'unknown',
+                userId: data.userId ?? data.userUid ?? data.uid,
                 userName: data.userName,
                 userEmail: data.userEmail,
                 flat: data.flat,
@@ -277,6 +291,16 @@ const AdminVoteAuditPanel = () => {
                   ) : (
                     <div className="space-y-2">
                       {votes.map((vote) => (
+                        (() => {
+                          const user = vote.userId ? usersById[vote.userId] : undefined;
+                          const primaryName = user?.fullName ?? vote.userName;
+                          const secondaryParts = [
+                            user?.username,
+                            user?.email,
+                            user?.property ?? vote.flat,
+                          ].filter(Boolean) as string[];
+                          const secondaryLine = secondaryParts.join(' • ');
+                          return (
                         <div
                           key={vote.id}
                           className="rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-900 dark:bg-white/5 dark:text-slate-100"
@@ -284,12 +308,14 @@ const AdminVoteAuditPanel = () => {
                           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                             <div className="space-y-1">
                               <div className="flex flex-wrap items-center gap-2 text-sm">
-                                <span className="font-medium">
-                                  {vote.userName ?? '—'}
-                                </span>
-                                <span className="text-slate-500 dark:text-slate-400">
-                                  {vote.flat ?? '—'}
-                                </span>
+                                {primaryName && (
+                                  <span className="font-medium">{primaryName}</span>
+                                )}
+                                {secondaryLine && (
+                                  <span className="text-slate-500 dark:text-slate-400">
+                                    {secondaryLine}
+                                  </span>
+                                )}
                               </div>
                               <div className="text-sm">
                                 {optionMap?.get(vote.optionId) ?? '—'}
@@ -300,6 +326,8 @@ const AdminVoteAuditPanel = () => {
                             </div>
                           </div>
                         </div>
+                          );
+                        })()
                       ))}
                     </div>
                   )}
