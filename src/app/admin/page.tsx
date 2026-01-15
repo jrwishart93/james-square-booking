@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState, ChangeEvent } from 'react';
-import Link from 'next/link';
+import AdminVotingOverview from './components/AdminVotingOverview';
 import { auth, db } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import {
@@ -888,46 +888,11 @@ export default function AdminDashboard() {
           subtitle="High-level totals with quick access to the full audit"
           defaultOpen
         >
-          <div className="space-y-4">
-            {votingLoading ? (
-              <div className="jqs-glass rounded-xl p-3">Loading voting overview...</div>
-            ) : votingError ? (
-              <div className="jqs-glass rounded-xl p-3 text-red-600 dark:text-red-400">
-                {votingError}
-              </div>
-            ) : (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <StatPill label="Active votes" value={votingOverview.activeCount} />
-                  <StatPill label="Total ballots cast" value={votingOverview.totalBallotsCast} />
-                  <div className="jqs-glass rounded-2xl px-4 py-3 text-sm flex flex-col justify-between gap-2">
-                    <div className="opacity-80">Voting audit</div>
-                    <Link
-                      href="/admin/voting"
-                      className="text-sm font-semibold text-indigo-600 hover:underline"
-                    >
-                      Open detailed audit →
-                    </Link>
-                  </div>
-                </div>
-                <div className="jqs-glass rounded-2xl p-4">
-                  <h3 className="text-sm font-semibold mb-3">Votes per question</h3>
-                  {votingOverview.totalsByQuestion.length === 0 ? (
-                    <div className="text-sm opacity-80">No questions created yet.</div>
-                  ) : (
-                    <div className="space-y-2 text-sm">
-                      {votingOverview.totalsByQuestion.map((question) => (
-                        <div key={question.id} className="flex flex-wrap justify-between gap-2">
-                          <span className="font-medium">{question.title}</span>
-                          <span className="opacity-80">{question.total} ballots</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
-          </div>
+          <AdminVotingOverview
+            legacyOverview={votingOverview}
+            legacyLoading={votingLoading}
+            legacyError={votingError}
+          />
         </Section>
 
         {/* Users */}
