@@ -203,16 +203,32 @@ export default function HomePageClient() {
           className={`${glass} overflow-hidden`}
         >
           {/* Top image */}
-          <div className="relative">
+          <div className="relative overflow-hidden">
+            {/* Light mode – daytime drone */}
             <Image
-              src="/images/buildingimages/above.jpg"
-              alt="James Square from above"
+              src="/images/buildingimages/Day-drone-js.png"
+              alt="James Square aerial daytime"
               width={1536}
               height={1024}
               priority
-              className="w-full h-[200px] sm:h-[320px] object-cover"
+              className="w-full h-[200px] sm:h-[320px] object-cover block dark:hidden transition-opacity duration-500"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent pointer-events-none" />
+
+            {/* Dark mode – nighttime drone */}
+            <Image
+              src="/images/buildingimages/Night-drone-js.png"
+              alt="James Square aerial nighttime"
+              width={1536}
+              height={1024}
+              priority
+              className="w-full h-[200px] sm:h-[320px] object-cover hidden dark:block transition-opacity duration-500"
+            />
+
+            {/* Vertical fade (top & bottom) */}
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/40" />
+
+            {/* Subtle horizontal edge fade */}
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/20" />
           </div>
 
           <div className="p-6 sm:p-10">
