@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { useState } from 'react';
 import MobileAppPoster from '@/components/home/MobileAppPoster';
 
@@ -192,6 +192,8 @@ function PhotoCarousel() {
  *  Page
  *  ------------------------------------------------ */
 export default function HomePageClient() {
+  const reduceMotion = useReducedMotion();
+
   return (
     <main className="px-4 py-10 sm:py-14">
       {/* HERO */}
@@ -203,16 +205,44 @@ export default function HomePageClient() {
           className={`${glass} overflow-hidden`}
         >
           {/* Top image */}
-          <div className="relative">
-            <Image
-              src="/images/buildingimages/above.jpg"
-              alt="James Square from above"
-              width={1536}
-              height={1024}
-              priority
-              className="w-full h-[200px] sm:h-[320px] object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent pointer-events-none" />
+          <div className="relative overflow-hidden">
+            <motion.div
+              className="absolute inset-0"
+              initial={{ scale: 1, y: 0 }}
+              animate={reduceMotion ? { scale: 1, y: 0 } : { scale: 1.06, y: -8 }}
+              transition={{
+                duration: reduceMotion ? 0 : 45,
+                ease: 'linear',
+              }}
+              style={{
+                willChange: 'transform',
+                maskImage: 'radial-gradient(ellipse at center, black 65%, transparent 100%)',
+                WebkitMaskImage:
+                  'radial-gradient(ellipse at center, black 65%, transparent 100%)',
+              }}
+            >
+              {/* Light mode – daytime drone */}
+              <Image
+                src="/images/buildingimages/Day-drone-js.png"
+                alt="James Square aerial daytime"
+                width={1536}
+                height={1024}
+                priority
+                className="w-full h-[200px] sm:h-[320px] object-cover block dark:hidden"
+              />
+
+              {/* Dark mode – nighttime drone */}
+              <Image
+                src="/images/buildingimages/Night-drone-js.png"
+                alt="James Square aerial nighttime"
+                width={1536}
+                height={1024}
+                priority
+                className="w-full h-[200px] sm:h-[320px] object-cover hidden dark:block"
+              />
+            </motion.div>
+
+            <div className="relative h-[200px] sm:h-[320px]" />
           </div>
 
           <div className="p-6 sm:p-10">
