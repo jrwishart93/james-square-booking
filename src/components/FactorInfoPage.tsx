@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import Image from 'next/image';
 
 import { GlassCard } from '@/components/GlassCard';
@@ -15,6 +16,8 @@ type FactorInfoPageProps = {
   managementText: string;
   communicationText: string;
   costs: Array<{ label: string; value: string }>;
+  costsTitle?: string;
+  costsContent?: ReactNode;
   documentationLinks: Array<{ href: string; label: string }>;
 };
 
@@ -28,6 +31,8 @@ const FactorInfoPage = ({
   managementText,
   communicationText,
   costs,
+  costsTitle = 'Costs summary',
+  costsContent,
   documentationLinks,
 }: FactorInfoPageProps) => {
   return (
@@ -60,14 +65,16 @@ const FactorInfoPage = ({
             <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">{communicationText}</p>
           </GlassCard>
 
-          <GlassCard title="Costs summary" titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100">
-            <div className="space-y-2 text-sm md:text-base text-slate-700 dark:text-slate-200">
-              {costs.map((cost) => (
-                <p key={cost.label}>
-                  <span className="font-semibold text-slate-900 dark:text-slate-100">{cost.label}</span> {cost.value}
-                </p>
-              ))}
-            </div>
+          <GlassCard title={costsTitle} titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100">
+            {costsContent ?? (
+              <div className="space-y-2 text-sm md:text-base text-slate-700 dark:text-slate-200">
+                {costs.map((cost) => (
+                  <p key={cost.label}>
+                    <span className="font-semibold text-slate-900 dark:text-slate-100">{cost.label}</span> {cost.value}
+                  </p>
+                ))}
+              </div>
+            )}
           </GlassCard>
 
           <GlassCard title="Documentation" titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100">
