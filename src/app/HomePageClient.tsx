@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { useState } from 'react';
 import MobileAppPoster from '@/components/home/MobileAppPoster';
 
@@ -192,6 +192,8 @@ function PhotoCarousel() {
  *  Page
  *  ------------------------------------------------ */
 export default function HomePageClient() {
+  const reduceMotion = useReducedMotion();
+
   return (
     <main className="px-4 py-10 sm:py-14">
       {/* HERO */}
@@ -204,31 +206,43 @@ export default function HomePageClient() {
         >
           {/* Top image */}
           <div className="relative overflow-hidden">
-            {/* Light mode – daytime drone */}
-            <Image
-              src="/images/buildingimages/Day-drone-js.png"
-              alt="James Square aerial daytime"
-              width={1536}
-              height={1024}
-              priority
-              className="w-full h-[200px] sm:h-[320px] object-cover block dark:hidden transition-opacity duration-500"
-            />
+            <motion.div
+              className="absolute inset-0"
+              initial={{ scale: 1, y: 0 }}
+              animate={reduceMotion ? { scale: 1, y: 0 } : { scale: 1.06, y: -8 }}
+              transition={{
+                duration: reduceMotion ? 0 : 45,
+                ease: 'linear',
+              }}
+              style={{
+                willChange: 'transform',
+                maskImage: 'radial-gradient(ellipse at center, black 65%, transparent 100%)',
+                WebkitMaskImage:
+                  'radial-gradient(ellipse at center, black 65%, transparent 100%)',
+              }}
+            >
+              {/* Light mode – daytime drone */}
+              <Image
+                src="/images/buildingimages/Day-drone-js.png"
+                alt="James Square aerial daytime"
+                width={1536}
+                height={1024}
+                priority
+                className="w-full h-[200px] sm:h-[320px] object-cover block dark:hidden"
+              />
 
-            {/* Dark mode – nighttime drone */}
-            <Image
-              src="/images/buildingimages/Night-drone-js.png"
-              alt="James Square aerial nighttime"
-              width={1536}
-              height={1024}
-              priority
-              className="w-full h-[200px] sm:h-[320px] object-cover hidden dark:block transition-opacity duration-500"
-            />
+              {/* Dark mode – nighttime drone */}
+              <Image
+                src="/images/buildingimages/Night-drone-js.png"
+                alt="James Square aerial nighttime"
+                width={1536}
+                height={1024}
+                priority
+                className="w-full h-[200px] sm:h-[320px] object-cover hidden dark:block"
+              />
+            </motion.div>
 
-            {/* Vertical fade (top & bottom) */}
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/40" />
-
-            {/* Subtle horizontal edge fade */}
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/20" />
+            <div className="relative h-[200px] sm:h-[320px]" />
           </div>
 
           <div className="p-6 sm:p-10">
