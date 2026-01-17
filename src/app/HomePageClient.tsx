@@ -245,7 +245,7 @@ export default function HomePageClient() {
               <div
                 className="
                   absolute bottom-0 inset-x-0
-                  h-24 sm:h-28
+                  h-16 sm:h-20
                   bg-gradient-to-t
                   from-[#f4f7fa]
                   via-[#f4f7fa]/85
@@ -297,12 +297,12 @@ export default function HomePageClient() {
                 "
               />
 
-              {/* Micro blur band — kills visible edge in BOTH modes */}
+              {/* Micro edge blur — line breaker only */}
               <div
                 className="
                   absolute bottom-0 inset-x-0
-                  h-36 sm:h-44
-                  backdrop-blur-[1.25px]
+                  h-6 sm:h-8
+                  backdrop-blur-[0.75px]
                 "
               />
             </div>
