@@ -59,10 +59,19 @@ export default function OwnersVotingPage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [options, setOptions] = useState<string[]>(["", ""]);
-  const [askErrors, setAskErrors] = useState<{ title?: string; options?: string }>({});
+  const [askErrors, setAskErrors] = useState<{
+    title?: string;
+    options?: string;
+    startsAt?: string;
+    endsAt?: string;
+  }>({});
   const [askSuccess, setAskSuccess] = useState(false);
   const [submittingQuestion, setSubmittingQuestion] = useState(false);
+  const [askSubmitError, setAskSubmitError] = useState<string | null>(null);
   const [durationPreset, setDurationPreset] = useState<DurationPreset>("1m");
+  const [useCustomWindow, setUseCustomWindow] = useState(false);
+  const [startsAt, setStartsAt] = useState("");
+  const [endsAt, setEndsAt] = useState("");
 
   // Vote tab state
   const [voterName, setVoterName] = useState("");
@@ -195,10 +204,41 @@ export default function OwnersVotingPage() {
   }, [questions]);
 
   const validateAsk = () => {
-    const errs: { title?: string; options?: string } = {};
+    const errs: {
+      title?: string;
+      options?: string;
+      startsAt?: string;
+      endsAt?: string;
+    } = {};
     if (!title.trim()) errs.title = "Question title is required";
     const filled = options.filter((o) => o.trim().length > 0);
     if (filled.length < 2) errs.options = "Please provide at least 2 options";
+    if (useCustomWindow) {
+      if (!startsAt) errs.startsAt = "Please choose a start date and time";
+      if (!endsAt) errs.endsAt = "Please choose an end date and time";
+
+      if (startsAt && endsAt) {
+        const startDate = new Date(startsAt);
+        const endDate = new Date(endsAt);
+        const now = new Date();
+
+        if (Number.isNaN(startDate.getTime())) {
+          errs.startsAt = "Start time is invalid";
+        }
+
+        if (Number.isNaN(endDate.getTime())) {
+          errs.endsAt = "End time is invalid";
+        }
+
+        if (endDate <= startDate) {
+          errs.endsAt = "End time must be after the start time";
+        }
+
+        if (startDate <= now) {
+          errs.startsAt = "Start time must be in the future";
+        }
+      }
+    }
     setAskErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -214,21 +254,39 @@ export default function OwnersVotingPage() {
 
   const handleCreateQuestion = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!validateAsk()) return;
+    setAskSubmitError(null);
+    if (!validateAsk()) {
+      setAskSubmitError("Please fix the highlighted fields before publishing.");
+      return;
+    }
     setSubmittingQuestion(true);
     try {
       const filled = options.filter((o) => o.trim().length > 0);
-      await addQuestion(title.trim(), description.trim(), filled, durationPreset);
+      const customWindow = useCustomWindow
+        ? { startsAt: new Date(startsAt), expiresAt: new Date(endsAt) }
+        : undefined;
+      await addQuestion(
+        title.trim(),
+        description.trim(),
+        filled,
+        useCustomWindow ? undefined : durationPreset,
+        customWindow,
+      );
       const qs = await getQuestions();
       setQuestions(qs);
       setAskSuccess(true);
+      setAskSubmitError(null);
       setTitle("");
       setDescription("");
       setOptions(["", ""]);
       setDurationPreset("1m");
+      setUseCustomWindow(false);
+      setStartsAt("");
+      setEndsAt("");
       setActiveTab("vote");
     } catch (error) {
       console.error("Failed to add question", error);
+      setAskSubmitError("Failed to publish question. Please try again.");
     } finally {
       setSubmittingQuestion(false);
     }
@@ -236,17 +294,23 @@ export default function OwnersVotingPage() {
 
   const handleSubmitVote = async (event: React.FormEvent, question: Question) => {
     event.preventDefault();
+    const startsAt =
+      question.startsAt instanceof Date
+        ? question.startsAt
+        : question.startsAt
+          ? new Date(question.startsAt)
+          : null;
     const expiresAt =
       question.expiresAt instanceof Date
         ? question.expiresAt
         : question.expiresAt
           ? new Date(question.expiresAt)
           : null;
-    const voteStatus = getVoteStatus(new Date(), expiresAt);
-    if (voteStatus.isExpired) {
+    const voteStatus = getVoteStatus(new Date(), expiresAt, startsAt);
+    if (!voteStatus.isOpen) {
       setVoteErrors((prev) => ({
         ...prev,
-        [question.id]: "Voting is closed for this question.",
+        [question.id]: "Voting is not currently open.",
       }));
       return;
     }
@@ -425,54 +489,106 @@ export default function OwnersVotingPage() {
                     Question published. You can switch to the Vote tab to cast the first vote.
                   </div>
                 )}
+                {askSubmitError && (
+                  <div className="flex items-center gap-3 text-sm bg-red-500/10 p-4 rounded-xl border border-red-500/20 text-red-700 dark:text-red-200">
+                    <AlertCircle size={18} className="shrink-0" />
+                    {askSubmitError}
+                  </div>
+                )}
 
-                <div className="mt-6 space-y-3">
-                  <div className="space-y-1">
+                <div className="mt-6 space-y-4">
+                  <div className="space-y-2">
                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-                      How long should this vote stay open?
+                      Voting window
                     </label>
-                    <div className="space-y-3">
-                      <div className="flex flex-wrap gap-2">
-                        {DURATION_PRESETS.filter((preset) => quickDurations.includes(preset.value)).map((preset) => (
-                          <button
-                            key={preset.value}
-                            type="button"
-                            onClick={() => setDurationPreset(preset.value)}
-                            className={`px-4 py-2 rounded-full text-sm font-semibold transition-all transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70
-          ${
-            durationPreset === preset.value
-              ? "bg-slate-900 text-white shadow-md shadow-black/10 dark:bg-white dark:text-slate-900 scale-[1.03]"
-              : "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-white/10 dark:text-white/80 dark:hover:bg-white/20"
-          }
-        `}
-                          >
-                            {preset.label}
-                          </button>
-                        ))}
-                      </div>
-                      <div className="flex flex-wrap gap-2 pt-1">
-                        {DURATION_PRESETS.filter((preset) => longDurations.includes(preset.value)).map((preset) => (
-                          <button
-                            key={preset.value}
-                            type="button"
-                            onClick={() => setDurationPreset(preset.value)}
-                            className={`px-4 py-2 rounded-full text-sm font-semibold transition-all transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70
-          ${
-            durationPreset === preset.value
-              ? "bg-slate-900 text-white shadow-md shadow-black/10 dark:bg-white dark:text-slate-900 scale-[1.03]"
-              : "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-white/10 dark:text-white/80 dark:hover:bg-white/20"
-          }
-        `}
-                          >
-                            {preset.label}
-                          </button>
-                        ))}
-                      </div>
+                    <div className="space-y-2">
+                      <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+                        <input
+                          type="radio"
+                          name="voting-window"
+                          checked={!useCustomWindow}
+                          onChange={() => setUseCustomWindow(false)}
+                          className="h-4 w-4 text-cyan-600 border-slate-300 focus:ring-cyan-500"
+                        />
+                        Use duration preset
+                      </label>
+                      <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+                        <input
+                          type="radio"
+                          name="voting-window"
+                          checked={useCustomWindow}
+                          onChange={() => setUseCustomWindow(true)}
+                          className="h-4 w-4 text-cyan-600 border-slate-300 focus:ring-cyan-500"
+                        />
+                        Set custom start &amp; end time
+                      </label>
                     </div>
                   </div>
 
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap gap-2">
+                      {DURATION_PRESETS.filter((preset) => quickDurations.includes(preset.value)).map((preset) => (
+                        <button
+                          key={preset.value}
+                          type="button"
+                          onClick={() => setDurationPreset(preset.value)}
+                          disabled={useCustomWindow}
+                          className={`px-4 py-2 rounded-full text-sm font-semibold transition-all transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70
+          ${
+            durationPreset === preset.value
+              ? "bg-slate-900 text-white shadow-md shadow-black/10 dark:bg-white dark:text-slate-900 scale-[1.03]"
+              : "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-white/10 dark:text-white/80 dark:hover:bg-white/20"
+          } ${useCustomWindow ? "opacity-50 cursor-not-allowed" : ""}
+        `}
+                        >
+                          {preset.label}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      {DURATION_PRESETS.filter((preset) => longDurations.includes(preset.value)).map((preset) => (
+                        <button
+                          key={preset.value}
+                          type="button"
+                          onClick={() => setDurationPreset(preset.value)}
+                          disabled={useCustomWindow}
+                          className={`px-4 py-2 rounded-full text-sm font-semibold transition-all transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70
+          ${
+            durationPreset === preset.value
+              ? "bg-slate-900 text-white shadow-md shadow-black/10 dark:bg-white dark:text-slate-900 scale-[1.03]"
+              : "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-white/10 dark:text-white/80 dark:hover:bg-white/20"
+          } ${useCustomWindow ? "opacity-50 cursor-not-allowed" : ""}
+        `}
+                        >
+                          {preset.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {useCustomWindow && (
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <Input
+                        type="datetime-local"
+                        label="Voting starts (UK time)"
+                        value={startsAt}
+                        onChange={(e) => setStartsAt(e.target.value)}
+                        error={askErrors.startsAt}
+                      />
+                      <Input
+                        type="datetime-local"
+                        label="Voting ends (UK time)"
+                        value={endsAt}
+                        onChange={(e) => setEndsAt(e.target.value)}
+                        error={askErrors.endsAt}
+                      />
+                    </div>
+                  )}
+
                   <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Voting will close {DURATION_PRESETS.find((p) => p.value === durationPreset)?.label?.toLowerCase() ?? ""} after publishing.
+                    {useCustomWindow
+                      ? "Voting will open and close automatically based on the schedule above."
+                      : `Voting will close ${DURATION_PRESETS.find((p) => p.value === durationPreset)?.label?.toLowerCase() ?? ""} after publishing.`}
                   </p>
                 </div>
 
@@ -546,19 +662,39 @@ export default function OwnersVotingPage() {
                   </div>
                 ) : (
                   questions
-                    .filter((q) => q.status === "open")
-                    .map((question) => {
+                    .filter((question) => {
+                      const startsAt =
+                        question.startsAt instanceof Date
+                          ? question.startsAt
+                          : question.startsAt
+                            ? new Date(question.startsAt)
+                            : null;
                       const expiresAt =
                         question.expiresAt instanceof Date
                           ? question.expiresAt
                           : question.expiresAt
                             ? new Date(question.expiresAt)
                             : null;
-                      const voteStatus = getVoteStatus(new Date(now), expiresAt);
+                      return getVoteStatus(new Date(now), expiresAt, startsAt).kind !== "closed";
+                    })
+                    .map((question) => {
+                      const startsAt =
+                        question.startsAt instanceof Date
+                          ? question.startsAt
+                          : question.startsAt
+                            ? new Date(question.startsAt)
+                            : null;
+                      const expiresAt =
+                        question.expiresAt instanceof Date
+                          ? question.expiresAt
+                          : question.expiresAt
+                            ? new Date(question.expiresAt)
+                            : null;
+                      const voteStatus = getVoteStatus(new Date(now), expiresAt, startsAt);
                       const error = voteErrors[question.id];
                       const selected = selectedOptions[question.id] ?? null;
-                      const selectionDisabled = authLoading || !isAuthenticated || voteStatus.isExpired;
-                      const isClosed = voteStatus.isExpired || question.status !== "open";
+                      const selectionDisabled = authLoading || !isAuthenticated || !voteStatus.isOpen;
+                      const isClosed = !voteStatus.isOpen;
                       const alertTone = error === VOTE_RECORDED_MESSAGE
                         ? "success"
                         : error === VIEW_ONLY_MESSAGE
@@ -578,9 +714,11 @@ export default function OwnersVotingPage() {
                             </div>
                             <span
                               className={`inline-flex px-3 py-1 text-xs font-bold uppercase rounded-full border ${
-                                isClosed
+                                voteStatus.kind === "closed"
                                   ? "bg-slate-100 text-slate-600 border-slate-200 dark:bg-white/10 dark:text-white/70 dark:border-white/15"
-                                  : "bg-emerald-500/10 text-emerald-700 border-emerald-500/30 dark:text-emerald-200 dark:bg-emerald-500/15"
+                                  : voteStatus.kind === "scheduled"
+                                    ? "bg-amber-500/10 text-amber-700 border-amber-500/30 dark:text-amber-200 dark:bg-amber-500/15"
+                                    : "bg-emerald-500/10 text-emerald-700 border-emerald-500/30 dark:text-emerald-200 dark:bg-emerald-500/15"
                               }`}
                             >
                               {voteStatus.label}
@@ -598,7 +736,7 @@ export default function OwnersVotingPage() {
                                   <label
                                     key={opt.id}
                                     onClick={() => {
-                                      if (voteStatus.isExpired) return;
+                                      if (!voteStatus.isOpen) return;
                                       if (selectionDisabled) {
                                         setAuthModalOpen(true);
                                         setVoteErrors((prev) => ({ ...prev, [question.id]: VIEW_ONLY_MESSAGE }));
@@ -643,10 +781,12 @@ export default function OwnersVotingPage() {
                               })}
                             </div>
 
-                            {voteStatus.isExpired && (
+                            {!voteStatus.isOpen && (
                               <div className="flex items-center gap-3 text-sm text-slate-600 bg-slate-100 border border-slate-200 rounded-xl p-4 dark:bg-white/10 dark:border-white/15 dark:text-white/80">
                                 <AlertCircle size={16} className="text-slate-500 dark:text-white/70" />
-                                Voting is closed for this question.
+                                {voteStatus.kind === "scheduled"
+                                  ? "Voting has not opened yet. Please check back once the start time arrives."
+                                  : "Voting is closed for this question."}
                               </div>
                             )}
 
@@ -687,7 +827,7 @@ export default function OwnersVotingPage() {
                                   !flat ||
                                   !currentUser ||
                                   authLoading ||
-                                  voteStatus.isExpired
+                                  !voteStatus.isOpen
                                 }
                               >
                                 Submit Vote
@@ -721,13 +861,19 @@ export default function OwnersVotingPage() {
                   <p className="text-slate-600 dark:text-slate-300">No questions yet.</p>
                 ) : (
                   questionResults.map(({ question, results, totalVotes }) => {
+                    const startsAt =
+                      question.startsAt instanceof Date
+                        ? question.startsAt
+                        : question.startsAt
+                          ? new Date(question.startsAt)
+                          : null;
                     const expiresAt =
                       question.expiresAt instanceof Date
                         ? question.expiresAt
                         : question.expiresAt
                           ? new Date(question.expiresAt)
                           : null;
-                    const voteStatus = getVoteStatus(new Date(now), expiresAt);
+                    const voteStatus = getVoteStatus(new Date(now), expiresAt, startsAt);
                     const chartData = results.map(({ option, count }) => ({
                       name: option.label,
                       value: count,
@@ -751,9 +897,11 @@ export default function OwnersVotingPage() {
                           <div className="flex items-center gap-3">
                             <span
                               className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full border ${
-                                voteStatus.isExpired
+                                voteStatus.kind === "closed"
                                   ? "bg-slate-100 text-slate-600 border-slate-200 dark:bg-white/10 dark:text-white/70 dark:border-white/15"
-                                  : "bg-emerald-500/10 text-emerald-700 border-emerald-500/30 dark:text-emerald-200 dark:bg-emerald-500/15"
+                                  : voteStatus.kind === "scheduled"
+                                    ? "bg-amber-500/10 text-amber-700 border-amber-500/30 dark:text-amber-200 dark:bg-amber-500/15"
+                                    : "bg-emerald-500/10 text-emerald-700 border-emerald-500/30 dark:text-emerald-200 dark:bg-emerald-500/15"
                               }`}
                             >
                               {voteStatus.label}

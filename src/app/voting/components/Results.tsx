@@ -175,13 +175,19 @@ const Results: React.FC = () => {
       {/* Individual Question Cards */}
       <div className="space-y-6">
         {stats.map((stat) => {
+          const startsAt =
+            stat.question.startsAt instanceof Date
+              ? stat.question.startsAt
+              : stat.question.startsAt
+                ? new Date(stat.question.startsAt)
+                : null;
           const expiresAt =
             stat.question.expiresAt instanceof Date
               ? stat.question.expiresAt
               : stat.question.expiresAt
                 ? new Date(stat.question.expiresAt)
                 : null;
-          const voteStatus = getVoteStatus(new Date(now), expiresAt);
+          const voteStatus = getVoteStatus(new Date(now), expiresAt, startsAt);
 
           return (
           <div key={stat.question.id} className="
@@ -196,8 +202,10 @@ const Results: React.FC = () => {
                 <h2 className="text-lg font-bold text-slate-900 leading-snug">{stat.question.title}</h2>
                 <span
                   className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full border ${
-                    voteStatus.isExpired
+                    voteStatus.kind === 'closed'
                       ? 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-white/10 dark:text-white/70 dark:border-white/15'
+                      : voteStatus.kind === 'scheduled'
+                        ? 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/15 dark:text-amber-100 dark:border-amber-300/60'
                       : 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-100 dark:border-emerald-300/60'
                   }`}
                 >
