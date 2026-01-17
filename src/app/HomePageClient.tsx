@@ -336,7 +336,7 @@ export default function HomePageClient() {
           </div>
 
           <div className="p-6 sm:p-10">
-            <header className="text-center">
+            <header className="text-center -mt-3 sm:-mt-4">
               <h1 className="text-3xl sm:text-4xl font-bold leading-tight">
                 James <span className="text-slate-500">Square</span>
                 <br />
