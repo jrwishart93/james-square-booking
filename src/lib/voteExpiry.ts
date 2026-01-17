@@ -44,24 +44,40 @@ export function getVoteStatus(now: Date, expiresAt?: Date | null, startsAt?: Dat
       isExpired: false,
       isOpen: false,
       isScheduled: true,
+      phase: 'scheduled' as const,
       label: 'Scheduled',
       kind: 'scheduled' as const,
     };
   }
 
   if (!expiresAt) {
-    return { isExpired: false, isOpen: true, isScheduled: false, label: "Open", kind: "open" as const };
+    return {
+      isExpired: false,
+      isOpen: true,
+      isScheduled: false,
+      phase: 'open' as const,
+      label: "Open",
+      kind: "open" as const,
+    };
   }
 
   const ms = expiresAt.getTime() - now.getTime();
   if (ms <= 0) {
-    return { isExpired: true, isOpen: false, isScheduled: false, label: "Closed", kind: "closed" as const };
+    return {
+      isExpired: true,
+      isOpen: false,
+      isScheduled: false,
+      phase: 'closed' as const,
+      label: "Closed",
+      kind: "closed" as const,
+    };
   }
 
   return {
     isExpired: false,
     isOpen: true,
     isScheduled: false,
+    phase: 'open' as const,
     label: formatTimeRemaining(ms),
     kind: "open" as const,
   };

@@ -3,13 +3,15 @@ import React, { useEffect, useMemo, useState } from 'react';
 interface CountdownTimerProps {
   expiresAt: Date;
   createdAt?: Date;
+  label?: string;
+  helperText?: string | null;
 }
 
 const RADIUS = 34;
 const STROKE = 6;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
-export default function CountdownTimer({ expiresAt, createdAt }: CountdownTimerProps) {
+export default function CountdownTimer({ expiresAt, createdAt, label, helperText }: CountdownTimerProps) {
   const [now, setNow] = useState<Date>(new Date());
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
@@ -38,6 +40,7 @@ export default function CountdownTimer({ expiresAt, createdAt }: CountdownTimerP
   const minutes = Math.floor(remainingMs / 60000);
   const seconds = Math.floor((remainingMs % 60000) / 1000);
   const timeLabel = isExpired ? 'Closed' : `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')} remaining`;
+  const resolvedHelperText = helperText === undefined ? 'Voting closes automatically' : helperText;
 
   const strokeDashoffset = CIRCUMFERENCE * (1 - percent);
 
@@ -50,12 +53,15 @@ export default function CountdownTimer({ expiresAt, createdAt }: CountdownTimerP
 
   return (
     <div className="flex flex-col items-center gap-2 text-center">
+      {label ? (
+        <div className="text-xs font-semibold text-slate-700 dark:text-slate-200">{label}</div>
+      ) : null}
       <svg
         width={80}
         height={80}
         viewBox="0 0 80 80"
         className="drop-shadow-sm"
-        aria-label={isExpired ? 'Voting closed' : `Voting closes in ${minutes} minutes and ${seconds} seconds`}
+        aria-label={isExpired ? 'Voting closed' : `${label ?? 'Voting closes in'} ${minutes} minutes and ${seconds} seconds`}
       >
         <circle
           cx="40"
@@ -92,7 +98,7 @@ export default function CountdownTimer({ expiresAt, createdAt }: CountdownTimerP
       </svg>
       <div className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight">
         <div>{timeLabel}</div>
-        <div className="text-[10px]">Voting closes automatically</div>
+        {resolvedHelperText ? <div className="text-[10px]">{resolvedHelperText}</div> : null}
       </div>
     </div>
   );
