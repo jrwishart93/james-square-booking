@@ -59,6 +59,25 @@ interface Feedback {
   timestamp: number | Date;
 }
 
+type AdminAction =
+  | 'UPDATE_USER'
+  | 'DELETE_USER'
+  | 'TOGGLE_ADMIN'
+  | 'TOGGLE_FLAG'
+  | 'TOGGLE_DISABLED'
+  | 'REQUIRE_RESIDENT_TYPE_CONFIRMATION';
+
+interface PendingAdminAction {
+  action: AdminAction;
+  userId: string;
+  payload?: Record<string, unknown>;
+}
+
+interface AdminActionFeedback {
+  type: 'success' | 'error';
+  message: string;
+}
+
 const PEAK_TIMES = new Set([
   '17:00',
   '17:30',
@@ -140,6 +159,73 @@ function StatPill({ label, value }: { label: string; value: string | number }) {
   );
 }
 
+function ConfirmationModal({
+  isOpen,
+  title,
+  description,
+  warning,
+  confirmLabel,
+  errorMessage,
+  isProcessing,
+  onCancel,
+  onConfirm,
+}: {
+  isOpen: boolean;
+  title: string;
+  description: string;
+  warning?: string;
+  confirmLabel: string;
+  errorMessage?: string;
+  isProcessing: boolean;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  if (!isOpen) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div className="w-full max-w-lg rounded-2xl bg-white dark:bg-slate-900 border border-white/40 dark:border-white/10 shadow-xl p-6 space-y-4">
+        <div className="space-y-2">
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{title}</h3>
+          <p className="text-sm text-slate-700 dark:text-slate-300">{description}</p>
+          {warning && (
+            <p className="text-sm font-semibold text-amber-700 dark:text-amber-400">
+              {warning}
+            </p>
+          )}
+          {errorMessage && (
+            <p className="text-sm font-semibold text-red-700 dark:text-red-300">
+              {errorMessage}
+            </p>
+          )}
+        </div>
+        <div className="flex flex-wrap justify-end gap-3">
+          <button
+            type="button"
+            onClick={onCancel}
+            disabled={isProcessing}
+            className="rounded-full px-4 py-2 text-sm font-semibold jqs-glass disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            disabled={isProcessing}
+            className="rounded-full px-4 py-2 text-sm font-semibold bg-emerald-600 text-white disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {isProcessing ? 'Saving…' : confirmLabel}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminDashboard() {
   /* ---------- Auth / admin state (unchanged) ---------- */
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
@@ -179,6 +265,11 @@ export default function AdminDashboard() {
     'chronological' | 'grouped'
   >('chronological');
   const [showBookingFilters, setShowBookingFilters] = useState<boolean>(false);
+
+  /* ---------- Admin action confirmation ---------- */
+  const [pendingAction, setPendingAction] = useState<PendingAdminAction | null>(null);
+  const [isActionProcessing, setIsActionProcessing] = useState<boolean>(false);
+  const [actionFeedback, setActionFeedback] = useState<AdminActionFeedback | null>(null);
 
 
   /* ---------- Auth check (unchanged) ---------- */
@@ -280,86 +371,222 @@ export default function AdminDashboard() {
       setEditingUser({ ...editingUser, [e.target.name]: e.target.value });
     }
   };
-  const saveEdits = async () => {
+  const openConfirmation = (action: PendingAdminAction) => {
+    if (isActionProcessing) return;
+    setActionFeedback(null);
+    setPendingAction(action);
+  };
+
+  const closeConfirmation = () => {
+    if (isActionProcessing) return;
+    setPendingAction(null);
+  };
+
+  const requestUserUpdate = () => {
     if (!editingUser) return;
-    try {
-      const userRef = doc(db, 'users', editingUser.id);
-      await updateDoc(userRef, {
+    openConfirmation({
+      action: 'UPDATE_USER',
+      userId: editingUser.id,
+      payload: {
         fullName: editingUser.fullName,
         username: editingUser.username,
         property: editingUser.property,
-      });
-      setUsers((prev) =>
-        prev.map((u) => (u.id === editingUser.id ? { ...u, ...editingUser } : u))
-      );
-      setEditingUser(null);
-    } catch (error) {
-      console.error('Failed to update user:', error);
-    }
+      },
+    });
   };
-  const removeUser = async (userId: string) => {
-    if (window.confirm('Are you sure you want to remove this user?')) {
-      try {
-        await deleteDoc(doc(db, 'users', userId));
-        setUsers((prev) => prev.filter((u) => u.id !== userId));
-      } catch (error) {
-        console.error('Failed to delete user:', error);
+
+  const getActionCopy = (
+    action: PendingAdminAction,
+    user?: UserRegistration
+  ) => {
+    const displayName = user?.fullName || user?.email || 'this user';
+    switch (action.action) {
+      case 'UPDATE_USER':
+        return {
+          title: 'Confirm profile update',
+          description: `Are you sure you want to update ${displayName}'s profile details?`,
+          warning: 'This will immediately update the user’s account.',
+          confirmLabel: 'Confirm update',
+          successMessage: `Updated ${displayName}'s profile.`,
+        };
+      case 'DELETE_USER':
+        return {
+          title: 'Confirm user removal',
+          description: `Are you sure you want to delete ${displayName}?`,
+          warning: 'This action cannot be undone.',
+          confirmLabel: 'Delete user',
+          successMessage: `Removed ${displayName}'s account.`,
+        };
+      case 'TOGGLE_ADMIN': {
+        const isAdmin = Boolean(action.payload?.isAdmin);
+        return {
+          title: 'Confirm admin access change',
+          description: `Are you sure you want to ${
+            isAdmin ? 'grant' : 'revoke'
+          } admin access for ${displayName}?`,
+          warning: 'This will immediately update the user’s account.',
+          confirmLabel: isAdmin ? 'Grant admin' : 'Revoke admin',
+          successMessage: isAdmin
+            ? `Granted admin access to ${displayName}.`
+            : `Revoked admin access from ${displayName}.`,
+        };
       }
-    }
-  };
-  const toggleAdminStatus = async (user: UserRegistration) => {
-    const newStatus = !user.isAdmin;
-    try {
-      const userRef = doc(db, 'users', user.id);
-      await updateDoc(userRef, { isAdmin: newStatus });
-      setUsers((prev) =>
-        prev.map((u) => (u.id === user.id ? { ...u, isAdmin: newStatus } : u))
-      );
-      await addDoc(collection(db, 'activityLogs'), {
-        action: newStatus ? 'Promoted to Admin' : 'Demoted from Admin',
-        admin: auth.currentUser?.email || 'unknown',
-        timestamp: new Date(),
-      });
-    } catch (error) {
-      console.error('Failed to update admin status:', error);
-    }
-  };
-  const toggleDisabledStatus = async (user: UserRegistration) => {
-    const newStatus = !user.disabled;
-    try {
-      const userRef = doc(db, 'users', user.id);
-      await updateDoc(userRef, { disabled: newStatus });
-      setUsers((prev) =>
-        prev.map((u) => (u.id === user.id ? { ...u, disabled: newStatus } : u))
-      );
-      await addDoc(collection(db, 'activityLogs'), {
-        action: newStatus ? 'Disabled user account' : 'Enabled user account',
-        admin: auth.currentUser?.email || 'unknown',
-        timestamp: new Date(),
-      });
-    } catch (error) {
-      console.error('Failed to update disabled status:', error);
+      case 'TOGGLE_FLAG': {
+        const isFlagged = Boolean(action.payload?.isFlagged);
+        return {
+          title: 'Confirm user flag change',
+          description: `Are you sure you want to ${
+            isFlagged ? 'flag' : 'unflag'
+          } ${displayName}?`,
+          warning: 'This will immediately update the user’s account.',
+          confirmLabel: isFlagged ? 'Flag user' : 'Unflag user',
+          successMessage: isFlagged
+            ? `Flagged ${displayName} for review.`
+            : `Removed flag from ${displayName}.`,
+        };
+      }
+      case 'TOGGLE_DISABLED': {
+        const disabled = Boolean(action.payload?.disabled);
+        return {
+          title: 'Confirm account status change',
+          description: `Are you sure you want to ${
+            disabled ? 'disable' : 'enable'
+          } ${displayName}'s account?`,
+          warning: 'This will immediately update the user’s account.',
+          confirmLabel: disabled ? 'Disable account' : 'Enable account',
+          successMessage: disabled
+            ? `Disabled ${displayName}'s account.`
+            : `Enabled ${displayName}'s account.`,
+        };
+      }
+      case 'REQUIRE_RESIDENT_TYPE_CONFIRMATION':
+        return {
+          title: 'Confirm resident type review',
+          description: `Are you sure you want to require ${displayName} to confirm their resident type?`,
+          warning: 'This will immediately update the user’s account.',
+          confirmLabel: 'Require confirmation',
+          successMessage: `Required resident type confirmation for ${displayName}.`,
+        };
+      default:
+        return {
+          title: 'Confirm admin action',
+          description: 'Are you sure you want to make this change?',
+          warning: 'This will immediately update the user’s account.',
+          confirmLabel: 'Confirm',
+          successMessage: 'Admin action completed.',
+        };
     }
   };
 
-  const requireResidentTypeConfirmation = async (user: UserRegistration) => {
+  const confirmAdminAction = async () => {
+    if (!pendingAction || isActionProcessing) return;
+    const targetUser = users.find((user) => user.id === pendingAction.userId);
+    const copy = getActionCopy(pendingAction, targetUser);
+    setIsActionProcessing(true);
+    setActionFeedback(null);
+
     try {
-      const userRef = doc(db, 'users', user.id);
-      await updateDoc(userRef, { requiresResidentTypeConfirmation: true });
-      setUsers((prev) =>
-        prev.map((u) =>
-          u.id === user.id
-            ? { ...u, requiresResidentTypeConfirmation: true }
-            : u
-        )
-      );
-      await addDoc(collection(db, 'activityLogs'), {
-        action: 'Flagged resident type confirmation requirement',
-        admin: auth.currentUser?.email || 'unknown',
-        timestamp: new Date(),
-      });
+      const userRef = doc(db, 'users', pendingAction.userId);
+
+      switch (pendingAction.action) {
+        case 'UPDATE_USER': {
+          const updates = {
+            fullName: String(pendingAction.payload?.fullName ?? ''),
+            username: String(pendingAction.payload?.username ?? ''),
+            property: String(pendingAction.payload?.property ?? ''),
+          };
+          await updateDoc(userRef, updates);
+          setUsers((prev) =>
+            prev.map((user) =>
+              user.id === pendingAction.userId ? { ...user, ...updates } : user
+            )
+          );
+          setEditingUser(null);
+          break;
+        }
+        case 'DELETE_USER': {
+          await deleteDoc(userRef);
+          setUsers((prev) => prev.filter((user) => user.id !== pendingAction.userId));
+          if (editingUser?.id === pendingAction.userId) {
+            setEditingUser(null);
+          }
+          break;
+        }
+        case 'TOGGLE_ADMIN': {
+          const isAdmin = Boolean(pendingAction.payload?.isAdmin);
+          await updateDoc(userRef, { isAdmin });
+          setUsers((prev) =>
+            prev.map((user) =>
+              user.id === pendingAction.userId ? { ...user, isAdmin } : user
+            )
+          );
+          await addDoc(collection(db, 'activityLogs'), {
+            action: isAdmin ? 'Promoted to Admin' : 'Demoted from Admin',
+            admin: auth.currentUser?.email || 'unknown',
+            timestamp: new Date(),
+          });
+          break;
+        }
+        case 'TOGGLE_FLAG': {
+          const isFlagged = Boolean(pendingAction.payload?.isFlagged);
+          await updateDoc(userRef, { isFlagged });
+          setUsers((prev) =>
+            prev.map((user) =>
+              user.id === pendingAction.userId ? { ...user, isFlagged } : user
+            )
+          );
+          await addDoc(collection(db, 'activityLogs'), {
+            action: isFlagged ? 'Flagged user' : 'Unflagged user',
+            admin: auth.currentUser?.email || 'unknown',
+            timestamp: new Date(),
+          });
+          break;
+        }
+        case 'TOGGLE_DISABLED': {
+          const disabled = Boolean(pendingAction.payload?.disabled);
+          await updateDoc(userRef, { disabled });
+          setUsers((prev) =>
+            prev.map((user) =>
+              user.id === pendingAction.userId ? { ...user, disabled } : user
+            )
+          );
+          await addDoc(collection(db, 'activityLogs'), {
+            action: disabled ? 'Disabled user account' : 'Enabled user account',
+            admin: auth.currentUser?.email || 'unknown',
+            timestamp: new Date(),
+          });
+          break;
+        }
+        case 'REQUIRE_RESIDENT_TYPE_CONFIRMATION': {
+          await updateDoc(userRef, { requiresResidentTypeConfirmation: true });
+          setUsers((prev) =>
+            prev.map((user) =>
+              user.id === pendingAction.userId
+                ? { ...user, requiresResidentTypeConfirmation: true }
+                : user
+            )
+          );
+          await addDoc(collection(db, 'activityLogs'), {
+            action: 'Flagged resident type confirmation requirement',
+            admin: auth.currentUser?.email || 'unknown',
+            timestamp: new Date(),
+          });
+          break;
+        }
+        default:
+          break;
+      }
+
+      setPendingAction(null);
+      setActionFeedback({ type: 'success', message: copy.successMessage });
     } catch (error) {
-      console.error('Failed to require resident type confirmation:', error);
+      console.error('Failed to complete admin action:', error);
+      setActionFeedback({
+        type: 'error',
+        message: 'Unable to complete the admin action. Please try again.',
+      });
+    } finally {
+      setIsActionProcessing(false);
     }
   };
 
@@ -859,6 +1086,14 @@ export default function AdminDashboard() {
     { id: 'system', label: 'System' },
   ] as const;
 
+  const isUserActionLocked = isActionProcessing || pendingAction !== null;
+  const pendingUser = pendingAction
+    ? users.find((user) => user.id === pendingAction.userId)
+    : undefined;
+  const pendingCopy = pendingAction
+    ? getActionCopy(pendingAction, pendingUser)
+    : null;
+
   return (
     <main className="jqs-gradient-bg min-h-screen text-slate-900 dark:text-slate-100">
       <div className="max-w-7xl mx-auto p-6 space-y-6">
@@ -1074,6 +1309,24 @@ export default function AdminDashboard() {
                   })}
                 </div>
               </div>
+              <div className="space-y-2 mb-4">
+                {isActionProcessing && (
+                  <div className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+                    Saving…
+                  </div>
+                )}
+                {actionFeedback && (
+                  <div
+                    className={`rounded-xl px-4 py-2 text-sm ${
+                      actionFeedback.type === 'success'
+                        ? 'bg-emerald-100 text-emerald-900 dark:bg-emerald-500/20 dark:text-emerald-100'
+                        : 'bg-red-100 text-red-900 dark:bg-red-500/20 dark:text-red-100'
+                    }`}
+                  >
+                    {actionFeedback.message}
+                  </div>
+                )}
+              </div>
               {/* Desktop Table */}
               <div className="hidden md:block overflow-x-auto jqs-glass rounded-2xl">
                 <table className="min-w-full text-sm">
@@ -1163,21 +1416,42 @@ export default function AdminDashboard() {
                           <td className="px-3 py-2">{user.isAdmin ? 'Yes' : 'No'}</td>
                           <td className="px-3 py-2">{user.disabled ? 'Yes' : 'No'}</td>
                           <td className="px-3 py-2 space-x-1">
-                            <button onClick={saveEdits} className="rounded-full px-3 py-1 text-xs bg-emerald-600 text-white">
+                            <button
+                              onClick={requestUserUpdate}
+                              disabled={isUserActionLocked}
+                              className="rounded-full px-3 py-1 text-xs bg-emerald-600 text-white disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
                               Save
                             </button>
-                            <button onClick={cancelEditing} className="rounded-full px-3 py-1 text-xs jqs-glass">
+                            <button
+                              onClick={cancelEditing}
+                              disabled={isUserActionLocked}
+                              className="rounded-full px-3 py-1 text-xs jqs-glass disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
                               Cancel
                             </button>
                             {getResidentCategory(user) === 'unknown' && (
                               <button
-                                onClick={() => requireResidentTypeConfirmation(user)}
-                                className="rounded-full px-3 py-1 text-xs bg-slate-700 text-white"
+                                onClick={() =>
+                                  openConfirmation({
+                                    action: 'REQUIRE_RESIDENT_TYPE_CONFIRMATION',
+                                    userId: user.id,
+                                    payload: { requiresResidentTypeConfirmation: true },
+                                  })
+                                }
+                                disabled={isUserActionLocked}
+                                className="rounded-full px-3 py-1 text-xs bg-slate-700 text-white disabled:opacity-60 disabled:cursor-not-allowed"
                               >
                                 Require confirmation
                               </button>
                             )}
-                            <button onClick={() => removeUser(user.id)} className="rounded-full px-3 py-1 text-xs bg-red-600 text-white">
+                            <button
+                              onClick={() =>
+                                openConfirmation({ action: 'DELETE_USER', userId: user.id })
+                              }
+                              disabled={isUserActionLocked}
+                              className="rounded-full px-3 py-1 text-xs bg-red-600 text-white disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
                               Remove
                             </button>
                           </td>
@@ -1221,24 +1495,74 @@ export default function AdminDashboard() {
                           <td className="px-3 py-2">{user.isAdmin ? 'Yes' : 'No'}</td>
                           <td className="px-3 py-2">{user.disabled ? 'Yes' : 'No'}</td>
                           <td className="px-3 py-2 space-x-1">
-                            <button onClick={() => startEditing(user)} className="rounded-full px-3 py-1 text-xs jqs-glass">
+                            <button
+                              onClick={() => startEditing(user)}
+                              disabled={isUserActionLocked}
+                              className="rounded-full px-3 py-1 text-xs jqs-glass disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
                               Edit
                             </button>
-                            <button onClick={() => toggleAdminStatus(user)} className="rounded-full px-3 py-1 text-xs bg-indigo-600 text-white">
+                            <button
+                              onClick={() =>
+                                openConfirmation({
+                                  action: 'TOGGLE_ADMIN',
+                                  userId: user.id,
+                                  payload: { isAdmin: !user.isAdmin },
+                                })
+                              }
+                              disabled={isUserActionLocked}
+                              className="rounded-full px-3 py-1 text-xs bg-indigo-600 text-white disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
                               {user.isAdmin ? 'Revoke Admin' : 'Make Admin'}
                             </button>
-                            <button onClick={() => toggleDisabledStatus(user)} className="rounded-full px-3 py-1 text-xs bg-amber-500 text-black">
+                            <button
+                              onClick={() =>
+                                openConfirmation({
+                                  action: 'TOGGLE_DISABLED',
+                                  userId: user.id,
+                                  payload: { disabled: !user.disabled },
+                                })
+                              }
+                              disabled={isUserActionLocked}
+                              className="rounded-full px-3 py-1 text-xs bg-amber-500 text-black disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
                               {user.disabled ? 'Enable' : 'Disable'}
+                            </button>
+                            <button
+                              onClick={() =>
+                                openConfirmation({
+                                  action: 'TOGGLE_FLAG',
+                                  userId: user.id,
+                                  payload: { isFlagged: !user.isFlagged },
+                                })
+                              }
+                              disabled={isUserActionLocked}
+                              className="rounded-full px-3 py-1 text-xs bg-slate-700 text-white disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                              {user.isFlagged ? 'Unflag' : 'Flag'}
                             </button>
                             {getResidentCategory(user) === 'unknown' && (
                               <button
-                                onClick={() => requireResidentTypeConfirmation(user)}
-                                className="rounded-full px-3 py-1 text-xs bg-slate-700 text-white"
+                                onClick={() =>
+                                  openConfirmation({
+                                    action: 'REQUIRE_RESIDENT_TYPE_CONFIRMATION',
+                                    userId: user.id,
+                                    payload: { requiresResidentTypeConfirmation: true },
+                                  })
+                                }
+                                disabled={isUserActionLocked}
+                                className="rounded-full px-3 py-1 text-xs bg-slate-700 text-white disabled:opacity-60 disabled:cursor-not-allowed"
                               >
                                 Require confirmation
                               </button>
                             )}
-                            <button onClick={() => removeUser(user.id)} className="rounded-full px-3 py-1 text-xs bg-red-600 text-white">
+                            <button
+                              onClick={() =>
+                                openConfirmation({ action: 'DELETE_USER', userId: user.id })
+                              }
+                              disabled={isUserActionLocked}
+                              className="rounded-full px-3 py-1 text-xs bg-red-600 text-white disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
                               Remove
                             </button>
                           </td>
@@ -1251,75 +1575,204 @@ export default function AdminDashboard() {
 
               {/* Mobile Cards */}
               <div className="md:hidden space-y-4 mt-4">
-                {filteredUsers.map((user) => (
-                  <div key={user.id} className="jqs-glass rounded-2xl p-3 text-sm">
-                    <div className="flex flex-col gap-1">
-                      <div className="text-base font-semibold">{user.fullName}</div>
-                      <div className="text-sm opacity-80">{user.property}</div>
-                    </div>
-                    <div className="mt-2 space-y-1">
-                      <p>
-                        <strong>Status:</strong>{' '}
-                        <span className={getResidentTypeLabel(user).isMissing ? 'text-amber-600 font-semibold' : undefined}>
-                          {getResidentTypeLabel(user).label}
-                        </span>
-                      </p>
-                      <p><strong>Email:</strong> {user.email}</p>
-                      <p><strong>Username:</strong> {user.username}</p>
-                    </div>
-                    <p>
-                      <strong>Registered:</strong>{' '}
-                      {formatDate(user.createdAt)}
-                    </p>
-                    <p>
-                      <strong>Last login:</strong>{' '}
-                      <span>{getLastLoginDisplay(user).label}</span>
-                    </p>
-                    {getLastLoginDisplay(user).status === 'inactive' && (
-                      <p className="text-xs text-amber-600">Inactive 30+ days</p>
-                    )}
-                    {getLastLoginDisplay(user).status === 'never' && (
-                      <p className="text-xs text-slate-500">Never logged in</p>
-                    )}
-                    <p><strong>Flagged:</strong> {user.isFlagged ? 'Yes' : 'No'}</p>
-                    <p><strong>Admin:</strong> {user.isAdmin ? 'Yes' : 'No'}</p>
-                    <p><strong>Disabled:</strong> {user.disabled ? 'Yes' : 'No'}</p>
-                    <div className="flex flex-wrap gap-2 mt-3">
-                      <button
-                        onClick={() => startEditing(user)}
-                        className="jqs-glass px-4 py-2 rounded-full text-xs font-semibold"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => toggleAdminStatus(user)}
-                        className="px-4 py-2 rounded-full text-xs font-semibold bg-indigo-600 text-white"
-                      >
-                        {user.isAdmin ? 'Revoke Admin' : 'Make Admin'}
-                      </button>
-                      <button
-                        onClick={() => toggleDisabledStatus(user)}
-                        className="px-4 py-2 rounded-full text-xs font-semibold bg-amber-500 text-black"
-                      >
-                        {user.disabled ? 'Enable' : 'Disable'}
-                      </button>
-                      {getResidentCategory(user) === 'unknown' && (
-                        <button
-                          onClick={() => requireResidentTypeConfirmation(user)}
-                          className="px-4 py-2 rounded-full text-xs font-semibold bg-slate-700 text-white"
-                        >
-                          Require confirmation
-                        </button>
+                {filteredUsers.map((user) => {
+                  const isEditing = editingUser?.id === user.id;
+                  return (
+                    <div key={user.id} className="jqs-glass rounded-2xl p-3 text-sm">
+                      <div className="flex flex-col gap-1">
+                        <div className="text-base font-semibold">{user.fullName}</div>
+                        <div className="text-sm opacity-80">{user.property}</div>
+                      </div>
+                      {isEditing ? (
+                        <div className="mt-3 space-y-3">
+                          <label className="block text-xs uppercase tracking-wide opacity-70">
+                            Full name
+                            <input
+                              type="text"
+                              name="fullName"
+                              value={editingUser?.fullName || ''}
+                              onChange={handleEditChange}
+                              className="mt-1 w-full rounded-md border border-white/40 bg-transparent px-3 py-2 text-sm"
+                            />
+                          </label>
+                          <label className="block text-xs uppercase tracking-wide opacity-70">
+                            Username
+                            <input
+                              type="text"
+                              name="username"
+                              value={editingUser?.username || ''}
+                              onChange={handleEditChange}
+                              className="mt-1 w-full rounded-md border border-white/40 bg-transparent px-3 py-2 text-sm"
+                            />
+                          </label>
+                          <label className="block text-xs uppercase tracking-wide opacity-70">
+                            Property
+                            <input
+                              type="text"
+                              name="property"
+                              value={editingUser?.property || ''}
+                              onChange={handleEditChange}
+                              className="mt-1 w-full rounded-md border border-white/40 bg-transparent px-3 py-2 text-sm"
+                            />
+                          </label>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="mt-2 space-y-1">
+                            <p>
+                              <strong>Status:</strong>{' '}
+                              <span
+                                className={
+                                  getResidentTypeLabel(user).isMissing
+                                    ? 'text-amber-600 font-semibold'
+                                    : undefined
+                                }
+                              >
+                                {getResidentTypeLabel(user).label}
+                              </span>
+                            </p>
+                            <p><strong>Email:</strong> {user.email}</p>
+                            <p><strong>Username:</strong> {user.username}</p>
+                          </div>
+                          <p>
+                            <strong>Registered:</strong>{' '}
+                            {formatDate(user.createdAt)}
+                          </p>
+                          <p>
+                            <strong>Last login:</strong>{' '}
+                            <span>{getLastLoginDisplay(user).label}</span>
+                          </p>
+                          {getLastLoginDisplay(user).status === 'inactive' && (
+                            <p className="text-xs text-amber-600">Inactive 30+ days</p>
+                          )}
+                          {getLastLoginDisplay(user).status === 'never' && (
+                            <p className="text-xs text-slate-500">Never logged in</p>
+                          )}
+                          <p><strong>Flagged:</strong> {user.isFlagged ? 'Yes' : 'No'}</p>
+                          <p><strong>Admin:</strong> {user.isAdmin ? 'Yes' : 'No'}</p>
+                          <p><strong>Disabled:</strong> {user.disabled ? 'Yes' : 'No'}</p>
+                        </>
                       )}
-                      <button
-                        onClick={() => removeUser(user.id)}
-                        className="px-4 py-2 rounded-full text-xs font-semibold bg-red-600 text-white"
-                      >
-                        Remove
-                      </button>
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        {isEditing ? (
+                          <>
+                            <button
+                              onClick={requestUserUpdate}
+                              disabled={isUserActionLocked}
+                              className="px-4 py-2 rounded-full text-xs font-semibold bg-emerald-600 text-white disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                              Save
+                            </button>
+                            <button
+                              onClick={cancelEditing}
+                              disabled={isUserActionLocked}
+                              className="jqs-glass px-4 py-2 rounded-full text-xs font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                              Cancel
+                            </button>
+                            {getResidentCategory(user) === 'unknown' && (
+                              <button
+                                onClick={() =>
+                                  openConfirmation({
+                                    action: 'REQUIRE_RESIDENT_TYPE_CONFIRMATION',
+                                    userId: user.id,
+                                    payload: { requiresResidentTypeConfirmation: true },
+                                  })
+                                }
+                                disabled={isUserActionLocked}
+                                className="px-4 py-2 rounded-full text-xs font-semibold bg-slate-700 text-white disabled:opacity-60 disabled:cursor-not-allowed"
+                              >
+                                Require confirmation
+                              </button>
+                            )}
+                            <button
+                              onClick={() =>
+                                openConfirmation({ action: 'DELETE_USER', userId: user.id })
+                              }
+                              disabled={isUserActionLocked}
+                              className="px-4 py-2 rounded-full text-xs font-semibold bg-red-600 text-white disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                              Remove
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              onClick={() => startEditing(user)}
+                              disabled={isUserActionLocked}
+                              className="jqs-glass px-4 py-2 rounded-full text-xs font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() =>
+                                openConfirmation({
+                                  action: 'TOGGLE_ADMIN',
+                                  userId: user.id,
+                                  payload: { isAdmin: !user.isAdmin },
+                                })
+                              }
+                              disabled={isUserActionLocked}
+                              className="px-4 py-2 rounded-full text-xs font-semibold bg-indigo-600 text-white disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                              {user.isAdmin ? 'Revoke Admin' : 'Make Admin'}
+                            </button>
+                            <button
+                              onClick={() =>
+                                openConfirmation({
+                                  action: 'TOGGLE_DISABLED',
+                                  userId: user.id,
+                                  payload: { disabled: !user.disabled },
+                                })
+                              }
+                              disabled={isUserActionLocked}
+                              className="px-4 py-2 rounded-full text-xs font-semibold bg-amber-500 text-black disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                              {user.disabled ? 'Enable' : 'Disable'}
+                            </button>
+                            <button
+                              onClick={() =>
+                                openConfirmation({
+                                  action: 'TOGGLE_FLAG',
+                                  userId: user.id,
+                                  payload: { isFlagged: !user.isFlagged },
+                                })
+                              }
+                              disabled={isUserActionLocked}
+                              className="px-4 py-2 rounded-full text-xs font-semibold bg-slate-700 text-white disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                              {user.isFlagged ? 'Unflag' : 'Flag'}
+                            </button>
+                            {getResidentCategory(user) === 'unknown' && (
+                              <button
+                                onClick={() =>
+                                  openConfirmation({
+                                    action: 'REQUIRE_RESIDENT_TYPE_CONFIRMATION',
+                                    userId: user.id,
+                                    payload: { requiresResidentTypeConfirmation: true },
+                                  })
+                                }
+                                disabled={isUserActionLocked}
+                                className="px-4 py-2 rounded-full text-xs font-semibold bg-slate-700 text-white disabled:opacity-60 disabled:cursor-not-allowed"
+                              >
+                                Require confirmation
+                              </button>
+                            )}
+                            <button
+                              onClick={() =>
+                                openConfirmation({ action: 'DELETE_USER', userId: user.id })
+                              }
+                              disabled={isUserActionLocked}
+                              className="px-4 py-2 rounded-full text-xs font-semibold bg-red-600 text-white disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                              Remove
+                            </button>
+                          </>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
               </>
             )}
@@ -1957,6 +2410,19 @@ export default function AdminDashboard() {
           </Section>
         )}
       </div>
+      {pendingCopy && (
+        <ConfirmationModal
+          isOpen={Boolean(pendingAction)}
+          title={pendingCopy.title}
+          description={pendingCopy.description}
+          warning={pendingCopy.warning}
+          confirmLabel={pendingCopy.confirmLabel}
+          errorMessage={actionFeedback?.type === 'error' ? actionFeedback.message : undefined}
+          isProcessing={isActionProcessing}
+          onCancel={closeConfirmation}
+          onConfirm={confirmAdminAction}
+        />
+      )}
     </main>
   );
 }
