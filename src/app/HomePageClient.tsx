@@ -284,18 +284,43 @@ export default function HomePageClient() {
                 "
               />
 
-              {/* DARK MODE — bottom blend into surface */}
-              <div
-                className="
-                  absolute bottom-0 inset-x-0
-                  h-32 sm:h-40
-                  bg-gradient-to-t
-                  from-[#020617]
-                  via-[#020617]/92
-                  to-transparent
-                  hidden dark:block
-                "
-              />
+              {/* DARK MODE — contrast-first blend (prevents cut line) */}
+              <div className="pointer-events-none absolute inset-0 hidden dark:block">
+                {/* Stage 1: contrast dampening (this is the key) */}
+                <div
+                  className="
+                    absolute bottom-0 inset-x-0
+                    h-32 sm:h-40
+                    bg-gradient-to-t
+                    from-black/20
+                    via-black/10
+                    to-transparent
+                  "
+                />
+
+                {/* Stage 2: luminance reduction (softens image without blur) */}
+                <div
+                  className="
+                    absolute bottom-0 inset-x-0
+                    h-28 sm:h-36
+                    bg-gradient-to-t
+                    from-black/35
+                    to-transparent
+                    mix-blend-mode:multiply
+                  "
+                />
+
+                {/* Stage 3: final colour integration */}
+                <div
+                  className="
+                    absolute bottom-0 inset-x-0
+                    h-24 sm:h-32
+                    bg-gradient-to-t
+                    from-[#020617]
+                    to-transparent
+                  "
+                />
+              </div>
 
               {/* Micro edge blur — line breaker only */}
               <div
