@@ -1,6 +1,6 @@
 import type { DurationPreset } from '@/lib/voteExpiry';
 
-export type QuestionStatus = 'open' | 'closed';
+export type QuestionStatus = 'open' | 'closed' | 'scheduled';
 
 export interface Option {
   id: string;
@@ -13,9 +13,16 @@ export interface Question {
   description?: string;
   options: Option[];
   status: QuestionStatus;
-  createdAt: number;
+  createdAt?: number | Date | string;
   durationPreset?: DurationPreset;
-  expiresAt?: number | Date | null;
+  expiresAt?: number | Date | string | null;
+  startsAt?: number | Date | string | null;
+  showLiveResults?: boolean;
+  specialType?: 'factor_vote_2026' | string;
+  documents?: {
+    myreside?: { label: string; href: string }[];
+    newton?: { label: string; href: string }[];
+  };
   voteTotals?: Record<string, number>;
 }
 

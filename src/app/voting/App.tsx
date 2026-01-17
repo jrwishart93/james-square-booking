@@ -4,6 +4,7 @@ import Navigation from './components/Navigation';
 import AskQuestion from './components/AskQuestion';
 import VotePage from './components/Vote';
 import Results from './components/Results';
+import OwnersVotingGate from './components/OwnersVotingGate';
 
 const App: React.FC = () => {
   return (
@@ -45,6 +46,14 @@ const App: React.FC = () => {
             <Routes>
               <Route path="/" element={<AskQuestion />} />
               <Route path="/vote" element={<VotePage />} />
+              <Route
+                path="/owners"
+                element={
+                  <OwnersVotingGate>
+                    <VotePage />
+                  </OwnersVotingGate>
+                }
+              />
               <Route path="/results" element={<Results />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
