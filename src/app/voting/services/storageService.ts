@@ -30,16 +30,34 @@ const mapQuestionDoc = (snap: { id: string; data: () => Record<string, unknown> 
   const createdAtTs =
     typeof data.createdAt === 'number'
       ? data.createdAt
-      : (data.createdAt as { toMillis?: () => number })?.toMillis?.();
+      : typeof data.createdAt === 'string'
+        ? new Date(data.createdAt).getTime()
+        : data.createdAt instanceof Date
+          ? data.createdAt.getTime()
+          : (data.createdAt as { toMillis?: () => number })?.toMillis?.();
   const expiresAtValue =
     typeof data.expiresAt === 'number'
       ? data.expiresAt
-      : (data.expiresAt as { toMillis?: () => number })?.toMillis?.();
+      : typeof data.expiresAt === 'string'
+        ? new Date(data.expiresAt).getTime()
+        : data.expiresAt instanceof Date
+          ? data.expiresAt.getTime()
+          : (data.expiresAt as { toMillis?: () => number })?.toMillis?.();
   const expiresAt = typeof expiresAtValue === 'number' ? new Date(expiresAtValue) : null;
+  const startsAtValue =
+    typeof data.startsAt === 'number'
+      ? data.startsAt
+      : typeof data.startsAt === 'string'
+        ? new Date(data.startsAt).getTime()
+        : data.startsAt instanceof Date
+          ? data.startsAt.getTime()
+          : (data.startsAt as { toMillis?: () => number })?.toMillis?.();
+  const startsAt = typeof startsAtValue === 'number' ? new Date(startsAtValue) : null;
   const rawPreset = typeof data.durationPreset === 'string' ? data.durationPreset : null;
   const durationPreset = DURATION_PRESETS.some((p) => p.value === rawPreset)
     ? (rawPreset as DurationPreset)
     : undefined;
+  const rawStatus = typeof data.status === 'string' ? data.status.toLowerCase() : 'closed';
   const optionsRaw = Array.isArray(data.options) ? data.options : [];
   const options = optionsRaw
     .map((opt, idx) => {
@@ -70,10 +88,20 @@ const mapQuestionDoc = (snap: { id: string; data: () => Record<string, unknown> 
     id: snap.id,
     title: typeof data.title === 'string' ? data.title : 'Untitled question',
     description: typeof data.description === 'string' ? data.description : undefined,
-    status: typeof data.status === 'string' && data.status.toLowerCase() === 'open' ? 'open' : 'closed',
+    status: rawStatus === 'open' || rawStatus === 'scheduled' ? rawStatus : 'closed',
     createdAt: createdAtTs ?? Date.now(),
     durationPreset: durationPreset ?? '1m',
     expiresAt,
+    startsAt,
+    audience: typeof data.audience === 'string' ? data.audience : undefined,
+    showLiveResults: typeof data.showLiveResults === 'boolean' ? data.showLiveResults : undefined,
+    specialType: typeof data.specialType === 'string' ? data.specialType : undefined,
+    documents: typeof data.documents === 'object' && data.documents
+      ? (data.documents as {
+          myreside?: { label: string; href: string }[];
+          newton?: { label: string; href: string }[];
+        })
+      : undefined,
     options,
     voteTotals,
   };

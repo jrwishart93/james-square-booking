@@ -1,14 +1,14 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { collection, doc, getDoc, onSnapshot, query, where } from 'firebase/firestore';
 import { FirebaseError } from 'firebase/app';
 import { getExistingVoteForUser, getQuestions, normalizeFlat, submitVote } from '../services/storageService';
 import { auth, db } from '@/lib/firebase';
-import { Question, Vote } from '../types';
+import { Question, Vote, VotingAudience } from '../types';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
-import { ArrowRight, AlertCircle, Check, Loader2 } from 'lucide-react';
+import { ArrowRight, AlertCircle, BarChart3, CalendarCheck2, CalendarClock, Check, Clock, Loader2 } from 'lucide-react';
 import { getVoteStatus } from '@/lib/voteExpiry';
 import { lightHaptic } from '@/lib/haptics';
 
@@ -19,7 +19,11 @@ const deriveFirstName = (user: User | null): string => {
   return first ? first.charAt(0).toUpperCase() + first.slice(1) : '';
 };
 
-const VotePage: React.FC = () => {
+type VotePageProps = {
+  audienceFilter?: VotingAudience;
+};
+
+const VotePage: React.FC<VotePageProps> = ({ audienceFilter }) => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
@@ -37,6 +41,9 @@ const VotePage: React.FC = () => {
   const [existingVote, setExistingVote] = useState<Vote | null>(null);
   const [duplicateMessage, setDuplicateMessage] = useState<string | null>(null);
   const [now, setNow] = useState<number>(() => Date.now());
+  const [liveTotals, setLiveTotals] = useState<Record<string, number>>({});
+  const [liveTotalVotes, setLiveTotalVotes] = useState(0);
+  const [isLoadingResults, setIsLoadingResults] = useState(false);
 
   // Load username from session storage if available (UX convenience)
   useEffect(() => {
@@ -49,6 +56,12 @@ const VotePage: React.FC = () => {
   useEffect(() => {
     const interval = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(interval);
+  }, []);
+
+  const toDate = useCallback((value?: Date | string | number | null) => {
+    if (!value) return null;
+    if (value instanceof Date) return value;
+    return new Date(value);
   }, []);
 
   // Keep auth state in sync and prefill the name from the signed-in user
@@ -99,17 +112,21 @@ const VotePage: React.FC = () => {
     try {
       const questions = await getQuestions();
       const nowDate = new Date();
-      const openQuestions = questions.filter((q) => {
-        const expiresAt =
-          q.expiresAt instanceof Date
-            ? q.expiresAt
-            : q.expiresAt
-              ? new Date(q.expiresAt)
-              : null;
-        const status = getVoteStatus(nowDate, expiresAt);
-        return q.status === 'open' && !status.isExpired;
+      const getStatusForQuestion = (question: Question) => {
+        const startsAt = toDate(question.startsAt);
+        const expiresAt = toDate(question.expiresAt);
+        return getVoteStatus(nowDate, startsAt, expiresAt);
+      };
+      const filtered = questions.filter((q) => {
+        const audience = q.audience ?? 'residents';
+        if (audienceFilter && audience !== audienceFilter) return false;
+        if (q.status === 'closed') return false;
+        const status = getStatusForQuestion(q);
+        return status.phase !== 'closed';
       });
-      const nextQ = openQuestions[0] ?? questions[0] ?? null;
+      const openQuestion = filtered.find((q) => getStatusForQuestion(q).phase === 'open');
+      const scheduledQuestion = filtered.find((q) => getStatusForQuestion(q).phase === 'scheduled');
+      const nextQ = openQuestion ?? scheduledQuestion ?? null;
 
       if (nextQ) {
         setCurrentQuestion(nextQ);
@@ -127,7 +144,7 @@ const VotePage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [navigate]);
+  }, [audienceFilter, navigate, toDate]);
 
   useEffect(() => {
     loadNextQuestion();
@@ -191,15 +208,11 @@ const VotePage: React.FC = () => {
 
     setError(null);
 
-    const expiresAt =
-      currentQuestion.expiresAt instanceof Date
-        ? currentQuestion.expiresAt
-        : currentQuestion.expiresAt
-          ? new Date(currentQuestion.expiresAt)
-          : null;
-    const voteStatus = getVoteStatus(new Date(), expiresAt);
-    if (voteStatus.isExpired || currentQuestion.status !== 'open') {
-      setError('Voting is closed for this question.');
+    const startsAt = toDate(currentQuestion.startsAt);
+    const expiresAt = toDate(currentQuestion.expiresAt);
+    const voteStatus = getVoteStatus(new Date(), startsAt, expiresAt);
+    if (!voteStatus.isOpen || currentQuestion.status === 'closed') {
+      setError(voteStatus.phase === 'scheduled' ? 'Voting has not yet opened.' : 'Voting is closed for this question.');
       return;
     }
 
@@ -261,13 +274,10 @@ const VotePage: React.FC = () => {
 
   const normalizedFlat = normalizeFlat(flat);
   const trimmedName = userName.trim();
-  const expiresAtDate =
-    currentQuestion?.expiresAt instanceof Date
-      ? currentQuestion.expiresAt
-      : currentQuestion?.expiresAt
-        ? new Date(currentQuestion.expiresAt)
-        : null;
-  const voteStatus = getVoteStatus(new Date(now), expiresAtDate);
+  const startsAtDate = toDate(currentQuestion?.startsAt);
+  const expiresAtDate = toDate(currentQuestion?.expiresAt);
+  const voteStatus = getVoteStatus(new Date(now), startsAtDate, expiresAtDate);
+  const isScheduled = voteStatus.phase === 'scheduled';
   const canSubmit = Boolean(
     selectedOptionId &&
     trimmedName &&
@@ -276,10 +286,67 @@ const VotePage: React.FC = () => {
     currentUser &&
     !isSubmitting &&
     !isCheckingExistingVote,
-  );
-  const isClosed = voteStatus.isExpired || currentQuestion?.status !== 'open';
+  ) && voteStatus.isOpen;
+  const isClosed = voteStatus.phase === 'closed' || currentQuestion?.status === 'closed';
   const hasExistingVote = Boolean(existingVote);
   const hasChangedVote = hasExistingVote && selectedOptionId !== existingVote?.optionId;
+  const canViewResults =
+    voteStatus.phase === 'closed' ||
+    (currentQuestion?.showLiveResults && Boolean(existingVote));
+  const isFactorVote = currentQuestion?.specialType === 'factor_vote_2026';
+  const showScheduledNotice =
+    isScheduled && (isFactorVote || Boolean(currentQuestion?.startsAt));
+  const showDocuments = isFactorVote || Boolean(currentQuestion?.documents);
+  const documents = currentQuestion?.documents ?? {
+    myreside: [
+      { label: 'View proposal (PDF)', href: '/documents/factor-vote-2026/myreside-proposal.pdf' },
+      { label: 'View cost summary (PDF)', href: '/documents/factor-vote-2026/myreside-costs.pdf' },
+    ],
+    newton: [
+      { label: 'View proposal (PDF)', href: '/documents/factor-vote-2026/newton-proposal.pdf' },
+      { label: 'View cost summary (PDF)', href: '/documents/factor-vote-2026/newton-costs.pdf' },
+    ],
+  };
+  const myresideDocs = documents.myreside ?? [];
+  const newtonDocs = documents.newton ?? [];
+  const questionId = currentQuestion?.id ?? null;
+
+  useEffect(() => {
+    if (!questionId || !canViewResults) {
+      setLiveTotals({});
+      setLiveTotalVotes(0);
+      setIsLoadingResults(false);
+      return;
+    }
+
+    setIsLoadingResults(true);
+    const votesQuery = query(
+      collection(db, 'voting_votes'),
+      where('questionId', '==', questionId),
+    );
+    const unsubscribe = onSnapshot(
+      votesQuery,
+      (snapshot) => {
+        const counts = snapshot.docs.reduce<Record<string, number>>((acc, docSnap) => {
+          const data = docSnap.data() as Record<string, unknown>;
+          const optionId = typeof data.optionId === 'string' ? data.optionId : null;
+          if (!optionId) return acc;
+          acc[optionId] = (acc[optionId] ?? 0) + 1;
+          return acc;
+        }, {});
+        const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
+        setLiveTotals(counts);
+        setLiveTotalVotes(total);
+        setIsLoadingResults(false);
+      },
+      (snapshotError) => {
+        console.error('Failed to load live results', snapshotError);
+        setIsLoadingResults(false);
+      },
+    );
+
+    return () => unsubscribe();
+  }, [canViewResults, questionId]);
 
   if (isLoading) {
     return (
@@ -311,9 +378,11 @@ const VotePage: React.FC = () => {
           <div className="flex justify-between items-start mb-4">
             <span
               className={`inline-flex px-3 py-1 text-xs font-bold tracking-wider uppercase rounded-full border shadow-[0_6px_20px_rgba(16,185,129,0.15)] ${
-                isClosed
-                  ? 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-white/10 dark:text-white/80 dark:border-white/20'
-                  : 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-100 dark:border-emerald-300/60'
+                voteStatus.phase === 'open'
+                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-100 dark:border-emerald-300/60'
+                  : voteStatus.phase === 'scheduled'
+                    ? 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/15 dark:text-amber-100 dark:border-amber-300/60'
+                    : 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-white/10 dark:text-white/80 dark:border-white/20'
               }`}
             >
               {voteStatus.label}
@@ -327,6 +396,26 @@ const VotePage: React.FC = () => {
               {currentQuestion.description}
             </p>
           )}
+          {isFactorVote && (
+            <div className="mt-4 space-y-2 text-sm text-slate-600">
+              <div className="flex items-center gap-2">
+                <CalendarClock size={16} className="text-slate-500" />
+                <span>Presentations: Wed 21 Jan 2026, 18:00–20:00</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Clock size={16} className="text-slate-500" />
+                <span>Voting opens: Wed 21 Jan 2026, 20:00</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CalendarCheck2 size={16} className="text-slate-500" />
+                <span>Voting closes: Fri 23 Jan 2026, 17:00</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <BarChart3 size={16} className="text-slate-500" />
+                <span>Live results available after you vote</span>
+              </div>
+            </div>
+          )}
           {hasExistingVote && (
             <div className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-2 rounded-full shadow-[0_6px_20px_rgba(16,185,129,0.12)]">
               <Check size={14} />
@@ -334,6 +423,51 @@ const VotePage: React.FC = () => {
                 You voted: <span className="text-emerald-900">{currentQuestion.options.find(o => o.id === existingVote?.optionId)?.label ?? existingVote?.optionId}</span>
               </span>
               {!isClosed && <span className="text-emerald-700 font-medium">• Change your answer anytime</span>}
+            </div>
+          )}
+          {canViewResults && (
+            <div className="mt-4 rounded-2xl border border-slate-200 bg-white/80 p-4 shadow-[0_12px_30px_rgba(15,23,42,0.08)]">
+              <div className="flex items-center gap-2 text-sm font-semibold text-slate-800 mb-3">
+                <BarChart3 size={16} className="text-cyan-600" />
+                Live results so far
+              </div>
+              {isLoadingResults ? (
+                <div className="flex items-center gap-2 text-sm text-slate-500">
+                  <Loader2 className="w-4 h-4 animate-spin text-cyan-500" />
+                  Loading results...
+                </div>
+              ) : liveTotalVotes === 0 ? (
+                <p className="text-sm text-slate-500">No votes recorded yet.</p>
+              ) : (
+                <div className="space-y-3">
+                  {currentQuestion.options.map((option) => {
+                    const count = liveTotals[option.id] ?? 0;
+                    const percentage = liveTotalVotes > 0
+                      ? Math.round((count / liveTotalVotes) * 100)
+                      : 0;
+                    return (
+                      <div key={option.id} className="space-y-1.5">
+                        <div className="flex items-center justify-between text-xs text-slate-600">
+                          <span className="font-medium text-slate-700">{option.label}</span>
+                          <span>{percentage}%</span>
+                        </div>
+                        <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden ring-1 ring-slate-200">
+                          <div
+                            className="h-full rounded-full transition-all duration-700 ease-out"
+                            style={{
+                              width: `${percentage}%`,
+                              background: 'linear-gradient(90deg, #22d3ee 0%, #6366f1 100%)',
+                            }}
+                          />
+                        </div>
+                        <div className="text-[11px] text-slate-500 text-right">
+                          {count} vote{count !== 1 ? 's' : ''}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -395,12 +529,66 @@ const VotePage: React.FC = () => {
             </p>
           </div>
 
+          {showScheduledNotice && (
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-amber-900">
+              <p className="text-sm font-semibold">Voting has not yet opened</p>
+              <p className="text-xs text-amber-800 mt-1">
+                Voting will open at <span className="font-semibold">20:00 on Wednesday 21 January 2026</span>, once the
+                factor presentations have concluded.
+              </p>
+            </div>
+          )}
+
+          {showDocuments && (
+            <details className="rounded-2xl border border-slate-200 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.08)]">
+              <summary className="cursor-pointer list-none px-5 py-4 text-sm font-semibold text-slate-800 flex items-center justify-between">
+                <span>Review factor documents</span>
+                <span className="text-xs text-slate-500">View PDFs</span>
+              </summary>
+              <div className="px-5 pb-5 pt-1 grid gap-4 md:grid-cols-2">
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 shadow-[0_10px_24px_rgba(15,23,42,0.08)]">
+                  <p className="text-sm font-semibold text-slate-900 mb-3">Myreside</p>
+                  <div className="flex flex-col gap-2">
+                    {myresideDocs.map((doc) => (
+                      <a
+                        key={doc.href}
+                        href={doc.href}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center justify-center rounded-full border border-cyan-200 bg-white px-4 py-2 text-xs font-semibold text-cyan-700 transition hover:bg-cyan-50"
+                      >
+                        {doc.label}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 shadow-[0_10px_24px_rgba(15,23,42,0.08)]">
+                  <p className="text-sm font-semibold text-slate-900 mb-3">Newton</p>
+                  <div className="flex flex-col gap-2">
+                    {newtonDocs.map((doc) => (
+                      <a
+                        key={doc.href}
+                        href={doc.href}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center justify-center rounded-full border border-cyan-200 bg-white px-4 py-2 text-xs font-semibold text-cyan-700 transition hover:bg-cyan-50"
+                      >
+                        {doc.label}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </details>
+          )}
+
           {/* Options */}
           <div className="space-y-3">
             <label className="block text-sm font-semibold text-slate-800 ml-1">Select your choice:</label>
             {currentQuestion.options.map((option) => {
               const isSelected = selectedOptionId === option.id;
               const isPrevSelection = existingVote?.optionId === option.id;
+              const isDisabled = !voteStatus.isOpen;
               return (
                 <label
                   key={option.id}
@@ -410,6 +598,7 @@ const VotePage: React.FC = () => {
                       ? 'border-cyan-400/70 bg-cyan-50 shadow-[0_15px_40px_rgba(6,182,212,0.18)]'
                       : 'border-slate-200 bg-white hover:bg-slate-50 hover:border-cyan-100'
                     }
+                    ${isDisabled ? 'cursor-not-allowed opacity-70' : ''}
                   `}
                 >
                   <input
@@ -419,7 +608,7 @@ const VotePage: React.FC = () => {
                     checked={isSelected}
                     onChange={() => setSelectedOptionId(option.id)}
                     className="sr-only" 
-                    disabled={isClosed}
+                    disabled={isDisabled}
                   />
                   <div className={`
                     flex-shrink-0 w-5 h-5 rounded-full border flex items-center justify-center mr-4 transition-colors
@@ -466,7 +655,7 @@ const VotePage: React.FC = () => {
             type="submit"
             fullWidth
             isLoading={isSubmitting}
-            disabled={!canSubmit || isClosed}
+            disabled={!canSubmit}
           >
             {hasExistingVote ? 'Update Vote' : 'Submit Vote'} <ArrowRight size={16} className="ml-2" />
           </Button>

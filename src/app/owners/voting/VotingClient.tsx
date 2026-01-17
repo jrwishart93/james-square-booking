@@ -236,13 +236,19 @@ export default function OwnersVotingPage() {
 
   const handleSubmitVote = async (event: React.FormEvent, question: Question) => {
     event.preventDefault();
+    const startsAt =
+      question.startsAt instanceof Date
+        ? question.startsAt
+        : question.startsAt
+          ? new Date(question.startsAt)
+          : null;
     const expiresAt =
       question.expiresAt instanceof Date
         ? question.expiresAt
         : question.expiresAt
           ? new Date(question.expiresAt)
           : null;
-    const voteStatus = getVoteStatus(new Date(), expiresAt);
+    const voteStatus = getVoteStatus(new Date(), startsAt, expiresAt);
     if (voteStatus.isExpired) {
       setVoteErrors((prev) => ({
         ...prev,
@@ -548,13 +554,19 @@ export default function OwnersVotingPage() {
                   questions
                     .filter((q) => q.status === "open")
                     .map((question) => {
+                      const startsAt =
+                        question.startsAt instanceof Date
+                          ? question.startsAt
+                          : question.startsAt
+                            ? new Date(question.startsAt)
+                            : null;
                       const expiresAt =
                         question.expiresAt instanceof Date
                           ? question.expiresAt
                           : question.expiresAt
                             ? new Date(question.expiresAt)
                             : null;
-                      const voteStatus = getVoteStatus(new Date(now), expiresAt);
+                      const voteStatus = getVoteStatus(new Date(now), startsAt, expiresAt);
                       const error = voteErrors[question.id];
                       const selected = selectedOptions[question.id] ?? null;
                       const selectionDisabled = authLoading || !isAuthenticated || voteStatus.isExpired;
@@ -721,13 +733,19 @@ export default function OwnersVotingPage() {
                   <p className="text-slate-600 dark:text-slate-300">No questions yet.</p>
                 ) : (
                   questionResults.map(({ question, results, totalVotes }) => {
+                    const startsAt =
+                      question.startsAt instanceof Date
+                        ? question.startsAt
+                        : question.startsAt
+                          ? new Date(question.startsAt)
+                          : null;
                     const expiresAt =
                       question.expiresAt instanceof Date
                         ? question.expiresAt
                         : question.expiresAt
                           ? new Date(question.expiresAt)
                           : null;
-                    const voteStatus = getVoteStatus(new Date(now), expiresAt);
+                    const voteStatus = getVoteStatus(new Date(now), startsAt, expiresAt);
                     const chartData = results.map(({ option, count }) => ({
                       name: option.label,
                       value: count,
