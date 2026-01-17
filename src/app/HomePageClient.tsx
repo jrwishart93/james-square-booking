@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import MobileAppPoster from '@/components/home/MobileAppPoster';
 
@@ -192,61 +192,76 @@ function PhotoCarousel() {
  *  Page
  *  ------------------------------------------------ */
 export default function HomePageClient() {
-  const reduceMotion = useReducedMotion();
-
   return (
     <main className="px-4 py-10 sm:py-14">
       {/* HERO */}
       <section className="mx-auto max-w-6xl">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45 }}
-          className={`${glass} overflow-hidden`}
-        >
+        <div className={`${glass} overflow-hidden`}>
           {/* Top image */}
-          <div className="relative overflow-hidden">
-            <motion.div
-              className="absolute inset-0"
-              initial={{ scale: 1, y: 0 }}
-              animate={reduceMotion ? { scale: 1, y: 0 } : { scale: 1.06, y: -8 }}
-              transition={{
-                duration: reduceMotion ? 0 : 45,
-                ease: 'linear',
-              }}
-              style={{
-                willChange: 'transform',
-                maskImage: 'radial-gradient(ellipse at center, black 65%, transparent 100%)',
-                WebkitMaskImage:
-                  'radial-gradient(ellipse at center, black 65%, transparent 100%)',
-              }}
-            >
-              {/* Light mode – daytime drone */}
-              <Image
-                src="/images/buildingimages/Day-drone-js.png"
-                alt="James Square aerial daytime"
-                width={1536}
-                height={1024}
-                priority
-                className="w-full h-[200px] sm:h-[320px] object-cover block dark:hidden"
+          <div className="relative overflow-hidden rounded-2xl">
+            <div className="relative h-[200px] sm:h-[320px] w-full">
+              {/* Hero image layer */}
+              <div className="absolute inset-0">
+                {/* Light mode image */}
+                <Image
+                  src="/images/buildingimages/Day-drone-js.png"
+                  alt="James Square aerial view"
+                  fill
+                  priority
+                  sizes="(min-width: 1024px) 1152px, 100vw"
+                  className="object-cover block dark:hidden"
+                />
+
+                {/* Dark mode image */}
+                <Image
+                  src="/images/buildingimages/Night-drone-js.png"
+                  alt="James Square aerial view at night"
+                  fill
+                  priority
+                  sizes="(min-width: 1024px) 1152px, 100vw"
+                  className="object-cover hidden dark:block"
+                />
+              </div>
+
+              {/* Light mode bottom dissolve */}
+              <div
+                className="
+                  pointer-events-none absolute bottom-0 inset-x-0
+                  h-20 sm:h-24
+                  bg-gradient-to-t
+                  from-[#f4f7fa]
+                  via-[#f4f7fa]/90
+                  to-transparent
+                  dark:hidden
+                "
               />
 
-              {/* Dark mode – nighttime drone */}
-              <Image
-                src="/images/buildingimages/Night-drone-js.png"
-                alt="James Square aerial nighttime"
-                width={1536}
-                height={1024}
-                priority
-                className="w-full h-[200px] sm:h-[320px] object-cover hidden dark:block"
+              {/* Dark mode bottom dissolve */}
+              <div
+                className="
+                  pointer-events-none absolute bottom-0 inset-x-0
+                  h-28 sm:h-36
+                  bg-gradient-to-t
+                  from-[#020617]
+                  via-[#020617]/92
+                  to-transparent
+                  hidden dark:block
+                "
               />
-            </motion.div>
 
-            <div className="relative h-[200px] sm:h-[320px]" />
+              {/* Micro seam blur – prevents visible line */}
+              <div
+                className="
+                  pointer-events-none absolute bottom-0 inset-x-0
+                  h-6 sm:h-8
+                  backdrop-blur-[0.75px]
+                "
+              />
+            </div>
           </div>
 
           <div className="p-6 sm:p-10">
-            <header className="text-center">
+            <header className="text-center -mt-6 sm:-mt-8">
               <h1 className="text-3xl sm:text-4xl font-bold leading-tight">
                 James <span className="text-slate-500">Square</span>
                 <br />
@@ -287,7 +302,7 @@ export default function HomePageClient() {
               </div>
             </header>
           </div>
-        </motion.div>
+        </div>
       </section>
 
       {/* MAIN ICON GRID */}
