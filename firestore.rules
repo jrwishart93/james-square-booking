@@ -76,6 +76,15 @@ service cloud.firestore {
       allow create, update, delete: if isSignedIn() && isAdmin();
     }
 
+    // ────────────── LOCAL PAGE SECTIONS (NEW) ──────────────
+    match /localSections/{sectionId} {
+      // Anyone can read
+      allow read: if true;
+
+      // Only admins can create/update/delete
+      allow create, update, delete: if isSignedIn() && isAdmin();
+    }
+
     // ────────────── MESSAGE BOARD POSTS (UNCHANGED LOGIC) ──────────────
     match /messageBoard/{postId} {
       // Public board
