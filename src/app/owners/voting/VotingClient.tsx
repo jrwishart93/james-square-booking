@@ -236,17 +236,23 @@ export default function OwnersVotingPage() {
 
   const handleSubmitVote = async (event: React.FormEvent, question: Question) => {
     event.preventDefault();
+    const startsAt =
+      question.startsAt instanceof Date
+        ? question.startsAt
+        : question.startsAt
+          ? new Date(question.startsAt)
+          : null;
     const expiresAt =
       question.expiresAt instanceof Date
         ? question.expiresAt
         : question.expiresAt
           ? new Date(question.expiresAt)
           : null;
-    const voteStatus = getVoteStatus(new Date(), expiresAt);
-    if (voteStatus.isExpired) {
+    const voteStatus = getVoteStatus(new Date(), expiresAt, startsAt);
+    if (!voteStatus.isOpen) {
       setVoteErrors((prev) => ({
         ...prev,
-        [question.id]: "Voting is closed for this question.",
+        [question.id]: "Voting is not currently open.",
       }));
       return;
     }
@@ -546,19 +552,39 @@ export default function OwnersVotingPage() {
                   </div>
                 ) : (
                   questions
-                    .filter((q) => q.status === "open")
-                    .map((question) => {
+                    .filter((question) => {
+                      const startsAt =
+                        question.startsAt instanceof Date
+                          ? question.startsAt
+                          : question.startsAt
+                            ? new Date(question.startsAt)
+                            : null;
                       const expiresAt =
                         question.expiresAt instanceof Date
                           ? question.expiresAt
                           : question.expiresAt
                             ? new Date(question.expiresAt)
                             : null;
-                      const voteStatus = getVoteStatus(new Date(now), expiresAt);
+                      return getVoteStatus(new Date(now), expiresAt, startsAt).kind !== "closed";
+                    })
+                    .map((question) => {
+                      const startsAt =
+                        question.startsAt instanceof Date
+                          ? question.startsAt
+                          : question.startsAt
+                            ? new Date(question.startsAt)
+                            : null;
+                      const expiresAt =
+                        question.expiresAt instanceof Date
+                          ? question.expiresAt
+                          : question.expiresAt
+                            ? new Date(question.expiresAt)
+                            : null;
+                      const voteStatus = getVoteStatus(new Date(now), expiresAt, startsAt);
                       const error = voteErrors[question.id];
                       const selected = selectedOptions[question.id] ?? null;
-                      const selectionDisabled = authLoading || !isAuthenticated || voteStatus.isExpired;
-                      const isClosed = voteStatus.isExpired || question.status !== "open";
+                      const selectionDisabled = authLoading || !isAuthenticated || !voteStatus.isOpen;
+                      const isClosed = !voteStatus.isOpen;
                       const alertTone = error === VOTE_RECORDED_MESSAGE
                         ? "success"
                         : error === VIEW_ONLY_MESSAGE
@@ -578,9 +604,11 @@ export default function OwnersVotingPage() {
                             </div>
                             <span
                               className={`inline-flex px-3 py-1 text-xs font-bold uppercase rounded-full border ${
-                                isClosed
+                                voteStatus.kind === "closed"
                                   ? "bg-slate-100 text-slate-600 border-slate-200 dark:bg-white/10 dark:text-white/70 dark:border-white/15"
-                                  : "bg-emerald-500/10 text-emerald-700 border-emerald-500/30 dark:text-emerald-200 dark:bg-emerald-500/15"
+                                  : voteStatus.kind === "scheduled"
+                                    ? "bg-amber-500/10 text-amber-700 border-amber-500/30 dark:text-amber-200 dark:bg-amber-500/15"
+                                    : "bg-emerald-500/10 text-emerald-700 border-emerald-500/30 dark:text-emerald-200 dark:bg-emerald-500/15"
                               }`}
                             >
                               {voteStatus.label}
@@ -598,7 +626,7 @@ export default function OwnersVotingPage() {
                                   <label
                                     key={opt.id}
                                     onClick={() => {
-                                      if (voteStatus.isExpired) return;
+                                      if (!voteStatus.isOpen) return;
                                       if (selectionDisabled) {
                                         setAuthModalOpen(true);
                                         setVoteErrors((prev) => ({ ...prev, [question.id]: VIEW_ONLY_MESSAGE }));
@@ -643,10 +671,12 @@ export default function OwnersVotingPage() {
                               })}
                             </div>
 
-                            {voteStatus.isExpired && (
+                            {!voteStatus.isOpen && (
                               <div className="flex items-center gap-3 text-sm text-slate-600 bg-slate-100 border border-slate-200 rounded-xl p-4 dark:bg-white/10 dark:border-white/15 dark:text-white/80">
                                 <AlertCircle size={16} className="text-slate-500 dark:text-white/70" />
-                                Voting is closed for this question.
+                                {voteStatus.kind === "scheduled"
+                                  ? "Voting has not opened yet. Please check back once the start time arrives."
+                                  : "Voting is closed for this question."}
                               </div>
                             )}
 
@@ -687,7 +717,7 @@ export default function OwnersVotingPage() {
                                   !flat ||
                                   !currentUser ||
                                   authLoading ||
-                                  voteStatus.isExpired
+                                  !voteStatus.isOpen
                                 }
                               >
                                 Submit Vote
@@ -721,13 +751,19 @@ export default function OwnersVotingPage() {
                   <p className="text-slate-600 dark:text-slate-300">No questions yet.</p>
                 ) : (
                   questionResults.map(({ question, results, totalVotes }) => {
+                    const startsAt =
+                      question.startsAt instanceof Date
+                        ? question.startsAt
+                        : question.startsAt
+                          ? new Date(question.startsAt)
+                          : null;
                     const expiresAt =
                       question.expiresAt instanceof Date
                         ? question.expiresAt
                         : question.expiresAt
                           ? new Date(question.expiresAt)
                           : null;
-                    const voteStatus = getVoteStatus(new Date(now), expiresAt);
+                    const voteStatus = getVoteStatus(new Date(now), expiresAt, startsAt);
                     const chartData = results.map(({ option, count }) => ({
                       name: option.label,
                       value: count,
@@ -751,9 +787,11 @@ export default function OwnersVotingPage() {
                           <div className="flex items-center gap-3">
                             <span
                               className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full border ${
-                                voteStatus.isExpired
+                                voteStatus.kind === "closed"
                                   ? "bg-slate-100 text-slate-600 border-slate-200 dark:bg-white/10 dark:text-white/70 dark:border-white/15"
-                                  : "bg-emerald-500/10 text-emerald-700 border-emerald-500/30 dark:text-emerald-200 dark:bg-emerald-500/15"
+                                  : voteStatus.kind === "scheduled"
+                                    ? "bg-amber-500/10 text-amber-700 border-amber-500/30 dark:text-amber-200 dark:bg-amber-500/15"
+                                    : "bg-emerald-500/10 text-emerald-700 border-emerald-500/30 dark:text-emerald-200 dark:bg-emerald-500/15"
                               }`}
                             >
                               {voteStatus.label}
