@@ -216,9 +216,6 @@ export default function HomePageClient() {
               }}
               style={{
                 willChange: 'transform',
-                maskImage: 'radial-gradient(ellipse at center, black 65%, transparent 100%)',
-                WebkitMaskImage:
-                  'radial-gradient(ellipse at center, black 65%, transparent 100%)',
               }}
             >
               {/* Light mode – daytime drone */}
@@ -241,6 +238,74 @@ export default function HomePageClient() {
                 className="w-full h-[200px] sm:h-[320px] object-cover hidden dark:block"
               />
             </motion.div>
+
+            {/* Mode-aware hero image dissolve */}
+            <div className="pointer-events-none absolute inset-0">
+              {/* LIGHT MODE — bottom-only, late, soft fade */}
+              <div
+                className="
+                  absolute bottom-0 inset-x-0
+                  h-24 sm:h-28
+                  bg-gradient-to-t
+                  from-[#f4f7fa]
+                  via-[#f4f7fa]/85
+                  to-transparent
+                  dark:hidden
+                "
+              />
+
+              {/* DARK MODE — subtle top softening (keeps castle clear) */}
+              <div
+                className="
+                  absolute top-0 inset-x-0
+                  h-14 sm:h-18
+                  bg-gradient-to-b
+                  from-black/25
+                  to-transparent
+                  hidden dark:block
+                "
+              />
+
+              {/* DARK MODE — side softening (stronger near bottom) */}
+              <div
+                className="
+                  absolute inset-y-0 left-0 w-10
+                  bg-gradient-to-r
+                  from-black/30 to-transparent
+                  hidden dark:block
+                "
+              />
+              <div
+                className="
+                  absolute inset-y-0 right-0 w-10
+                  bg-gradient-to-l
+                  from-black/30 to-transparent
+                  hidden dark:block
+                "
+              />
+
+              {/* DARK MODE — bottom blend into surface */}
+              <div
+                className="
+                  absolute bottom-0 inset-x-0
+                  h-32 sm:h-40
+                  bg-gradient-to-t
+                  from-[#020617]
+                  via-[#020617]/92
+                  to-transparent
+                  hidden dark:block
+                "
+              />
+
+              {/* Micro blur band — kills visible edge in BOTH modes */}
+              <div
+                className="
+                  absolute bottom-0 inset-x-0
+                  h-36 sm:h-44
+                  backdrop-blur-[1.25px]
+                "
+              />
+            </div>
 
             <div className="relative h-[200px] sm:h-[320px]" />
           </div>
