@@ -227,10 +227,34 @@ export default function HomePageClient() {
               <div
                 className="
                   pointer-events-none absolute bottom-0 inset-x-0
-                  h-20 sm:h-24
+                  h-16 sm:h-20
                   bg-gradient-to-t
                   from-[#f4f7fa]
                   via-[#f4f7fa]/90
+                  to-transparent
+                  dark:hidden
+                "
+              />
+
+              {/* Light mode corner dissolves */}
+              <div
+                className="
+                  pointer-events-none absolute bottom-0 left-0
+                  h-14 sm:h-[72px] w-1/3
+                  bg-gradient-to-tr
+                  from-[#f4f7fa]
+                  via-[#f4f7fa]/85
+                  to-transparent
+                  dark:hidden
+                "
+              />
+              <div
+                className="
+                  pointer-events-none absolute bottom-0 right-0
+                  h-14 sm:h-[72px] w-1/3
+                  bg-gradient-to-tl
+                  from-[#f4f7fa]
+                  via-[#f4f7fa]/85
                   to-transparent
                   dark:hidden
                 "
@@ -240,10 +264,34 @@ export default function HomePageClient() {
               <div
                 className="
                   pointer-events-none absolute bottom-0 inset-x-0
-                  h-28 sm:h-36
+                  h-24 sm:h-28
                   bg-gradient-to-t
                   from-[#020617]
                   via-[#020617]/92
+                  to-transparent
+                  hidden dark:block
+                "
+              />
+
+              {/* Dark mode corner dissolves */}
+              <div
+                className="
+                  pointer-events-none absolute bottom-0 left-0
+                  h-[72px] sm:h-[88px] w-1/3
+                  bg-gradient-to-tr
+                  from-[#020617]
+                  via-[#020617]/90
+                  to-transparent
+                  hidden dark:block
+                "
+              />
+              <div
+                className="
+                  pointer-events-none absolute bottom-0 right-0
+                  h-[72px] sm:h-[88px] w-1/3
+                  bg-gradient-to-tl
+                  from-[#020617]
+                  via-[#020617]/90
                   to-transparent
                   hidden dark:block
                 "
