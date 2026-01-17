@@ -35,7 +35,6 @@ async function seedFactorVote() {
       "Following presentations from the shortlisted factor companies, owners are invited to vote on the appointment of a new property factor to replace Fior Asset & Property. Please review the supporting documents before submitting your vote.",
     options,
     status: "scheduled",
-    audience: "owners",
     startsAt: Timestamp.fromDate(new Date("2026-01-21T20:00:00Z")),
     expiresAt: Timestamp.fromDate(new Date("2026-01-23T17:00:00Z")),
     createdAt: Timestamp.fromDate(new Date()),

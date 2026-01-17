@@ -93,7 +93,6 @@ const mapQuestionDoc = (snap: { id: string; data: () => Record<string, unknown> 
     durationPreset: durationPreset ?? '1m',
     expiresAt,
     startsAt,
-    audience: typeof data.audience === 'string' ? data.audience : undefined,
     showLiveResults: typeof data.showLiveResults === 'boolean' ? data.showLiveResults : undefined,
     specialType: typeof data.specialType === 'string' ? data.specialType : undefined,
     documents: typeof data.documents === 'object' && data.documents

@@ -45,12 +45,12 @@ const App: React.FC = () => {
           <main className="flex-1 w-full overflow-y-auto custom-scrollbar pb-24 md:pb-0 relative z-10">
             <Routes>
               <Route path="/" element={<AskQuestion />} />
-              <Route path="/vote" element={<VotePage audienceFilter="residents" />} />
+              <Route path="/vote" element={<VotePage />} />
               <Route
                 path="/owners"
                 element={
                   <OwnersVotingGate>
-                    <VotePage audienceFilter="owners" />
+                    <VotePage />
                   </OwnersVotingGate>
                 }
               />

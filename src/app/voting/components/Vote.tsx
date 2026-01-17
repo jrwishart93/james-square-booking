@@ -5,7 +5,7 @@ import { collection, doc, getDoc, onSnapshot, query, where } from 'firebase/fire
 import { FirebaseError } from 'firebase/app';
 import { getExistingVoteForUser, getQuestions, normalizeFlat, submitVote } from '../services/storageService';
 import { auth, db } from '@/lib/firebase';
-import { Question, Vote, VotingAudience } from '../types';
+import { Question, Vote } from '../types';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
 import { ArrowRight, AlertCircle, BarChart3, CalendarCheck2, CalendarClock, Check, Clock, Loader2 } from 'lucide-react';
@@ -19,11 +19,7 @@ const deriveFirstName = (user: User | null): string => {
   return first ? first.charAt(0).toUpperCase() + first.slice(1) : '';
 };
 
-type VotePageProps = {
-  audienceFilter?: VotingAudience;
-};
-
-const VotePage: React.FC<VotePageProps> = ({ audienceFilter }) => {
+const VotePage: React.FC = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
@@ -118,8 +114,7 @@ const VotePage: React.FC<VotePageProps> = ({ audienceFilter }) => {
         return getVoteStatus(nowDate, startsAt, expiresAt);
       };
       const filtered = questions.filter((q) => {
-        const audience = q.audience ?? 'residents';
-        if (audienceFilter && audience !== audienceFilter) return false;
+        // Audience-based access is intentionally handled by routing, not question metadata.
         if (q.status === 'closed') return false;
         const status = getStatusForQuestion(q);
         return status.phase !== 'closed';
@@ -144,7 +139,7 @@ const VotePage: React.FC<VotePageProps> = ({ audienceFilter }) => {
     } finally {
       setIsLoading(false);
     }
-  }, [audienceFilter, navigate, toDate]);
+  }, [navigate, toDate]);
 
   useEffect(() => {
     loadNextQuestion();
