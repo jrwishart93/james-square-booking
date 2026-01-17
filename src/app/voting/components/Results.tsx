@@ -188,6 +188,9 @@ const Results: React.FC = () => {
                 ? new Date(stat.question.expiresAt)
                 : null;
           const voteStatus = getVoteStatus(new Date(now), expiresAt, startsAt);
+          const isScheduled = voteStatus.kind === 'scheduled';
+          const isOpen = voteStatus.kind === 'open';
+          const statusLabel = isScheduled ? 'Scheduled' : isOpen ? 'Open' : 'Closed';
 
           return (
           <div key={stat.question.id} className="
@@ -198,7 +201,50 @@ const Results: React.FC = () => {
             shadow-[0_20px_60px_rgba(15,23,42,0.12)] transition-transform hover:-translate-y-1
           ">
             <div className="p-6 border-b border-slate-200 bg-slate-50">
-              <div className="flex items-start justify-between gap-3">
+              <div className="flex flex-col gap-3 md:hidden">
+                <span className="text-xs font-semibold tracking-widest uppercase text-slate-500">
+                  {statusLabel}
+                </span>
+                <h2 className="text-lg font-bold text-slate-900 leading-snug line-clamp-3">
+                  {stat.question.title}
+                </h2>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span
+                      className={`px-3 py-1 text-xs font-semibold rounded-full border ${
+                        isOpen
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                          : isScheduled
+                            ? 'bg-amber-50 text-amber-700 border-amber-200'
+                            : 'bg-slate-100 text-slate-700 border-slate-200'
+                      }`}
+                    >
+                      {statusLabel}
+                    </span>
+                    <span className="text-sm text-slate-500">
+                      {stat.totalVotes} vote{stat.totalVotes !== 1 ? 's' : ''}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    className="
+                      w-8 h-8
+                      flex items-center justify-center
+                      rounded-full
+                      text-slate-400
+                      hover:bg-slate-100
+                      hover:text-slate-700
+                      transition
+                    "
+                    aria-label={openDetailsId === stat.question.id ? 'Close details' : 'Open details'}
+                    onClick={() => setOpenDetailsId((prev) => (prev === stat.question.id ? null : stat.question.id))}
+                  >
+                    ×
+                  </button>
+                </div>
+              </div>
+
+              <div className="hidden md:flex items-start justify-between gap-3">
                 <h2 className="text-lg font-bold text-slate-900 leading-snug">{stat.question.title}</h2>
                 <span
                   className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full border ${
@@ -215,43 +261,45 @@ const Results: React.FC = () => {
               {stat.question.description && (
                  <p className="text-slate-600 text-sm mt-2 leading-relaxed">{stat.question.description}</p>
               )}
-              <div className="mt-4 flex items-center text-xs text-slate-600 font-medium">
+              <div className="mt-4 hidden md:flex items-center text-xs text-slate-600 font-medium">
                  <span className="text-cyan-700">{stat.totalVotes}</span> <span className="ml-1 mr-1">votes</span>
                  <span className="mx-2 text-slate-300">•</span>
                  <span>{new Date(stat.question.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
               </div>
             </div>
 
-            <div className="p-6 space-y-5">
+            <div className="p-6">
               {stat.totalVotes === 0 ? (
                 <div className="text-center py-6 text-slate-500 text-sm italic">
                   No votes recorded yet.
                 </div>
               ) : (
-                stat.results.map((res) => (
-                  <div key={res.option.id} className="space-y-2">
-                    {/* Header: Label + Percentage */}
-                    <div className="flex justify-between items-end">
-                      <span className="text-sm font-medium text-slate-700">{res.option.label}</span>
-                      <span className="text-sm font-bold text-slate-900">{res.percentage}%</span>
-                    </div>
+                <div className="mt-4 space-y-3">
+                  {stat.results.map((res) => (
+                    <div key={res.option.id} className="space-y-2">
+                      {/* Header: Label + Percentage */}
+                      <div className="flex justify-between items-end">
+                        <span className="text-sm font-medium text-slate-700">{res.option.label}</span>
+                        <span className="text-sm font-bold text-slate-900">{res.percentage}%</span>
+                      </div>
 
-                    {/* Visual Bar Background */}
-                    <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden ring-1 ring-slate-200">
-                      {/* Visual Bar Fill */}
-                      <div
-                        className="h-full rounded-full transition-all duration-1000 ease-out relative shadow-[0_10px_25px_rgba(8,145,178,0.25)]"
-                        style={{
-                          width: `${res.percentage}%`,
-                          background: 'linear-gradient(90deg, #6366f1 0%, #06b6d4 100%)'
-                        }}
-                      />
+                      {/* Visual Bar Background */}
+                      <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden ring-1 ring-slate-200">
+                        {/* Visual Bar Fill */}
+                        <div
+                          className="h-full rounded-full transition-all duration-1000 ease-out relative shadow-[0_10px_25px_rgba(8,145,178,0.25)]"
+                          style={{
+                            width: `${res.percentage}%`,
+                            background: 'linear-gradient(90deg, #6366f1 0%, #06b6d4 100%)'
+                          }}
+                        />
+                      </div>
+                      <div className="text-xs text-slate-500 text-right">
+                        {res.count} vote{res.count !== 1 ? 's' : ''}
+                      </div>
                     </div>
-                    <div className="text-xs text-slate-500 text-right">
-                      {res.count} vote{res.count !== 1 ? 's' : ''}
-                    </div>
-                  </div>
-                ))
+                  ))}
+                </div>
               )}
             </div>
 
