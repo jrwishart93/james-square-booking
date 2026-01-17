@@ -67,6 +67,7 @@ export default function OwnersVotingPage() {
   }>({});
   const [askSuccess, setAskSuccess] = useState(false);
   const [submittingQuestion, setSubmittingQuestion] = useState(false);
+  const [askSubmitError, setAskSubmitError] = useState<string | null>(null);
   const [durationPreset, setDurationPreset] = useState<DurationPreset>("1m");
   const [useCustomWindow, setUseCustomWindow] = useState(false);
   const [startsAt, setStartsAt] = useState("");
@@ -253,7 +254,11 @@ export default function OwnersVotingPage() {
 
   const handleCreateQuestion = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!validateAsk()) return;
+    setAskSubmitError(null);
+    if (!validateAsk()) {
+      setAskSubmitError("Please fix the highlighted fields before publishing.");
+      return;
+    }
     setSubmittingQuestion(true);
     try {
       const filled = options.filter((o) => o.trim().length > 0);
@@ -270,6 +275,7 @@ export default function OwnersVotingPage() {
       const qs = await getQuestions();
       setQuestions(qs);
       setAskSuccess(true);
+      setAskSubmitError(null);
       setTitle("");
       setDescription("");
       setOptions(["", ""]);
@@ -280,6 +286,7 @@ export default function OwnersVotingPage() {
       setActiveTab("vote");
     } catch (error) {
       console.error("Failed to add question", error);
+      setAskSubmitError("Failed to publish question. Please try again.");
     } finally {
       setSubmittingQuestion(false);
     }
@@ -480,6 +487,12 @@ export default function OwnersVotingPage() {
                   <div className="flex items-center gap-3 text-sm bg-emerald-500/10 p-4 rounded-xl border border-emerald-500/20 shadow-inner shadow-emerald-900/20 text-emerald-800 dark:text-emerald-200">
                     <CheckCircle2 size={18} className="shrink-0" />
                     Question published. You can switch to the Vote tab to cast the first vote.
+                  </div>
+                )}
+                {askSubmitError && (
+                  <div className="flex items-center gap-3 text-sm bg-red-500/10 p-4 rounded-xl border border-red-500/20 text-red-700 dark:text-red-200">
+                    <AlertCircle size={18} className="shrink-0" />
+                    {askSubmitError}
                   </div>
                 )}
 
