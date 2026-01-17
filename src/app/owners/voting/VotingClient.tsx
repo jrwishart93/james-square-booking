@@ -59,10 +59,18 @@ export default function OwnersVotingPage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [options, setOptions] = useState<string[]>(["", ""]);
-  const [askErrors, setAskErrors] = useState<{ title?: string; options?: string }>({});
+  const [askErrors, setAskErrors] = useState<{
+    title?: string;
+    options?: string;
+    startsAt?: string;
+    endsAt?: string;
+  }>({});
   const [askSuccess, setAskSuccess] = useState(false);
   const [submittingQuestion, setSubmittingQuestion] = useState(false);
   const [durationPreset, setDurationPreset] = useState<DurationPreset>("1m");
+  const [useCustomWindow, setUseCustomWindow] = useState(false);
+  const [startsAt, setStartsAt] = useState("");
+  const [endsAt, setEndsAt] = useState("");
 
   // Vote tab state
   const [voterName, setVoterName] = useState("");
@@ -195,10 +203,41 @@ export default function OwnersVotingPage() {
   }, [questions]);
 
   const validateAsk = () => {
-    const errs: { title?: string; options?: string } = {};
+    const errs: {
+      title?: string;
+      options?: string;
+      startsAt?: string;
+      endsAt?: string;
+    } = {};
     if (!title.trim()) errs.title = "Question title is required";
     const filled = options.filter((o) => o.trim().length > 0);
     if (filled.length < 2) errs.options = "Please provide at least 2 options";
+    if (useCustomWindow) {
+      if (!startsAt) errs.startsAt = "Please choose a start date and time";
+      if (!endsAt) errs.endsAt = "Please choose an end date and time";
+
+      if (startsAt && endsAt) {
+        const startDate = new Date(startsAt);
+        const endDate = new Date(endsAt);
+        const now = new Date();
+
+        if (Number.isNaN(startDate.getTime())) {
+          errs.startsAt = "Start time is invalid";
+        }
+
+        if (Number.isNaN(endDate.getTime())) {
+          errs.endsAt = "End time is invalid";
+        }
+
+        if (endDate <= startDate) {
+          errs.endsAt = "End time must be after the start time";
+        }
+
+        if (startDate <= now) {
+          errs.startsAt = "Start time must be in the future";
+        }
+      }
+    }
     setAskErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -218,7 +257,16 @@ export default function OwnersVotingPage() {
     setSubmittingQuestion(true);
     try {
       const filled = options.filter((o) => o.trim().length > 0);
-      await addQuestion(title.trim(), description.trim(), filled, durationPreset);
+      const customWindow = useCustomWindow
+        ? { startsAt: new Date(startsAt), expiresAt: new Date(endsAt) }
+        : undefined;
+      await addQuestion(
+        title.trim(),
+        description.trim(),
+        filled,
+        useCustomWindow ? undefined : durationPreset,
+        customWindow,
+      );
       const qs = await getQuestions();
       setQuestions(qs);
       setAskSuccess(true);
@@ -226,6 +274,9 @@ export default function OwnersVotingPage() {
       setDescription("");
       setOptions(["", ""]);
       setDurationPreset("1m");
+      setUseCustomWindow(false);
+      setStartsAt("");
+      setEndsAt("");
       setActiveTab("vote");
     } catch (error) {
       console.error("Failed to add question", error);
@@ -432,53 +483,99 @@ export default function OwnersVotingPage() {
                   </div>
                 )}
 
-                <div className="mt-6 space-y-3">
-                  <div className="space-y-1">
+                <div className="mt-6 space-y-4">
+                  <div className="space-y-2">
                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-                      How long should this vote stay open?
+                      Voting window
                     </label>
-                    <div className="space-y-3">
-                      <div className="flex flex-wrap gap-2">
-                        {DURATION_PRESETS.filter((preset) => quickDurations.includes(preset.value)).map((preset) => (
-                          <button
-                            key={preset.value}
-                            type="button"
-                            onClick={() => setDurationPreset(preset.value)}
-                            className={`px-4 py-2 rounded-full text-sm font-semibold transition-all transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70
-          ${
-            durationPreset === preset.value
-              ? "bg-slate-900 text-white shadow-md shadow-black/10 dark:bg-white dark:text-slate-900 scale-[1.03]"
-              : "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-white/10 dark:text-white/80 dark:hover:bg-white/20"
-          }
-        `}
-                          >
-                            {preset.label}
-                          </button>
-                        ))}
-                      </div>
-                      <div className="flex flex-wrap gap-2 pt-1">
-                        {DURATION_PRESETS.filter((preset) => longDurations.includes(preset.value)).map((preset) => (
-                          <button
-                            key={preset.value}
-                            type="button"
-                            onClick={() => setDurationPreset(preset.value)}
-                            className={`px-4 py-2 rounded-full text-sm font-semibold transition-all transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70
-          ${
-            durationPreset === preset.value
-              ? "bg-slate-900 text-white shadow-md shadow-black/10 dark:bg-white dark:text-slate-900 scale-[1.03]"
-              : "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-white/10 dark:text-white/80 dark:hover:bg-white/20"
-          }
-        `}
-                          >
-                            {preset.label}
-                          </button>
-                        ))}
-                      </div>
+                    <div className="space-y-2">
+                      <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+                        <input
+                          type="radio"
+                          name="voting-window"
+                          checked={!useCustomWindow}
+                          onChange={() => setUseCustomWindow(false)}
+                          className="h-4 w-4 text-cyan-600 border-slate-300 focus:ring-cyan-500"
+                        />
+                        Use duration preset
+                      </label>
+                      <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+                        <input
+                          type="radio"
+                          name="voting-window"
+                          checked={useCustomWindow}
+                          onChange={() => setUseCustomWindow(true)}
+                          className="h-4 w-4 text-cyan-600 border-slate-300 focus:ring-cyan-500"
+                        />
+                        Set custom start &amp; end time
+                      </label>
                     </div>
                   </div>
 
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap gap-2">
+                      {DURATION_PRESETS.filter((preset) => quickDurations.includes(preset.value)).map((preset) => (
+                        <button
+                          key={preset.value}
+                          type="button"
+                          onClick={() => setDurationPreset(preset.value)}
+                          disabled={useCustomWindow}
+                          className={`px-4 py-2 rounded-full text-sm font-semibold transition-all transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70
+          ${
+            durationPreset === preset.value
+              ? "bg-slate-900 text-white shadow-md shadow-black/10 dark:bg-white dark:text-slate-900 scale-[1.03]"
+              : "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-white/10 dark:text-white/80 dark:hover:bg-white/20"
+          } ${useCustomWindow ? "opacity-50 cursor-not-allowed" : ""}
+        `}
+                        >
+                          {preset.label}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      {DURATION_PRESETS.filter((preset) => longDurations.includes(preset.value)).map((preset) => (
+                        <button
+                          key={preset.value}
+                          type="button"
+                          onClick={() => setDurationPreset(preset.value)}
+                          disabled={useCustomWindow}
+                          className={`px-4 py-2 rounded-full text-sm font-semibold transition-all transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70
+          ${
+            durationPreset === preset.value
+              ? "bg-slate-900 text-white shadow-md shadow-black/10 dark:bg-white dark:text-slate-900 scale-[1.03]"
+              : "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-white/10 dark:text-white/80 dark:hover:bg-white/20"
+          } ${useCustomWindow ? "opacity-50 cursor-not-allowed" : ""}
+        `}
+                        >
+                          {preset.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {useCustomWindow && (
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <Input
+                        type="datetime-local"
+                        label="Voting starts (UK time)"
+                        value={startsAt}
+                        onChange={(e) => setStartsAt(e.target.value)}
+                        error={askErrors.startsAt}
+                      />
+                      <Input
+                        type="datetime-local"
+                        label="Voting ends (UK time)"
+                        value={endsAt}
+                        onChange={(e) => setEndsAt(e.target.value)}
+                        error={askErrors.endsAt}
+                      />
+                    </div>
+                  )}
+
                   <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Voting will close {DURATION_PRESETS.find((p) => p.value === durationPreset)?.label?.toLowerCase() ?? ""} after publishing.
+                    {useCustomWindow
+                      ? "Voting will open and close automatically based on the schedule above."
+                      : `Voting will close ${DURATION_PRESETS.find((p) => p.value === durationPreset)?.label?.toLowerCase() ?? ""} after publishing.`}
                   </p>
                 </div>
 
