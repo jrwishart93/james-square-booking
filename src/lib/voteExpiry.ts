@@ -38,18 +38,30 @@ export function formatTimeRemaining(ms: number): string {
   return "Closes soon";
 }
 
-export function getVoteStatus(now: Date, expiresAt?: Date | null) {
+export function getVoteStatus(now: Date, expiresAt?: Date | null, startsAt?: Date | null) {
+  if (startsAt && now.getTime() < startsAt.getTime()) {
+    return {
+      isExpired: false,
+      isOpen: false,
+      isScheduled: true,
+      label: 'Scheduled',
+      kind: 'scheduled' as const,
+    };
+  }
+
   if (!expiresAt) {
-    return { isExpired: false, label: "Open", kind: "open" as const };
+    return { isExpired: false, isOpen: true, isScheduled: false, label: "Open", kind: "open" as const };
   }
 
   const ms = expiresAt.getTime() - now.getTime();
   if (ms <= 0) {
-    return { isExpired: true, label: "Closed", kind: "closed" as const };
+    return { isExpired: true, isOpen: false, isScheduled: false, label: "Closed", kind: "closed" as const };
   }
 
   return {
     isExpired: false,
+    isOpen: true,
+    isScheduled: false,
     label: formatTimeRemaining(ms),
     kind: "open" as const,
   };

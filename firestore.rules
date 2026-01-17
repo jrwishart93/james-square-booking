@@ -210,8 +210,10 @@ service cloud.firestore {
       // Anyone can create; basic shape and status validation
       allow create: if request.resource.data.keys().hasAll(['title', 'status', 'createdAt', 'options'])
         && request.resource.data.title is string
-        && request.resource.data.status in ['open', 'closed']
+        && request.resource.data.status in ['open', 'closed', 'scheduled']
         && request.resource.data.options is list
+        && (!('startsAt' in request.resource.data) || request.resource.data.startsAt is timestamp)
+        && (!('expiresAt' in request.resource.data) || request.resource.data.expiresAt is timestamp)
         && (!('voteTotals' in request.resource.data) || request.resource.data.voteTotals is map);
 
       // Admins can update/delete questions

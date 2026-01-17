@@ -99,17 +99,23 @@ const VotePage: React.FC = () => {
     try {
       const questions = await getQuestions();
       const nowDate = new Date();
-      const openQuestions = questions.filter((q) => {
+      const activeQuestions = questions.filter((q) => {
+        const startsAt =
+          q.startsAt instanceof Date
+            ? q.startsAt
+            : q.startsAt
+              ? new Date(q.startsAt)
+              : null;
         const expiresAt =
           q.expiresAt instanceof Date
             ? q.expiresAt
             : q.expiresAt
               ? new Date(q.expiresAt)
               : null;
-        const status = getVoteStatus(nowDate, expiresAt);
-        return q.status === 'open' && !status.isExpired;
+        const status = getVoteStatus(nowDate, expiresAt, startsAt);
+        return status.kind !== 'closed';
       });
-      const nextQ = openQuestions[0] ?? questions[0] ?? null;
+      const nextQ = activeQuestions[0] ?? questions[0] ?? null;
 
       if (nextQ) {
         setCurrentQuestion(nextQ);
@@ -197,9 +203,15 @@ const VotePage: React.FC = () => {
         : currentQuestion.expiresAt
           ? new Date(currentQuestion.expiresAt)
           : null;
-    const voteStatus = getVoteStatus(new Date(), expiresAt);
-    if (voteStatus.isExpired || currentQuestion.status !== 'open') {
-      setError('Voting is closed for this question.');
+    const startsAt =
+      currentQuestion.startsAt instanceof Date
+        ? currentQuestion.startsAt
+        : currentQuestion.startsAt
+          ? new Date(currentQuestion.startsAt)
+          : null;
+    const voteStatus = getVoteStatus(new Date(), expiresAt, startsAt);
+    if (!voteStatus.isOpen) {
+      setError('Voting is not currently open.');
       return;
     }
 
@@ -267,7 +279,13 @@ const VotePage: React.FC = () => {
       : currentQuestion?.expiresAt
         ? new Date(currentQuestion.expiresAt)
         : null;
-  const voteStatus = getVoteStatus(new Date(now), expiresAtDate);
+  const startsAtDate =
+    currentQuestion?.startsAt instanceof Date
+      ? currentQuestion.startsAt
+      : currentQuestion?.startsAt
+        ? new Date(currentQuestion.startsAt)
+        : null;
+  const voteStatus = getVoteStatus(new Date(now), expiresAtDate, startsAtDate);
   const canSubmit = Boolean(
     selectedOptionId &&
     trimmedName &&
@@ -277,7 +295,7 @@ const VotePage: React.FC = () => {
     !isSubmitting &&
     !isCheckingExistingVote,
   );
-  const isClosed = voteStatus.isExpired || currentQuestion?.status !== 'open';
+  const isClosed = !voteStatus.isOpen;
   const hasExistingVote = Boolean(existingVote);
   const hasChangedVote = hasExistingVote && selectedOptionId !== existingVote?.optionId;
 
@@ -311,9 +329,11 @@ const VotePage: React.FC = () => {
           <div className="flex justify-between items-start mb-4">
             <span
               className={`inline-flex px-3 py-1 text-xs font-bold tracking-wider uppercase rounded-full border shadow-[0_6px_20px_rgba(16,185,129,0.15)] ${
-                isClosed
+                voteStatus.kind === 'closed'
                   ? 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-white/10 dark:text-white/80 dark:border-white/20'
-                  : 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-100 dark:border-emerald-300/60'
+                  : voteStatus.kind === 'scheduled'
+                    ? 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/15 dark:text-amber-100 dark:border-amber-300/60'
+                    : 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-100 dark:border-emerald-300/60'
               }`}
             >
               {voteStatus.label}
@@ -398,6 +418,18 @@ const VotePage: React.FC = () => {
           {/* Options */}
           <div className="space-y-3">
             <label className="block text-sm font-semibold text-slate-800 ml-1">Select your choice:</label>
+            {voteStatus.isScheduled && startsAtDate && (
+              <div className="flex items-center gap-3 text-sm text-amber-700 bg-amber-50 p-4 rounded-xl border border-amber-200">
+                <AlertCircle size={18} className="shrink-0" />
+                <span>
+                  Voting will open on{' '}
+                  <strong className="font-semibold">
+                    {new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium', timeStyle: 'short' }).format(startsAtDate)}
+                  </strong>
+                  .
+                </span>
+              </div>
+            )}
             {currentQuestion.options.map((option) => {
               const isSelected = selectedOptionId === option.id;
               const isPrevSelection = existingVote?.optionId === option.id;
@@ -453,12 +485,14 @@ const VotePage: React.FC = () => {
               {displayMessage}
             </div>
           )}
-          {isClosed && (
+          {!voteStatus.isOpen && (
             <div className="flex items-center gap-3 text-sm text-slate-700 bg-slate-50 p-4 rounded-xl border border-slate-200 dark:bg-white/10 dark:text-white/80 dark:border-white/15">
               <AlertCircle size={18} className="shrink-0 text-slate-500 dark:text-white/70" />
-              {hasExistingVote
-                ? 'Voting is closed for this question. Your recorded answer is shown above.'
-                : 'Voting is closed for this question.'}
+              {voteStatus.kind === 'scheduled'
+                ? 'Voting has not opened yet. Please check back once the start time arrives.'
+                : hasExistingVote
+                  ? 'Voting is closed for this question. Your recorded answer is shown above.'
+                  : 'Voting is closed for this question.'}
             </div>
           )}
 
