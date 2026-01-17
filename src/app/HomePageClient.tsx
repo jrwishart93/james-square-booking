@@ -197,7 +197,7 @@ export default function HomePageClient() {
   return (
     <main className="px-4 py-10 sm:py-14">
       {/* HERO */}
-      <section className="mx-auto max-w-6xl">
+      <section className="hero mx-auto max-w-6xl">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
