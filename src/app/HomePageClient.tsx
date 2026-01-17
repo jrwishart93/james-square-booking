@@ -216,9 +216,6 @@ export default function HomePageClient() {
               }}
               style={{
                 willChange: 'transform',
-                maskImage: 'radial-gradient(ellipse at center, black 65%, transparent 100%)',
-                WebkitMaskImage:
-                  'radial-gradient(ellipse at center, black 65%, transparent 100%)',
               }}
             >
               {/* Light mode – daytime drone */}
@@ -242,11 +239,104 @@ export default function HomePageClient() {
               />
             </motion.div>
 
+            {/* Mode-aware hero image dissolve */}
+            <div className="pointer-events-none absolute inset-0">
+              {/* LIGHT MODE — bottom-only, late, soft fade */}
+              <div
+                className="
+                  absolute bottom-0 inset-x-0
+                  h-16 sm:h-20
+                  bg-gradient-to-t
+                  from-[#f4f7fa]
+                  via-[#f4f7fa]/85
+                  to-transparent
+                  dark:hidden
+                "
+              />
+
+              {/* DARK MODE — subtle top softening (keeps castle clear) */}
+              <div
+                className="
+                  absolute top-0 inset-x-0
+                  h-14 sm:h-18
+                  bg-gradient-to-b
+                  from-black/25
+                  to-transparent
+                  hidden dark:block
+                "
+              />
+
+              {/* DARK MODE — side softening (stronger near bottom) */}
+              <div
+                className="
+                  absolute inset-y-0 left-0 w-10
+                  bg-gradient-to-r
+                  from-black/30 to-transparent
+                  hidden dark:block
+                "
+              />
+              <div
+                className="
+                  absolute inset-y-0 right-0 w-10
+                  bg-gradient-to-l
+                  from-black/30 to-transparent
+                  hidden dark:block
+                "
+              />
+
+              {/* DARK MODE — contrast-first blend (prevents cut line) */}
+              <div className="pointer-events-none absolute inset-0 hidden dark:block">
+                {/* Stage 1: contrast dampening (this is the key) */}
+                <div
+                  className="
+                    absolute bottom-0 inset-x-0
+                    h-32 sm:h-40
+                    bg-gradient-to-t
+                    from-black/20
+                    via-black/10
+                    to-transparent
+                  "
+                />
+
+                {/* Stage 2: luminance reduction (softens image without blur) */}
+                <div
+                  className="
+                    absolute bottom-0 inset-x-0
+                    h-28 sm:h-36
+                    bg-gradient-to-t
+                    from-black/35
+                    to-transparent
+                    mix-blend-mode:multiply
+                  "
+                />
+
+                {/* Stage 3: final colour integration */}
+                <div
+                  className="
+                    absolute bottom-0 inset-x-0
+                    h-24 sm:h-32
+                    bg-gradient-to-t
+                    from-[#020617]
+                    to-transparent
+                  "
+                />
+              </div>
+
+              {/* Micro edge blur — line breaker only */}
+              <div
+                className="
+                  absolute bottom-0 inset-x-0
+                  h-6 sm:h-8
+                  backdrop-blur-[0.75px]
+                "
+              />
+            </div>
+
             <div className="relative h-[200px] sm:h-[320px]" />
           </div>
 
           <div className="p-6 sm:p-10">
-            <header className="text-center">
+            <header className="text-center -mt-3 sm:-mt-4">
               <h1 className="text-3xl sm:text-4xl font-bold leading-tight">
                 James <span className="text-slate-500">Square</span>
                 <br />
