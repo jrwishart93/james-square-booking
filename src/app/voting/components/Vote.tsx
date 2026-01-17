@@ -353,22 +353,34 @@ const VotePage: React.FC = () => {
       ">
         {/* Header */}
         <div className="p-8 border-b border-slate-200 bg-gradient-to-r from-cyan-50 to-indigo-50">
-          <div className="flex justify-between items-start mb-4">
-            <span
-              className={`inline-flex px-3 py-1 text-xs font-bold tracking-wider uppercase rounded-full border shadow-[0_6px_20px_rgba(16,185,129,0.15)] ${
-                isClosed
-                  ? 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-white/10 dark:text-white/80 dark:border-white/20'
-                  : isScheduled
-                    ? 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/15 dark:text-amber-100 dark:border-amber-300/60'
-                    : 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-100 dark:border-emerald-300/60'
-              }`}
+          <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between mb-4">
+            <div className="flex">
+              <span
+                className={`inline-flex px-3 py-1 text-xs font-bold tracking-wider uppercase rounded-full border shadow-[0_6px_20px_rgba(16,185,129,0.15)] ${
+                  isClosed
+                    ? 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-white/10 dark:text-white/80 dark:border-white/20'
+                    : isScheduled
+                      ? 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/15 dark:text-amber-100 dark:border-amber-300/60'
+                      : 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-100 dark:border-emerald-300/60'
+                }`}
+              >
+                {isScheduled ? 'Scheduled' : isClosed ? 'Voting closed' : 'Voting open'}
+              </span>
+            </div>
+            <h2
+              className="
+                text-xl
+                md:text-2xl
+                font-bold
+                text-slate-900
+                leading-snug
+                line-clamp-2
+                md:line-clamp-none
+              "
             >
-              {isScheduled ? 'Scheduled' : isClosed ? 'Voting closed' : 'Voting open'}
-            </span>
+              {currentQuestion.title}
+            </h2>
           </div>
-          <h2 className="text-2xl font-bold text-slate-900 mb-2 leading-tight">
-            {currentQuestion.title}
-          </h2>
           {votingWindowVisible && (
             <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
               <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-600">
@@ -393,7 +405,7 @@ const VotePage: React.FC = () => {
             </p>
           )}
           {currentQuestion.description && (
-            <p className="text-slate-600 text-sm leading-relaxed mt-3">
+            <p className="text-slate-600 text-sm leading-relaxed mt-1">
               {currentQuestion.description}
             </p>
           )}
