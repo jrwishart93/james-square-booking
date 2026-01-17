@@ -13,6 +13,7 @@ const Results: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [now, setNow] = useState<number>(() => Date.now());
   const [openDetailsId, setOpenDetailsId] = useState<string | null>(null);
+  const getCreatedAtMs = (value?: number | Date | string) => (value ? new Date(value).getTime() : 0);
 
   useEffect(() => {
     const interval = setInterval(() => setNow(Date.now()), 1000);
@@ -70,7 +71,7 @@ const Results: React.FC = () => {
               setStats((prev) => {
                 const filtered = prev.filter((item) => item.question.id !== question.id);
                 const next = [...filtered, { question, totalVotes: total, results }];
-                next.sort((a, b) => b.question.createdAt - a.question.createdAt);
+                next.sort((a, b) => getCreatedAtMs(b.question.createdAt) - getCreatedAtMs(a.question.createdAt));
                 return next;
               });
               setLoading(false);
@@ -175,13 +176,19 @@ const Results: React.FC = () => {
       {/* Individual Question Cards */}
       <div className="space-y-6">
         {stats.map((stat) => {
+          const startsAt =
+            stat.question.startsAt instanceof Date
+              ? stat.question.startsAt
+              : stat.question.startsAt
+                ? new Date(stat.question.startsAt)
+                : null;
           const expiresAt =
             stat.question.expiresAt instanceof Date
               ? stat.question.expiresAt
               : stat.question.expiresAt
                 ? new Date(stat.question.expiresAt)
                 : null;
-          const voteStatus = getVoteStatus(new Date(now), expiresAt);
+          const voteStatus = getVoteStatus(new Date(now), startsAt, expiresAt);
 
           return (
           <div key={stat.question.id} className="
@@ -210,7 +217,11 @@ const Results: React.FC = () => {
               <div className="mt-4 flex items-center text-xs text-slate-600 font-medium">
                  <span className="text-cyan-700">{stat.totalVotes}</span> <span className="ml-1 mr-1">votes</span>
                  <span className="mx-2 text-slate-300">•</span>
-                 <span>{new Date(stat.question.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
+                 <span>
+                   {stat.question.createdAt
+                     ? new Date(stat.question.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+                     : 'Date unavailable'}
+                 </span>
               </div>
             </div>
 
@@ -282,7 +293,7 @@ const Results: React.FC = () => {
                           ? stat.question.expiresAt
                           : new Date(stat.question.expiresAt)
                       }
-                      createdAt={new Date(stat.question.createdAt)}
+                      createdAt={new Date(getCreatedAtMs(stat.question.createdAt))}
                     />
                   ) : null}
                 </div>

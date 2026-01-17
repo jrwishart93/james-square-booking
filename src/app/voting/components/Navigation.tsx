@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { PenSquare, Vote, BarChart3 } from 'lucide-react';
+import { PenSquare, Vote, BarChart3, Shield } from 'lucide-react';
 
 const Navigation: React.FC = () => {
   const linkClass = ({ isActive }: { isActive: boolean }) =>
@@ -28,6 +28,10 @@ const Navigation: React.FC = () => {
         <NavLink to="/vote" className={linkClass}>
           <Vote size={18} />
           <span>Vote</span>
+        </NavLink>
+        <NavLink to="/owners" className={linkClass}>
+          <Shield size={18} />
+          <span>Owners</span>
         </NavLink>
         <NavLink to="/results" className={linkClass}>
           <BarChart3 size={18} />
