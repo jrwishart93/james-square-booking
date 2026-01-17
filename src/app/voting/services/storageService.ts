@@ -7,11 +7,10 @@ import {
   query,
   serverTimestamp,
   Timestamp,
-  updateDoc,
   where,
   writeBatch,
 } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { auth, db } from '@/lib/firebase';
 import { Question, Vote } from '../types';
 import { addDuration, DURATION_PRESETS, DurationPreset } from '@/lib/voteExpiry';
 
@@ -228,61 +227,30 @@ export const submitVote = async (
   flat: string,
   userId: string,
 ): Promise<Vote> => {
-  const trimmedName = userName.trim();
-  const trimmedFlat = normalizeFlat(flat);
+  const user = auth.currentUser;
 
-  if (!userId) {
-    throw new Error('You need to be signed in to cast a vote.');
+  if (!user || !user.email) {
+    throw new Error('User must be logged in with a valid email to vote.');
   }
 
-  if (!trimmedName) {
-    throw new Error('Please provide your name to vote.');
-  }
-
-  if (!trimmedFlat) {
-    throw new Error('Please provide your flat number to vote.');
-  }
-
-  const payload = {
+  const votePayload = {
     questionId,
     optionId,
-    userName: trimmedName,
-    voterName: trimmedName,
-    userNameLower: trimmedName.toLowerCase(),
-    flat: trimmedFlat,
     userId,
+    userName,
+    userEmail: user.email,
+    flat,
     createdAt: serverTimestamp(),
   };
 
-  const existing = await findExistingVoteDoc(questionId, userId, trimmedFlat);
-
-  if (existing) {
-    await updateDoc(existing.ref, {
-      ...payload,
-      createdAt: existing.data()?.createdAt ?? serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    });
-
-    return mapVoteDoc({
-      id: existing.id,
-      data: () => ({
-        ...existing.data(),
-        ...payload,
-        createdAt: (existing.data() as Record<string, unknown>).createdAt,
-        updatedAt: Date.now(),
-      }),
-    });
-  }
-
-  const ref = await addDoc(collection(db, VOTES_COLLECTION), payload);
+  const ref = await addDoc(collection(db, VOTES_COLLECTION), votePayload);
 
   return {
     id: ref.id,
     questionId,
     optionId,
-    userName: trimmedName,
-    userNameLower: trimmedName.toLowerCase(),
-    flat: trimmedFlat,
+    userName,
+    flat,
     userId,
     createdAt: Date.now(),
   };
