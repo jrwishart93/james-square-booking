@@ -238,9 +238,8 @@ export default function HomePageClient() {
             </motion.div>
 
             <div className="pointer-events-none absolute inset-0">
-              <div className="absolute bottom-0 inset-x-0 h-24 sm:h-28 bg-gradient-to-t from-white/40 to-transparent dark:from-black/30" />
-              <div className="absolute bottom-0 inset-x-0 h-36 sm:h-44 bg-gradient-to-t from-[#f4f7fa] via-[#f4f7fa]/85 to-transparent dark:from-[#020617] dark:via-[#020617]/90" />
-              <div className="absolute bottom-0 inset-x-0 h-40 sm:h-48 backdrop-blur-[1.5px]" />
+              <div className="absolute bottom-0 inset-x-0 h-24 sm:h-28 bg-gradient-to-t from-white/15 to-transparent dark:from-black/10" />
+              <div className="absolute bottom-0 inset-x-0 h-20 sm:h-28 bg-gradient-to-t from-[#f4f7fa] via-[#f4f7fa]/90 to-transparent dark:from-[#020617] dark:via-[#020617]/95" />
             </div>
 
             <div className="relative h-[200px] sm:h-[320px]" />
