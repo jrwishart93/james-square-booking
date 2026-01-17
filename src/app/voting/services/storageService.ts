@@ -31,6 +31,11 @@ const mapQuestionDoc = (snap: { id: string; data: () => Record<string, unknown> 
     typeof data.createdAt === 'number'
       ? data.createdAt
       : (data.createdAt as { toMillis?: () => number })?.toMillis?.();
+  const startsAtValue =
+    typeof data.startsAt === 'number'
+      ? data.startsAt
+      : (data.startsAt as { toMillis?: () => number })?.toMillis?.();
+  const startsAt = typeof startsAtValue === 'number' ? new Date(startsAtValue) : null;
   const expiresAtValue =
     typeof data.expiresAt === 'number'
       ? data.expiresAt
@@ -70,9 +75,14 @@ const mapQuestionDoc = (snap: { id: string; data: () => Record<string, unknown> 
     id: snap.id,
     title: typeof data.title === 'string' ? data.title : 'Untitled question',
     description: typeof data.description === 'string' ? data.description : undefined,
-    status: typeof data.status === 'string' && data.status.toLowerCase() === 'open' ? 'open' : 'closed',
+    status:
+      typeof data.status === 'string' &&
+      ['open', 'closed', 'scheduled'].includes(data.status.toLowerCase())
+        ? (data.status.toLowerCase() as 'open' | 'closed' | 'scheduled')
+        : 'closed',
     createdAt: createdAtTs ?? Date.now(),
-    durationPreset: durationPreset ?? '1m',
+    durationPreset,
+    startsAt,
     expiresAt,
     options,
     voteTotals,
@@ -125,23 +135,28 @@ export const addQuestion = async (
   title: string,
   description: string,
   options: string[],
-  durationPreset: DurationPreset = '1m',
+  durationPreset?: DurationPreset,
+  customWindow?: { startsAt: Date; expiresAt: Date },
 ): Promise<Question> => {
   const optionObjects = options.map((label, idx) => normalizeOption(label, idx));
   const createdAt = serverTimestamp();
-  const expiresAt = Timestamp.fromDate(addDuration(new Date(), durationPreset));
+  const preset = durationPreset ?? '1m';
+  const expiresAt = Timestamp.fromDate(
+    customWindow ? customWindow.expiresAt : addDuration(new Date(), preset),
+  );
+  const startsAt = customWindow ? Timestamp.fromDate(customWindow.startsAt) : undefined;
   const payload = {
     title,
     description,
-    status: 'open',
+    status: customWindow ? 'scheduled' : 'open',
     createdAt,
-    durationPreset,
     expiresAt,
     options: optionObjects,
     voteTotals: optionObjects.reduce<Record<string, number>>((totals, option) => {
       totals[option.id] = 0;
       return totals;
     }, {}),
+    ...(customWindow ? { startsAt } : { durationPreset: preset }),
   };
   const ref = await addDoc(collection(db, QUESTIONS_COLLECTION), payload);
   const [newQuestion] = await getQuestions();
@@ -150,9 +165,10 @@ export const addQuestion = async (
     id: ref.id,
     title,
     description,
-    status: 'open',
+    status: customWindow ? 'scheduled' : 'open',
     createdAt: Date.now(),
-    durationPreset,
+    durationPreset: customWindow ? undefined : preset,
+    startsAt: customWindow?.startsAt ?? null,
     expiresAt: expiresAt.toDate?.() ?? null,
     options: payload.options,
     voteTotals: payload.voteTotals,

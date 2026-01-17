@@ -13,8 +13,16 @@ const AskQuestion: React.FC = () => {
   const [options, setOptions] = useState<string[]>(['', '']);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [errors, setErrors] = useState<{title?: string, options?: string}>({});
+  const [errors, setErrors] = useState<{
+    title?: string;
+    options?: string;
+    startsAt?: string;
+    endsAt?: string;
+  }>({});
   const [durationPreset, setDurationPreset] = useState<DurationPreset>('1m');
+  const [useCustomWindow, setUseCustomWindow] = useState(false);
+  const [startsAt, setStartsAt] = useState('');
+  const [endsAt, setEndsAt] = useState('');
 
   const handleOptionChange = (index: number, value: string) => {
     const newOptions = [...options];
@@ -36,7 +44,12 @@ const AskQuestion: React.FC = () => {
   };
 
   const validate = (): boolean => {
-    const newErrors: {title?: string, options?: string} = {};
+    const newErrors: {
+      title?: string;
+      options?: string;
+      startsAt?: string;
+      endsAt?: string;
+    } = {};
     let isValid = true;
 
     if (!title.trim()) {
@@ -50,6 +63,44 @@ const AskQuestion: React.FC = () => {
       isValid = false;
     }
 
+    if (useCustomWindow) {
+      if (!startsAt) {
+        newErrors.startsAt = 'Please choose a start date and time';
+        isValid = false;
+      }
+
+      if (!endsAt) {
+        newErrors.endsAt = 'Please choose an end date and time';
+        isValid = false;
+      }
+
+      if (startsAt && endsAt) {
+        const startDate = new Date(startsAt);
+        const endDate = new Date(endsAt);
+        const now = new Date();
+
+        if (Number.isNaN(startDate.getTime())) {
+          newErrors.startsAt = 'Start time is invalid';
+          isValid = false;
+        }
+
+        if (Number.isNaN(endDate.getTime())) {
+          newErrors.endsAt = 'End time is invalid';
+          isValid = false;
+        }
+
+        if (endDate <= startDate) {
+          newErrors.endsAt = 'End time must be after the start time';
+          isValid = false;
+        }
+
+        if (startDate <= now) {
+          newErrors.startsAt = 'Start time must be in the future';
+          isValid = false;
+        }
+      }
+    }
+
     setErrors(newErrors);
     return isValid;
   };
@@ -61,7 +112,16 @@ const AskQuestion: React.FC = () => {
     setIsSubmitting(true);
     try {
       const validOptions = options.filter(o => o.trim().length > 0);
-      await addQuestion(title, description, validOptions, durationPreset);
+      const customWindow = useCustomWindow
+        ? { startsAt: new Date(startsAt), expiresAt: new Date(endsAt) }
+        : undefined;
+      await addQuestion(
+        title,
+        description,
+        validOptions,
+        useCustomWindow ? undefined : durationPreset,
+        customWindow,
+      );
       setSuccess(true);
       
       // Reset form
@@ -69,6 +129,9 @@ const AskQuestion: React.FC = () => {
       setDescription('');
       setOptions(['', '']);
       setDurationPreset('1m');
+      setUseCustomWindow(false);
+      setStartsAt('');
+      setEndsAt('');
     } catch (err) {
       console.error(err);
       alert('Failed to save question. Please try again.');
@@ -193,8 +256,30 @@ const AskQuestion: React.FC = () => {
 
           <div className="space-y-3">
             <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-              <label className="block text-sm font-semibold text-slate-800 ml-1">Voting duration</label>
+              <label className="block text-sm font-semibold text-slate-800 ml-1">Voting window</label>
               <span className="text-xs text-slate-500 font-mono">Default 1 month</span>
+            </div>
+            <div className="space-y-3">
+              <label className="flex items-center gap-2 text-sm text-slate-700">
+                <input
+                  type="radio"
+                  name="voting-window"
+                  checked={!useCustomWindow}
+                  onChange={() => setUseCustomWindow(false)}
+                  className="h-4 w-4 text-cyan-600 border-slate-300 focus:ring-cyan-500"
+                />
+                Use duration preset
+              </label>
+              <label className="flex items-center gap-2 text-sm text-slate-700">
+                <input
+                  type="radio"
+                  name="voting-window"
+                  checked={useCustomWindow}
+                  onChange={() => setUseCustomWindow(true)}
+                  className="h-4 w-4 text-cyan-600 border-slate-300 focus:ring-cyan-500"
+                />
+                Set custom start &amp; end time
+              </label>
             </div>
             <div className="flex flex-wrap gap-2">
               {DURATION_PRESETS.map((preset) => {
@@ -204,17 +289,36 @@ const AskQuestion: React.FC = () => {
                     key={preset.value}
                     type="button"
                     onClick={() => setDurationPreset(preset.value)}
+                    disabled={useCustomWindow}
                     className={`px-4 py-2 rounded-full text-sm font-semibold border transition-all ${
                       isActive
                         ? 'bg-cyan-50 border-cyan-300 text-cyan-800 shadow-[0_10px_30px_rgba(6,182,212,0.1)]'
                         : 'bg-white border-slate-200 text-slate-700 hover:border-cyan-300 hover:text-cyan-800'
-                    }`}
+                    } ${useCustomWindow ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     {preset.label}
                   </button>
                 );
               })}
             </div>
+            {useCustomWindow && (
+              <div className="grid gap-4 md:grid-cols-2">
+                <Input
+                  type="datetime-local"
+                  label="Voting starts (UK time)"
+                  value={startsAt}
+                  onChange={(e) => setStartsAt(e.target.value)}
+                  error={errors.startsAt}
+                />
+                <Input
+                  type="datetime-local"
+                  label="Voting ends (UK time)"
+                  value={endsAt}
+                  onChange={(e) => setEndsAt(e.target.value)}
+                  error={errors.endsAt}
+                />
+              </div>
+            )}
           </div>
 
           <div className="pt-4">
