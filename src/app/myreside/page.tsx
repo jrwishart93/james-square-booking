@@ -23,6 +23,29 @@ const MyresidePage = () => {
       costsContent={
         <div className="space-y-6 text-sm md:text-base text-slate-700 dark:text-slate-200">
           <div className="space-y-2">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+              Update to Myreside Proposal – January 2025
+            </h3>
+            <p>
+              Myreside issued an updated tender on 18 January 2025 following a further internal review after their
+              original submission. The overall structure of the proposal remains unchanged, but a small number of
+              refinements were made and shared with owners for transparency. The updated PDF replaces the previous
+              tender, and owners should refer to the revised document dated 18 January 2025.
+            </p>
+            <p>
+              Two incentives have been introduced. Owners who choose to pay by Direct Debit receive a credit of £2.00
+              per quarter plus VAT, shown as a separate credit line on quarterly invoices. Owners who opt to receive
+              invoices and routine communications digitally rather than by post receive a credit of £1.50 per quarter
+              plus VAT, reflecting reduced printing and postage costs. These incentives are intended to pass on genuine
+              efficiency savings rather than alter the underlying management fee.
+            </p>
+            <p>
+              The building insurance premium has been amended and finalised at £38,000. This premium has been agreed
+              with Myreside’s broker and insurer with full knowledge of the building’s claims history and is not subject
+              to later adjustment on that basis.
+            </p>
+          </div>
+          <div className="space-y-2">
             <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Overall budget</h3>
             <p>
               <span className="font-semibold text-slate-900 dark:text-slate-100">Total annual factoring budget:</span>{' '}
@@ -115,6 +138,7 @@ const MyresidePage = () => {
               year
             </p>
             <p>This fee is included within the figures shown above.</p>
+            <p>The newly introduced incentives do not change the base management fee.</p>
             <p>Covers property management, contractor coordination, compliance administration, and financial management.</p>
           </div>
 
@@ -133,14 +157,18 @@ const MyresidePage = () => {
             <p>
               <span className="font-semibold text-slate-900 dark:text-slate-100">Insurance commission:</span> none
             </p>
+            <p>
+              The building insurance premium is £38,000 and has been agreed with Myreside’s broker and insurer with full
+              knowledge of the building’s claims history, so it is not subject to later adjustment on that basis.
+            </p>
             <p>Myreside does not take commission on building insurance premiums.</p>
           </div>
         </div>
       }
       documentationLinks={[
         {
-          href: '/images/venues/myreside-tender-doc.pdf',
-          label: 'View Myreside tender documentation (PDF)',
+          href: '/images/venues/myreside-tender-update-18jan.pdf',
+          label: 'View updated Myreside tender documentation (18 January 2025 PDF)',
         },
       ]}
     />
