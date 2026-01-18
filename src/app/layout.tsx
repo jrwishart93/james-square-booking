@@ -65,7 +65,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AppLaunchShell>
           <AuthProvider>
             <Header />
-            <main className="site-content max-w-6xl mx-auto px-4 sm:px-6 py-8">{children}</main>
+            <main className="site-content relative max-w-6xl mx-auto px-4 sm:px-6 pt-[calc(var(--nav-height)+var(--app-safe-top)+var(--page-top-gap))] pb-16">
+              {children}
+            </main>
           </AuthProvider>
         </AppLaunchShell>
       </body>

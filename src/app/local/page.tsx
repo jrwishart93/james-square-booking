@@ -252,7 +252,7 @@ export default function UsefulInfoPage() {
       <BackgroundOrbs />
 
       {/* Hero */}
-      <section className="text-center mb-10 relative">
+      <section className="page-hero text-center mb-10 relative">
         <h1 className="text-4xl md:text-5xl font-semibold tracking-tight">
           Useful Information
         </h1>

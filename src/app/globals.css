@@ -19,8 +19,8 @@
   --glass-strong: 0 0% 100% / 0.82;
   --glass-border: 215 30% 62% / 0.24;
   --nav-height: 64px;
-  --safe-top: 0px;
-  --content-gap: 12px;
+  --app-safe-top: 0px;
+  --page-top-gap: 24px;
 
   --status-emerald: 145 63% 49%;  /* #2ECC71 - your booking */
   --status-slate:   204 8% 52%;   /* #7F8C8D - booked by another */
@@ -68,14 +68,16 @@ body {
 }
 
 body.app-mode {
-  --safe-top: env(safe-area-inset-top, 0px);
+  --nav-height: 72px;
+  --app-safe-top: env(safe-area-inset-top, 0px);
+  --page-top-gap: 12px;
 }
 
 .header-safe-wrapper {
   position: sticky;
   top: 0;
   z-index: 50;
-  padding-top: var(--safe-top);
+  padding-top: 0;
   pointer-events: none;
 }
 
@@ -123,25 +125,33 @@ body.app-mode .site-header:active {
   -webkit-backdrop-filter: blur(24px) saturate(150%);
 }
 
-body.app-mode nav {
+body.app-mode nav.site-header {
   position: sticky;
   top: 0;
   z-index: 50;
   overflow: visible;
+  padding-top: var(--app-safe-top);
+  height: calc(var(--nav-height) + var(--app-safe-top));
 }
 
 body.app-mode .site-content {
-  padding-top: calc(var(--safe-top) + var(--nav-height) + var(--content-gap));
   position: relative;
   z-index: 1;
 }
 
 body.app-mode .site-content * {
-  scroll-margin-top: calc(var(--safe-top) + var(--nav-height) + 8px);
+  scroll-margin-top: calc(
+    var(--app-safe-top) + var(--nav-height) + var(--page-top-gap) + 8px
+  );
 }
 
 body.app-mode .dashboard-tabs {
-  top: calc(var(--safe-top) + var(--nav-height));
+  top: calc(var(--app-safe-top) + var(--nav-height));
+}
+
+body.app-mode .hero,
+body.app-mode .page-hero {
+  margin-top: 0;
 }
 
 @supports (padding: env(safe-area-inset-top)) {
