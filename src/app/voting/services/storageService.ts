@@ -205,17 +205,17 @@ export const submitVote = async (
     throw new Error('User must be logged in with a valid email to vote.');
   }
 
-  const voteRef = doc(db, VOTES_COLLECTION, `${questionId}_${user.uid}`);
-  const existingSnap = await getDoc(voteRef);
+  const normalizedFlat = flat.trim();
+  const voteDocId = `${questionId}__${normalizedFlat}`;
+  const voteRef = doc(db, VOTES_COLLECTION, voteDocId);
   const votePayload = {
     questionId,
     optionId,
     userId: user.uid,
     userName,
     userEmail: user.email,
-    flat,
-    updatedAt: serverTimestamp(),
-    ...(existingSnap.exists() ? {} : { createdAt: serverTimestamp() }),
+    flat: normalizedFlat,
+    createdAt: serverTimestamp(),
   };
 
   await setDoc(voteRef, votePayload, { merge: true });
@@ -225,7 +225,7 @@ export const submitVote = async (
     questionId,
     optionId,
     userName,
-    flat,
+    flat: normalizedFlat,
     userId: user.uid,
     createdAt: Date.now(),
   };
@@ -251,7 +251,31 @@ export const getExistingVoteForUser = async (
   userId?: string | null,
 ): Promise<Vote | null> => {
   if (!userId) return null;
-  const voteRef = doc(db, VOTES_COLLECTION, `${questionId}_${userId}`);
+  let flatValue: string | null = null;
+  if (typeof window !== 'undefined') {
+    const storedFlat = sessionStorage.getItem('ovh_flat');
+    if (storedFlat) {
+      flatValue = storedFlat;
+    }
+  }
+  if (!flatValue) {
+    const profileRef = doc(db, 'users', userId);
+    const profileSnap = await getDoc(profileRef);
+    if (profileSnap.exists()) {
+      const data = profileSnap.data() as Record<string, unknown>;
+      const propertyNumber =
+        typeof data.property === 'string'
+          ? data.property
+          : typeof data.flat === 'string'
+            ? data.flat
+            : '';
+      if (propertyNumber) flatValue = propertyNumber;
+    }
+  }
+  const normalizedFlat = flatValue ? normalizeFlat(flatValue) : '';
+  if (!normalizedFlat) return null;
+
+  const voteRef = doc(db, VOTES_COLLECTION, `${questionId}__${normalizedFlat}`);
   const voteSnap = await getDoc(voteRef);
   if (!voteSnap.exists()) return null;
   return mapVoteDoc(voteSnap);
