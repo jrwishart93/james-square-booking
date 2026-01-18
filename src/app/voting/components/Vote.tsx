@@ -185,7 +185,7 @@ const VotePage: React.FC = () => {
 
     const loadExisting = async () => {
       try {
-        const vote = await getExistingVoteForUser(currentQuestion.id, currentUser?.uid, normalizeFlat(flat));
+        const vote = await getExistingVoteForUser(currentQuestion.id, currentUser?.uid);
         if (!isActive) return;
         setExistingVote(vote);
         setSelectedOptionId((prev) => prev ?? vote?.optionId ?? null);
@@ -259,7 +259,7 @@ const VotePage: React.FC = () => {
         flat: normalizedFlat,
       });
 
-      await submitVote(currentQuestion.id, selectedOptionId, trimmedName, normalizedFlat, currentUser.uid);
+      await submitVote(currentQuestion.id, selectedOptionId, trimmedName, normalizedFlat);
       lightHaptic();
       sessionStorage.setItem('ovh_username', trimmedName);
       sessionStorage.setItem('ovh_flat', normalizedFlat);
@@ -410,12 +410,15 @@ const VotePage: React.FC = () => {
             </p>
           )}
           {hasExistingVote && (
-            <div className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-2 rounded-full shadow-[0_6px_20px_rgba(16,185,129,0.12)]">
-              <Check size={14} />
-              <span>
-                Your selection: <span className="text-emerald-900">{currentQuestion.options.find(o => o.id === existingVote?.optionId)?.label ?? existingVote?.optionId}</span>
-              </span>
-              {isOpen && <span className="text-emerald-700 font-medium">• Change your selection anytime</span>}
+            <div className="mt-4 flex flex-col gap-2 text-sm font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-4 py-3 rounded-2xl shadow-[0_6px_20px_rgba(16,185,129,0.12)]">
+              <div className="inline-flex items-center gap-2">
+                <Check size={14} />
+                <span>You have already submitted a vote.</span>
+              </div>
+              <div className="text-emerald-900">
+                Your selection: <span className="font-semibold">{currentQuestion.options.find(o => o.id === existingVote?.optionId)?.label ?? existingVote?.optionId}</span>
+              </div>
+              {isOpen && <span className="text-emerald-700 font-medium">You can change your selection while voting is open.</span>}
             </div>
           )}
         </div>
@@ -479,7 +482,9 @@ const VotePage: React.FC = () => {
 
           {isClosed ? (
             <div className="rounded-2xl border border-slate-200 bg-white p-4 text-center text-sm font-semibold text-slate-700">
-              Voting closed
+              {hasExistingVote
+                ? 'Voting is closed. Your recorded vote is shown above and can no longer be changed.'
+                : 'Voting is closed. Votes can no longer be submitted.'}
             </div>
           ) : countdownTarget && countdownLabel ? (
             <div className="rounded-2xl border border-slate-200 bg-white p-4 flex justify-center">
@@ -553,7 +558,7 @@ const VotePage: React.FC = () => {
           {hasExistingVote && hasChangedVote && isOpen && (
             <div className="flex items-center gap-3 text-sm text-amber-700 bg-amber-50 p-4 rounded-xl border border-amber-200">
               <AlertCircle size={18} className="shrink-0" />
-              Your selection will be updated.
+              You are changing your vote. This will update the live results.
             </div>
           )}
 

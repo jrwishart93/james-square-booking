@@ -337,7 +337,7 @@ export default function OwnersVotingPage() {
     setSavingVoteId(question.id);
     setVoteErrors((prev) => ({ ...prev, [question.id]: null }));
     try {
-      await submitVote(question.id, optionId, name, flatValue, currentUser.uid);
+      await submitVote(question.id, optionId, name, flatValue);
       if (typeof window !== "undefined") {
         sessionStorage.setItem("ovh_username", name);
         sessionStorage.setItem("ovh_flat", flatValue);
