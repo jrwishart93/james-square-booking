@@ -20,21 +20,8 @@ const deriveFirstName = (user: User | null): string => {
   return first ? first.charAt(0).toUpperCase() + first.slice(1) : '';
 };
 
-const formatVotingDate = (date: Date): string => {
-  const datePart = new Intl.DateTimeFormat('en-GB', {
-    weekday: 'long',
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-  }).format(date).replace(',', '');
-  const timePart = new Intl.DateTimeFormat('en-GB', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  }).format(date);
-
-  return `${datePart} at ${timePart}`;
-};
+const formatVotingDate = (date: Date): string =>
+  `${date.toLocaleString('en-GB', { dateStyle: 'full', timeStyle: 'short' })} (UK time)`;
 
 const VotePage: React.FC = () => {
   const navigate = useNavigate();
@@ -307,7 +294,7 @@ const VotePage: React.FC = () => {
   const isOpen = voteStatus.phase === 'open';
   const isClosed = voteStatus.phase === 'closed';
   const votingWindowVisible = Boolean(startsAtDate || expiresAtDate);
-  const formattedStartsAt = startsAtDate ? formatVotingDate(startsAtDate) : 'Opens immediately';
+  const formattedStartsAt = startsAtDate ? formatVotingDate(startsAtDate) : null;
   const formattedExpiresAt = expiresAtDate ? formatVotingDate(expiresAtDate) : null;
   const countdownTarget = isScheduled ? startsAtDate : isOpen ? expiresAtDate : null;
   const countdownLabel = isScheduled ? 'Voting opens in' : isOpen ? 'Voting closes in' : null;
@@ -385,17 +372,43 @@ const VotePage: React.FC = () => {
             <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
               <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-600">
                 <CalendarClock size={14} className="text-slate-500" />
-                Voting window
+                Voting timeline
               </div>
               <div className="mt-2 space-y-1 text-sm text-slate-700">
-                <div>
-                  <span className="font-semibold text-slate-800">Opens:</span> {formattedStartsAt}
-                </div>
-                {formattedExpiresAt ? (
-                  <div>
-                    <span className="font-semibold text-slate-800">Closes:</span> {formattedExpiresAt}
-                  </div>
-                ) : null}
+                {isScheduled && (
+                  <>
+                    {formattedStartsAt && (
+                      <div>
+                        Voting opens <span className="font-semibold text-slate-800">{formattedStartsAt}</span>
+                      </div>
+                    )}
+                    {formattedExpiresAt && (
+                      <div>
+                        Voting closes <span className="font-semibold text-slate-800">{formattedExpiresAt}</span>
+                      </div>
+                    )}
+                  </>
+                )}
+                {isOpen && (
+                  <>
+                    <div className="font-semibold text-slate-800">Voting is open</div>
+                    {formattedExpiresAt && (
+                      <div>
+                        Closes <span className="font-semibold text-slate-800">{formattedExpiresAt}</span>
+                      </div>
+                    )}
+                  </>
+                )}
+                {isClosed && (
+                  <>
+                    {formattedExpiresAt && (
+                      <div>
+                        Voting closed <span className="font-semibold text-slate-800">{formattedExpiresAt}</span>
+                      </div>
+                    )}
+                    <div>Results are now available below.</div>
+                  </>
+                )}
               </div>
             </div>
           )}
@@ -500,15 +513,6 @@ const VotePage: React.FC = () => {
           {/* Options */}
           <div className={`space-y-3 ${isScheduled ? 'opacity-60' : ''}`}>
             <label className="block text-sm font-semibold text-slate-800 ml-1">Select your choice:</label>
-            {isScheduled && (
-              <div className="flex items-start gap-3 text-sm text-slate-700 bg-slate-50 p-4 rounded-xl border border-slate-200">
-                <AlertCircle size={18} className="shrink-0 text-slate-500" />
-                <div>
-                  <p>Voting has not yet opened.</p>
-                  <p>Please check back once the scheduled start time arrives.</p>
-                </div>
-              </div>
-            )}
             {currentQuestion.options.map((option) => {
               const isSelected = selectedOptionId === option.id;
               const isPrevSelection = existingVote?.optionId === option.id;
