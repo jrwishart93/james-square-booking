@@ -3,12 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { User, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { FirebaseError } from 'firebase/app';
-import { getExistingVoteForUser, getQuestions, normalizeFlat, submitVote } from '../services/storageService';
+import { getExistingVoteForFlat, getExistingVoteForUser, getQuestions, normalizeFlat, submitVote } from '../services/storageService';
 import { auth, db } from '@/lib/firebase';
 import { Question, Vote } from '../types';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
-import { ArrowRight, AlertCircle, CalendarClock, Check, Loader2 } from 'lucide-react';
+import { ArrowRight, AlertCircle, CalendarClock, Check, Info, Loader2, ShieldAlert } from 'lucide-react';
 import { getVoteStatus } from '@/lib/voteExpiry';
 import { lightHaptic } from '@/lib/haptics';
 import CountdownTimer from './CountdownTimer';
@@ -37,10 +37,16 @@ const VotePage: React.FC = () => {
   const [flat, setFlat] = useState('');
   const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<{
+    tone: 'success' | 'warning' | 'info' | 'error';
+    title: string;
+    message: string;
+    details?: string;
+  } | null>(null);
   const [isCheckingExistingVote, setIsCheckingExistingVote] = useState(false);
   const [existingVote, setExistingVote] = useState<Vote | null>(null);
-  const [duplicateMessage, setDuplicateMessage] = useState<string | null>(null);
+  const [flatVote, setFlatVote] = useState<Vote | null>(null);
+  const [pendingVoteChange, setPendingVoteChange] = useState(false);
   const [now, setNow] = useState<number>(() => Date.now());
 
   // Load username from session storage if available (UX convenience)
@@ -125,16 +131,20 @@ const VotePage: React.FC = () => {
       if (nextQ) {
         setCurrentQuestion(nextQ);
         setSelectedOptionId(null); // Reset selection
-        setError(null);
         setExistingVote(null);
-        setDuplicateMessage(null);
+        setFlatVote(null);
+        setPendingVoteChange(false);
       } else {
         // No more questions to vote on
         navigate('/results');
       }
     } catch (err) {
       console.error(err);
-      setError("Failed to load questions.");
+      setNotice({
+        tone: 'error',
+        title: 'Unable to load questions',
+        message: 'We could not load the current vote. Please refresh and try again.',
+      });
     } finally {
       setIsLoading(false);
     }
@@ -161,26 +171,47 @@ const VotePage: React.FC = () => {
   useEffect(() => {
     if (!currentQuestion) return;
 
-    if (!currentUser && !flat.trim()) {
+    const normalizedFlatValue = normalizeFlat(flat);
+
+    if (!currentUser && !normalizedFlatValue) {
       setExistingVote(null);
+      setFlatVote(null);
       setIsCheckingExistingVote(false);
       return;
     }
 
     let isActive = true;
     setIsCheckingExistingVote(true);
-    setDuplicateMessage(null);
 
     const loadExisting = async () => {
       try {
-        const vote = await getExistingVoteForUser(currentQuestion.id, currentUser?.uid);
-        if (!isActive) return;
-        setExistingVote(vote);
-        setSelectedOptionId((prev) => prev ?? vote?.optionId ?? null);
+        if (normalizedFlatValue) {
+          const vote = await getExistingVoteForFlat(currentQuestion.id, normalizedFlatValue);
+          if (!isActive) return;
+          setFlatVote(vote);
+          const isUserVote = Boolean(vote && currentUser && vote.userId === currentUser.uid);
+          setExistingVote(isUserVote ? vote : null);
+          if (isUserVote) {
+            setSelectedOptionId((prev) => prev ?? vote?.optionId ?? null);
+          }
+        } else if (currentUser) {
+          const vote = await getExistingVoteForUser(currentQuestion.id, currentUser?.uid);
+          if (!isActive) return;
+          setExistingVote(vote);
+          setFlatVote(vote);
+          setSelectedOptionId((prev) => prev ?? vote?.optionId ?? null);
+        } else {
+          setExistingVote(null);
+          setFlatVote(null);
+        }
       } catch (checkError) {
         if (!isActive) return;
         console.error('Failed to load existing vote', checkError);
-        setDuplicateMessage('Please confirm your flat number before submitting your voting response.');
+        setNotice({
+          tone: 'warning',
+          title: 'Unable to confirm existing vote',
+          message: 'Please confirm your flat number before submitting your voting response.',
+        });
       } finally {
         if (isActive) setIsCheckingExistingVote(false);
       }
@@ -200,7 +231,7 @@ const VotePage: React.FC = () => {
     const trimmedName = userName.trim();
     const normalizedFlat = normalizeFlat(flat);
 
-    setError(null);
+    setNotice(null);
 
     const expiresAt =
       currentQuestion.expiresAt instanceof Date
@@ -216,25 +247,69 @@ const VotePage: React.FC = () => {
           : null;
     const voteStatus = getVoteStatus(new Date(), expiresAt, startsAt);
     if (!voteStatus.isOpen) {
-      setError('Voting is not currently open.');
+      setNotice({
+        tone: 'info',
+        title: 'Voting is not currently open',
+        message: 'Please check the scheduled voting window below.',
+      });
       return;
     }
 
     if (!currentUser) {
-      setError('Please log in to take part in voting.');
+      setNotice({
+        tone: 'error',
+        title: 'Login required',
+        message: 'Please log in to take part in voting.',
+      });
       return;
     }
 
     if (!trimmedName) {
-      setError("Please enter your name to take part in voting.");
+      setNotice({
+        tone: 'error',
+        title: 'Name required',
+        message: 'Please enter your name to take part in voting.',
+      });
       return;
     }
     if (!selectedOptionId) {
-      setError("Please select an option.");
+      setNotice({
+        tone: 'error',
+        title: 'Selection required',
+        message: 'Please select an option.',
+      });
       return;
     }
     if (!normalizedFlat) {
-      setError("Please enter your flat number to take part in voting.");
+      setNotice({
+        tone: 'error',
+        title: 'Flat number required',
+        message: 'Please enter your flat number to take part in voting.',
+      });
+      return;
+    }
+
+    if (flatVote && currentUser && flatVote.userId && flatVote.userId !== currentUser.uid) {
+      setNotice({
+        tone: 'warning',
+        title: '⚠️ Vote already recorded for this property',
+        message: `A vote has already been submitted on behalf of Flat ${normalizedFlat}. Each property can cast one vote per question.`,
+        details: 'If you believe this is a mistake, please contact the site administrator.',
+      });
+      return;
+    }
+
+    if (existingVote && !hasChangedVote) {
+      setNotice({
+        tone: 'info',
+        title: 'ℹ️ Nothing to submit',
+        message: `Your vote for Flat ${normalizedFlat} has already been recorded.`,
+      });
+      return;
+    }
+
+    if (existingVote && hasChangedVote && !pendingVoteChange) {
+      setPendingVoteChange(true);
       return;
     }
 
@@ -251,6 +326,23 @@ const VotePage: React.FC = () => {
       lightHaptic();
       sessionStorage.setItem('ovh_username', trimmedName);
       sessionStorage.setItem('ovh_flat', normalizedFlat);
+      setPendingVoteChange(false);
+      setNotice(
+        existingVote && hasChangedVote
+          ? {
+              tone: 'success',
+              title: '🔁 Vote updated',
+              message: `Your vote for Flat ${normalizedFlat} has been updated.`,
+              details: 'This is now your recorded choice.',
+            }
+          : {
+              tone: 'success',
+              title: '✅ Vote recorded',
+              message: `Your vote has been successfully recorded for Flat ${normalizedFlat}.`,
+              details:
+                'You can change your vote while voting is open. The most recent choice will be the one that counts.',
+            },
+      );
       await loadNextQuestion();
     } catch (err: unknown) {
       let message = 'Unable to submit your voting response right now. Please try again.';
@@ -266,11 +358,19 @@ const VotePage: React.FC = () => {
       }
 
       if (message.toLowerCase().includes('already voted')) {
-        message = 'A voting response has already been recorded for this flat.';
-        setDuplicateMessage(message);
+        setNotice({
+          tone: 'warning',
+          title: '⚠️ Vote already recorded for this property',
+          message: `A vote has already been submitted on behalf of Flat ${normalizedFlat}. Each property can cast one vote per question.`,
+          details: 'If you believe this is a mistake, please contact the site administrator.',
+        });
+      } else {
+        setNotice({
+          tone: 'error',
+          title: 'Unable to submit vote',
+          message,
+        });
       }
-
-      setError(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -300,7 +400,14 @@ const VotePage: React.FC = () => {
   const countdownTarget = isScheduled ? startsAtDate : isOpen ? expiresAtDate : null;
   const countdownLabel = isScheduled ? 'Voting opens in' : isOpen ? 'Voting closes in' : null;
   const countdownHelperText = isOpen ? 'Voting will close automatically at the scheduled time.' : null;
-  const canSubmit = Boolean(
+  const isVotingLocked = isScheduled || isClosed;
+  const hasExistingVote = Boolean(existingVote);
+  const hasChangedVote = hasExistingVote && selectedOptionId !== existingVote?.optionId;
+  const flatVoteByOther =
+    Boolean(flatVote && currentUser && flatVote.userId && flatVote.userId !== currentUser.uid);
+  const isConfirmingChange = pendingVoteChange && hasChangedVote && isOpen;
+  const isOptionLocked = isVotingLocked || flatVoteByOther;
+  const canConfirmUpdate = Boolean(
     selectedOptionId &&
     trimmedName &&
     normalizedFlat &&
@@ -308,11 +415,10 @@ const VotePage: React.FC = () => {
     currentUser &&
     !isSubmitting &&
     !isCheckingExistingVote &&
+    !flatVoteByOther &&
     isOpen,
   );
-  const isVotingLocked = isScheduled || isClosed;
-  const hasExistingVote = Boolean(existingVote);
-  const hasChangedVote = hasExistingVote && selectedOptionId !== existingVote?.optionId;
+  const canSubmit = canConfirmUpdate && !isConfirmingChange;
 
   if (isLoading) {
     return (
@@ -326,8 +432,8 @@ const VotePage: React.FC = () => {
     return null; // Redirect handled in useEffect
   }
 
-  const displayMessage = error ?? duplicateMessage;
   const flatLocked = Boolean(selectedOptionId);
+  const displayFlat = normalizedFlat || existingVote?.flat || flatVote?.flat || 'your property';
 
   return (
     <div className="max-w-xl mx-auto py-8 px-6">
@@ -427,12 +533,26 @@ const VotePage: React.FC = () => {
             <div className="mt-4 flex flex-col gap-2 text-sm font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-4 py-3 rounded-2xl shadow-[0_6px_20px_rgba(16,185,129,0.12)]">
               <div className="inline-flex items-center gap-2">
                 <Check size={14} />
-                <span>You have already submitted a vote.</span>
+                <span>🗳️ Vote already submitted</span>
               </div>
               <div className="text-emerald-900">
-                Your selection: <span className="font-semibold">{currentQuestion.options.find(o => o.id === existingVote?.optionId)?.label ?? existingVote?.optionId}</span>
+                You have already voted on behalf of Flat {displayFlat}.
               </div>
-              {isOpen && <span className="text-emerald-700 font-medium">You can change your selection while voting is open.</span>}
+              <div className="text-emerald-900">
+                Your current selection is highlighted below.
+              </div>
+              <div className="text-emerald-900">
+                Recorded choice:{' '}
+                <span className="font-semibold">
+                  {currentQuestion.options.find((option) => option.id === existingVote?.optionId)?.label ??
+                    existingVote?.optionId}
+                </span>
+              </div>
+              {isOpen ? (
+                <span className="text-emerald-700 font-medium">You may update your choice while voting is open.</span>
+              ) : (
+                <span className="text-emerald-700 font-medium">Voting has closed. Your recorded choice is shown below.</span>
+              )}
             </div>
           )}
         </div>
@@ -463,8 +583,7 @@ const VotePage: React.FC = () => {
                   if (flatLocked) return;
                   const normalizedValue = normalizeFlat(e.target.value);
                   setFlat(normalizedValue);
-                  setDuplicateMessage(null);
-                  if (error) setError(null);
+                  if (notice) setNotice(null);
                 }}
                 onBlur={handleFlatBlur}
                 readOnly={flatLocked}
@@ -479,8 +598,9 @@ const VotePage: React.FC = () => {
                   className="text-cyan-700 font-semibold hover:underline"
                   onClick={() => {
                     setSelectedOptionId(null);
-                    setDuplicateMessage(null);
                     setExistingVote(null);
+                    setFlatVote(null);
+                    setPendingVoteChange(false);
                   }}
                 >
                   Change flat
@@ -493,14 +613,43 @@ const VotePage: React.FC = () => {
                 : 'Your name and flat are stored so the committee can audit the ballots.'}
             </p>
           </div>
-
-          {isClosed ? (
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 text-center text-sm font-semibold text-slate-700">
-              {hasExistingVote
-                ? 'Voting is closed. Your recorded vote is shown above and can no longer be changed.'
-                : 'Voting is closed. Votes can no longer be submitted.'}
+          {flatVoteByOther && (
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+              <div className="flex items-center gap-2 font-semibold">
+                <AlertCircle size={16} />
+                ⚠️ Vote already recorded for this property
+              </div>
+              <div className="mt-1">
+                A vote has already been submitted on behalf of Flat {displayFlat}. Each property can cast one vote per question.
+              </div>
+              <div className="mt-1">If you believe this is a mistake, please contact the site administrator.</div>
             </div>
-          ) : countdownTarget && countdownLabel ? (
+          )}
+
+          {isScheduled && formattedStartsAt && (
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+              <div className="flex items-center gap-2 font-semibold">
+                <CalendarClock size={16} />
+                ⏳ Voting not open yet
+              </div>
+              <div className="mt-1">Voting will open on {formattedStartsAt}.</div>
+            </div>
+          )}
+          {isClosed && (
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-700">
+              <div className="flex items-center gap-2 font-semibold">
+                <ShieldAlert size={16} />
+                🔒 Voting closed
+              </div>
+              {formattedExpiresAt && <div className="mt-1">Voting closed on {formattedExpiresAt}.</div>}
+              <div className="mt-1">
+                {hasExistingVote
+                  ? `Your recorded vote for Flat ${displayFlat} is shown above.`
+                  : 'No vote was recorded for this property.'}
+              </div>
+            </div>
+          )}
+          {!isClosed && countdownTarget && countdownLabel ? (
             <div className="rounded-2xl border border-slate-200 bg-white p-4 flex justify-center">
               <CountdownTimer
                 expiresAt={countdownTarget}
@@ -512,20 +661,20 @@ const VotePage: React.FC = () => {
           ) : null}
 
           {/* Options */}
-          <div className={`space-y-3 ${isScheduled ? 'opacity-60' : ''}`}>
+          <div className={`space-y-3 ${isOptionLocked ? 'opacity-60' : ''}`}>
             <label className="block text-sm font-semibold text-slate-800 ml-1">Select your choice:</label>
             {currentQuestion.options.map((option) => {
               const isSelected = selectedOptionId === option.id;
               const isPrevSelection = existingVote?.optionId === option.id;
-              const hoverStyles = isScheduled ? '' : 'hover:bg-slate-50 hover:border-cyan-100';
-              const hoverText = isScheduled ? '' : 'group-hover:text-slate-900';
-              const hoverRing = isScheduled ? '' : 'group-hover:border-cyan-400';
+              const hoverStyles = isOptionLocked ? '' : 'hover:bg-slate-50 hover:border-cyan-100';
+              const hoverText = isOptionLocked ? '' : 'group-hover:text-slate-900';
+              const hoverRing = isOptionLocked ? '' : 'group-hover:border-cyan-400';
               return (
                 <label
                   key={option.id}
                   className={`
                     relative flex items-center p-4 rounded-xl border transition-all duration-200 group
-                    ${isScheduled ? 'cursor-not-allowed' : 'cursor-pointer'}
+                    ${isOptionLocked ? 'cursor-not-allowed' : 'cursor-pointer'}
                     ${isSelected
                       ? 'border-cyan-400/70 bg-cyan-50 shadow-[0_15px_40px_rgba(6,182,212,0.18)]'
                       : `border-slate-200 bg-white ${hoverStyles}`
@@ -539,7 +688,7 @@ const VotePage: React.FC = () => {
                     checked={isSelected}
                     onChange={() => setSelectedOptionId(option.id)}
                     className="sr-only" 
-                    disabled={isVotingLocked}
+                    disabled={isOptionLocked}
                   />
                   <div className={`
                     flex-shrink-0 w-5 h-5 rounded-full border flex items-center justify-center mr-4 transition-colors
@@ -560,17 +709,68 @@ const VotePage: React.FC = () => {
             })}
           </div>
 
-          {hasExistingVote && hasChangedVote && isOpen && (
-            <div className="flex items-center gap-3 text-sm text-amber-700 bg-amber-50 p-4 rounded-xl border border-amber-200">
-              <AlertCircle size={18} className="shrink-0" />
-              You are changing your vote. This will update the live results.
+          {isConfirmingChange && (
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900 space-y-3">
+              <div className="flex items-center gap-2 font-semibold">
+                <AlertCircle size={16} />
+                Change your vote?
+              </div>
+              <p>
+                You have already submitted a vote on behalf of Flat {displayFlat}. Changing your selection will replace your previous vote.
+              </p>
+              <p className="text-amber-800">
+                Please only change your vote if you are sure. Once voting closes, no further changes can be made.
+              </p>
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  fullWidth
+                  onClick={() => {
+                    setSelectedOptionId(existingVote?.optionId ?? null);
+                    setPendingVoteChange(false);
+                  }}
+                >
+                  Keep my existing vote
+                </Button>
+                <Button
+                  type="submit"
+                  fullWidth
+                  disabled={!canConfirmUpdate}
+                  isLoading={isSubmitting}
+                >
+                  Yes, update my vote
+                </Button>
+              </div>
             </div>
           )}
 
-          {displayMessage && (
-            <div className="flex items-center gap-3 text-red-700 text-sm bg-red-50 p-4 rounded-xl border border-red-200">
-              <AlertCircle size={18} className="shrink-0" />
-              {displayMessage}
+          {notice && (
+            <div
+              className={`flex items-start gap-3 text-sm p-4 rounded-xl border ${
+                notice.tone === 'success'
+                  ? 'text-emerald-700 bg-emerald-50 border-emerald-200'
+                  : notice.tone === 'warning'
+                    ? 'text-amber-800 bg-amber-50 border-amber-200'
+                    : notice.tone === 'info'
+                      ? 'text-sky-700 bg-sky-50 border-sky-200'
+                      : 'text-red-700 bg-red-50 border-red-200'
+              }`}
+            >
+              {notice.tone === 'success' ? (
+                <Check size={18} className="shrink-0 mt-0.5" />
+              ) : notice.tone === 'warning' ? (
+                <AlertCircle size={18} className="shrink-0 mt-0.5" />
+              ) : notice.tone === 'info' ? (
+                <Info size={18} className="shrink-0 mt-0.5" />
+              ) : (
+                <AlertCircle size={18} className="shrink-0 mt-0.5" />
+              )}
+              <div>
+                <div className="font-semibold">{notice.title}</div>
+                <div>{notice.message}</div>
+                {notice.details && <div className="mt-1 text-xs font-medium">{notice.details}</div>}
+              </div>
             </div>
           )}
           {isClosed ? (
