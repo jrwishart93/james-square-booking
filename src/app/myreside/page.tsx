@@ -70,50 +70,50 @@ const MyresidePage = () => {
                   <tr>
                     <td className="border-b border-slate-200/80 py-2 pr-4 dark:border-white/10">Block 39</td>
                     <td className="border-b border-slate-200/80 py-2 pr-4 dark:border-white/10">16</td>
-                    <td className="border-b border-slate-200/80 py-2 pr-4 dark:border-white/10">£1,739.09</td>
-                    <td className="border-b border-slate-200/80 py-2 dark:border-white/10">£144.92</td>
+                    <td className="border-b border-slate-200/80 py-2 pr-4 dark:border-white/10">£1,719.68</td>
+                    <td className="border-b border-slate-200/80 py-2 dark:border-white/10">£143.31</td>
                   </tr>
                   <tr>
                     <td className="border-b border-slate-200/80 py-2 pr-4 dark:border-white/10">Block 45</td>
                     <td className="border-b border-slate-200/80 py-2 pr-4 dark:border-white/10">19</td>
-                    <td className="border-b border-slate-200/80 py-2 pr-4 dark:border-white/10">£1,753.87</td>
-                    <td className="border-b border-slate-200/80 py-2 dark:border-white/10">£146.16</td>
+                    <td className="border-b border-slate-200/80 py-2 pr-4 dark:border-white/10">£1,734.45</td>
+                    <td className="border-b border-slate-200/80 py-2 dark:border-white/10">£144.54</td>
                   </tr>
                   <tr>
                     <td className="border-b border-slate-200/80 py-2 pr-4 dark:border-white/10">Block 51</td>
                     <td className="border-b border-slate-200/80 py-2 pr-4 dark:border-white/10">31</td>
-                    <td className="border-b border-slate-200/80 py-2 pr-4 dark:border-white/10">£1,742.01</td>
-                    <td className="border-b border-slate-200/80 py-2 dark:border-white/10">£145.17</td>
+                    <td className="border-b border-slate-200/80 py-2 pr-4 dark:border-white/10">£1,722.59</td>
+                    <td className="border-b border-slate-200/80 py-2 dark:border-white/10">£143.55</td>
                   </tr>
                   <tr>
                     <td className="border-b border-slate-200/80 py-2 pr-4 dark:border-white/10">Block 55</td>
                     <td className="border-b border-slate-200/80 py-2 pr-4 dark:border-white/10">15</td>
-                    <td className="border-b border-slate-200/80 py-2 pr-4 dark:border-white/10">£1,741.52</td>
-                    <td className="border-b border-slate-200/80 py-2 dark:border-white/10">£145.13</td>
+                    <td className="border-b border-slate-200/80 py-2 pr-4 dark:border-white/10">£1,722.10</td>
+                    <td className="border-b border-slate-200/80 py-2 dark:border-white/10">£143.51</td>
                   </tr>
                   <tr>
                     <td className="border-b border-slate-200/80 py-2 pr-4 dark:border-white/10">Block 57</td>
                     <td className="border-b border-slate-200/80 py-2 pr-4 dark:border-white/10">6</td>
-                    <td className="border-b border-slate-200/80 py-2 pr-4 dark:border-white/10">£1,799.72</td>
-                    <td className="border-b border-slate-200/80 py-2 dark:border-white/10">£149.98</td>
+                    <td className="border-b border-slate-200/80 py-2 pr-4 dark:border-white/10">£1,780.30</td>
+                    <td className="border-b border-slate-200/80 py-2 dark:border-white/10">£148.36</td>
                   </tr>
                   <tr>
                     <td className="border-b border-slate-200/80 py-2 pr-4 dark:border-white/10">Block 59</td>
                     <td className="border-b border-slate-200/80 py-2 pr-4 dark:border-white/10">6</td>
-                    <td className="border-b border-slate-200/80 py-2 pr-4 dark:border-white/10">£1,799.72</td>
-                    <td className="border-b border-slate-200/80 py-2 dark:border-white/10">£149.98</td>
+                    <td className="border-b border-slate-200/80 py-2 pr-4 dark:border-white/10">£1,780.30</td>
+                    <td className="border-b border-slate-200/80 py-2 dark:border-white/10">£148.36</td>
                   </tr>
                   <tr>
                     <td className="border-b border-slate-200/80 py-2 pr-4 dark:border-white/10">Block 61</td>
                     <td className="border-b border-slate-200/80 py-2 pr-4 dark:border-white/10">8</td>
-                    <td className="border-b border-slate-200/80 py-2 pr-4 dark:border-white/10">£1,775.47</td>
-                    <td className="border-b border-slate-200/80 py-2 dark:border-white/10">£147.96</td>
+                    <td className="border-b border-slate-200/80 py-2 pr-4 dark:border-white/10">£1,756.05</td>
+                    <td className="border-b border-slate-200/80 py-2 dark:border-white/10">£146.34</td>
                   </tr>
                   <tr>
                     <td className="py-2 pr-4">Block 65</td>
                     <td className="py-2 pr-4">2</td>
-                    <td className="py-2 pr-4">£1,993.72</td>
-                    <td className="py-2">£166.14</td>
+                    <td className="py-2 pr-4">£1,974.30</td>
+                    <td className="py-2">£164.53</td>
                   </tr>
                 </tbody>
               </table>
@@ -163,6 +163,7 @@ const MyresidePage = () => {
             </p>
             <p>Myreside does not take commission on building insurance premiums.</p>
           </div>
+          <p className="text-xs text-slate-500 dark:text-slate-400">*updated 18/01/2026</p>
         </div>
       }
       documentationLinks={[
