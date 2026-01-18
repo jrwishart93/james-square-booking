@@ -2,10 +2,12 @@ import {
   addDoc,
   collection,
   doc,
+  getDoc,
   getDocs,
   orderBy,
   query,
   serverTimestamp,
+  setDoc,
   Timestamp,
   where,
   writeBatch,
@@ -191,41 +193,11 @@ export const getVotes = async (questionId?: string): Promise<Vote[]> => {
   return votesSnap.docs.map(mapVoteDoc);
 };
 
-const findExistingVoteDoc = async (questionId: string, userId?: string | null, flat?: string) => {
-  const normalizedFlat = flat ? normalizeFlat(flat) : '';
-  if (userId) {
-    const byUserQuery = query(
-      collection(db, VOTES_COLLECTION),
-      where('questionId', '==', questionId),
-      where('userId', '==', userId),
-    );
-    const byUserSnapshot = await getDocs(byUserQuery);
-    if (!byUserSnapshot.empty) {
-      return byUserSnapshot.docs[0];
-    }
-  }
-
-  if (normalizedFlat) {
-    const byFlatQuery = query(
-      collection(db, VOTES_COLLECTION),
-      where('questionId', '==', questionId),
-      where('flat', '==', normalizedFlat),
-    );
-    const byFlatSnapshot = await getDocs(byFlatQuery);
-    if (!byFlatSnapshot.empty) {
-      return byFlatSnapshot.docs[0];
-    }
-  }
-
-  return null;
-};
-
 export const submitVote = async (
   questionId: string,
   optionId: string,
   userName: string,
   flat: string,
-  userId: string,
 ): Promise<Vote> => {
   const user = auth.currentUser;
 
@@ -233,25 +205,28 @@ export const submitVote = async (
     throw new Error('User must be logged in with a valid email to vote.');
   }
 
+  const voteRef = doc(db, VOTES_COLLECTION, `${questionId}_${user.uid}`);
+  const existingSnap = await getDoc(voteRef);
   const votePayload = {
     questionId,
     optionId,
-    userId,
+    userId: user.uid,
     userName,
     userEmail: user.email,
     flat,
-    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+    ...(existingSnap.exists() ? {} : { createdAt: serverTimestamp() }),
   };
 
-  const ref = await addDoc(collection(db, VOTES_COLLECTION), votePayload);
+  await setDoc(voteRef, votePayload, { merge: true });
 
   return {
-    id: ref.id,
+    id: voteRef.id,
     questionId,
     optionId,
     userName,
     flat,
-    userId,
+    userId: user.uid,
     createdAt: Date.now(),
   };
 };
@@ -274,9 +249,10 @@ export const hasExistingVoteForFlat = async (questionId: string, flat: string): 
 export const getExistingVoteForUser = async (
   questionId: string,
   userId?: string | null,
-  flat?: string,
 ): Promise<Vote | null> => {
-  const existing = await findExistingVoteDoc(questionId, userId, flat);
-  if (!existing) return null;
-  return mapVoteDoc(existing);
+  if (!userId) return null;
+  const voteRef = doc(db, VOTES_COLLECTION, `${questionId}_${userId}`);
+  const voteSnap = await getDoc(voteRef);
+  if (!voteSnap.exists()) return null;
+  return mapVoteDoc(voteSnap);
 };
