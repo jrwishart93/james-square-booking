@@ -322,7 +322,7 @@ const VotePage: React.FC = () => {
         flat: normalizedFlat,
       });
 
-      await submitVote(currentQuestion.id, selectedOptionId, trimmedName, normalizedFlat);
+      await submitVote(currentQuestion.id, selectedOptionId, trimmedName, normalizedFlat, currentUser.uid);
       lightHaptic();
       sessionStorage.setItem('ovh_username', trimmedName);
       sessionStorage.setItem('ovh_flat', normalizedFlat);
