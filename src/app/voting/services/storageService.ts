@@ -196,11 +196,23 @@ export const getVotes = async (questionId?: string): Promise<Vote[]> => {
 
 const findExistingVoteDoc = async (questionId: string, userId: string, flat: string) => {
   const normalizedFlat = normalizeFlat(flat);
+  if (normalizedFlat) {
+    const flatVoteQuery = query(
+      collection(db, VOTES_COLLECTION),
+      where('questionId', '==', questionId),
+      where('flat', '==', normalizedFlat),
+      limit(1),
+    );
+    const flatSnapshot = await getDocs(flatVoteQuery);
+    if (!flatSnapshot.empty) {
+      return flatSnapshot.docs[0];
+    }
+  }
+
   const voteQuery = query(
     collection(db, VOTES_COLLECTION),
     where('questionId', '==', questionId),
     where('userId', '==', userId),
-    where('flat', '==', normalizedFlat),
     limit(1),
   );
   const snapshot = await getDocs(voteQuery);
@@ -223,6 +235,11 @@ export const submitVote = async (
   const existingVoteDoc = await findExistingVoteDoc(questionId, userId, flat);
 
   if (existingVoteDoc) {
+    const existingData = existingVoteDoc.data() as Record<string, unknown>;
+    const existingUserId = typeof existingData.userId === 'string' ? existingData.userId : null;
+    if (existingUserId && existingUserId !== userId) {
+      throw new Error('A vote has already been submitted for this property.');
+    }
     await updateDoc(existingVoteDoc.ref, {
       optionId,
       updatedAt: serverTimestamp(),
