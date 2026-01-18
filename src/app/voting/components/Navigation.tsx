@@ -22,6 +22,20 @@ const Navigation: React.FC = () => {
       pb-safe
     ">
       <div className="max-w-md mx-auto px-6 pt-4 pb-5 space-y-3">
+        <div className="flex justify-between gap-2">
+          <NavLink to="/" className={linkClass}>
+            <PenSquare size={18} />
+            <span>Ask</span>
+          </NavLink>
+          <NavLink to="/vote" className={linkClass}>
+            <Vote size={18} />
+            <span>Vote</span>
+          </NavLink>
+          <NavLink to="/results" className={linkClass}>
+            <BarChart3 size={18} />
+            <span>Results</span>
+          </NavLink>
+        </div>
         <div className="space-y-3">
           <button
             type="button"
@@ -61,20 +75,6 @@ const Navigation: React.FC = () => {
               </ul>
             </div>
           </div>
-        </div>
-        <div className="flex justify-between gap-2">
-          <NavLink to="/" className={linkClass}>
-            <PenSquare size={18} />
-            <span>Ask</span>
-          </NavLink>
-          <NavLink to="/vote" className={linkClass}>
-            <Vote size={18} />
-            <span>Vote</span>
-          </NavLink>
-          <NavLink to="/results" className={linkClass}>
-            <BarChart3 size={18} />
-            <span>Results</span>
-          </NavLink>
         </div>
       </div>
     </nav>
