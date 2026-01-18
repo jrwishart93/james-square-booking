@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronDown, Info } from 'lucide-react';
 
-const transition = { duration: 0.25, ease: [0.4, 0, 0.2, 1] };
-
 const VotingInfoBox: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -33,7 +31,7 @@ const VotingInfoBox: React.FC = () => {
         </span>
         <motion.span
           animate={{ rotate: isOpen ? 180 : 0 }}
-          transition={transition}
+          transition={{ duration: 0.25, ease: 'easeInOut' }}
           className="text-slate-500"
         >
           <ChevronDown size={18} />
@@ -47,7 +45,7 @@ const VotingInfoBox: React.FC = () => {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={transition}
+            transition={{ duration: 0.25, ease: 'easeInOut' }}
             className="overflow-hidden"
           >
             <div className="px-5 pb-5 pt-1">
