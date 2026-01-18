@@ -4,11 +4,12 @@ import {
   doc,
   getDoc,
   getDocs,
+  limit,
   orderBy,
   query,
   serverTimestamp,
-  setDoc,
   Timestamp,
+  updateDoc,
   where,
   writeBatch,
 } from 'firebase/firestore';
@@ -193,42 +194,51 @@ export const getVotes = async (questionId?: string): Promise<Vote[]> => {
   return votesSnap.docs.map(mapVoteDoc);
 };
 
+const findExistingVoteDoc = async (questionId: string, userId: string, flat: string) => {
+  const normalizedFlat = normalizeFlat(flat);
+  const voteQuery = query(
+    collection(db, VOTES_COLLECTION),
+    where('questionId', '==', questionId),
+    where('userId', '==', userId),
+    where('flat', '==', normalizedFlat),
+    limit(1),
+  );
+  const snapshot = await getDocs(voteQuery);
+  return snapshot.docs[0] ?? null;
+};
+
 export const submitVote = async (
   questionId: string,
   optionId: string,
   userName: string,
   flat: string,
-): Promise<Vote> => {
+  userId: string,
+): Promise<void> => {
   const user = auth.currentUser;
 
   if (!user || !user.email) {
     throw new Error('User must be logged in with a valid email to vote.');
   }
 
-  const normalizedFlat = flat.trim();
-  const voteDocId = `${questionId}__${normalizedFlat}`;
-  const voteRef = doc(db, VOTES_COLLECTION, voteDocId);
-  const votePayload = {
+  const existingVoteDoc = await findExistingVoteDoc(questionId, userId, flat);
+
+  if (existingVoteDoc) {
+    await updateDoc(existingVoteDoc.ref, {
+      optionId,
+      updatedAt: serverTimestamp(),
+    });
+    return;
+  }
+
+  await addDoc(collection(db, VOTES_COLLECTION), {
     questionId,
     optionId,
-    userId: user.uid,
+    userId,
     userName,
     userEmail: user.email,
-    flat: normalizedFlat,
+    flat,
     createdAt: serverTimestamp(),
-  };
-
-  await setDoc(voteRef, votePayload, { merge: true });
-
-  return {
-    id: voteRef.id,
-    questionId,
-    optionId,
-    userName,
-    flat: normalizedFlat,
-    userId: user.uid,
-    createdAt: Date.now(),
-  };
+  });
 };
 
 export const hasExistingVoteForFlat = async (questionId: string, flat: string): Promise<boolean> => {
