@@ -206,43 +206,66 @@ export default function HomePageClient() {
         >
           {/* Top image */}
           <div className="relative overflow-hidden">
-            <motion.div
-              className="absolute inset-0"
-              initial={{ scale: 1, y: 0 }}
-              animate={reduceMotion ? { scale: 1, y: 0 } : { scale: 1.06, y: -8 }}
-              transition={{
-                duration: reduceMotion ? 0 : 45,
-                ease: 'linear',
-              }}
-              style={{
-                willChange: 'transform',
-                maskImage: 'radial-gradient(ellipse at center, black 65%, transparent 100%)',
-                WebkitMaskImage:
-                  'radial-gradient(ellipse at center, black 65%, transparent 100%)',
-              }}
-            >
-              {/* Light mode – daytime drone */}
-              <Image
-                src="/images/buildingimages/Day-drone-js.png"
-                alt="James Square aerial daytime"
-                width={1536}
-                height={1024}
-                priority
-                className="w-full h-[200px] sm:h-[320px] object-cover block dark:hidden"
-              />
+            {/* Fixed-height stage (prevents layout shift + ensures animation always visible) */}
+            <div className="relative h-[200px] sm:h-[320px] w-full">
+              {/* Animated layer */}
+              <motion.div
+                className="absolute inset-0"
+                initial={false}
+                animate={
+                  reduceMotion
+                    ? { scale: 1, x: 0, y: 0 }
+                    : { scale: 1.08, x: -10, y: -6 }
+                }
+                transition={
+                  reduceMotion
+                    ? { duration: 0 }
+                    : {
+                        duration: 18,
+                        ease: 'easeInOut',
+                        repeat: Infinity,
+                        repeatType: 'mirror',
+                      }
+                }
+                style={{
+                  willChange: 'transform',
+                  transformOrigin: 'center',
+                }}
+              >
+                {/* Light mode */}
+                <Image
+                  src="/images/buildingimages/Day-drone-js.png"
+                  alt="James Square aerial daytime"
+                  fill
+                  priority
+                  sizes="(min-width: 1024px) 1152px, 100vw"
+                  className="object-cover block dark:hidden"
+                />
 
-              {/* Dark mode – nighttime drone */}
-              <Image
-                src="/images/buildingimages/Night-drone-js.png"
-                alt="James Square aerial nighttime"
-                width={1536}
-                height={1024}
-                priority
-                className="w-full h-[200px] sm:h-[320px] object-cover hidden dark:block"
-              />
-            </motion.div>
+                {/* Dark mode */}
+                <Image
+                  src="/images/buildingimages/Night-drone-js.png"
+                  alt="James Square aerial nighttime"
+                  fill
+                  priority
+                  sizes="(min-width: 1024px) 1152px, 100vw"
+                  className="object-cover hidden dark:block"
+                />
+              </motion.div>
 
-            <div className="relative h-[200px] sm:h-[320px]" />
+              {/* Feathered edge fade (reliable on all browsers) */}
+              {/* Top */}
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-white/70 to-transparent dark:from-black/55" />
+              {/* Bottom */}
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-white/70 to-transparent dark:from-black/65" />
+              {/* Left */}
+              <div className="pointer-events-none absolute inset-y-0 left-0 w-14 bg-gradient-to-r from-white/55 to-transparent dark:from-black/55" />
+              {/* Right */}
+              <div className="pointer-events-none absolute inset-y-0 right-0 w-14 bg-gradient-to-l from-white/55 to-transparent dark:from-black/55" />
+
+              {/* Keep your readability overlay (optional but recommended) */}
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 via-black/10 to-transparent" />
+            </div>
           </div>
 
           <div className="p-6 sm:p-10">
