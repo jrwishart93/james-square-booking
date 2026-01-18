@@ -246,6 +246,20 @@ export const hasExistingVoteForFlat = async (questionId: string, flat: string): 
   return !snapshot.empty;
 };
 
+export const getExistingVoteForFlat = async (
+  questionId: string,
+  flat: string,
+): Promise<Vote | null> => {
+  const normalizedFlat = normalizeFlat(flat);
+
+  if (!normalizedFlat) return null;
+
+  const voteRef = doc(db, VOTES_COLLECTION, `${questionId}__${normalizedFlat}`);
+  const voteSnap = await getDoc(voteRef);
+  if (!voteSnap.exists()) return null;
+  return mapVoteDoc(voteSnap);
+};
+
 export const getExistingVoteForUser = async (
   questionId: string,
   userId?: string | null,
