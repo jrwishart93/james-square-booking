@@ -7,6 +7,7 @@ import { Loader2 } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import { getVoteStatus } from '@/lib/voteExpiry';
 import CountdownTimer from './CountdownTimer';
+import VotingInfoBox from './VotingInfoBox';
 
 const Results: React.FC = () => {
   const [stats, setStats] = useState<QuestionStats[]>([]);
@@ -348,6 +349,7 @@ const Results: React.FC = () => {
         );
         })}
       </div>
+      <VotingInfoBox />
     </div>
   );
 };

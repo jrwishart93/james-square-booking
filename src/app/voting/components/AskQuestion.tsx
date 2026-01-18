@@ -5,6 +5,7 @@ import { Input } from './ui/Input';
 import { addQuestion } from '../services/storageService';
 import { useNavigate } from 'react-router-dom';
 import { DURATION_PRESETS, DurationPreset } from '@/lib/voteExpiry';
+import VotingInfoBox from './VotingInfoBox';
 
 const AskQuestion: React.FC = () => {
   const navigate = useNavigate();
@@ -142,17 +143,22 @@ const AskQuestion: React.FC = () => {
 
   if (success) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 px-6 text-center animate-fade-in h-full">
-        <div className="bg-emerald-50 p-5 rounded-full mb-6 border border-emerald-200 shadow-[0_16px_40px_rgba(16,185,129,0.18)]">
-          <CheckCircle2 className="w-12 h-12 text-emerald-600" />
+      <div className="max-w-xl mx-auto py-8 px-6">
+        <div className="flex flex-col items-center justify-center py-16 text-center animate-fade-in">
+          <div className="bg-emerald-50 p-5 rounded-full mb-6 border border-emerald-200 shadow-[0_16px_40px_rgba(16,185,129,0.18)]">
+            <CheckCircle2 className="w-12 h-12 text-emerald-600" />
+          </div>
+          <h2 className="text-3xl font-bold text-slate-900 mb-3 tracking-tight">Question Published!</h2>
+          <p className="text-slate-600 mb-10 max-w-sm leading-relaxed">
+            Your question is now live. Users can find it immediately in the &quot;Vote&quot; tab.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 w-full max-w-xs">
+            <Button variant="outline" fullWidth onClick={() => setSuccess(false)}>Ask Another</Button>
+            <Button fullWidth onClick={() => navigate('/vote')}>Go to Voting</Button>
+          </div>
         </div>
-        <h2 className="text-3xl font-bold text-slate-900 mb-3 tracking-tight">Question Published!</h2>
-        <p className="text-slate-600 mb-10 max-w-sm leading-relaxed">
-          Your question is now live. Users can find it immediately in the &quot;Vote&quot; tab.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4 w-full max-w-xs">
-          <Button variant="outline" fullWidth onClick={() => setSuccess(false)}>Ask Another</Button>
-          <Button fullWidth onClick={() => navigate('/vote')}>Go to Voting</Button>
+        <div className="mt-10">
+          <VotingInfoBox />
         </div>
       </div>
     );
@@ -327,6 +333,9 @@ const AskQuestion: React.FC = () => {
             </Button>
           </div>
         </form>
+      </div>
+      <div className="mt-10">
+        <VotingInfoBox />
       </div>
     </div>
   );
