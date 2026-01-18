@@ -8,7 +8,7 @@ import { auth, db } from '@/lib/firebase';
 import { Question, Vote } from '../types';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
-import { ArrowRight, AlertCircle, CalendarClock, Check, Loader2 } from 'lucide-react';
+import { ArrowRight, AlertCircle, CalendarClock, Check, ChevronDown, Info, Loader2 } from 'lucide-react';
 import { getVoteStatus } from '@/lib/voteExpiry';
 import { lightHaptic } from '@/lib/haptics';
 import CountdownTimer from './CountdownTimer';
@@ -41,6 +41,7 @@ const VotePage: React.FC = () => {
   const [existingVote, setExistingVote] = useState<Vote | null>(null);
   const [duplicateMessage, setDuplicateMessage] = useState<string | null>(null);
   const [now, setNow] = useState<number>(() => Date.now());
+  const [isVotingInfoOpen, setIsVotingInfoOpen] = useState(false);
 
   // Load username from session storage if available (UX convenience)
   useEffect(() => {
@@ -438,6 +439,46 @@ const VotePage: React.FC = () => {
 
         {/* Voting Form */}
         <form onSubmit={handleSubmit} className="p-8 space-y-8">
+          <div className="space-y-3">
+            <button
+              type="button"
+              className="w-full rounded-2xl border border-slate-200 bg-white/70 px-4 py-3 text-left shadow-[0_8px_24px_rgba(15,23,42,0.06)] transition hover:border-cyan-200 hover:bg-white"
+              onClick={() => setIsVotingInfoOpen((prev) => !prev)}
+              aria-expanded={isVotingInfoOpen}
+            >
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 text-sm font-semibold text-slate-700">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-cyan-50 text-cyan-600">
+                    <Info size={16} />
+                  </span>
+                  <span>How voting works</span>
+                </div>
+                <ChevronDown
+                  size={18}
+                  className={`text-slate-500 transition-transform duration-200 ${isVotingInfoOpen ? 'rotate-180' : 'rotate-0'}`}
+                />
+              </div>
+            </button>
+            <div
+              className={`overflow-hidden rounded-2xl text-sm text-slate-700 transition-[max-height,opacity] duration-300 ease-out ${
+                isVotingInfoOpen
+                  ? 'max-h-96 opacity-100 border border-cyan-100/70 bg-gradient-to-br from-cyan-50/70 via-white to-indigo-50/60 px-4 py-4 shadow-[0_10px_30px_rgba(14,116,144,0.08)]'
+                  : 'max-h-0 opacity-0 border border-transparent bg-transparent px-4 py-0 shadow-none'
+              }`}
+            >
+              <div className={`${isVotingInfoOpen ? 'translate-y-0' : '-translate-y-1'} transition-transform duration-200`}>
+                <h3 className="text-sm font-semibold text-slate-900">How voting works</h3>
+                <ul className="mt-3 space-y-2 text-slate-700">
+                  <li>• Each property (flat) can cast one vote per question</li>
+                  <li>• If more than one person from the same flat is registered, the flat still counts as a single vote</li>
+                  <li>• While voting is open, you may change your selection</li>
+                  <li>• The most recent choice before voting closes is the one that counts</li>
+                  <li>• Once voting closes, no further changes can be made</li>
+                  <li>• All votes are securely logged for audit purposes</li>
+                </ul>
+              </div>
+            </div>
+          </div>
 
           {/* Identity Section */}
           <div className="bg-sky-50 p-5 rounded-2xl border border-sky-100 relative overflow-hidden group">
