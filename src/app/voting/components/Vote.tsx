@@ -12,6 +12,7 @@ import { ArrowRight, AlertCircle, CalendarClock, Check, Loader2 } from 'lucide-r
 import { getVoteStatus } from '@/lib/voteExpiry';
 import { lightHaptic } from '@/lib/haptics';
 import CountdownTimer from './CountdownTimer';
+import VotingInfoBox from './VotingInfoBox';
 
 const deriveFirstName = (user: User | null): string => {
   if (!user) return '';
@@ -606,6 +607,9 @@ const VotePage: React.FC = () => {
         >
           View results
         </button>
+      </div>
+      <div className="mt-10">
+        <VotingInfoBox />
       </div>
     </div>
   );
