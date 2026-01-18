@@ -23,27 +23,33 @@ const MyresidePage = () => {
       costsContent={
         <div className="space-y-6 text-sm md:text-base text-slate-700 dark:text-slate-200">
           <div className="space-y-2">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-              Update to Myreside Proposal – January 2025
-            </h3>
             <p>
-              Myreside issued an updated tender on 18 January 2025 following a further internal review after their
-              original submission. The overall structure of the proposal remains unchanged, but a small number of
-              refinements were made and shared with owners for transparency. The updated PDF replaces the previous
-              tender, and owners should refer to the revised document dated 18 January 2025.
+              Myreside have provided an updated version of their tender following a further internal review of their
+              proposal.
             </p>
             <p>
-              Two incentives have been introduced. Owners who choose to pay by Direct Debit receive a credit of £2.00
-              per quarter plus VAT, shown as a separate credit line on quarterly invoices. Owners who opt to receive
-              invoices and routine communications digitally rather than by post receive a credit of £1.50 per quarter
-              plus VAT, reflecting reduced printing and postage costs. These incentives are intended to pass on genuine
-              efficiency savings rather than alter the underlying management fee.
+              They have advised that two modest incentives have been introduced for owners who choose to pay by Direct
+              Debit and who opt to receive communications digitally. Myreside have explained that these changes follow a
+              review of their operational processes and costs and are intended to pass on genuine efficiency savings to
+              owners, rather than change the underlying management fee.
             </p>
             <p>
-              The building insurance premium has been amended and finalised at £38,000. This premium has been agreed
-              with Myreside’s broker and insurer with full knowledge of the building’s claims history and is not subject
-              to later adjustment on that basis.
+              Myreside have also confirmed that the building insurance figure has been amended to reflect the final
+              premium agreed with their broker and insurer. They have stated that this premium has been set with full
+              knowledge of the building’s claims history and is not subject to later adjustment on that basis.
             </p>
+            <p>
+              They have noted that they are continually reviewing how they deliver services and looking for ways to
+              improve efficiency and value for owners, and that these updates form part of that ongoing process.
+            </p>
+            <p>
+              In addition, Myreside have advised that they will be carrying out sample deep cleaning works at James
+              Square, including areas such as the pool, the main entrance, sections of carpet, and bin areas. This is
+              intended to demonstrate the standard of cleaning they would expect to deliver if appointed. They have
+              indicated that a short document with before-and-after photographs will be prepared and made available for
+              owners to review.
+            </p>
+            <p>Owners are encouraged to refer to the updated tender document for full details.</p>
           </div>
           <div className="space-y-2">
             <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Overall budget</h3>
