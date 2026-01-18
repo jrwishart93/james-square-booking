@@ -35,6 +35,9 @@ const deriveFirstName = (user: User | null): string => {
   return first ? first.charAt(0).toUpperCase() + first.slice(1) : "";
 };
 
+const formatVotingDate = (date: Date): string =>
+  `${date.toLocaleString("en-GB", { dateStyle: "full", timeStyle: "short" })} (UK time)`;
+
 type Tab = "ask" | "vote" | "results";
 
 const VIEW_ONLY_MESSAGE = "Viewing only. Please log in or sign up to place a vote.";
@@ -695,6 +698,8 @@ export default function OwnersVotingPage() {
                       const selected = selectedOptions[question.id] ?? null;
                       const selectionDisabled = authLoading || !isAuthenticated || !voteStatus.isOpen;
                       const isClosed = !voteStatus.isOpen;
+                      const formattedStartsAt = startsAt ? formatVotingDate(startsAt) : null;
+                      const formattedExpiresAt = expiresAt ? formatVotingDate(expiresAt) : null;
                       const alertTone = error === VOTE_RECORDED_MESSAGE
                         ? "success"
                         : error === VIEW_ONLY_MESSAGE
@@ -727,6 +732,42 @@ export default function OwnersVotingPage() {
                           {question.description && (
                             <p className="text-slate-700 text-sm leading-relaxed dark:text-slate-200">{question.description}</p>
                           )}
+                          <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 dark:border-white/15 dark:bg-white/10 dark:text-white/80">
+                            {voteStatus.kind === "scheduled" && (
+                              <div className="space-y-1">
+                                {formattedStartsAt && (
+                                  <div>
+                                    Voting opens <span className="font-semibold text-slate-800 dark:text-white">{formattedStartsAt}</span>
+                                  </div>
+                                )}
+                                {formattedExpiresAt && (
+                                  <div>
+                                    Voting closes <span className="font-semibold text-slate-800 dark:text-white">{formattedExpiresAt}</span>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                            {voteStatus.kind === "open" && (
+                              <div className="space-y-1">
+                                <div className="font-semibold text-slate-800 dark:text-white">Voting is open</div>
+                                {formattedExpiresAt && (
+                                  <div>
+                                    Closes <span className="font-semibold text-slate-800 dark:text-white">{formattedExpiresAt}</span>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                            {voteStatus.kind === "closed" && (
+                              <div className="space-y-1">
+                                {formattedExpiresAt && (
+                                  <div>
+                                    Voting closed <span className="font-semibold text-slate-800 dark:text-white">{formattedExpiresAt}</span>
+                                  </div>
+                                )}
+                                <div>Results are now available below.</div>
+                              </div>
+                            )}
+                          </div>
 
                           <form onSubmit={(e) => handleSubmitVote(e, question)} className="space-y-4">
                             <div className="space-y-4">
@@ -780,15 +821,6 @@ export default function OwnersVotingPage() {
                                 );
                               })}
                             </div>
-
-                            {!voteStatus.isOpen && (
-                              <div className="flex items-center gap-3 text-sm text-slate-600 bg-slate-100 border border-slate-200 rounded-xl p-4 dark:bg-white/10 dark:border-white/15 dark:text-white/80">
-                                <AlertCircle size={16} className="text-slate-500 dark:text-white/70" />
-                                {voteStatus.kind === "scheduled"
-                                  ? "Voting has not opened yet. Please check back once the start time arrives."
-                                  : "Voting is closed for this question."}
-                              </div>
-                            )}
 
                             {!isAuthenticated && (
                               <p className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
