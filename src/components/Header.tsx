@@ -210,7 +210,7 @@ export default function Header() {
       ].join(" ")}
     >
       <div className="site-header-shell">
-        <header className="site-header mx-auto max-w-6xl px-4 sm:px-6">
+        <nav className="site-header mx-auto max-w-6xl px-4 sm:px-6" aria-label="Primary">
           <div className="flex items-center justify-between px-3 sm:px-4 py-2">
             {/* Brand */}
             <motion.div whileHover={{ scale: 1.02 }} className="rounded-xl">
@@ -247,7 +247,7 @@ export default function Header() {
             </motion.div>
 
             {/* Desktop nav */}
-            <nav className="hidden sm:block">
+            <div className="hidden sm:block">
               <ul className="flex items-center gap-2 text-sm">
                 <NavLink href="/book" label="Book Facilities" />
                 <NavLink href="/dashboard" label="My Dashboard" />
@@ -278,7 +278,7 @@ export default function Header() {
                   <NavLink href="/login" label="Sign In" />
                 )}
               </ul>
-            </nav>
+            </div>
 
             {/* Mobile toggle */}
             <motion.button
@@ -295,7 +295,7 @@ export default function Header() {
               <span className="relative z-10">{open ? "Close" : "Menu"}</span>
             </motion.button>
           </div>
-        </header>
+        </nav>
       </div>
 
       {/* Mobile sheet */}
