@@ -72,12 +72,13 @@ export default function Footer() {
       aria-label="Site footer"
       className="mt-12 border-t border-white/10 bg-white/40 backdrop-blur-xl dark:bg-neutral-950/50"
     >
-      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-6 py-10 text-slate-700 md:grid-cols-4 dark:text-slate-300">
+      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-6 py-10 text-slate-700 md:grid-cols-3 dark:text-slate-300">
         <div className="space-y-4">
+          <h2 className="text-sm font-semibold text-slate-900 dark:text-white">About</h2>
           <div className="flex items-center gap-3">
             <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-full">
               <div
-                className="absolute inset-0 rounded-full bg-[radial-gradient(circle,rgba(56,189,248,0.35),transparent_70%)] opacity-60 blur-xl"
+                className="absolute inset-0 rounded-full bg-[radial-gradient(circle,rgba(56,189,248,0.35),transparent_70%)] opacity-0 blur-xl dark:opacity-60"
                 aria-hidden="true"
               />
               <Image
@@ -94,6 +95,21 @@ export default function Footer() {
             James-Square.com portal is provided for residents and owners to manage bookings,
             communications, and building updates.
           </p>
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 dark:text-slate-300">
+              <MapPin className="h-4 w-4 text-slate-500 dark:text-slate-400" aria-hidden="true" />
+              Address
+            </div>
+            <address className="not-italic text-sm leading-6 text-slate-600 dark:text-slate-300">
+              <span className="block">James Square</span>
+              <span className="block">Caledonian Crescent</span>
+              <span className="block">Edinburgh</span>
+              <span className="block">EH11 2AT</span>
+            </address>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              This portal is provided for information and communication only.
+            </p>
+          </div>
         </div>
 
         <div className="space-y-4">
@@ -119,22 +135,6 @@ export default function Footer() {
               </li>
             ))}
           </ul>
-        </div>
-
-        <div className="space-y-4">
-          <h2 className="inline-flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white">
-            <MapPin className="h-4 w-4 text-slate-500 dark:text-slate-400" aria-hidden="true" />
-            Address
-          </h2>
-          <address className="not-italic text-sm leading-6 text-slate-600 dark:text-slate-300">
-            <span className="block">James Square</span>
-            <span className="block">Caledonian Crescent</span>
-            <span className="block">Edinburgh</span>
-            <span className="block">EH11 2AT</span>
-          </address>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            This portal is provided for information and communication only.
-          </p>
         </div>
 
         <div className="space-y-4">
