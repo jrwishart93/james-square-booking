@@ -10,6 +10,7 @@ export async function sendAdminEmailRequest(
     recipients: {
       mode: RecipientMode;
       userIds?: string[];
+      emails?: string[];
     };
   },
 ) {

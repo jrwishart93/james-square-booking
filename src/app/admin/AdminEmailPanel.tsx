@@ -90,6 +90,19 @@ const AdminEmailPanel = () => {
     );
   };
 
+  const buildRecipientEmails = () => {
+    if (recipientMode === 'all') {
+      return users.map((user) => user.email);
+    }
+
+    if (recipientMode === 'owners') {
+      return ownerUsers.map((user) => user.email);
+    }
+
+    const selected = new Set(selectedIds);
+    return users.filter((user) => selected.has(user.id)).map((user) => user.email);
+  };
+
   const handleSubmit = async () => {
     const currentUser = auth.currentUser;
     if (!currentUser) {
@@ -114,7 +127,7 @@ const AdminEmailPanel = () => {
         message: message.trim(),
         recipients: {
           mode: recipientMode,
-          userIds: recipientMode === 'selected' ? selectedIds : undefined,
+          emails: buildRecipientEmails(),
         },
       });
 
