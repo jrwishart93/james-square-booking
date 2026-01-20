@@ -19,40 +19,52 @@ export default function Footer() {
   return (
     <footer className="mt-12">
       <div className="jqs-glass rounded-t-3xl rounded-b-none border border-slate-200/60 dark:border-slate-800/60">
-        <div className="max-w-6xl mx-auto px-3 sm:px-6 py-4 md:py-8">
+        <div className="max-w-6xl mx-auto px-3 sm:px-6 py-3 md:py-6">
           <div className="flex justify-center md:hidden mb-3">
             <LogoMark />
           </div>
 
-          <div className="grid grid-cols-3 gap-3 sm:gap-4 md:gap-10 text-[11px] sm:text-xs md:text-sm text-slate-600 dark:text-slate-300">
-            <section className="flex flex-col gap-2 md:gap-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-5 md:gap-10 text-[11px] sm:text-xs md:text-sm text-slate-600 dark:text-slate-300">
+            <section className="flex flex-col gap-3 md:gap-4">
               <div className="hidden md:flex items-center gap-3">
                 <LogoMark />
-                <h2 className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                <h2 className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500/80 dark:text-slate-400/80">
                   About
                 </h2>
               </div>
-              <h2 className="md:hidden text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 text-center">
+              <h2 className="md:hidden text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500/80 dark:text-slate-400/80 text-center">
                 About
               </h2>
-              <p className="leading-snug md:leading-relaxed text-slate-600 dark:text-slate-300">
-                James-Square.com is an online portal for residents and owners to manage facilities, communications, and
-                building information.
+              <p className="leading-snug md:leading-relaxed text-slate-600 dark:text-slate-300 text-pretty sm:line-clamp-none line-clamp-3">
+                James-Square.com is the online portal for residents and owners of James Square. It provides facility
+                bookings, shared information, a message board, and useful services for the James Square community.
               </p>
+              <div className="flex items-start gap-2 text-[10px] sm:text-[11px] md:text-xs text-slate-500/80 dark:text-slate-400/80">
+                <LocationIcon className="mt-0.5 h-4 w-4 flex-shrink-0" />
+                <address className="not-italic leading-relaxed">
+                  James Square
+                  <br />
+                  Caledonian Crescent
+                  <br />
+                  Edinburgh
+                  <br />
+                  EH11 2AT
+                </address>
+              </div>
             </section>
 
-            <section className="flex flex-col gap-2 md:gap-3">
-              <h2 className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 text-center md:text-left">
+            <section className="flex flex-col gap-3 md:gap-4">
+              <h2 className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500/80 dark:text-slate-400/80 text-center md:text-left">
                 Contact
               </h2>
-              <ul className="space-y-2 md:space-y-3">
+              <ul className="space-y-3 md:space-y-4">
                 {contactEmails.map((email) => (
                   <li key={email}>
                     <a
-                      className="flex flex-col items-center gap-1 text-center text-slate-600 transition-colors hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 md:items-start md:text-left"
+                      className="flex flex-col items-center gap-1.5 text-center text-slate-600 transition-colors hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 md:items-start md:text-left"
                       href={`mailto:${email}`}
                     >
-                      <MailIcon className="h-4 w-4" />
+                      <MailIcon className="h-5 w-5" />
                       <span className="text-[10px] sm:text-[11px] md:text-sm leading-snug">{email}</span>
                     </a>
                   </li>
@@ -63,18 +75,18 @@ export default function Footer() {
               </p>
             </section>
 
-            <section className="flex flex-col gap-2 md:gap-3">
-              <h2 className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 text-center md:text-left">
+            <section className="flex flex-col gap-3 md:gap-4">
+              <h2 className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500/80 dark:text-slate-400/80 text-center md:text-left">
                 Links
               </h2>
-              <ul className="space-y-2 md:space-y-3">
+              <ul className="space-y-3 md:space-y-4">
                 {quickLinks.map(({ href, label, icon: Icon }) => (
                   <li key={href}>
                     <Link
                       href={href}
-                      className="flex flex-col items-center gap-1 rounded-lg px-1.5 py-1 text-center text-slate-600 transition-colors hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 md:items-start md:text-left"
+                      className="flex flex-col items-center gap-1.5 rounded-lg px-1.5 py-1 text-center text-slate-600 transition-colors hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 md:items-start md:text-left"
                     >
-                      <Icon className="h-4 w-4" />
+                      <Icon className="h-5 w-5" />
                       <span className="text-[10px] sm:text-[11px] md:text-sm leading-snug">{label}</span>
                     </Link>
                   </li>
@@ -83,7 +95,7 @@ export default function Footer() {
             </section>
           </div>
 
-          <div className="mt-4 border-t border-slate-200/70 dark:border-slate-700/60 pt-2 text-[10px] text-slate-500 dark:text-slate-400">
+          <div className="mt-3 border-t border-slate-200/70 dark:border-slate-700/60 pt-2 text-[10px] text-slate-500 dark:text-slate-400">
             © 2025 James Square. All rights reserved.
           </div>
         </div>
@@ -94,12 +106,14 @@ export default function Footer() {
 
 function LogoMark() {
   return (
-    <div className="relative">
+    <div className="relative flex items-center justify-center">
       <span
-        className="animate-footer-glow footer-logo-glow pointer-events-none absolute -inset-6 rounded-full blur-2xl bg-[radial-gradient(circle,rgba(148,163,184,0.35),transparent_70%)] dark:bg-[radial-gradient(circle,rgba(96,165,250,0.5),transparent_70%)]"
+        className="animate-footer-glow pointer-events-none absolute -inset-7 rounded-full blur-2xl bg-[radial-gradient(circle,rgba(148,163,184,0.18),transparent_70%)] dark:bg-[radial-gradient(circle,rgba(191,219,254,0.32),transparent_70%)]"
         aria-hidden="true"
       />
-      <Image src="/images/logo/Logo.png" alt="James Square" width={36} height={36} className="relative h-9 w-9" />
+      <span className="relative flex h-11 w-11 items-center justify-center rounded-full border border-slate-200/70 bg-white/60 shadow-sm backdrop-blur dark:border-slate-700/60 dark:bg-slate-900/60">
+        <Image src="/images/logo/Logo.png" alt="James Square" width={36} height={36} className="h-9 w-9" />
+      </span>
     </div>
   );
 }
@@ -209,6 +223,24 @@ function CalendarIcon({ className }: { className?: string }) {
       <path d="M16 3v3" />
       <path d="M4 9h16" />
       <rect x="4" y="5" width="16" height="16" rx="2" />
+    </svg>
+  );
+}
+
+function LocationIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M12 21s7-4.4 7-10a7 7 0 1 0-14 0c0 5.6 7 10 7 10Z" />
+      <circle cx="12" cy="11" r="2.5" />
     </svg>
   );
 }
