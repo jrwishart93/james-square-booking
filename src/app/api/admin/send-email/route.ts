@@ -6,6 +6,7 @@ import { renderAdminEmail } from "@/lib/email/renderAdminEmail";
 export const runtime = "nodejs";
 
 type RecipientMode = "all" | "owners" | "selected";
+type FromType = "default" | "committee" | "support";
 
 type RecipientSelection = {
   mode: RecipientMode;
@@ -15,6 +16,7 @@ type RecipientSelection = {
 type AdminEmailRequest = {
   subject: string;
   message: string;
+  fromType?: FromType;
   recipients: RecipientSelection;
 };
 
@@ -41,12 +43,21 @@ const getResendClient = () => {
   return new Resend(apiKey);
 };
 
-const getFromEmail = () => {
-  const fromEmail = process.env.RESEND_FROM_EMAIL;
-  if (!fromEmail) {
+const getFromEmail = (fromType?: string) => {
+  const defaultFromEmail = process.env.RESEND_FROM_EMAIL;
+  if (!defaultFromEmail) {
     throw new Error("RESEND_FROM_EMAIL is not set");
   }
-  return fromEmail;
+
+  if (fromType === "committee") {
+    return process.env.RESEND_FROM_EMAIL_COMMITTEE || defaultFromEmail;
+  }
+
+  if (fromType === "support") {
+    return process.env.RESEND_FROM_EMAIL_SUPPORT || defaultFromEmail;
+  }
+
+  return defaultFromEmail;
 };
 
 export async function POST(req: Request) {
@@ -63,6 +74,7 @@ export async function POST(req: Request) {
     const subject = String(body.subject).trim();
     const message = String(body.message);
     const recipients = body.recipients;
+    const fromType = typeof body.fromType === "string" ? body.fromType : undefined;
 
     if (!subject || !message) {
       return NextResponse.json(
@@ -89,7 +101,7 @@ export async function POST(req: Request) {
     const html = await renderAdminEmail(subject, message);
 
     const resend = getResendClient();
-    const fromEmail = getFromEmail();
+    const fromEmail = getFromEmail(fromType);
 
     const batches = chunk(emails, MAX_RECIPIENTS_PER_BATCH);
     let lastMessageId: string | null = null;
