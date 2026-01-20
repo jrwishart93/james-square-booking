@@ -1,3 +1,5 @@
+import CommitteeInboxDemo from './CommitteeInboxDemo';
+
 const glassCard =
   'jqs-glass rounded-2xl border border-white/20 bg-white/50 dark:bg-white/10 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.08)]';
 
@@ -97,6 +99,8 @@ export default function CommitteeContent() {
         Access is currently via passcode. This will move to named committee access in
         due course.
       </p>
+
+      <CommitteeInboxDemo />
     </main>
   );
 }
