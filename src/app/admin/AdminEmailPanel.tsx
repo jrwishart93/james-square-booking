@@ -19,7 +19,7 @@ type AdminUser = {
   };
 };
 
-type RecipientMode = 'all' | 'owners' | 'selected';
+type RecipientMode = 'all' | 'owners' | 'selected' | 'custom';
 
 type Status = {
   tone: 'idle' | 'loading' | 'success' | 'error';
@@ -44,6 +44,7 @@ const AdminEmailPanel = () => {
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [recipientMode, setRecipientMode] = useState<RecipientMode>('all');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [customEmail, setCustomEmail] = useState('');
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState<Status>({ tone: 'idle', message: '' });
@@ -95,11 +96,24 @@ const AdminEmailPanel = () => {
     [users],
   );
 
+  const normalizedCustomEmail = useMemo(() => customEmail.trim().toLowerCase(), [customEmail]);
+  const customEmailIsValid = useMemo(
+    () => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedCustomEmail),
+    [normalizedCustomEmail],
+  );
+
   const recipientCount = useMemo(() => {
     if (recipientMode === 'all') return users.length;
     if (recipientMode === 'owners') return ownerUsers.length;
+    if (recipientMode === 'custom') return customEmailIsValid ? 1 : 0;
     return selectedIds.length;
-  }, [recipientMode, selectedIds.length, users.length, ownerUsers.length]);
+  }, [
+    recipientMode,
+    selectedIds.length,
+    users.length,
+    ownerUsers.length,
+    customEmailIsValid,
+  ]);
 
   const recipientTypeLabel = useMemo(() => {
     if (recipientMode === 'all') return 'everyone';
@@ -127,6 +141,10 @@ const AdminEmailPanel = () => {
       return ownerUsers.map((user) => user.email);
     }
 
+    if (recipientMode === 'custom') {
+      return normalizedCustomEmail ? [normalizedCustomEmail] : [];
+    }
+
     const selected = new Set(selectedIds);
     return users.filter((user) => selected.has(user.id)).map((user) => user.email);
   };
@@ -145,6 +163,11 @@ const AdminEmailPanel = () => {
 
     if (recipientMode === 'selected' && selectedIds.length === 0) {
       setStatus({ tone: 'error', message: 'Select at least one recipient.' });
+      return null;
+    }
+
+    if (recipientMode === 'custom' && !customEmailIsValid) {
+      setStatus({ tone: 'error', message: 'Enter a valid email address.' });
       return null;
     }
 
@@ -174,6 +197,7 @@ const AdminEmailPanel = () => {
       setSubject('');
       setMessage('');
       setSelectedIds([]);
+      setCustomEmail('');
     } catch (error) {
       console.error('Failed to send admin email', error);
       setStatus({
@@ -244,6 +268,7 @@ const AdminEmailPanel = () => {
                 { value: 'all', label: `All users (${users.length})` },
                 { value: 'owners', label: `Owners only (${ownerUsers.length})` },
                 { value: 'selected', label: `Selected users (${selectedIds.length})` },
+                { value: 'custom', label: 'Send to a custom email address' },
               ] as const
             ).map((option) => (
               <label
@@ -283,6 +308,28 @@ const AdminEmailPanel = () => {
             ))}
           </select>
         </div>
+
+        {recipientMode === 'custom' && (
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
+              Custom recipient email
+            </label>
+            <input
+              type="email"
+              value={customEmail}
+              onChange={(event) => setCustomEmail(event.target.value)}
+              onBlur={() => setCustomEmail(normalizedCustomEmail)}
+              className="w-full rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 dark:border-white/10 dark:bg-white/5 dark:text-white"
+              placeholder="someone@example.com"
+            />
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              This email will not be saved.
+            </p>
+            {!customEmailIsValid && customEmail.trim().length > 0 && (
+              <p className="text-xs text-rose-400">Please enter a valid email address.</p>
+            )}
+          </div>
+        )}
 
         {recipientMode === 'selected' && (
           <div>

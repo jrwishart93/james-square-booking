@@ -6,7 +6,7 @@ import { adminAuth } from "@/lib/firebaseAdmin";
 
 export const runtime = "nodejs";
 
-type RecipientMode = "all" | "owners" | "selected";
+type RecipientMode = "all" | "owners" | "selected" | "custom";
 
 type RecipientSelection = {
   mode: RecipientMode;
@@ -48,6 +48,8 @@ const getResendClient = () => {
   }
   return new Resend(apiKey);
 };
+
+const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 const parseBearerToken = (request: NextRequest) => {
   const header = request.headers.get("authorization") ?? "";
@@ -119,6 +121,22 @@ export async function POST(req: NextRequest) {
           .filter((email) => email.length > 0),
       ),
     );
+
+    if (recipients.mode === "custom") {
+      if (emails.length !== 1) {
+        return NextResponse.json(
+          { error: "Custom recipient mode requires exactly one email address." },
+          { status: 400 },
+        );
+      }
+
+      if (!isValidEmail(emails[0] ?? "")) {
+        return NextResponse.json(
+          { error: "Custom recipient email address is invalid." },
+          { status: 400 },
+        );
+      }
+    }
 
     if (emails.length === 0) {
       return NextResponse.json(

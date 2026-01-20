@@ -1,6 +1,6 @@
 import { User } from "firebase/auth";
 
-type RecipientMode = "all" | "owners" | "selected";
+type RecipientMode = "all" | "owners" | "selected" | "custom";
 
 export async function sendAdminEmailRequest(
   user: User,
