@@ -1,5 +1,6 @@
 // src/app/layout.tsx
 import type { Metadata, Viewport } from "next";
+import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
@@ -66,6 +67,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <AuthProvider>
             <Header />
             <main className="site-content max-w-6xl mx-auto px-4 sm:px-6 py-8">{children}</main>
+            <footer className="mt-12 border-t border-slate-200/70 dark:border-slate-800/70">
+              <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 text-sm text-slate-600 dark:text-slate-400 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-xs sm:text-sm">James Square community website.</p>
+                <nav aria-label="Legal" className="flex items-center gap-4">
+                  <Link href="/privacy" className="hover:text-slate-900 dark:hover:text-slate-100 transition-colors">
+                    Privacy Policy
+                  </Link>
+                  <Link href="/terms" className="hover:text-slate-900 dark:hover:text-slate-100 transition-colors">
+                    Terms of Use
+                  </Link>
+                </nav>
+              </div>
+            </footer>
           </AuthProvider>
         </AppLaunchShell>
       </body>

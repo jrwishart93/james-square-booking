@@ -301,6 +301,17 @@ export default function LoginClient() {
                   </button>
                 </span>
               </label>
+              <p className="mt-2 text-xs text-gray-600 dark:text-gray-400">
+                By creating an account, you agree to the{' '}
+                <Link href="/terms" className="underline hover:no-underline">
+                  Terms of Use
+                </Link>{' '}
+                and{' '}
+                <Link href="/privacy" className="underline hover:no-underline">
+                  Privacy Policy
+                </Link>
+                .
+              </p>
               {termsError && <p className="mt-2 text-sm text-red-600 dark:text-red-400">{termsError}</p>}
             </div>
           </>
