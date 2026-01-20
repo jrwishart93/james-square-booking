@@ -8,7 +8,7 @@ import { auth, db } from '@/lib/firebase';
 import { Question, Vote } from '../types';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
-import { ArrowRight, AlertCircle, CalendarClock, Check, Info, Loader2, ShieldAlert } from 'lucide-react';
+import { ArrowRight, AlertCircle, CalendarClock, Check, CheckCircle2, Clock, Info, Loader2, Lock, ShieldAlert } from 'lucide-react';
 import { getVoteStatus } from '@/lib/voteExpiry';
 import { lightHaptic } from '@/lib/haptics';
 import CountdownTimer from './CountdownTimer';
@@ -401,6 +401,8 @@ const VotePage: React.FC = () => {
   const isVotingLocked = isScheduled || isClosed;
   const isConfirmingChange = pendingVoteChange && hasChangedVote && isOpen;
   const isOptionLocked = isVotingLocked || flatVoteByOther;
+  const statusLabel = isScheduled ? 'Scheduled' : isClosed ? 'Voting closed' : 'Voting open';
+  const StatusIcon = isScheduled ? Clock : isClosed ? Lock : CheckCircle2;
   const canConfirmUpdate = Boolean(
     selectedOptionId &&
     trimmedName &&
@@ -452,7 +454,10 @@ const VotePage: React.FC = () => {
                       : 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-100 dark:border-emerald-300/60'
                 }`}
               >
-                {isScheduled ? 'Scheduled' : isClosed ? 'Voting closed' : 'Voting open'}
+                <span key={voteStatus.phase} className="inline-flex items-center gap-1 message-fade">
+                  <StatusIcon size={12} className="opacity-70" aria-hidden="true" />
+                  {statusLabel}
+                </span>
               </span>
             </div>
             <h2
@@ -472,7 +477,7 @@ const VotePage: React.FC = () => {
           {votingWindowVisible && (
             <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
               <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-600">
-                <CalendarClock size={14} className="text-slate-500" />
+                <CalendarClock size={14} className="text-slate-500/80" aria-hidden="true" />
                 Voting timeline
               </div>
               <div className="mt-2 space-y-1 text-sm text-slate-700">
@@ -670,10 +675,10 @@ const VotePage: React.FC = () => {
                 <label
                   key={option.id}
                   className={`
-                    relative flex items-center p-4 rounded-xl border transition-all duration-200 group
+                    relative flex items-center p-4 rounded-xl border group
                     ${isOptionLocked ? 'cursor-not-allowed' : 'cursor-pointer'}
                     ${isSelected
-                      ? 'border-cyan-400/70 bg-cyan-50 shadow-[0_15px_40px_rgba(6,182,212,0.18)]'
+                      ? 'border-cyan-400/70 bg-cyan-50 shadow-[0_15px_40px_rgba(6,182,212,0.18)] transition-[background-color,border-color,box-shadow] duration-150 ease-in motion-reduce:transition-none'
                       : `border-slate-200 bg-white ${hoverStyles}`
                     }
                   `}
@@ -688,10 +693,16 @@ const VotePage: React.FC = () => {
                     disabled={isOptionLocked}
                   />
                   <div className={`
-                    flex-shrink-0 w-5 h-5 rounded-full border flex items-center justify-center mr-4 transition-colors
-                    ${isSelected ? 'border-cyan-500 bg-cyan-500 text-white' : `border-slate-300 ${hoverRing}`}
+                    flex-shrink-0 w-5 h-5 rounded-full border flex items-center justify-center mr-4
+                    ${isSelected
+                      ? 'border-cyan-500 bg-cyan-500 text-white transition-colors duration-150 ease-in motion-reduce:transition-none'
+                      : `border-slate-300 ${hoverRing}`
+                    }
                   `}>
-                    {isSelected && <Check size={12} className="text-white" />}
+                    <Check
+                      size={12}
+                      className={isSelected ? 'text-white transition-opacity duration-150 ease-in motion-reduce:transition-none' : 'text-white opacity-0'}
+                    />
                   </div>
                   <span className={`font-medium text-sm ${isSelected ? 'text-slate-900' : `text-slate-700 ${hoverText}`}`}>
                     {option.label}
@@ -790,8 +801,21 @@ const VotePage: React.FC = () => {
               fullWidth
               isLoading={isSubmitting}
               disabled={!canSubmit}
+              className={`transition-shadow duration-150 motion-reduce:transition-none ${
+                canSubmit
+                  ? 'shadow-[0_12px_30px_rgba(14,116,144,0.25)]'
+                  : 'shadow-[0_6px_16px_rgba(15,23,42,0.08)]'
+              }`}
             >
-              {hasExistingVote && isOpen ? 'Update vote' : 'Submit vote'} <ArrowRight size={16} className="ml-2" />
+              <span className="inline-flex items-center gap-2">
+                {hasExistingVote && isOpen ? 'Update vote' : 'Submit vote'}
+                <ArrowRight
+                  size={16}
+                  className={`transition-opacity duration-150 motion-reduce:transition-none ${
+                    canSubmit ? 'opacity-90' : 'opacity-0'
+                  }`}
+                />
+              </span>
             </Button>
           )}
         </form>
