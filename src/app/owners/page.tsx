@@ -9,7 +9,7 @@ import GradientBG from '@/components/GradientBG';
 
 const OWNERS_ACCESS_CODE = '3579';
 const OWNERS_ACCESS_KEY = 'owners_secure_access';
-const COMMITTEE_EMAIL = 'committee@jamessquare.org';
+const COMMITTEE_EMAIL = 'committee@james-square.com';
 const EMAIL_SUBJECT = 'Request for owners access code – James Square';
 const EMAIL_BODY =
   'I am an owner at James Square and would like to request the access code to the owners section of the website: https://www.james-square.com/owners';
