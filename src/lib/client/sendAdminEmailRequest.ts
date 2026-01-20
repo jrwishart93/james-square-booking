@@ -15,7 +15,7 @@ export async function sendAdminEmailRequest(
     };
   },
 ) {
-  const token = await user.getIdToken(true);
+  const token = await user.getIdToken();
 
   const res = await fetch("/api/admin/send-email", {
     method: "POST",
