@@ -77,7 +77,7 @@ export default function TermsModal({ open, onClose }: TermsModalProps) {
               account information.
             </p>
             <p className="text-sm text-blue-700 dark:text-blue-300">
-              Looking for a longer form policy? Visit our future{' '}
+              Looking for the full policy? Visit our{' '}
               <Link href="/terms" className="underline hover:no-underline">
                 Terms
               </Link>{' '}
