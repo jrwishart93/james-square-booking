@@ -28,6 +28,42 @@ export default function CommitteeContent() {
 
       <section className={`${glassCard} space-y-4 p-6`}>
         <div className="space-y-2">
+          <h2 className="text-xl font-semibold">Committee Communications (Coming Soon)</h2>
+          <p className="text-sm leading-relaxed text-[color:var(--text-muted)]">
+            This section will be used to manage communications between residents and
+            the committee in a clear and transparent way.
+          </p>
+          <p className="text-sm leading-relaxed text-[color:var(--text-muted)]">
+            The aim is to allow messages sent to the committee to be tracked, marked as
+            actioned or unactioned, and responded to without relying on individual
+            inboxes. This helps ensure continuity, visibility, and accountability across
+            the committee.
+          </p>
+          <p className="text-sm leading-relaxed text-[color:var(--text-muted)]">
+            This functionality is still being developed and is not yet active.
+          </p>
+        </div>
+        <div className="space-y-2">
+          <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-[color:var(--text-muted)]">
+            Planned features
+          </h3>
+          <ul className="list-disc space-y-2 pl-5 text-sm text-[color:var(--text-muted)]">
+            <li>Shared committee inbox (instead of personal emails).</li>
+            <li>Clear visibility of incoming messages.</li>
+            <li>Status markers (e.g. unactioned / replied).</li>
+            <li>Full reply history visible to committee members.</li>
+            <li>Ability for multiple committee members to manage communications.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section className={`${glassCard} p-4 text-xs text-[color:var(--text-muted)]`}>
+        This page and its features are under active development. Functionality will be
+        introduced gradually once agreed by the committee.
+      </section>
+
+      <section className={`${glassCard} space-y-4 p-6`}>
+        <div className="space-y-2">
           <h2 className="text-lg font-semibold">Committee email</h2>
           <p className="text-sm text-[color:var(--text-muted)]">
             The committee email exists to centralise communication, reduce reliance on
