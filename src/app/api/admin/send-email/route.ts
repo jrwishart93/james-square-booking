@@ -55,12 +55,21 @@ const parseBearerToken = (request: NextRequest) => {
   return match?.[1];
 };
 
-const resolveSender = (sender?: string) => {
-  const candidate = sender?.trim() || DEFAULT_SENDER;
-  if (!ALLOWED_SENDERS.has(candidate)) {
+const resolveSender = (sender?: unknown) => {
+  if (sender === undefined || sender === null) {
+    return DEFAULT_SENDER;
+  }
+
+  if (typeof sender !== "string") {
     return null;
   }
-  return candidate;
+
+  const candidate = sender.trim();
+  if (!candidate) {
+    return DEFAULT_SENDER;
+  }
+
+  return ALLOWED_SENDERS.has(candidate) ? candidate : null;
 };
 
 export async function POST(req: NextRequest) {
@@ -140,8 +149,8 @@ export async function POST(req: NextRequest) {
 
     for (const batch of batches) {
       const { error, data } = await resend.emails.send({
-        from: `${sender}`,
-        to: isBulkSend ? sender : batch,
+        from: sender,
+        to: isBulkSend ? sender : batch[0],
         bcc: isBulkSend ? batch : undefined,
         subject,
         html,
