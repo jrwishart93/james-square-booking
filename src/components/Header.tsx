@@ -231,7 +231,15 @@ export default function Header() {
                     width={36}
                     height={36}
                     priority
-                    className="relative z-10 rounded-lg"
+                    className="relative z-10 rounded-lg dark:hidden"
+                  />
+                  <Image
+                    src="/images/logo/Logo-white.PNG"
+                    alt="James Square logo"
+                    width={36}
+                    height={36}
+                    priority
+                    className="relative z-10 hidden rounded-lg dark:block"
                   />
                 </span>
                 <span className="relative text-lg sm:text-xl">

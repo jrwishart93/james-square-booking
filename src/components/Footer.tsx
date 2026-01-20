@@ -99,7 +99,20 @@ function LogoMark() {
         className="animate-footer-glow footer-logo-glow pointer-events-none absolute -inset-6 rounded-full blur-2xl bg-[radial-gradient(circle,rgba(148,163,184,0.35),transparent_70%)] dark:bg-[radial-gradient(circle,rgba(96,165,250,0.5),transparent_70%)]"
         aria-hidden="true"
       />
-      <Image src="/images/logo/Logo.png" alt="James Square" width={36} height={36} className="relative h-9 w-9" />
+      <Image
+        src="/images/logo/Logo.png"
+        alt="James Square"
+        width={36}
+        height={36}
+        className="relative h-9 w-9 dark:hidden"
+      />
+      <Image
+        src="/images/logo/Logo-white.PNG"
+        alt="James Square"
+        width={36}
+        height={36}
+        className="relative hidden h-9 w-9 dark:block"
+      />
     </div>
   );
 }
