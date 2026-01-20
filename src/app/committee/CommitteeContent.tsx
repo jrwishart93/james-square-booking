@@ -1,3 +1,5 @@
+import InboundEmailFeed from './InboundEmailFeed';
+
 const glassCard =
   'jqs-glass rounded-2xl border border-white/20 bg-white/50 dark:bg-white/10 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.08)]';
 
@@ -55,6 +57,16 @@ export default function CommitteeContent() {
             <li>Ability for multiple committee members to manage communications.</li>
           </ul>
         </div>
+      </section>
+
+      <section className={`${glassCard} space-y-4 p-6`}>
+        <div className="space-y-2">
+          <h2 className="text-lg font-semibold">Inbound messages (email)</h2>
+          <p className="text-xs text-[color:var(--text-muted)]">
+            Emails sent to the committee address. Internal visibility only.
+          </p>
+        </div>
+        <InboundEmailFeed />
       </section>
 
       <section className={`${glassCard} p-4 text-xs text-[color:var(--text-muted)]`}>
