@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
 
     let decodedToken;
     try {
-      decodedToken = await adminAuth.verifyIdToken(token, true);
+      decodedToken = await adminAuth.verifyIdToken(token);
     } catch (error) {
       console.error("[admin-email] Failed to verify token", error);
       return NextResponse.json({ error: "Session invalid or expired." }, { status: 401 });
