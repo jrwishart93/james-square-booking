@@ -24,8 +24,8 @@ export default function Footer() {
             <LogoMark />
           </div>
 
-          <div className="grid grid-cols-3 gap-3 sm:gap-4 md:gap-10 text-[11px] sm:text-xs md:text-sm text-slate-600 dark:text-slate-300">
-            <section className="flex flex-col gap-2 md:gap-3">
+          <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-3 sm:gap-4 md:gap-10 text-[10px] sm:text-[11px] md:text-sm text-slate-600 dark:text-slate-300">
+            <section className="min-w-0 flex flex-col gap-2 md:gap-3">
               <div className="hidden md:flex items-center gap-3">
                 <LogoMark />
                 <h2 className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
@@ -35,13 +35,13 @@ export default function Footer() {
               <h2 className="md:hidden text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 text-center">
                 About
               </h2>
-              <p className="leading-snug md:leading-relaxed text-slate-600 dark:text-slate-300">
+              <p className="break-words leading-tight md:leading-relaxed text-slate-600 dark:text-slate-300">
                 James-Square.com is an online portal for residents and owners to manage facilities, communications, and
                 building information.
               </p>
             </section>
 
-            <section className="flex flex-col gap-2 md:gap-3">
+            <section className="min-w-0 flex flex-col gap-2 md:gap-3">
               <h2 className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 text-center md:text-left">
                 Contact
               </h2>
@@ -53,7 +53,7 @@ export default function Footer() {
                       href={`mailto:${email}`}
                     >
                       <MailIcon className="h-4 w-4" />
-                      <span className="text-[10px] sm:text-[11px] md:text-sm leading-snug">{email}</span>
+                      <span className="break-words text-[10px] sm:text-[11px] md:text-sm leading-tight">{email}</span>
                     </a>
                   </li>
                 ))}
@@ -63,7 +63,7 @@ export default function Footer() {
               </p>
             </section>
 
-            <section className="flex flex-col gap-2 md:gap-3">
+            <section className="min-w-0 flex flex-col gap-2 md:gap-3">
               <h2 className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 text-center md:text-left">
                 Links
               </h2>
@@ -75,7 +75,7 @@ export default function Footer() {
                       className="flex flex-col items-center gap-1 rounded-lg px-1.5 py-1 text-center text-slate-600 transition-colors hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 md:items-start md:text-left"
                     >
                       <Icon className="h-4 w-4" />
-                      <span className="text-[10px] sm:text-[11px] md:text-sm leading-snug">{label}</span>
+                      <span className="break-words text-[10px] sm:text-[11px] md:text-sm leading-tight">{label}</span>
                     </Link>
                   </li>
                 ))}
