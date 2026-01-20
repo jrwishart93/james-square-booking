@@ -8,84 +8,99 @@ const contactEmails = [
 ];
 
 const quickLinks = [
-  { href: "/privacy", label: "Privacy Policy", shortLabel: "Privacy", icon: ShieldIcon },
-  { href: "/terms", label: "Terms of Use", shortLabel: "Terms", icon: FileIcon },
-  { href: "/local", label: "More Information", shortLabel: "Info", icon: InfoIcon },
-  { href: "/message-board", label: "Message Board", shortLabel: "Board", icon: MessageIcon },
-  { href: "/booking", label: "Book Facilities", shortLabel: "Book", icon: CalendarIcon },
+  { href: "/privacy", label: "Privacy Policy", icon: ShieldIcon },
+  { href: "/terms", label: "Terms of Use", icon: FileIcon },
+  { href: "/local", label: "More Information", icon: InfoIcon },
+  { href: "/message-board", label: "Message Board", icon: MessageIcon },
+  { href: "/book", label: "Book Facilities", icon: CalendarIcon },
 ];
 
 export default function Footer() {
   return (
-    <footer className="mt-12 border-t border-slate-200/70 text-slate-600 dark:border-slate-800/70 dark:text-slate-400">
-      <div className="max-w-6xl mx-auto px-3 sm:px-6 py-4 md:py-8">
-        <div className="grid grid-cols-3 gap-2 sm:gap-4 md:gap-8 text-[11px] sm:text-xs md:text-sm">
-          <section className="flex flex-col gap-1.5 md:gap-3">
-            <div className="flex items-center gap-2">
-              <Image
-                src="/images/logo/Logo.png"
-                alt="James Square"
-                width={32}
-                height={32}
-                className="hidden h-8 w-8 md:block"
-              />
-              <h2 className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-500 sr-only md:not-sr-only">
+    <footer className="mt-12">
+      <div className="jqs-glass rounded-t-3xl rounded-b-none border border-slate-200/60 dark:border-slate-800/60">
+        <div className="max-w-6xl mx-auto px-3 sm:px-6 py-4 md:py-8">
+          <div className="flex justify-center md:hidden mb-3">
+            <LogoMark />
+          </div>
+
+          <div className="grid grid-cols-3 gap-3 sm:gap-4 md:gap-10 text-[11px] sm:text-xs md:text-sm text-slate-600 dark:text-slate-300">
+            <section className="flex flex-col gap-2 md:gap-3">
+              <div className="hidden md:flex items-center gap-3">
+                <LogoMark />
+                <h2 className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                  About
+                </h2>
+              </div>
+              <h2 className="md:hidden text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 text-center">
                 About
               </h2>
-            </div>
-            <p className="leading-snug md:leading-relaxed text-slate-600 dark:text-slate-400">
-              James-Square.com is an online portal for residents and owners to manage facilities, communications, and
-              building information.
-            </p>
-          </section>
+              <p className="leading-snug md:leading-relaxed text-slate-600 dark:text-slate-300">
+                James-Square.com is an online portal for residents and owners to manage facilities, communications, and
+                building information.
+              </p>
+            </section>
 
-          <section className="flex flex-col gap-1.5 md:gap-3">
-            <h2 className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-500 sr-only md:not-sr-only">
-              Contact
-            </h2>
-            <ul className="space-y-1 md:space-y-2">
-              {contactEmails.map((email) => (
-                <li key={email}>
-                  <a
-                    className="flex items-center gap-1.5 text-slate-600 transition-colors hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
-                    href={`mailto:${email}`}
-                  >
-                    <MailIcon className="h-3.5 w-3.5 shrink-0" />
-                    <span className="truncate">{email}</span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-            <p className="hidden text-[11px] text-slate-500 dark:text-slate-500 md:block">
-              We respond during business hours and building committee review windows.
-            </p>
-          </section>
+            <section className="flex flex-col gap-2 md:gap-3">
+              <h2 className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 text-center md:text-left">
+                Contact
+              </h2>
+              <ul className="space-y-2 md:space-y-3">
+                {contactEmails.map((email) => (
+                  <li key={email}>
+                    <a
+                      className="flex flex-col items-center gap-1 text-center text-slate-600 transition-colors hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 md:items-start md:text-left"
+                      href={`mailto:${email}`}
+                    >
+                      <MailIcon className="h-4 w-4" />
+                      <span className="text-[10px] sm:text-[11px] md:text-sm leading-snug">{email}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+              <p className="hidden md:block text-[11px] text-slate-500 dark:text-slate-400">
+                We respond during business hours and committee review windows.
+              </p>
+            </section>
 
-          <section className="flex flex-col gap-1.5 md:gap-3">
-            <h2 className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-500 sr-only md:not-sr-only">
-              Links
-            </h2>
-            <ul className="space-y-1 md:space-y-2">
-              {quickLinks.map(({ href, label, shortLabel, icon: Icon }) => (
-                <li key={href}>
-                  <Link
-                    href={href}
-                    className="flex items-center gap-1.5 text-slate-600 transition-colors hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
-                  >
-                    <Icon className="h-3.5 w-3.5 shrink-0" />
-                    <span className="sm:hidden">{shortLabel}</span>
-                    <span className="hidden sm:inline">{label}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </section>
-        </div>
-        <div className="mt-3 text-[10px] sm:text-xs text-slate-500 dark:text-slate-500">
-          © 2025 James Square. All rights reserved.
+            <section className="flex flex-col gap-2 md:gap-3">
+              <h2 className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 text-center md:text-left">
+                Links
+              </h2>
+              <ul className="space-y-2 md:space-y-3">
+                {quickLinks.map(({ href, label, icon: Icon }) => (
+                  <li key={href}>
+                    <Link
+                      href={href}
+                      className="flex flex-col items-center gap-1 rounded-lg px-1.5 py-1 text-center text-slate-600 transition-colors hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 md:items-start md:text-left"
+                    >
+                      <Icon className="h-4 w-4" />
+                      <span className="text-[10px] sm:text-[11px] md:text-sm leading-snug">{label}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          </div>
+
+          <div className="mt-4 border-t border-slate-200/70 dark:border-slate-700/60 pt-2 text-[10px] text-slate-500 dark:text-slate-400">
+            © 2025 James Square. All rights reserved.
+          </div>
         </div>
       </div>
     </footer>
+  );
+}
+
+function LogoMark() {
+  return (
+    <div className="relative">
+      <span
+        className="animate-footer-glow footer-logo-glow pointer-events-none absolute -inset-6 rounded-full blur-2xl bg-[radial-gradient(circle,rgba(148,163,184,0.35),transparent_70%)] dark:bg-[radial-gradient(circle,rgba(96,165,250,0.5),transparent_70%)]"
+        aria-hidden="true"
+      />
+      <Image src="/images/logo/Logo.png" alt="James Square" width={36} height={36} className="relative h-9 w-9" />
+    </div>
   );
 }
 
