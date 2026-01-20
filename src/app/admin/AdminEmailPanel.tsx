@@ -20,6 +20,7 @@ type AdminUser = {
 };
 
 type RecipientMode = 'all' | 'owners' | 'selected';
+type FromType = 'default' | 'committee' | 'support';
 
 type Status = {
   tone: 'idle' | 'loading' | 'success' | 'error';
@@ -34,6 +35,7 @@ const AdminEmailPanel = () => {
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState<Status>({ tone: 'idle', message: '' });
+  const [fromType, setFromType] = useState<FromType>('default');
 
   useEffect(() => {
     const loadUsers = async () => {
@@ -125,6 +127,7 @@ const AdminEmailPanel = () => {
       const response = await sendAdminEmailRequest(currentUser, {
         subject: subject.trim(),
         message: message.trim(),
+        fromType,
         recipients: {
           mode: recipientMode,
           emails: buildRecipientEmails(),
@@ -168,7 +171,7 @@ const AdminEmailPanel = () => {
         Emails are delivered from the official James Square admin system. Replies go to the configured Resend sender.
       </div>
 
-      <div className="grid gap-4">
+        <div className="grid gap-4">
         <div>
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
             Recipients
@@ -195,6 +198,39 @@ const AdminEmailPanel = () => {
                   value={option.value}
                   checked={recipientMode === option.value}
                   onChange={() => setRecipientMode(option.value)}
+                />
+                {option.label}
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
+            From address
+          </label>
+          <div className="mt-2 grid gap-2 sm:grid-cols-3">
+            {(
+              [
+                { value: 'default', label: 'No-reply (no-reply@james-square.com)' },
+                { value: 'committee', label: 'Committee (committee@james-square.com)' },
+                { value: 'support', label: 'Support (support@james-square.com)' },
+              ] as const
+            ).map((option) => (
+              <label
+                key={option.value}
+                className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-sm transition ${
+                  fromType === option.value
+                    ? 'border-indigo-300 bg-indigo-50 text-indigo-900 dark:border-indigo-400/40 dark:bg-indigo-900/30 dark:text-indigo-100'
+                    : 'border-white/15 bg-white/5 text-slate-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-300'
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="from-address"
+                  value={option.value}
+                  checked={fromType === option.value}
+                  onChange={() => setFromType(option.value)}
                 />
                 {option.label}
               </label>
