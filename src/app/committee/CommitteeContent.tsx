@@ -1,3 +1,4 @@
+import CommitteeInboxDemo from './CommitteeInboxDemo';
 import InboundEmailFeed from './InboundEmailFeed';
 
 const glassCard =
@@ -109,6 +110,10 @@ export default function CommitteeContent() {
         Access is currently via passcode. This will move to named committee access in
         due course.
       </p>
+
+      <section className={`${glassCard} p-6`}>
+        <CommitteeInboxDemo />
+      </section>
     </main>
   );
 }
