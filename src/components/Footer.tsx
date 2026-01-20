@@ -24,8 +24,8 @@ export default function Footer() {
             <LogoMark />
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-5 md:gap-10 text-[11px] sm:text-xs md:text-sm text-slate-600 dark:text-slate-300">
-            <section className="flex flex-col gap-3 md:gap-4">
+          <div className="grid grid-cols-3 gap-2 sm:gap-4 md:gap-8 text-[10px] sm:text-xs md:text-sm text-slate-600 dark:text-slate-300">
+            <section className="flex min-w-0 flex-col gap-2 md:gap-4">
               <div className="hidden md:flex items-center gap-3">
                 <LogoMark />
                 <h2 className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500/80 dark:text-slate-400/80">
@@ -35,7 +35,7 @@ export default function Footer() {
               <h2 className="md:hidden text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500/80 dark:text-slate-400/80 text-center">
                 About
               </h2>
-              <p className="leading-snug md:leading-relaxed text-slate-600 dark:text-slate-300 text-pretty sm:line-clamp-none line-clamp-3">
+              <p className="leading-tight sm:leading-snug md:leading-relaxed text-slate-600 dark:text-slate-300 text-pretty sm:line-clamp-none line-clamp-3">
                 James-Square.com is the online portal for residents and owners of James Square. It provides facility
                 bookings, shared information, a message board, and useful services for the James Square community.
               </p>
@@ -53,15 +53,15 @@ export default function Footer() {
               </div>
             </section>
 
-            <section className="flex flex-col gap-3 md:gap-4">
+            <section className="flex min-w-0 flex-col gap-2 md:gap-4">
               <h2 className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500/80 dark:text-slate-400/80 text-center md:text-left">
                 Contact
               </h2>
-              <ul className="space-y-3 md:space-y-4">
+              <ul className="space-y-2 md:space-y-3">
                 {contactEmails.map((email) => (
                   <li key={email}>
                     <a
-                      className="flex flex-col items-center gap-1.5 text-center text-slate-600 transition-colors hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 md:items-start md:text-left"
+                      className="flex flex-col items-center gap-1 text-center text-slate-600 transition-colors hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 md:items-start md:text-left"
                       href={`mailto:${email}`}
                     >
                       <MailIcon className="h-5 w-5" />
@@ -75,16 +75,16 @@ export default function Footer() {
               </p>
             </section>
 
-            <section className="flex flex-col gap-3 md:gap-4">
+            <section className="flex min-w-0 flex-col gap-2 md:gap-4">
               <h2 className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500/80 dark:text-slate-400/80 text-center md:text-left">
                 Links
               </h2>
-              <ul className="space-y-3 md:space-y-4">
+              <ul className="space-y-2 md:space-y-3">
                 {quickLinks.map(({ href, label, icon: Icon }) => (
                   <li key={href}>
                     <Link
                       href={href}
-                      className="flex flex-col items-center gap-1.5 rounded-lg px-1.5 py-1 text-center text-slate-600 transition-colors hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 md:items-start md:text-left"
+                      className="flex flex-col items-center gap-1 rounded-lg px-1.5 py-1 text-center text-slate-600 transition-colors hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 md:items-start md:text-left"
                     >
                       <Icon className="h-5 w-5" />
                       <span className="text-[10px] sm:text-[11px] md:text-sm leading-snug">{label}</span>
