@@ -87,10 +87,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Session invalid or expired." }, { status: 401 });
     }
 
-    if (decodedToken.admin !== true && decodedToken.isAdmin !== true) {
-      return NextResponse.json({ error: "Admins only." }, { status: 403 });
-    }
-
     const body = (await req.json().catch(() => null)) as AdminEmailRequest | null;
 
     if (!body?.subject || !body?.message || !body?.recipients) {
