@@ -7,6 +7,7 @@ export async function sendAdminEmailRequest(
   payload: {
     subject: string;
     message: string;
+    sender: string;
     recipients: {
       mode: RecipientMode;
       userIds?: string[];

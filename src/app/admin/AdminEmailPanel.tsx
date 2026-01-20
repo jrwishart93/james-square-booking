@@ -26,6 +26,19 @@ type Status = {
   message: string;
 };
 
+type SenderOption = {
+  label: string;
+  value: string;
+};
+
+const senderOptions: SenderOption[] = [
+  { label: 'no-reply@james-square.com', value: 'no-reply@james-square.com' },
+  { label: 'committee@james-square.com', value: 'committee@james-square.com' },
+  { label: 'support@james-square.com', value: 'support@james-square.com' },
+];
+
+const confirmationPhrase = 'SEND TO ALL';
+
 const AdminEmailPanel = () => {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
@@ -34,6 +47,10 @@ const AdminEmailPanel = () => {
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState<Status>({ tone: 'idle', message: '' });
+  const [senderEmail, setSenderEmail] = useState(senderOptions[0]?.value ?? '');
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmText, setConfirmText] = useState('');
+  const [confirmAcknowledged, setConfirmAcknowledged] = useState(false);
 
   useEffect(() => {
     const loadUsers = async () => {
@@ -84,6 +101,17 @@ const AdminEmailPanel = () => {
     return selectedIds.length;
   }, [recipientMode, selectedIds.length, users.length, ownerUsers.length]);
 
+  const recipientTypeLabel = useMemo(() => {
+    if (recipientMode === 'all') return 'everyone';
+    if (recipientCount === 1) return 'one user';
+    return 'a group';
+  }, [recipientCount, recipientMode]);
+
+  const shouldConfirmSend = recipientMode === 'all' || recipientCount > 1;
+  const isAllRecipients = recipientMode === 'all';
+  const showCommitteeWarning =
+    senderEmail === 'committee@james-square.com' && recipientCount > 1;
+
   const handleToggleSelected = (userId: string) => {
     setSelectedIds((prev) =>
       prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId],
@@ -103,28 +131,36 @@ const AdminEmailPanel = () => {
     return users.filter((user) => selected.has(user.id)).map((user) => user.email);
   };
 
-  const handleSubmit = async () => {
+  const validateSend = () => {
     const currentUser = auth.currentUser;
     if (!currentUser) {
       setStatus({ tone: 'error', message: 'You must be signed in to send email.' });
-      return;
+      return null;
     }
 
     if (!subject.trim() || !message.trim()) {
       setStatus({ tone: 'error', message: 'Subject and message are required.' });
-      return;
+      return null;
     }
 
     if (recipientMode === 'selected' && selectedIds.length === 0) {
       setStatus({ tone: 'error', message: 'Select at least one recipient.' });
-      return;
+      return null;
     }
+
+    return currentUser;
+  };
+
+  const performSend = async () => {
+    const currentUser = validateSend();
+    if (!currentUser) return;
 
     try {
       setStatus({ tone: 'loading', message: 'Sending email…' });
       const response = await sendAdminEmailRequest(currentUser, {
         subject: subject.trim(),
         message: message.trim(),
+        sender: senderEmail,
         recipients: {
           mode: recipientMode,
           emails: buildRecipientEmails(),
@@ -148,6 +184,35 @@ const AdminEmailPanel = () => {
             : 'Failed to send email. Please try again.',
       });
     }
+  };
+
+  const resetConfirmation = () => {
+    setConfirmText('');
+    setConfirmAcknowledged(false);
+    setConfirmOpen(false);
+  };
+
+  const handleSubmit = async () => {
+    const currentUser = validateSend();
+    if (!currentUser) return;
+
+    if (shouldConfirmSend) {
+      setConfirmOpen(true);
+      return;
+    }
+
+    await performSend();
+  };
+
+  const handleConfirmSend = async () => {
+    const isConfirmed = isAllRecipients
+      ? confirmText.trim().toUpperCase() === confirmationPhrase
+      : confirmAcknowledged;
+
+    if (!isConfirmed) return;
+
+    resetConfirmation();
+    await performSend();
   };
 
   return (
@@ -200,6 +265,23 @@ const AdminEmailPanel = () => {
               </label>
             ))}
           </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
+            Sender address
+          </label>
+          <select
+            value={senderEmail}
+            onChange={(event) => setSenderEmail(event.target.value)}
+            className="mt-1 w-full rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-sm text-slate-900 dark:border-white/10 dark:bg-white/5 dark:text-white"
+          >
+            {senderOptions.map((option) => (
+              <option key={option.value} value={option.value} className="text-slate-900">
+                {option.label}
+              </option>
+            ))}
+          </select>
         </div>
 
         {recipientMode === 'selected' && (
@@ -266,6 +348,11 @@ const AdminEmailPanel = () => {
           </div>
         </div>
 
+        <div className="rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-slate-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
+          This email will be sent to <strong>{recipientCount}</strong> recipients ({recipientTypeLabel}) using{' '}
+          <strong>{senderEmail}</strong>.
+        </div>
+
         {status.message && (
           <p
             className={
@@ -290,13 +377,90 @@ const AdminEmailPanel = () => {
             disabled={status.tone === 'loading' || loadingUsers}
             className="inline-flex items-center justify-center rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white/90"
           >
-            {status.tone === 'loading' ? 'Sending…' : 'Send email'}
+            {status.tone === 'loading' ? 'Sending…' : shouldConfirmSend ? 'Review and send' : 'Send email'}
           </button>
           <span className="text-xs text-slate-500 dark:text-slate-400">
-            Emails are sent only after you press “Send email”.
+            Emails are sent only after you confirm the send.
           </span>
         </div>
       </div>
+
+      {confirmOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="w-full max-w-lg space-y-4 rounded-2xl border border-white/40 bg-white p-6 shadow-xl dark:border-white/10 dark:bg-slate-900">
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                Confirm email send
+              </h3>
+              <p className="text-sm text-slate-700 dark:text-slate-300">
+                You are about to email{' '}
+                <strong>{isAllRecipients ? 'ALL users' : `${recipientCount} recipients`}</strong>. This
+                action cannot be undone. Are you sure you want to continue?
+              </p>
+              <p className="text-sm text-slate-700 dark:text-slate-300">
+                This email will be sent using <strong>{senderEmail}</strong>.
+              </p>
+              {showCommitteeWarning && (
+                <p className="text-sm font-semibold text-amber-700 dark:text-amber-400">
+                  Committee mail is selected for multiple recipients. Please confirm this is intended.
+                </p>
+              )}
+            </div>
+
+            {isAllRecipients ? (
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
+                  Type {confirmationPhrase} to confirm
+                </label>
+                <input
+                  type="text"
+                  value={confirmText}
+                  onChange={(event) => setConfirmText(event.target.value)}
+                  className="w-full rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-sm text-slate-900 dark:border-white/10 dark:bg-white/5 dark:text-white"
+                  placeholder={confirmationPhrase}
+                />
+              </div>
+            ) : (
+              <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+                <input
+                  type="checkbox"
+                  checked={confirmAcknowledged}
+                  onChange={(event) => setConfirmAcknowledged(event.target.checked)}
+                />
+                I understand this email will reach multiple recipients.
+              </label>
+            )}
+
+            <div className="flex flex-wrap justify-end gap-3">
+              <button
+                type="button"
+                onClick={resetConfirmation}
+                disabled={status.tone === 'loading'}
+                className="rounded-full px-4 py-2 text-sm font-semibold jqs-glass disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmSend}
+                disabled={
+                  status.tone === 'loading' ||
+                  (isAllRecipients
+                    ? confirmText.trim().toUpperCase() !== confirmationPhrase
+                    : !confirmAcknowledged)
+                }
+                className="rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {status.tone === 'loading' ? 'Sending…' : 'Confirm send'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 };
