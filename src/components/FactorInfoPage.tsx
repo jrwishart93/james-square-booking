@@ -18,6 +18,7 @@ type FactorInfoPageProps = {
   costs: Array<{ label: string; value: string }>;
   costsTitle?: string;
   costsContent?: ReactNode;
+  introContent?: ReactNode;
   documentationLinks: Array<{ href: string; label: string }>;
 };
 
@@ -33,6 +34,7 @@ const FactorInfoPage = ({
   costs,
   costsTitle = 'Costs summary',
   costsContent,
+  introContent,
   documentationLinks,
 }: FactorInfoPageProps) => {
   return (
@@ -55,6 +57,8 @@ const FactorInfoPage = ({
           </div>
           <p className="max-w-3xl text-sm md:text-base text-slate-600 dark:text-slate-300">{intro}</p>
         </header>
+
+        {introContent && <div className="space-y-6">{introContent}</div>}
 
         <div className="space-y-6">
           <GlassCard title={managementTitle} titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100">
