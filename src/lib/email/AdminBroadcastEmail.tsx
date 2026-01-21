@@ -4,9 +4,14 @@ import React from "react";
 interface Props {
   subject: string;
   bodyHtml: string;
+  footerText?: string;
 }
 
-export default function AdminBroadcastEmail({ subject, bodyHtml }: Props) {
+export default function AdminBroadcastEmail({
+  subject,
+  bodyHtml,
+  footerText = "Sent via James Square Admin",
+}: Props) {
   return (
     <html>
       <head>
@@ -59,7 +64,7 @@ export default function AdminBroadcastEmail({ subject, bodyHtml }: Props) {
                             fontSize: 12,
                           }}
                         >
-                          Sent via James Square Admin
+                          {footerText}
                         </p>
                       </td>
                     </tr>
