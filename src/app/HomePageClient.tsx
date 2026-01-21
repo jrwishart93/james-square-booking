@@ -6,6 +6,7 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { useState } from 'react';
 import MobileAppPoster from '@/components/home/MobileAppPoster';
 import EGMAnnouncementBanner from '@/components/EGMAnnouncementBanner';
+import AnnouncementNotice from '@/components/AnnouncementNotice';
 
 /** ------------------------------------------------
  *  Shared styles
@@ -293,6 +294,8 @@ export default function HomePageClient() {
           </div>
         </motion.div>
       </section>
+
+      <AnnouncementNotice />
 
       {/* MAIN ICON GRID */}
       <section className="mx-auto max-w-6xl mt-8 sm:mt-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
