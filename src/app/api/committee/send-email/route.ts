@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { Timestamp } from "firebase-admin/firestore";
 
-import { renderAdminEmail } from "@/lib/email/renderAdminEmail";
+import { committeeEmailTemplate } from "@/lib/email/templates/committeeEmailTemplate";
 import { adminAuth, adminDb } from "@/lib/firebaseAdmin";
+import { sanitizeHtml } from "@/lib/sanitizeHtml";
 
 export const runtime = "nodejs";
 
@@ -13,7 +14,7 @@ type CommitteeEmailRequest = {
   recipients: string[];
 };
 
-const FROM_EMAIL = "committee@james-square.com";
+const FROM_EMAIL = "JSPA Committee <committee@james-square.com>";
 const DAILY_RECIPIENT_LIMIT = 100;
 const MAX_RECIPIENTS_PER_BATCH = 50;
 
@@ -33,10 +34,24 @@ const escapeHtml = (value: string) =>
     .replace(/\"/g, "&quot;")
     .replace(/'/g, "&#039;");
 
+const buildParagraphs = (value: string) =>
+  value
+    .split(/\r?\n\s*\r?\n/)
+    .map((paragraph) => paragraph.replace(/\r?\n/g, "<br />").trim())
+    .filter(Boolean)
+    .map((paragraph) => `<p style="margin:0 0 16px;">${paragraph}</p>`)
+    .join("");
+
 const normalizeMessage = (value: string) => {
-  const hasHtml = /<[^>]+>/.test(value);
-  if (hasHtml) return value;
-  return escapeHtml(value).replace(/\r?\n/g, "<br />");
+  const trimmed = value.trim();
+  const hasHtml = /<[^>]+>/.test(trimmed);
+  if (hasHtml) {
+    const sanitized = sanitizeHtml(trimmed);
+    return sanitized.replace(/<\/?(html|head|body)[^>]*>/gi, "");
+  }
+
+  const escaped = escapeHtml(trimmed);
+  return buildParagraphs(escaped);
 };
 
 const stripHtml = (html: string) =>
@@ -145,11 +160,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const html = await renderAdminEmail(
+    const bodyHtml = normalizeMessage(message);
+    const html = committeeEmailTemplate({
       subject,
-      normalizeMessage(message),
-      "Sent on behalf of the James Square committee.",
-    );
+      bodyHtml,
+    });
 
     const resend = getResendClient();
     const batches = chunk(recipients, MAX_RECIPIENTS_PER_BATCH);
@@ -175,6 +190,8 @@ export async function POST(req: NextRequest) {
 
     await adminDb.collection("committeeSentEmails").add({
       subject,
+      message,
+      renderedHtml: html,
       sentAt: Timestamp.now(),
       senderEmail,
       recipientCount: recipients.length,
