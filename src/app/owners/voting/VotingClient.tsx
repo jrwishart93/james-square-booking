@@ -184,7 +184,9 @@ export default function OwnersVotingPage() {
       return onSnapshot(
         votesQuery,
         (snapshot) => {
-          console.log("Votes returned:", snapshot.docs.map((d) => d.data()));
+          if (process.env.NODE_ENV === "development") {
+            console.log(`Votes fetched: ${snapshot.size}`);
+          }
           const counts = snapshot.docs.reduce<Record<string, number>>((acc, doc) => {
             const data = doc.data() as Record<string, unknown>;
             const optionId = typeof data.optionId === "string" ? data.optionId : null;
