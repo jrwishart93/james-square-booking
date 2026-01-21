@@ -19,6 +19,7 @@ type FactorInfoPageProps = {
   costsTitle?: string;
   costsContent?: ReactNode;
   documentationLinks: Array<{ href: string; label: string }>;
+  additionalContent?: ReactNode;
 };
 
 const FactorInfoPage = ({
@@ -34,6 +35,7 @@ const FactorInfoPage = ({
   costsTitle = 'Costs summary',
   costsContent,
   documentationLinks,
+  additionalContent,
 }: FactorInfoPageProps) => {
   return (
     <GradientBG className="relative isolate min-h-screen w-screen -ml-[calc((100vw-100%)/2)] -mr-[calc((100vw-100%)/2)] px-4 md:px-8 py-12">
@@ -76,6 +78,8 @@ const FactorInfoPage = ({
               </div>
             )}
           </GlassCard>
+
+          {additionalContent}
 
           <GlassCard title="Documentation" titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100">
             <div className="flex flex-col gap-2">
