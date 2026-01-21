@@ -35,6 +35,10 @@ const NewtonPage = () => {
           href: '/images/venues/Newton-Cost-doc.pdf',
           label: 'View Newton cost breakdown (PDF)',
         },
+        {
+          href: '/images/Debt%20Recover%20Procedure%20PDF_V8.pdf',
+          label: 'View debt recovery procedure (PDF)',
+        },
       ]}
       postDocumentationContent={<VotingCallout />}
     />
