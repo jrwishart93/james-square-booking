@@ -314,12 +314,6 @@ const VotePage: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      console.log('Submitting vote:', {
-        questionId: currentQuestion.id,
-        optionId: selectedOptionId,
-        flat: normalizedFlat,
-      });
-
       await submitVote(currentQuestion.id, selectedOptionId, trimmedName, normalizedFlat, currentUser.uid);
       lightHaptic();
       sessionStorage.setItem('ovh_username', trimmedName);
