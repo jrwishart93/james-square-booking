@@ -1,5 +1,6 @@
 import CommitteeInboxDemo from './CommitteeInboxDemo';
 import InboundEmailFeed from './InboundEmailFeed';
+import CommitteeEmailPanel from '../../components/committee/CommitteeEmailPanel';
 import PreviouslySentEmails, { type SentEmail } from '../../components/committee/PreviouslySentEmails';
 
 const glassCard =
@@ -239,6 +240,10 @@ export default function CommitteeContent() {
           material. This page confirms access and intent while the workspace is being
           prepared.
         </p>
+      </section>
+
+      <section className={`${glassCard} space-y-4 p-6`}>
+        <CommitteeEmailPanel />
       </section>
 
       <PreviouslySentEmails emails={sentEmails} />
