@@ -1,12 +1,15 @@
 import type { Metadata } from 'next';
 
 import FactorInfoPage from '@/components/FactorInfoPage';
+import TimedVimeoEmbed from '@/components/TimedVimeoEmbed';
 import VotingCallout from '@/components/VotingCallout';
 
 export const metadata: Metadata = {
   title: 'Newton Property Management | James Square',
   description: 'Information for James Square owners about Newton Property Management factoring proposal.',
 };
+
+const PRESENTATION_EXPIRY = '2026-01-23T17:00:00+00:00';
 
 const NewtonPage = () => {
   return (
@@ -40,7 +43,17 @@ const NewtonPage = () => {
           label: 'View debt recovery procedure (PDF)',
         },
       ]}
-      postDocumentationContent={<VotingCallout />}
+      postDocumentationContent={
+        <>
+          <TimedVimeoEmbed
+            videoId="1156997722"
+            title="Newton – Online Presentation"
+            expiryDate={PRESENTATION_EXPIRY}
+            aspectRatio={75}
+          />
+          <VotingCallout />
+        </>
+      }
     />
   );
 };
