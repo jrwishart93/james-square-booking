@@ -2,12 +2,15 @@ import type { Metadata } from 'next';
 
 import FactorInfoPage from '@/components/FactorInfoPage';
 import { GlassCard } from '@/components/GlassCard';
+import TimedVimeoEmbed from '@/components/TimedVimeoEmbed';
 import VotingCallout from '@/components/VotingCallout';
 
 export const metadata: Metadata = {
   title: 'Myreside Management | James Square',
   description: 'Information for James Square owners about Myreside Management factoring proposal.',
 };
+
+const PRESENTATION_EXPIRY = '2026-01-21T17:00:00+00:00';
 
 const MyresidePage = () => {
   return (
@@ -180,7 +183,17 @@ const MyresidePage = () => {
           label: 'View updated Myreside tender documentation (18 January 2025 PDF)',
         },
       ]}
-      postDocumentationContent={<VotingCallout />}
+      postDocumentationContent={
+        <>
+          <TimedVimeoEmbed
+            videoId="1156995632"
+            title="Myreside – Online Presentation"
+            expiryDate={PRESENTATION_EXPIRY}
+            aspectRatio={56.25}
+          />
+          <VotingCallout />
+        </>
+      }
       additionalContent={
         <GlassCard
           title="Cleaning Standard – Current vs Proposed"
