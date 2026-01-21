@@ -57,7 +57,7 @@ const TimedVimeoEmbed = ({ videoId, title, expiryDate, aspectRatio = 56.25 }: Ti
             </div>
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-400">
-            This recording will be available until 5:00pm on Friday 21 January 2026, after which it will be removed.
+            This recording will be available until 5:00pm on Friday 23 January 2026, after which it will be removed.
           </p>
         </div>
       ) : (

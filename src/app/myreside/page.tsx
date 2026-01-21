@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   description: 'Information for James Square owners about Myreside Management factoring proposal.',
 };
 
-const PRESENTATION_EXPIRY = '2026-01-21T17:00:00+00:00';
+const PRESENTATION_EXPIRY = '2026-01-23T17:00:00+00:00';
 
 const MyresidePage = () => {
   return (
