@@ -5,8 +5,7 @@ import { Calendar, Clock, MonitorSmartphone, Users } from "lucide-react";
 const meetingTitle = "James Square – Extraordinary General Meeting";
 const pageUrl = "https://www.james-square.com/egm";
 const meetingImage = "https://www.james-square.com/images/EGM-LINK-IMAGE.png";
-const teamsLink =
-  "https://teams.microsoft.com/l/meetup-join/19%3ameeting_ZjI4NmMzZjYtYmI3OS00ZDk3LTg1ZDgtNGE5NDI3YmExNzA1%40thread.v2/0?context=%7b%22Tid%22%3a%22f5c44b19-1c42-4ad7-b10e-1d2fcf2b71d3%22%2c%22Oid%22%3a%2290c27962-4d1a-4d45-8e9e-ff0f7b30452b%22%7d";
+const teamsLink = "https://teams.live.com/meet/9361186540157?p=3nM4fcihwFSrOLglvH";
 const meetingDescription =
   "This Extraordinary General Meeting has been arranged for owners at James Square to discuss and vote on a potential change to the property factor. The meeting will be held online to allow as many owners as possible to attend.";
 
