@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 
 import FactorInfoPage from '@/components/FactorInfoPage';
 import { GlassCard } from '@/components/GlassCard';
+import VotingCallout from '@/components/VotingCallout';
 
 export const metadata: Metadata = {
   title: 'Myreside Management | James Square',
@@ -179,6 +180,7 @@ const MyresidePage = () => {
           label: 'View updated Myreside tender documentation (18 January 2025 PDF)',
         },
       ]}
+      postDocumentationContent={<VotingCallout />}
       additionalContent={
         <GlassCard
           title="Cleaning Standard – Current vs Proposed"
