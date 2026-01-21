@@ -20,6 +20,7 @@ type FactorInfoPageProps = {
   costsContent?: ReactNode;
   documentationLinks: Array<{ href: string; label: string }>;
   additionalContent?: ReactNode;
+  postDocumentationContent?: ReactNode;
 };
 
 const FactorInfoPage = ({
@@ -36,6 +37,7 @@ const FactorInfoPage = ({
   costsContent,
   documentationLinks,
   additionalContent,
+  postDocumentationContent,
 }: FactorInfoPageProps) => {
   return (
     <GradientBG className="relative isolate min-h-screen w-screen -ml-[calc((100vw-100%)/2)] -mr-[calc((100vw-100%)/2)] px-4 md:px-8 py-12">
@@ -97,6 +99,8 @@ const FactorInfoPage = ({
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-300">These documents are provided for information only.</p>
           </GlassCard>
+
+          {postDocumentationContent}
 
           <div className="rounded-2xl border border-slate-200/80 bg-slate-50/80 p-6 shadow-sm dark:border-white/10 dark:bg-white/5">
             <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">Important note</h2>

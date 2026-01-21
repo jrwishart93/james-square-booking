@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 
 import FactorInfoPage from '@/components/FactorInfoPage';
+import VotingCallout from '@/components/VotingCallout';
 
 export const metadata: Metadata = {
   title: 'Newton Property Management | James Square',
@@ -35,6 +36,7 @@ const NewtonPage = () => {
           label: 'View Newton cost breakdown (PDF)',
         },
       ]}
+      postDocumentationContent={<VotingCallout />}
     />
   );
 };
