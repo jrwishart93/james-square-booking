@@ -9,6 +9,7 @@ import {
   getDocs,
   orderBy,
   query,
+  where,
   doc,
   getDoc,
   updateDoc,
@@ -277,13 +278,29 @@ export default function AdminDashboard() {
   /* ---------- Auth check (unchanged) ---------- */
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        const userDocRef = doc(db, 'users', user.uid);
-        const userSnap = await getDoc(userDocRef);
-        if (userSnap.exists() && userSnap.data().isAdmin) {
-          setIsAdmin(true);
+      if (!user) {
+        setIsAdmin(false);
+        setLoading(false);
+        return;
+      }
+
+      let adminAccess = false;
+
+      const userDocRef = doc(db, 'users', user.uid);
+      const userSnap = await getDoc(userDocRef);
+      if (userSnap.exists() && userSnap.data().isAdmin) {
+        adminAccess = true;
+      } else if (user.email) {
+        const emailSnapshot = await getDocs(
+          query(collection(db, 'users'), where('email', '==', user.email))
+        );
+        const emailMatch = emailSnapshot.docs[0];
+        if (emailMatch?.data()?.isAdmin) {
+          adminAccess = true;
         }
       }
+
+      setIsAdmin(adminAccess);
       setLoading(false);
     });
     return () => unsubscribe();
