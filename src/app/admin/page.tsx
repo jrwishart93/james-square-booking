@@ -98,7 +98,7 @@ const RESIDENT_TYPE_OPTIONS = [
   { value: 'owner', label: 'Owner' },
   { value: 'renter', label: 'Renter' },
   { value: 'stl', label: 'Short Term Holiday Let' },
-];
+] as const;
 
 type ResidentTypeOption = (typeof RESIDENT_TYPE_OPTIONS)[number]['value'];
 
