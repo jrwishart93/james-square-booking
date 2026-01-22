@@ -1378,8 +1378,9 @@ export default function AdminDashboard() {
                 )}
               </div>
               {/* Desktop Table */}
-              <div className="hidden md:block overflow-x-auto jqs-glass rounded-2xl">
-                <table className="min-w-full text-sm">
+              <div className="hidden md:block jqs-glass rounded-2xl overflow-visible">
+                <div className="relative overflow-x-auto">
+                  <table className="min-w-[1200px] w-full text-sm">
                   <thead>
                     <tr className="text-left">
                       {[
@@ -1395,7 +1396,16 @@ export default function AdminDashboard() {
                         'Disabled',
                         'Actions',
                       ].map((h) => (
-                        <th key={h} className="px-3 py-2 border-b border-[color:var(--glass-border)]">
+                        <th
+                          key={h}
+                          className={`px-3 py-2 border-b border-[color:var(--glass-border)] whitespace-nowrap ${
+                            h === 'Email'
+                              ? 'sticky left-0 z-10 bg-white/80 dark:bg-slate-900/80 backdrop-blur'
+                              : h === 'Actions'
+                                ? 'sticky right-0 z-10 bg-white/80 dark:bg-slate-900/80 backdrop-blur'
+                                : ''
+                          }`}
+                        >
                           {h}
                         </th>
                       ))}
@@ -1405,8 +1415,10 @@ export default function AdminDashboard() {
                     {filteredUsers.map((user) =>
                       editingUser && editingUser.id === user.id ? (
                         <tr key={user.id} className="align-top">
-                          <td className="px-3 py-2">{user.email}</td>
-                          <td className="px-3 py-2">
+                          <td className="px-3 py-2 whitespace-nowrap sticky left-0 z-10 bg-white/80 dark:bg-slate-900/80 backdrop-blur">
+                            {user.email}
+                          </td>
+                          <td className="px-3 py-2 whitespace-nowrap">
                             <input
                               type="text"
                               name="fullName"
@@ -1415,7 +1427,7 @@ export default function AdminDashboard() {
                               className="w-full border rounded px-2 py-1 bg-transparent"
                             />
                           </td>
-                          <td className="px-3 py-2">
+                          <td className="px-3 py-2 whitespace-nowrap">
                             <input
                               type="text"
                               name="username"
@@ -1424,7 +1436,7 @@ export default function AdminDashboard() {
                               className="w-full border rounded px-2 py-1 bg-transparent"
                             />
                           </td>
-                          <td className="px-3 py-2">
+                          <td className="px-3 py-2 whitespace-nowrap">
                             <input
                               type="text"
                               name="property"
@@ -1433,7 +1445,7 @@ export default function AdminDashboard() {
                               className="w-full border rounded px-2 py-1 bg-transparent"
                             />
                           </td>
-                          <td className="px-3 py-2">
+                          <td className="px-3 py-2 whitespace-nowrap">
                             {(() => {
                               const status = getResidentTypeLabel(user);
                               return (
@@ -1443,10 +1455,10 @@ export default function AdminDashboard() {
                               );
                             })()}
                           </td>
-                          <td className="px-3 py-2">
+                          <td className="px-3 py-2 whitespace-nowrap">
                             {formatDate(user.createdAt)}
                           </td>
-                          <td className="px-3 py-2">
+                          <td className="px-3 py-2 whitespace-nowrap">
                             {(() => {
                               const lastLogin = getLastLoginDisplay(user);
                               return (
@@ -1462,10 +1474,16 @@ export default function AdminDashboard() {
                               );
                             })()}
                           </td>
-                          <td className="px-3 py-2">{user.isFlagged ? 'Yes' : 'No'}</td>
-                          <td className="px-3 py-2">{user.isAdmin ? 'Yes' : 'No'}</td>
-                          <td className="px-3 py-2">{user.disabled ? 'Yes' : 'No'}</td>
-                          <td className="px-3 py-2 space-x-1">
+                          <td className="px-3 py-2 whitespace-nowrap">
+                            {user.isFlagged ? 'Yes' : 'No'}
+                          </td>
+                          <td className="px-3 py-2 whitespace-nowrap">
+                            {user.isAdmin ? 'Yes' : 'No'}
+                          </td>
+                          <td className="px-3 py-2 whitespace-nowrap">
+                            {user.disabled ? 'Yes' : 'No'}
+                          </td>
+                          <td className="px-3 py-2 space-x-1 whitespace-nowrap sticky right-0 z-10 bg-white/80 dark:bg-slate-900/80 backdrop-blur">
                             <button
                               onClick={requestUserUpdate}
                               disabled={isUserActionLocked}
@@ -1526,11 +1544,13 @@ export default function AdminDashboard() {
                         </tr>
                       ) : (
                         <tr key={user.id} className="align-top">
-                          <td className="px-3 py-2">{user.email}</td>
-                          <td className="px-3 py-2">{user.fullName}</td>
-                          <td className="px-3 py-2">{user.username}</td>
-                          <td className="px-3 py-2">{user.property}</td>
-                          <td className="px-3 py-2">
+                          <td className="px-3 py-2 whitespace-nowrap sticky left-0 z-10 bg-white/80 dark:bg-slate-900/80 backdrop-blur">
+                            {user.email}
+                          </td>
+                          <td className="px-3 py-2 whitespace-nowrap">{user.fullName}</td>
+                          <td className="px-3 py-2 whitespace-nowrap">{user.username}</td>
+                          <td className="px-3 py-2 whitespace-nowrap">{user.property}</td>
+                          <td className="px-3 py-2 whitespace-nowrap">
                             {(() => {
                               const status = getResidentTypeLabel(user);
                               return (
@@ -1540,10 +1560,10 @@ export default function AdminDashboard() {
                               );
                             })()}
                           </td>
-                          <td className="px-3 py-2">
+                          <td className="px-3 py-2 whitespace-nowrap">
                             {formatDate(user.createdAt)}
                           </td>
-                          <td className="px-3 py-2">
+                          <td className="px-3 py-2 whitespace-nowrap">
                             {(() => {
                               const lastLogin = getLastLoginDisplay(user);
                               return (
@@ -1559,10 +1579,16 @@ export default function AdminDashboard() {
                               );
                             })()}
                           </td>
-                          <td className="px-3 py-2">{user.isFlagged ? 'Yes' : 'No'}</td>
-                          <td className="px-3 py-2">{user.isAdmin ? 'Yes' : 'No'}</td>
-                          <td className="px-3 py-2">{user.disabled ? 'Yes' : 'No'}</td>
-                          <td className="px-3 py-2 space-x-1">
+                          <td className="px-3 py-2 whitespace-nowrap">
+                            {user.isFlagged ? 'Yes' : 'No'}
+                          </td>
+                          <td className="px-3 py-2 whitespace-nowrap">
+                            {user.isAdmin ? 'Yes' : 'No'}
+                          </td>
+                          <td className="px-3 py-2 whitespace-nowrap">
+                            {user.disabled ? 'Yes' : 'No'}
+                          </td>
+                          <td className="px-3 py-2 space-x-1 whitespace-nowrap sticky right-0 z-10 bg-white/80 dark:bg-slate-900/80 backdrop-blur">
                             <button
                               onClick={() => startEditing(user)}
                               disabled={isUserActionLocked}
@@ -1656,7 +1682,8 @@ export default function AdminDashboard() {
                       )
                     )}
                   </tbody>
-                </table>
+                  </table>
+                </div>
               </div>
 
               {/* Mobile Cards */}
