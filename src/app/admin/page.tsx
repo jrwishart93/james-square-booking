@@ -100,6 +100,8 @@ const RESIDENT_TYPE_OPTIONS = [
   { value: 'stl', label: 'Short Term Holiday Let' },
 ];
 
+type ResidentTypeOption = (typeof RESIDENT_TYPE_OPTIONS)[number]['value'];
+
 /* ---------- Small UI helpers (visual-only) ---------- */
 function Section({
   title,
@@ -1501,7 +1503,10 @@ export default function AdminDashboard() {
                               <select
                                 value=""
                                 onChange={(e) =>
-                                  requestResidentTypeUpdate(user.id, e.target.value as any)
+                                  requestResidentTypeUpdate(
+                                    user.id,
+                                    e.target.value as ResidentTypeOption
+                                  )
                                 }
                                 disabled={isUserActionLocked}
                                 className="rounded-full px-3 py-1 text-xs border border-white/30 bg-transparent jqs-glass"
@@ -1631,7 +1636,10 @@ export default function AdminDashboard() {
                               <select
                                 value=""
                                 onChange={(e) =>
-                                  requestResidentTypeUpdate(user.id, e.target.value as any)
+                                  requestResidentTypeUpdate(
+                                    user.id,
+                                    e.target.value as ResidentTypeOption
+                                  )
                                 }
                                 disabled={isUserActionLocked}
                                 className="rounded-full px-3 py-1 text-xs border border-white/30 bg-transparent jqs-glass"
