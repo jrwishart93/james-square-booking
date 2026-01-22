@@ -65,7 +65,8 @@ type AdminAction =
   | 'TOGGLE_ADMIN'
   | 'TOGGLE_FLAG'
   | 'TOGGLE_DISABLED'
-  | 'REQUIRE_RESIDENT_TYPE_CONFIRMATION';
+  | 'REQUIRE_RESIDENT_TYPE_CONFIRMATION'
+  | 'SET_RESIDENT_TYPE';
 
 interface PendingAdminAction {
   action: AdminAction;
@@ -92,6 +93,12 @@ const PEAK_TIMES = new Set([
 const isPeakTime = (time: string) => PEAK_TIMES.has(time);
 
 const SHOW_VOTING_OVERVIEW = false;
+
+const RESIDENT_TYPE_OPTIONS = [
+  { value: 'owner', label: 'Owner' },
+  { value: 'renter', label: 'Renter' },
+  { value: 'stl', label: 'Short Term Holiday Let' },
+];
 
 /* ---------- Small UI helpers (visual-only) ---------- */
 function Section({
@@ -395,6 +402,17 @@ export default function AdminDashboard() {
     });
   };
 
+  const requestResidentTypeUpdate = (
+    userId: string,
+    residentType: 'owner' | 'renter' | 'stl'
+  ) => {
+    openConfirmation({
+      action: 'SET_RESIDENT_TYPE',
+      userId,
+      payload: { residentType },
+    });
+  };
+
   const getActionCopy = (
     action: PendingAdminAction,
     user?: UserRegistration
@@ -467,6 +485,23 @@ export default function AdminDashboard() {
           confirmLabel: 'Require confirmation',
           successMessage: `Required resident type confirmation for ${displayName}.`,
         };
+      case 'SET_RESIDENT_TYPE': {
+        const labelMap: Record<string, string> = {
+          owner: 'Owner',
+          renter: 'Renter',
+          stl: 'Short Term Holiday Let',
+        };
+
+        const type = String(action.payload?.residentType);
+
+        return {
+          title: 'Confirm resident type',
+          description: `Set ${displayName}'s resident type to ${labelMap[type]}?`,
+          warning: 'This affects access to owner-only areas.',
+          confirmLabel: 'Confirm',
+          successMessage: `Resident type updated to ${labelMap[type]}.`,
+        };
+      }
       default:
         return {
           title: 'Confirm admin action',
@@ -571,6 +606,37 @@ export default function AdminDashboard() {
             admin: auth.currentUser?.email || 'unknown',
             timestamp: new Date(),
           });
+          break;
+        }
+        case 'SET_RESIDENT_TYPE': {
+          const type = String(pendingAction.payload?.residentType);
+
+          const labelMap: Record<string, string> = {
+            owner: 'Owner',
+            renter: 'Renter',
+            stl: 'Short Term Holiday Let',
+          };
+
+          const updates = {
+            residentType: type,
+            residentTypeLabel: labelMap[type],
+            requiresResidentTypeConfirmation: false,
+          };
+
+          await updateDoc(userRef, updates);
+
+          setUsers((prev) =>
+            prev.map((user) =>
+              user.id === pendingAction.userId ? { ...user, ...updates } : user
+            )
+          );
+
+          await addDoc(collection(db, 'activityLogs'), {
+            action: `Admin set resident type to ${labelMap[type]}`,
+            admin: auth.currentUser?.email || 'unknown',
+            timestamp: new Date(),
+          });
+
           break;
         }
         default:
@@ -1328,8 +1394,9 @@ export default function AdminDashboard() {
                 )}
               </div>
               {/* Desktop Table */}
-              <div className="hidden md:block overflow-x-auto jqs-glass rounded-2xl">
-                <table className="min-w-full text-sm">
+              <div className="hidden md:block jqs-glass rounded-2xl">
+                <div className="relative overflow-x-auto">
+                  <table className="min-w-[1400px] w-full text-sm">
                   <thead>
                     <tr className="text-left">
                       {[
@@ -1430,6 +1497,25 @@ export default function AdminDashboard() {
                             >
                               Cancel
                             </button>
+                            {getResidentCategory(user) === 'unknown' && (
+                              <select
+                                value=""
+                                onChange={(e) =>
+                                  requestResidentTypeUpdate(user.id, e.target.value as any)
+                                }
+                                disabled={isUserActionLocked}
+                                className="rounded-full px-3 py-1 text-xs border border-white/30 bg-transparent jqs-glass"
+                              >
+                                <option value="" disabled>
+                                  Set resident type
+                                </option>
+                                {RESIDENT_TYPE_OPTIONS.map(option => (
+                                  <option key={option.value} value={option.value}>
+                                    {option.label}
+                                  </option>
+                                ))}
+                              </select>
+                            )}
                             {getResidentCategory(user) === 'unknown' && (
                               <button
                                 onClick={() =>
@@ -1542,6 +1628,25 @@ export default function AdminDashboard() {
                               {user.isFlagged ? 'Unflag' : 'Flag'}
                             </button>
                             {getResidentCategory(user) === 'unknown' && (
+                              <select
+                                value=""
+                                onChange={(e) =>
+                                  requestResidentTypeUpdate(user.id, e.target.value as any)
+                                }
+                                disabled={isUserActionLocked}
+                                className="rounded-full px-3 py-1 text-xs border border-white/30 bg-transparent jqs-glass"
+                              >
+                                <option value="" disabled>
+                                  Set resident type
+                                </option>
+                                {RESIDENT_TYPE_OPTIONS.map(option => (
+                                  <option key={option.value} value={option.value}>
+                                    {option.label}
+                                  </option>
+                                ))}
+                              </select>
+                            )}
+                            {getResidentCategory(user) === 'unknown' && (
                               <button
                                 onClick={() =>
                                   openConfirmation({
@@ -1570,7 +1675,8 @@ export default function AdminDashboard() {
                       )
                     )}
                   </tbody>
-                </table>
+                  </table>
+                </div>
               </div>
 
               {/* Mobile Cards */}
