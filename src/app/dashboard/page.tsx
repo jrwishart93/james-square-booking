@@ -67,6 +67,29 @@ const residentTypeLabelMap: Record<string, string> = {
   stl_guest: 'Short-term holiday guest',
 };
 
+const getEffectiveResidentStatus = (resident: {
+  residentType?: string;
+  residentTypeLabel?: string;
+  userRole?: string;
+}) => {
+  if (resident.residentType && resident.residentTypeLabel) {
+    return {
+      value: resident.residentType,
+      label: resident.residentTypeLabel,
+    };
+  }
+
+  if (resident.userRole === 'Owner') {
+    return { value: 'owner', label: 'Owner' };
+  }
+
+  if (resident.userRole === 'Renter') {
+    return { value: 'renter', label: 'Renter' };
+  }
+
+  return { value: null, label: 'Not set' };
+};
+
 export default function MyDashboardPage() {
   const [user, setUser] = useState<User | null>(null);
   const [editing, setEditing] = useState(false);
@@ -84,8 +107,13 @@ export default function MyDashboardPage() {
   const [roleError, setRoleError] = useState('');
   const [residentType, setResidentType] = useState('');
   const [residentTypeLabel, setResidentTypeLabel] = useState('');
+  const effectiveStatus = getEffectiveResidentStatus({
+    residentType,
+    residentTypeLabel,
+    userRole,
+  });
   const [isEditingResidentType, setIsEditingResidentType] = useState(false);
-  const [selectedResidentType, setSelectedResidentType] = useState('');
+  const [selectedResidentType, setSelectedResidentType] = useState(effectiveStatus.value || '');
   const [showResidentTypeConfirm, setShowResidentTypeConfirm] = useState(false);
   const [residentTypeFeedback, setResidentTypeFeedback] = useState('');
   const router = useRouter();
@@ -144,6 +172,12 @@ export default function MyDashboardPage() {
     };
     fetchBookings();
   }, [user]);
+
+  useEffect(() => {
+    if (isEditingResidentType) return;
+    const normalizedValue = effectiveStatus.value === 'stl_guest' ? 'stl' : effectiveStatus.value;
+    setSelectedResidentType(normalizedValue || '');
+  }, [effectiveStatus.value, isEditingResidentType]);
 
   const cancelBooking = async (bookingId: string) => {
     if (!window.confirm('Are you sure you want to cancel this booking?')) return;
@@ -239,13 +273,15 @@ export default function MyDashboardPage() {
   };
 
   const handleResidentTypeEdit = () => {
-    setSelectedResidentType(residentType === 'stl_guest' ? 'stl' : residentType);
+    const normalizedValue = effectiveStatus.value === 'stl_guest' ? 'stl' : effectiveStatus.value;
+    setSelectedResidentType(normalizedValue || '');
     setResidentTypeFeedback('');
     setIsEditingResidentType(true);
   };
 
   const cancelResidentTypeEdit = () => {
-    setSelectedResidentType(residentType === 'stl_guest' ? 'stl' : residentType);
+    const normalizedValue = effectiveStatus.value === 'stl_guest' ? 'stl' : effectiveStatus.value;
+    setSelectedResidentType(normalizedValue || '');
     setResidentTypeFeedback('');
     setIsEditingResidentType(false);
   };
@@ -522,7 +558,7 @@ export default function MyDashboardPage() {
                     <span className="text-[color:var(--muted)]">Resident status</span>
                     <br />
                     <span className="text-base font-semibold text-[color:var(--text-primary)]">
-                      {residentTypeLabel || residentTypeLabelMap[residentType] || 'Not set'}
+                      {effectiveStatus.label || 'Not set'}
                     </span>
                   </p>
                   {!isEditingResidentType && (
