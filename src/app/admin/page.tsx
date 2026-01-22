@@ -1396,9 +1396,11 @@ export default function AdminDashboard() {
                 )}
               </div>
               {/* Desktop Table */}
-              <div className="hidden md:block w-full jqs-glass rounded-2xl">
-                <div className="relative w-full overflow-x-auto pb-2">
-                  <table className="min-w-[1400px] w-full text-sm">
+              <div className="hidden md:block">
+                <div className="w-full overflow-x-auto">
+                  <div className="w-full jqs-glass rounded-2xl">
+                    <div className="relative w-full overflow-x-auto pb-2">
+                      <table className="min-w-[1400px] w-full text-sm">
                   <thead>
                     <tr className="text-left">
                       {[
@@ -1683,7 +1685,9 @@ export default function AdminDashboard() {
                       )
                     )}
                   </tbody>
-                  </table>
+                      </table>
+                    </div>
+                  </div>
                 </div>
               </div>
 
