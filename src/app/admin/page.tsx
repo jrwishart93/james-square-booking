@@ -33,6 +33,7 @@ interface UserRegistration {
   lastLoginAt?: string | Date | { toDate: () => Date };
   residentType?: string;
   residentTypeLabel?: string;
+  userRole?: string;
   isFlagged?: boolean;
   isAdmin?: boolean;
   disabled?: boolean;
@@ -65,7 +66,8 @@ type AdminAction =
   | 'TOGGLE_ADMIN'
   | 'TOGGLE_FLAG'
   | 'TOGGLE_DISABLED'
-  | 'REQUIRE_RESIDENT_TYPE_CONFIRMATION';
+  | 'REQUIRE_RESIDENT_TYPE_CONFIRMATION'
+  | 'UPDATE_RESIDENT_TYPE';
 
 interface PendingAdminAction {
   action: AdminAction;
@@ -467,6 +469,16 @@ export default function AdminDashboard() {
           confirmLabel: 'Require confirmation',
           successMessage: `Required resident type confirmation for ${displayName}.`,
         };
+      case 'UPDATE_RESIDENT_TYPE': {
+        const nextType = action.payload?.residentType === 'owner' ? 'Owner' : 'Renter';
+        return {
+          title: 'Confirm resident status change',
+          description: `Are you sure you want to change ${displayName} to ${nextType}?`,
+          warning: 'This updates how the user is classified across the system.',
+          confirmLabel: `Set as ${nextType}`,
+          successMessage: `Updated ${displayName} to ${nextType}.`,
+        };
+      }
       default:
         return {
           title: 'Confirm admin action',
@@ -568,6 +580,27 @@ export default function AdminDashboard() {
           );
           await addDoc(collection(db, 'activityLogs'), {
             action: 'Flagged resident type confirmation requirement',
+            admin: auth.currentUser?.email || 'unknown',
+            timestamp: new Date(),
+          });
+          break;
+        }
+        case 'UPDATE_RESIDENT_TYPE': {
+          const residentType =
+            pendingAction.payload?.residentType === 'renter' ? 'renter' : 'owner';
+          const updates = {
+            residentType,
+            residentTypeLabel: residentType === 'owner' ? 'Owner' : 'Renter',
+            userRole: residentType === 'owner' ? 'Owner' : 'Renter',
+          };
+          await updateDoc(userRef, updates);
+          setUsers((prev) =>
+            prev.map((user) =>
+              user.id === pendingAction.userId ? { ...user, ...updates } : user
+            )
+          );
+          await addDoc(collection(db, 'activityLogs'), {
+            action: `Updated resident type to ${updates.residentTypeLabel}`,
             admin: auth.currentUser?.email || 'unknown',
             timestamp: new Date(),
           });
@@ -1445,6 +1478,24 @@ export default function AdminDashboard() {
                                 Require confirmation
                               </button>
                             )}
+                            {isAdmin && (
+                              <button
+                                onClick={() =>
+                                  openConfirmation({
+                                    action: 'UPDATE_RESIDENT_TYPE',
+                                    userId: user.id,
+                                    payload: {
+                                      residentType:
+                                        user.residentType === 'owner' ? 'renter' : 'owner',
+                                    },
+                                  })
+                                }
+                                disabled={isUserActionLocked}
+                                className="rounded-full px-3 py-1 text-xs bg-slate-700 text-white disabled:opacity-60 disabled:cursor-not-allowed"
+                              >
+                                Change resident type
+                              </button>
+                            )}
                             <button
                               onClick={() =>
                                 openConfirmation({ action: 'DELETE_USER', userId: user.id })
@@ -1554,6 +1605,24 @@ export default function AdminDashboard() {
                                 className="rounded-full px-3 py-1 text-xs bg-slate-700 text-white disabled:opacity-60 disabled:cursor-not-allowed"
                               >
                                 Require confirmation
+                              </button>
+                            )}
+                            {isAdmin && (
+                              <button
+                                onClick={() =>
+                                  openConfirmation({
+                                    action: 'UPDATE_RESIDENT_TYPE',
+                                    userId: user.id,
+                                    payload: {
+                                      residentType:
+                                        user.residentType === 'owner' ? 'renter' : 'owner',
+                                    },
+                                  })
+                                }
+                                disabled={isUserActionLocked}
+                                className="rounded-full px-3 py-1 text-xs bg-slate-700 text-white disabled:opacity-60 disabled:cursor-not-allowed"
+                              >
+                                Change resident type
                               </button>
                             )}
                             <button
@@ -1685,6 +1754,24 @@ export default function AdminDashboard() {
                                 Require confirmation
                               </button>
                             )}
+                            {isAdmin && (
+                              <button
+                                onClick={() =>
+                                  openConfirmation({
+                                    action: 'UPDATE_RESIDENT_TYPE',
+                                    userId: user.id,
+                                    payload: {
+                                      residentType:
+                                        user.residentType === 'owner' ? 'renter' : 'owner',
+                                    },
+                                  })
+                                }
+                                disabled={isUserActionLocked}
+                                className="px-4 py-2 rounded-full text-xs font-semibold bg-slate-700 text-white disabled:opacity-60 disabled:cursor-not-allowed"
+                              >
+                                Change resident type
+                              </button>
+                            )}
                             <button
                               onClick={() =>
                                 openConfirmation({ action: 'DELETE_USER', userId: user.id })
@@ -1756,6 +1843,24 @@ export default function AdminDashboard() {
                                 className="px-4 py-2 rounded-full text-xs font-semibold bg-slate-700 text-white disabled:opacity-60 disabled:cursor-not-allowed"
                               >
                                 Require confirmation
+                              </button>
+                            )}
+                            {isAdmin && (
+                              <button
+                                onClick={() =>
+                                  openConfirmation({
+                                    action: 'UPDATE_RESIDENT_TYPE',
+                                    userId: user.id,
+                                    payload: {
+                                      residentType:
+                                        user.residentType === 'owner' ? 'renter' : 'owner',
+                                    },
+                                  })
+                                }
+                                disabled={isUserActionLocked}
+                                className="px-4 py-2 rounded-full text-xs font-semibold bg-slate-700 text-white disabled:opacity-60 disabled:cursor-not-allowed"
+                              >
+                                Change resident type
                               </button>
                             )}
                             <button
