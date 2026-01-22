@@ -31,6 +31,14 @@ export default function AnnouncementNotice() {
             <p>
               Owners are encouraged to review both replacement options before placing their vote.
             </p>
+            <p>
+              <span className="mr-2" aria-hidden="true">
+                🎥
+              </span>
+              Owners who were unable to attend the online presentations can view a recorded video
+              of each meeting on the relevant factor pages. These recordings will be available for
+              review until voting closes on Friday.
+            </p>
           </div>
 
           <div className="flex flex-wrap gap-3">
