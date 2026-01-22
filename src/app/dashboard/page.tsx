@@ -55,8 +55,16 @@ const propertyOptions = [
 const mapResidentTypeToRole = (residentType?: string) => {
   if (residentType === 'owner') return 'Owner';
   if (residentType === 'renter') return 'Renter';
+  if (residentType === 'stl') return 'Short Term Holiday Let';
   if (residentType === 'stl_guest') return 'Short-term holiday guest';
   return '';
+};
+
+const residentTypeLabelMap: Record<string, string> = {
+  owner: 'Owner',
+  renter: 'Renter',
+  stl: 'Short Term Holiday Let',
+  stl_guest: 'Short-term holiday guest',
 };
 
 export default function MyDashboardPage() {
@@ -74,6 +82,12 @@ export default function MyDashboardPage() {
   const [userRole, setUserRole] = useState('');
   const [savingRole, setSavingRole] = useState(false);
   const [roleError, setRoleError] = useState('');
+  const [residentType, setResidentType] = useState('');
+  const [residentTypeLabel, setResidentTypeLabel] = useState('');
+  const [isEditingResidentType, setIsEditingResidentType] = useState(false);
+  const [selectedResidentType, setSelectedResidentType] = useState('');
+  const [showResidentTypeConfirm, setShowResidentTypeConfirm] = useState(false);
+  const [residentTypeFeedback, setResidentTypeFeedback] = useState('');
   const router = useRouter();
 
   useEffect(() => {
@@ -86,13 +100,18 @@ export default function MyDashboardPage() {
         if (docSnap.exists()) {
           const data = docSnap.data();
           const existingRole = (data as { userRole?: string }).userRole || '';
+          const storedResidentType = (data as { residentType?: string }).residentType || '';
+          const storedResidentTypeLabel = (data as { residentTypeLabel?: string }).residentTypeLabel || '';
           const derivedRole =
             existingRole.trim() ||
-            ((data as { residentTypeLabel?: string }).residentTypeLabel?.trim() ?? '') ||
-            mapResidentTypeToRole((data as { residentType?: string }).residentType);
+            storedResidentTypeLabel.trim() ||
+            mapResidentTypeToRole(storedResidentType);
           setUsername((data as { username?: string }).username || '');
           setProperty((data as { property?: string }).property || '');
           setUserRole(derivedRole);
+          setResidentType(storedResidentType);
+          setResidentTypeLabel(storedResidentTypeLabel || residentTypeLabelMap[storedResidentType] || '');
+          setSelectedResidentType(storedResidentType === 'stl_guest' ? 'stl' : storedResidentType);
 
           if (!existingRole && derivedRole) {
             await updateDoc(docRef, { userRole: derivedRole });
@@ -217,6 +236,39 @@ export default function MyDashboardPage() {
       setFeedback('Failed to send reset email.');
     }
     setShowModal(false);
+  };
+
+  const handleResidentTypeEdit = () => {
+    setSelectedResidentType(residentType === 'stl_guest' ? 'stl' : residentType);
+    setResidentTypeFeedback('');
+    setIsEditingResidentType(true);
+  };
+
+  const cancelResidentTypeEdit = () => {
+    setSelectedResidentType(residentType === 'stl_guest' ? 'stl' : residentType);
+    setResidentTypeFeedback('');
+    setIsEditingResidentType(false);
+  };
+
+  const confirmResidentTypeUpdate = async () => {
+    if (!user) return;
+    try {
+      const label = residentTypeLabelMap[selectedResidentType] || '';
+      await updateDoc(doc(db, 'users', user.uid), {
+        residentType: selectedResidentType,
+        residentTypeLabel: label,
+        requiresResidentTypeConfirmation: true,
+      });
+      setResidentType(selectedResidentType);
+      setResidentTypeLabel(label);
+      setResidentTypeFeedback('Changes submitted for review.');
+      setIsEditingResidentType(false);
+    } catch (error) {
+      console.error('Failed to update resident status:', error);
+      setResidentTypeFeedback('Failed to submit resident status changes.');
+    } finally {
+      setShowResidentTypeConfirm(false);
+    }
   };
 
   const today = DateTime.now().toISODate();
@@ -464,6 +516,67 @@ export default function MyDashboardPage() {
                   </div>
                 </>
               )}
+              <div className="rounded-2xl border border-[color:var(--glass-border)] bg-white/60 p-4 text-left shadow-inner dark:bg-white/5">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-sm text-[color:var(--text-secondary)]">
+                    <span className="text-[color:var(--muted)]">Resident status</span>
+                    <br />
+                    <span className="text-base font-semibold text-[color:var(--text-primary)]">
+                      {residentTypeLabel || residentTypeLabelMap[residentType] || 'Not set'}
+                    </span>
+                  </p>
+                  {!isEditingResidentType && (
+                    <button
+                      type="button"
+                      onClick={handleResidentTypeEdit}
+                      className="text-sm font-semibold text-[color:var(--text-secondary)] underline-offset-4 hover:underline"
+                    >
+                      Edit
+                    </button>
+                  )}
+                </div>
+                {isEditingResidentType && (
+                  <div className="mt-4 space-y-4">
+                    <div className="rounded-xl border border-amber-200/70 bg-amber-50/80 p-3 text-sm text-amber-900 dark:border-amber-400/30 dark:bg-amber-500/10 dark:text-amber-100">
+                      <p className="font-semibold">Important</p>
+                      <p>Changes to your resident status are reviewed by an administrator.</p>
+                      <p>Please ensure the information you provide is accurate and correct.</p>
+                      <p>If a false statement is made, your account may be temporarily disabled.</p>
+                    </div>
+                    <div className="space-y-2 text-[color:var(--text-primary)]">
+                      {[
+                        { value: 'owner', label: 'Owner' },
+                        { value: 'renter', label: 'Renter' },
+                        { value: 'stl', label: 'Short Term Holiday Let' },
+                      ].map((option) => (
+                        <label key={option.value} className="flex items-center gap-3 text-sm">
+                          <input
+                            type="radio"
+                            name="residentType"
+                            value={option.value}
+                            checked={selectedResidentType === option.value}
+                            onChange={() => setSelectedResidentType(option.value)}
+                            className="h-4 w-4 accent-[color:var(--btn-bg)]"
+                          />
+                          <span>{option.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <Button variant="secondary" onClick={cancelResidentTypeEdit} className="min-w-[120px]">
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={() => setShowResidentTypeConfirm(true)}
+                        className="min-w-[140px]"
+                        disabled={!selectedResidentType}
+                      >
+                        Save changes
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
               {!userRole && (
                 <div className="mt-4 rounded-2xl border border-[color:var(--glass-border)] bg-white/60 p-4 text-left shadow-inner dark:bg-white/5">
                   <p className="text-sm font-semibold text-[color:var(--text-primary)]">
@@ -492,6 +605,9 @@ export default function MyDashboardPage() {
                   {roleError && <p className="mt-2 text-sm text-red-600 dark:text-red-400">{roleError}</p>}
                 </div>
               )}
+              {residentTypeFeedback && (
+                <p className="text-sm text-emerald-600 dark:text-emerald-300">{residentTypeFeedback}</p>
+              )}
               {feedback && <p className="text-sm text-emerald-600 dark:text-emerald-300">{feedback}</p>}
             </div>
           </GlassCard>
@@ -513,6 +629,24 @@ export default function MyDashboardPage() {
                 Cancel
               </Button>
               <Button onClick={sendPasswordReset}>Send Email</Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showResidentTypeConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-6 sm:px-0">
+          <div className="glass-surface glass-outline w-full max-w-md p-6">
+            <h3 className="text-lg font-semibold">Confirm resident status change</h3>
+            <p className="mt-2 text-[color:var(--text-secondary)] leading-relaxed">
+              Please confirm that the information you are providing is accurate.
+              All changes are reviewed by an administrator.
+            </p>
+            <div className="mt-6 flex flex-wrap justify-end gap-3">
+              <Button variant="secondary" onClick={() => setShowResidentTypeConfirm(false)}>
+                Cancel
+              </Button>
+              <Button onClick={confirmResidentTypeUpdate}>Confirm</Button>
             </div>
           </div>
         </div>
