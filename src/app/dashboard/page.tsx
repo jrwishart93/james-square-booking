@@ -55,8 +55,20 @@ const propertyOptions = [
 const mapResidentTypeToRole = (residentType?: string) => {
   if (residentType === 'owner') return 'Owner';
   if (residentType === 'renter') return 'Renter';
-  if (residentType === 'stl_guest') return 'Short-term holiday guest';
+  if (residentType === 'stl_guest' || residentType === 'stl') return 'Short-term holiday guest';
   return '';
+};
+
+const residentTypeLabelMap: Record<string, string> = {
+  owner: 'Owner',
+  renter: 'Renter',
+  stl: 'Short Term Holiday Let',
+  stl_guest: 'Short Term Holiday Let',
+};
+
+const normalizeResidentType = (value?: string) => {
+  if (value === 'stl_guest') return 'stl';
+  return value ?? '';
 };
 
 export default function MyDashboardPage() {
@@ -67,6 +79,7 @@ export default function MyDashboardPage() {
   const [property, setProperty] = useState('');
   const [feedback, setFeedback] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [showResidentTypeConfirm, setShowResidentTypeConfirm] = useState(false);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [sortBy, setSortBy] = useState<'date' | 'facility'>('date');
   const [showUpcoming, setShowUpcoming] = useState(true);
@@ -74,6 +87,13 @@ export default function MyDashboardPage() {
   const [userRole, setUserRole] = useState('');
   const [savingRole, setSavingRole] = useState(false);
   const [roleError, setRoleError] = useState('');
+  const [residentType, setResidentType] = useState('');
+  const [residentTypeLabel, setResidentTypeLabel] = useState('');
+  const [isEditingResidentType, setIsEditingResidentType] = useState(false);
+  const [selectedResidentType, setSelectedResidentType] = useState(residentType || '');
+  const [savingResidentType, setSavingResidentType] = useState(false);
+  const [residentTypeFeedback, setResidentTypeFeedback] = useState('');
+  const [residentTypeError, setResidentTypeError] = useState('');
   const router = useRouter();
 
   useEffect(() => {
@@ -93,6 +113,11 @@ export default function MyDashboardPage() {
           setUsername((data as { username?: string }).username || '');
           setProperty((data as { property?: string }).property || '');
           setUserRole(derivedRole);
+          const fetchedResidentType = (data as { residentType?: string }).residentType || '';
+          const fetchedResidentTypeLabel = (data as { residentTypeLabel?: string }).residentTypeLabel || '';
+          setResidentType(fetchedResidentType);
+          setResidentTypeLabel(fetchedResidentTypeLabel);
+          setSelectedResidentType(normalizeResidentType(fetchedResidentType));
 
           if (!existingRole && derivedRole) {
             await updateDoc(docRef, { userRole: derivedRole });
@@ -217,6 +242,36 @@ export default function MyDashboardPage() {
       setFeedback('Failed to send reset email.');
     }
     setShowModal(false);
+  };
+
+  const displayResidentTypeLabel =
+    residentTypeLabel ||
+    residentTypeLabelMap[residentType] ||
+    mapResidentTypeToRole(residentType) ||
+    '';
+
+  const handleResidentTypeSave = async () => {
+    if (!user || !selectedResidentType) return;
+    setSavingResidentType(true);
+    setResidentTypeError('');
+    try {
+      const userRef = doc(db, 'users', user.uid);
+      await updateDoc(userRef, {
+        residentType: selectedResidentType,
+        residentTypeLabel: residentTypeLabelMap[selectedResidentType],
+        requiresResidentTypeConfirmation: true,
+      });
+      setResidentType(selectedResidentType);
+      setResidentTypeLabel(residentTypeLabelMap[selectedResidentType]);
+      setIsEditingResidentType(false);
+      setResidentTypeFeedback('Resident status saved.');
+    } catch (error) {
+      console.error('Failed to update resident status:', error);
+      setResidentTypeError('Failed to update resident status. Please try again.');
+    } finally {
+      setSavingResidentType(false);
+      setShowResidentTypeConfirm(false);
+    }
   };
 
   const today = DateTime.now().toISODate();
@@ -464,6 +519,82 @@ export default function MyDashboardPage() {
                   </div>
                 </>
               )}
+              <div className="space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-[color:var(--text-secondary)]">
+                  <span className="font-medium text-[color:var(--muted)]">Resident status</span>
+                  {!isEditingResidentType && (
+                    <Button
+                      variant="ghost"
+                      className="text-xs"
+                      onClick={() => {
+                        setSelectedResidentType(normalizeResidentType(residentType));
+                        setIsEditingResidentType(true);
+                        setResidentTypeFeedback('');
+                        setResidentTypeError('');
+                      }}
+                    >
+                      Change
+                    </Button>
+                  )}
+                </div>
+                {!isEditingResidentType ? (
+                  <p className="text-sm text-[color:var(--text-primary)]">
+                    {displayResidentTypeLabel || 'Not set'}
+                  </p>
+                ) : (
+                  <div className="space-y-3 rounded-2xl border border-[color:var(--glass-border)] bg-white/60 p-4 text-left shadow-inner dark:bg-white/5">
+                    <p className="text-sm font-semibold text-[color:var(--text-primary)]">
+                      Update your resident status
+                    </p>
+                    <div className="space-y-2 text-[color:var(--text-primary)]">
+                      {[
+                        { value: 'owner', label: 'Owner' },
+                        { value: 'renter', label: 'Renter' },
+                        { value: 'stl', label: 'Short Term Holiday Let' },
+                      ].map((option) => (
+                        <label key={option.value} className="flex items-center gap-3 text-sm">
+                          <input
+                            type="radio"
+                            name="residentType"
+                            value={option.value}
+                            checked={selectedResidentType === option.value}
+                            onChange={() => setSelectedResidentType(option.value)}
+                            className="h-4 w-4 accent-[color:var(--btn-bg)]"
+                          />
+                          <span>{option.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        onClick={() => setShowResidentTypeConfirm(true)}
+                        className="min-w-[140px]"
+                        disabled={!selectedResidentType || savingResidentType}
+                      >
+                        Save changes
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        onClick={() => {
+                          setIsEditingResidentType(false);
+                          setSelectedResidentType(normalizeResidentType(residentType));
+                          setResidentTypeError('');
+                        }}
+                        className="min-w-[140px]"
+                        disabled={savingResidentType}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                    {residentTypeError && (
+                      <p className="text-sm text-red-600 dark:text-red-400">{residentTypeError}</p>
+                    )}
+                  </div>
+                )}
+                {residentTypeFeedback && (
+                  <p className="text-sm text-emerald-600 dark:text-emerald-300">{residentTypeFeedback}</p>
+                )}
+              </div>
               {!userRole && (
                 <div className="mt-4 rounded-2xl border border-[color:var(--glass-border)] bg-white/60 p-4 text-left shadow-inner dark:bg-white/5">
                   <p className="text-sm font-semibold text-[color:var(--text-primary)]">
@@ -513,6 +644,29 @@ export default function MyDashboardPage() {
                 Cancel
               </Button>
               <Button onClick={sendPasswordReset}>Send Email</Button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showResidentTypeConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-6 sm:px-0">
+          <div className="glass-surface glass-outline w-full max-w-md p-6">
+            <h3 className="text-lg font-semibold">Confirm resident status</h3>
+            <p className="mt-2 text-[color:var(--text-secondary)] leading-relaxed">
+              Changing your resident status may affect what areas of the site you can access. If you’re unsure,
+              please choose the option that best reflects your current situation.
+            </p>
+            <div className="mt-6 flex flex-wrap justify-end gap-3">
+              <Button
+                variant="secondary"
+                onClick={() => setShowResidentTypeConfirm(false)}
+                disabled={savingResidentType}
+              >
+                Cancel
+              </Button>
+              <Button onClick={handleResidentTypeSave} disabled={savingResidentType || !selectedResidentType}>
+                Confirm
+              </Button>
             </div>
           </div>
         </div>
