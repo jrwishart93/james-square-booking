@@ -1394,6 +1394,14 @@ export default function AdminDashboard() {
                     {actionFeedback.message}
                   </div>
                 )}
+                <div className="rounded-2xl border border-amber-200/70 bg-amber-50/80 px-4 py-3 text-xs text-amber-900 dark:border-amber-400/30 dark:bg-amber-500/10 dark:text-amber-100">
+                  <p className="font-semibold">Resident information review notice</p>
+                  <p className="mt-1">
+                    Any updates made here will be reviewed by the admin team. Providing false
+                    information may result in a temporary account disablement. Please ensure all
+                    details are accurate and correct.
+                  </p>
+                </div>
               </div>
               {/* Desktop Table */}
               <div className="hidden md:block">
