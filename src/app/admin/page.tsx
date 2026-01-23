@@ -33,10 +33,13 @@ interface UserRegistration {
   lastLoginAt?: string | Date | { toDate: () => Date };
   residentType?: string;
   residentTypeLabel?: string;
+  userRole?: string;
   isFlagged?: boolean;
   isAdmin?: boolean;
   disabled?: boolean;
   requiresResidentTypeConfirmation?: boolean;
+  residentTypeConfirmedAt?: string | Date;
+  residentTypeConfirmedBy?: string;
 }
 interface BookingActivity {
   id: string;
@@ -65,7 +68,8 @@ type AdminAction =
   | 'TOGGLE_ADMIN'
   | 'TOGGLE_FLAG'
   | 'TOGGLE_DISABLED'
-  | 'REQUIRE_RESIDENT_TYPE_CONFIRMATION';
+  | 'REQUIRE_RESIDENT_TYPE_CONFIRMATION'
+  | 'APPROVE_RESIDENT_TYPE';
 
 interface PendingAdminAction {
   action: AdminAction;
@@ -467,6 +471,14 @@ export default function AdminDashboard() {
           confirmLabel: 'Require confirmation',
           successMessage: `Required resident type confirmation for ${displayName}.`,
         };
+      case 'APPROVE_RESIDENT_TYPE':
+        return {
+          title: 'Approve resident status',
+          description:
+            'This user has requested confirmation of their resident status. Approving will mark the status as verified by an administrator.',
+          confirmLabel: 'Approve',
+          successMessage: `Approved resident status for ${displayName}.`,
+        };
       default:
         return {
           title: 'Confirm admin action',
@@ -487,6 +499,7 @@ export default function AdminDashboard() {
 
     try {
       const userRef = doc(db, 'users', pendingAction.userId);
+      const adminEmail = auth.currentUser?.email || 'unknown';
 
       switch (pendingAction.action) {
         case 'UPDATE_USER': {
@@ -522,7 +535,7 @@ export default function AdminDashboard() {
           );
           await addDoc(collection(db, 'activityLogs'), {
             action: isAdmin ? 'Promoted to Admin' : 'Demoted from Admin',
-            admin: auth.currentUser?.email || 'unknown',
+            admin: adminEmail,
             timestamp: new Date(),
           });
           break;
@@ -537,7 +550,7 @@ export default function AdminDashboard() {
           );
           await addDoc(collection(db, 'activityLogs'), {
             action: isFlagged ? 'Flagged user' : 'Unflagged user',
-            admin: auth.currentUser?.email || 'unknown',
+            admin: adminEmail,
             timestamp: new Date(),
           });
           break;
@@ -552,7 +565,7 @@ export default function AdminDashboard() {
           );
           await addDoc(collection(db, 'activityLogs'), {
             action: disabled ? 'Disabled user account' : 'Enabled user account',
-            admin: auth.currentUser?.email || 'unknown',
+            admin: adminEmail,
             timestamp: new Date(),
           });
           break;
@@ -568,9 +581,23 @@ export default function AdminDashboard() {
           );
           await addDoc(collection(db, 'activityLogs'), {
             action: 'Flagged resident type confirmation requirement',
-            admin: auth.currentUser?.email || 'unknown',
+            admin: adminEmail,
             timestamp: new Date(),
           });
+          break;
+        }
+        case 'APPROVE_RESIDENT_TYPE': {
+          const updates = {
+            requiresResidentTypeConfirmation: false,
+            residentTypeConfirmedAt: new Date(),
+            residentTypeConfirmedBy: adminEmail,
+          };
+          await updateDoc(userRef, updates);
+          setUsers((prev) =>
+            prev.map((user) =>
+              user.id === pendingAction.userId ? { ...user, ...updates } : user
+            )
+          );
           break;
         }
         default:
@@ -751,12 +778,20 @@ export default function AdminDashboard() {
     return { label: rawLabel, isMissing: false };
   };
 
+  const getEffectiveResidentType = (user: UserRegistration) => {
+    if (user.residentType) return user.residentType;
+    if (user.userRole?.toLowerCase() === 'owner') return 'owner';
+    if (user.userRole?.toLowerCase() === 'renter') return 'renter';
+    return 'unknown';
+  };
+
   const getResidentCategory = (user: UserRegistration) => {
     const label = (user.residentTypeLabel || user.residentType || '').toLowerCase();
-    if (label.includes('owner')) {
+    const effectiveType = getEffectiveResidentType(user);
+    if (label.includes('owner') || effectiveType === 'owner') {
       return 'owners';
     }
-    if (label.includes('rent')) {
+    if (label.includes('rent') || effectiveType === 'renter') {
       return 'renters';
     }
     return 'unknown';
@@ -1035,6 +1070,11 @@ export default function AdminDashboard() {
       return status === 'never';
     });
   }, [activityFilter, residentFilter, users]);
+
+  const stlUsers = useMemo(
+    () => users.filter((user) => getEffectiveResidentType(user) === 'stl'),
+    [users]
+  );
 
   const usersById = useMemo(() => {
     const map: Record<
@@ -1327,6 +1367,24 @@ export default function AdminDashboard() {
                   </div>
                 )}
               </div>
+              {stlUsers.length > 0 && (
+                <div className="jqs-glass rounded-xl p-3 text-sm mb-4">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="font-semibold">STL residents</span>
+                    <span className="text-xs opacity-70">{stlUsers.length} total</span>
+                  </div>
+                  <ul className="mt-2 space-y-1 text-xs text-slate-600 dark:text-slate-300">
+                    {stlUsers.map((user) => (
+                      <li key={user.id} className="flex flex-wrap justify-between gap-2">
+                        <span className="font-medium text-slate-900 dark:text-slate-100">
+                          {user.fullName || user.email}
+                        </span>
+                        <span className="text-slate-500 dark:text-slate-400">{user.email}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
               {/* Desktop Table */}
               <div className="hidden md:block overflow-x-auto jqs-glass rounded-2xl">
                 <table className="min-w-full text-sm">
@@ -1387,9 +1445,16 @@ export default function AdminDashboard() {
                             {(() => {
                               const status = getResidentTypeLabel(user);
                               return (
-                                <span className={status.isMissing ? 'text-amber-600 font-semibold' : undefined}>
-                                  {status.label}
-                                </span>
+                                <div className="space-y-1">
+                                  <span className={status.isMissing ? 'text-amber-600 font-semibold' : undefined}>
+                                    {status.label}
+                                  </span>
+                                  {user.requiresResidentTypeConfirmation && (
+                                    <span className="text-xs text-amber-500">
+                                      Pending admin review
+                                    </span>
+                                  )}
+                                </div>
                               );
                             })()}
                           </td>
@@ -1430,6 +1495,20 @@ export default function AdminDashboard() {
                             >
                               Cancel
                             </button>
+                            {user.requiresResidentTypeConfirmation && (
+                              <button
+                                onClick={() =>
+                                  openConfirmation({
+                                    action: 'APPROVE_RESIDENT_TYPE',
+                                    userId: user.id,
+                                  })
+                                }
+                                disabled={isUserActionLocked}
+                                className="rounded-full px-3 py-1 text-xs bg-emerald-600 text-white disabled:opacity-60 disabled:cursor-not-allowed"
+                              >
+                                Approve status
+                              </button>
+                            )}
                             {getResidentCategory(user) === 'unknown' && (
                               <button
                                 onClick={() =>
@@ -1466,9 +1545,16 @@ export default function AdminDashboard() {
                             {(() => {
                               const status = getResidentTypeLabel(user);
                               return (
-                                <span className={status.isMissing ? 'text-amber-600 font-semibold' : undefined}>
-                                  {status.label}
-                                </span>
+                                <div className="space-y-1">
+                                  <span className={status.isMissing ? 'text-amber-600 font-semibold' : undefined}>
+                                    {status.label}
+                                  </span>
+                                  {user.requiresResidentTypeConfirmation && (
+                                    <span className="text-xs text-amber-500">
+                                      Pending admin review
+                                    </span>
+                                  )}
+                                </div>
                               );
                             })()}
                           </td>
@@ -1541,6 +1627,20 @@ export default function AdminDashboard() {
                             >
                               {user.isFlagged ? 'Unflag' : 'Flag'}
                             </button>
+                            {user.requiresResidentTypeConfirmation && (
+                              <button
+                                onClick={() =>
+                                  openConfirmation({
+                                    action: 'APPROVE_RESIDENT_TYPE',
+                                    userId: user.id,
+                                  })
+                                }
+                                disabled={isUserActionLocked}
+                                className="rounded-full px-3 py-1 text-xs bg-emerald-600 text-white disabled:opacity-60 disabled:cursor-not-allowed"
+                              >
+                                Approve status
+                              </button>
+                            )}
                             {getResidentCategory(user) === 'unknown' && (
                               <button
                                 onClick={() =>
@@ -1631,6 +1731,11 @@ export default function AdminDashboard() {
                                 {getResidentTypeLabel(user).label}
                               </span>
                             </p>
+                            {user.requiresResidentTypeConfirmation && (
+                              <span className="text-xs text-amber-500">
+                                Pending admin review
+                              </span>
+                            )}
                             <p><strong>Email:</strong> {user.email}</p>
                             <p><strong>Username:</strong> {user.username}</p>
                           </div>
@@ -1670,6 +1775,20 @@ export default function AdminDashboard() {
                             >
                               Cancel
                             </button>
+                            {user.requiresResidentTypeConfirmation && (
+                              <button
+                                onClick={() =>
+                                  openConfirmation({
+                                    action: 'APPROVE_RESIDENT_TYPE',
+                                    userId: user.id,
+                                  })
+                                }
+                                disabled={isUserActionLocked}
+                                className="px-4 py-2 rounded-full text-xs font-semibold bg-emerald-600 text-white disabled:opacity-60 disabled:cursor-not-allowed"
+                              >
+                                Approve status
+                              </button>
+                            )}
                             {getResidentCategory(user) === 'unknown' && (
                               <button
                                 onClick={() =>
@@ -1743,6 +1862,20 @@ export default function AdminDashboard() {
                             >
                               {user.isFlagged ? 'Unflag' : 'Flag'}
                             </button>
+                            {user.requiresResidentTypeConfirmation && (
+                              <button
+                                onClick={() =>
+                                  openConfirmation({
+                                    action: 'APPROVE_RESIDENT_TYPE',
+                                    userId: user.id,
+                                  })
+                                }
+                                disabled={isUserActionLocked}
+                                className="px-4 py-2 rounded-full text-xs font-semibold bg-emerald-600 text-white disabled:opacity-60 disabled:cursor-not-allowed"
+                              >
+                                Approve status
+                              </button>
+                            )}
                             {getResidentCategory(user) === 'unknown' && (
                               <button
                                 onClick={() =>
