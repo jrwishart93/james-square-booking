@@ -38,6 +38,8 @@ interface UserRegistration {
   isAdmin?: boolean;
   disabled?: boolean;
   requiresResidentTypeConfirmation?: boolean;
+  residentTypeConfirmedAt?: string | Date;
+  residentTypeConfirmedBy?: string;
 }
 interface BookingActivity {
   id: string;
@@ -66,7 +68,8 @@ type AdminAction =
   | 'TOGGLE_ADMIN'
   | 'TOGGLE_FLAG'
   | 'TOGGLE_DISABLED'
-  | 'REQUIRE_RESIDENT_TYPE_CONFIRMATION';
+  | 'REQUIRE_RESIDENT_TYPE_CONFIRMATION'
+  | 'APPROVE_RESIDENT_TYPE';
 
 interface PendingAdminAction {
   action: AdminAction;
@@ -468,6 +471,14 @@ export default function AdminDashboard() {
           confirmLabel: 'Require confirmation',
           successMessage: `Required resident type confirmation for ${displayName}.`,
         };
+      case 'APPROVE_RESIDENT_TYPE':
+        return {
+          title: 'Approve resident status',
+          description:
+            'This user has requested confirmation of their resident status. Approving will mark the status as verified by an administrator.',
+          confirmLabel: 'Approve',
+          successMessage: `Approved resident status for ${displayName}.`,
+        };
       default:
         return {
           title: 'Confirm admin action',
@@ -488,6 +499,7 @@ export default function AdminDashboard() {
 
     try {
       const userRef = doc(db, 'users', pendingAction.userId);
+      const adminEmail = auth.currentUser?.email || 'unknown';
 
       switch (pendingAction.action) {
         case 'UPDATE_USER': {
@@ -523,7 +535,7 @@ export default function AdminDashboard() {
           );
           await addDoc(collection(db, 'activityLogs'), {
             action: isAdmin ? 'Promoted to Admin' : 'Demoted from Admin',
-            admin: auth.currentUser?.email || 'unknown',
+            admin: adminEmail,
             timestamp: new Date(),
           });
           break;
@@ -538,7 +550,7 @@ export default function AdminDashboard() {
           );
           await addDoc(collection(db, 'activityLogs'), {
             action: isFlagged ? 'Flagged user' : 'Unflagged user',
-            admin: auth.currentUser?.email || 'unknown',
+            admin: adminEmail,
             timestamp: new Date(),
           });
           break;
@@ -553,7 +565,7 @@ export default function AdminDashboard() {
           );
           await addDoc(collection(db, 'activityLogs'), {
             action: disabled ? 'Disabled user account' : 'Enabled user account',
-            admin: auth.currentUser?.email || 'unknown',
+            admin: adminEmail,
             timestamp: new Date(),
           });
           break;
@@ -569,9 +581,23 @@ export default function AdminDashboard() {
           );
           await addDoc(collection(db, 'activityLogs'), {
             action: 'Flagged resident type confirmation requirement',
-            admin: auth.currentUser?.email || 'unknown',
+            admin: adminEmail,
             timestamp: new Date(),
           });
+          break;
+        }
+        case 'APPROVE_RESIDENT_TYPE': {
+          const updates = {
+            requiresResidentTypeConfirmation: false,
+            residentTypeConfirmedAt: new Date(),
+            residentTypeConfirmedBy: adminEmail,
+          };
+          await updateDoc(userRef, updates);
+          setUsers((prev) =>
+            prev.map((user) =>
+              user.id === pendingAction.userId ? { ...user, ...updates } : user
+            )
+          );
           break;
         }
         default:
@@ -1469,6 +1495,20 @@ export default function AdminDashboard() {
                             >
                               Cancel
                             </button>
+                            {user.requiresResidentTypeConfirmation && (
+                              <button
+                                onClick={() =>
+                                  openConfirmation({
+                                    action: 'APPROVE_RESIDENT_TYPE',
+                                    userId: user.id,
+                                  })
+                                }
+                                disabled={isUserActionLocked}
+                                className="rounded-full px-3 py-1 text-xs bg-emerald-600 text-white disabled:opacity-60 disabled:cursor-not-allowed"
+                              >
+                                Approve status
+                              </button>
+                            )}
                             {getResidentCategory(user) === 'unknown' && (
                               <button
                                 onClick={() =>
@@ -1587,6 +1627,20 @@ export default function AdminDashboard() {
                             >
                               {user.isFlagged ? 'Unflag' : 'Flag'}
                             </button>
+                            {user.requiresResidentTypeConfirmation && (
+                              <button
+                                onClick={() =>
+                                  openConfirmation({
+                                    action: 'APPROVE_RESIDENT_TYPE',
+                                    userId: user.id,
+                                  })
+                                }
+                                disabled={isUserActionLocked}
+                                className="rounded-full px-3 py-1 text-xs bg-emerald-600 text-white disabled:opacity-60 disabled:cursor-not-allowed"
+                              >
+                                Approve status
+                              </button>
+                            )}
                             {getResidentCategory(user) === 'unknown' && (
                               <button
                                 onClick={() =>
@@ -1721,6 +1775,20 @@ export default function AdminDashboard() {
                             >
                               Cancel
                             </button>
+                            {user.requiresResidentTypeConfirmation && (
+                              <button
+                                onClick={() =>
+                                  openConfirmation({
+                                    action: 'APPROVE_RESIDENT_TYPE',
+                                    userId: user.id,
+                                  })
+                                }
+                                disabled={isUserActionLocked}
+                                className="px-4 py-2 rounded-full text-xs font-semibold bg-emerald-600 text-white disabled:opacity-60 disabled:cursor-not-allowed"
+                              >
+                                Approve status
+                              </button>
+                            )}
                             {getResidentCategory(user) === 'unknown' && (
                               <button
                                 onClick={() =>
@@ -1794,6 +1862,20 @@ export default function AdminDashboard() {
                             >
                               {user.isFlagged ? 'Unflag' : 'Flag'}
                             </button>
+                            {user.requiresResidentTypeConfirmation && (
+                              <button
+                                onClick={() =>
+                                  openConfirmation({
+                                    action: 'APPROVE_RESIDENT_TYPE',
+                                    userId: user.id,
+                                  })
+                                }
+                                disabled={isUserActionLocked}
+                                className="px-4 py-2 rounded-full text-xs font-semibold bg-emerald-600 text-white disabled:opacity-60 disabled:cursor-not-allowed"
+                              >
+                                Approve status
+                              </button>
+                            )}
                             {getResidentCategory(user) === 'unknown' && (
                               <button
                                 onClick={() =>
