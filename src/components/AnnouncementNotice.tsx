@@ -1,8 +1,6 @@
 'use client';
 
-import Link from 'next/link';
-
-const SHOW_ANNOUNCEMENT = true; // Remove after 23 Jan 2026 vote closes.
+const SHOW_ANNOUNCEMENT = true;
 
 export default function AnnouncementNotice() {
   if (!SHOW_ANNOUNCEMENT) {
@@ -18,46 +16,21 @@ export default function AnnouncementNotice() {
               Owner Notice
             </p>
             <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100 sm:text-2xl">
-              Important Update – Property Manager Change & Owner Vote
+              Update – Outcome of Factor Vote
             </h2>
           </header>
 
           <div className="space-y-3 text-sm text-neutral-700 dark:text-neutral-200 sm:text-base">
             <p>
-              Fior Asset &amp; Property will be stepping down as property manager for James Square.
-              Two alternative factors, Myreside and Newton, have each provided documentation for
-              owners to review ahead of a formal vote.
+              Voting has now closed. Following the conclusion of the owner vote, Myreside received
+              the majority of votes and will therefore be appointed as the new factor for James
+              Square, replacing Fior Asset &amp; Property.
             </p>
             <p>
-              Owners are encouraged to review both replacement options before placing their vote.
+              Thank you to everyone who took the time to review the proposals and participate in
+              the voting process. Further details regarding the transition will be published on the
+              website and in the owners’ section in due course.
             </p>
-            <p>
-              <span className="mr-2" aria-hidden="true">
-                🎥
-              </span>
-              Owners who were unable to attend the online presentations can view a recorded video
-              of each meeting on the relevant factor pages. These recordings will be available for
-              review until voting closes on Friday.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-3">
-            <Link
-              href="/myreside"
-              className="inline-flex items-center rounded-full border border-amber-200/80 bg-amber-50/70 px-4 py-2 text-sm font-semibold text-amber-900 transition hover:bg-amber-100/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 dark:border-amber-300/40 dark:bg-amber-400/10 dark:text-amber-100 dark:hover:bg-amber-400/20"
-            >
-              View Myreside proposal
-            </Link>
-            <Link
-              href="/newton"
-              className="inline-flex items-center rounded-full border border-amber-200/80 bg-amber-50/70 px-4 py-2 text-sm font-semibold text-amber-900 transition hover:bg-amber-100/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 dark:border-amber-300/40 dark:bg-amber-400/10 dark:text-amber-100 dark:hover:bg-amber-400/20"
-            >
-              View Newton proposal
-            </Link>
-          </div>
-
-          <div className="rounded-xl border border-amber-200/70 bg-amber-50/70 px-4 py-3 text-sm font-semibold text-amber-900 dark:border-amber-300/40 dark:bg-amber-400/10 dark:text-amber-100 sm:text-base">
-            Voting is now open and will close on <span className="font-bold">Friday 23 January 2026 at 5:00pm</span>.
           </div>
         </div>
       </div>
