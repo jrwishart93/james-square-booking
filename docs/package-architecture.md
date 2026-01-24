@@ -283,6 +283,17 @@ npm run build    # Vite production build
 - **Build fixes:** Updated .gitignore to properly exclude node_modules and build artifacts
 - **Status:** Phase 2 complete, ready for Phase 3 (API Route Tests)
 
+### 2026-01-24: Phase 3 - API Route Tests IN PROGRESS 🚧
+- **Mock Infrastructure:** Created Firebase Admin SDK mocks (src/test/mocks/firebase.ts)
+- **Test Fixtures:** Created user and post fixtures (src/test/fixtures/users.ts)
+- **API Routes Tested:**
+  - ✅ `/api/message-board` (GET): 6 tests (query params, limits, edge cases)
+  - ✅ `/api/admin/find-user-by-email` (POST): 12 tests (auth, validation, lookups)
+  - 🚧 `/api/admin/send-email` (POST): Pending (requires Resend mock)
+  - 🚧 `/api/committee/send-email` (POST): Pending (requires Bearer token + Resend mock)
+- **Total Tests:** 111 passing (93 utilities + 18 API routes)
+- **Status:** Phase 3 partial completion - core API routes tested, email routes deferred
+
 ---
 
 ## Future Considerations
