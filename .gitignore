@@ -1,7 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/node_modules
+node_modules/
 /.pnp
 .pnp.*
 .yarn/*
@@ -16,6 +16,8 @@
 # next.js
 /.next/
 /out/
+public/sw.js
+public/workbox-*.js
 
 # production
 /build
@@ -41,6 +43,7 @@ yarn-error.log*
 next-env.d.ts
 keys/
 serviceAccountKey.json
+functions/lib/
 
 # Env files
 .env
