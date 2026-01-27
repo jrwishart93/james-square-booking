@@ -206,6 +206,13 @@ body::before {
   box-shadow: 0 12px 40px rgb(0 0 0 / 0.12);
 }
 
+.admin-scope .jqs-glass {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 12px 40px rgb(0 0 0 / 0.12);
+}
+
 @keyframes footer-glow {
   0%,
   100% {

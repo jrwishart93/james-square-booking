@@ -113,7 +113,7 @@ function Section({
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <section className="jqs-glass rounded-3xl p-6 border border-white/40 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur-xl shadow-sm">
+    <section className="rounded-3xl border border-white/[0.08] bg-white/[0.04] p-6 shadow-[0_12px_40px_rgba(0,0,0,0.12)]">
       <button
         className="w-full flex items-start justify-between gap-4 text-left"
         onClick={() => setOpen((v) => !v)}
@@ -127,7 +127,7 @@ function Section({
         </div>
         <div className="flex items-center gap-3">
           {typeof count === 'number' && (
-            <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-white/60 dark:bg-white/10 text-slate-700 dark:text-slate-200 border border-white/40 dark:border-white/10">
+            <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-white/[0.06] text-slate-700 dark:text-slate-200 border border-white/[0.08]">
               {count}
             </span>
           )}
@@ -156,9 +156,9 @@ function Section({
 /* Badge “pills” for quick KPIs */
 function StatPill({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="jqs-glass rounded-2xl px-4 py-3 text-sm bg-white/60 dark:bg-white/5 border border-white/30 dark:border-white/10 backdrop-blur-lg">
-      <div className="text-slate-600 dark:text-slate-300">{label}</div>
-      <div className="text-lg font-semibold text-slate-900 dark:text-slate-100">{value}</div>
+    <div className="rounded-2xl px-4 py-3 text-sm bg-white/[0.04] border border-white/[0.08] backdrop-blur-[6px] shadow-[0_12px_40px_rgba(0,0,0,0.12)]">
+      <div className="text-slate-300">{label}</div>
+      <div className="text-lg font-semibold text-white">{value}</div>
     </div>
   );
 }
@@ -1135,46 +1135,51 @@ export default function AdminDashboard() {
     : null;
 
   return (
-    <main className="jqs-gradient-bg min-h-screen text-slate-900 dark:text-slate-100">
-      <div className="max-w-7xl mx-auto p-6 space-y-6">
-        <header className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Admin Dashboard</h1>
-            <p className="text-slate-600 dark:text-slate-300 text-sm mt-1">
-              Manage users, bookings, configuration, and communications.
-            </p>
-          </div>
-          <div className="grid grid-flow-col auto-cols-max gap-3">
-            <StatPill label="Users" value={users.length} />
-            <StatPill label="Bookings" value={bookings.length} />
-            <StatPill label="Logs" value={activityLogs.length} />
-            <StatPill label="Feedback" value={feedbacks.length} />
-          </div>
-        </header>
+    <main className="jqs-gradient-bg min-h-screen text-slate-900 dark:text-slate-100 admin-scope">
+      <div className="border-b border-white/[0.06] bg-[linear-gradient(180deg,_#0f1624_0%,_#0c1220_100%)]">
+        <div className="max-w-7xl mx-auto px-6 pt-6 pb-4 space-y-4">
+          <header className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold text-white">Admin Dashboard</h1>
+              <p className="text-slate-300 text-sm mt-1">
+                Manage users, bookings, configuration, and communications.
+              </p>
+            </div>
+            <div className="grid grid-flow-col auto-cols-max gap-3">
+              <StatPill label="Users" value={users.length} />
+              <StatPill label="Bookings" value={bookings.length} />
+              <StatPill label="Logs" value={activityLogs.length} />
+              <StatPill label="Feedback" value={feedbacks.length} />
+            </div>
+          </header>
 
-        <div className="sticky top-0 z-20 -mx-6 px-6 py-2 md:static">
-          <div className="jqs-glass rounded-full px-2 py-2 bg-white/60 dark:bg-white/5 border border-white/40 dark:border-white/10 backdrop-blur-xl shadow-sm">
-            <div className="flex gap-2 overflow-x-auto whitespace-nowrap scrollbar-thin">
-              {tabs.map((tab) => {
-                const isActive = activeTab === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`px-4 py-2 rounded-full text-xs font-semibold transition ${
-                      isActive
-                        ? 'bg-indigo-600 text-white shadow'
-                        : 'text-slate-600 dark:text-slate-200 hover:bg-white/30 dark:hover:bg-white/10'
-                    }`}
-                  >
-                    {tab.label}
-                  </button>
-                );
-              })}
+          <div className="sticky top-0 z-20 md:static">
+            <div className="border-t border-white/[0.04] pt-2">
+              <div className="flex gap-2 overflow-x-auto whitespace-nowrap scrollbar-thin">
+                {tabs.map((tab) => {
+                  const isActive = activeTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`px-3 py-2 text-xs font-semibold transition ${
+                        isActive
+                          ? 'text-[#c7d2fe] shadow-[inset_0_-2px_0_#6366f1]'
+                          : 'text-slate-400 hover:text-slate-100'
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto p-6 space-y-6">
 
         {activeTab === 'overview' && (
           <>
