@@ -113,21 +113,21 @@ function Section({
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <section className="jqs-glass rounded-3xl p-6 border border-white/40 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur-xl shadow-sm">
+    <section className="jqs-glass rounded-3xl p-6 border border-white/10 bg-[linear-gradient(180deg,rgba(20,25,35,0.85),rgba(15,18,28,0.9))] backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,0.45)]">
       <button
         className="w-full flex items-start justify-between gap-4 text-left"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
       >
         <div>
-          <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">{title}</h2>
+          <h2 className="text-xl font-semibold text-slate-100">{title}</h2>
           {subtitle && (
-            <p className="text-sm text-slate-600 dark:text-slate-300 mt-0.5">{subtitle}</p>
+            <p className="text-sm text-slate-300 mt-0.5">{subtitle}</p>
           )}
         </div>
         <div className="flex items-center gap-3">
           {typeof count === 'number' && (
-            <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-white/60 dark:bg-white/10 text-slate-700 dark:text-slate-200 border border-white/40 dark:border-white/10">
+            <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-white/10 text-slate-100 border border-white/10">
               {count}
             </span>
           )}
@@ -156,9 +156,9 @@ function Section({
 /* Badge “pills” for quick KPIs */
 function StatPill({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="jqs-glass rounded-2xl px-4 py-3 text-sm bg-white/60 dark:bg-white/5 border border-white/30 dark:border-white/10 backdrop-blur-lg">
-      <div className="text-slate-600 dark:text-slate-300">{label}</div>
-      <div className="text-lg font-semibold text-slate-900 dark:text-slate-100">{value}</div>
+    <div className="jqs-glass rounded-2xl px-4 py-3 text-sm bg-white/5 border border-white/10 backdrop-blur-lg shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
+      <div className="text-slate-300">{label}</div>
+      <div className="text-lg font-semibold text-slate-100">{value}</div>
     </div>
   );
 }
@@ -192,17 +192,17 @@ function ConfirmationModal({
       role="dialog"
       aria-modal="true"
     >
-      <div className="w-full max-w-lg rounded-2xl bg-white dark:bg-slate-900 border border-white/40 dark:border-white/10 shadow-xl p-6 space-y-4">
+      <div className="w-full max-w-lg rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(17,24,39,0.96),rgba(15,23,42,0.95))] shadow-[0_30px_80px_rgba(0,0,0,0.6)] p-6 space-y-4">
         <div className="space-y-2">
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{title}</h3>
-          <p className="text-sm text-slate-700 dark:text-slate-300">{description}</p>
+          <h3 className="text-lg font-semibold text-white">{title}</h3>
+          <p className="text-sm text-slate-300">{description}</p>
           {warning && (
-            <p className="text-sm font-semibold text-amber-700 dark:text-amber-400">
+            <p className="text-sm font-semibold text-amber-400">
               {warning}
             </p>
           )}
           {errorMessage && (
-            <p className="text-sm font-semibold text-red-700 dark:text-red-300">
+            <p className="text-sm font-semibold text-red-300">
               {errorMessage}
             </p>
           )}
@@ -1135,25 +1135,27 @@ export default function AdminDashboard() {
     : null;
 
   return (
-    <main className="jqs-gradient-bg min-h-screen text-slate-900 dark:text-slate-100">
-      <div className="max-w-7xl mx-auto p-6 space-y-6">
-        <header className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Admin Dashboard</h1>
-            <p className="text-slate-600 dark:text-slate-300 text-sm mt-1">
-              Manage users, bookings, configuration, and communications.
-            </p>
-          </div>
-          <div className="grid grid-flow-col auto-cols-max gap-3">
-            <StatPill label="Users" value={users.length} />
-            <StatPill label="Bookings" value={bookings.length} />
-            <StatPill label="Logs" value={activityLogs.length} />
-            <StatPill label="Feedback" value={feedbacks.length} />
+    <main className="jqs-gradient-bg min-h-screen text-slate-100">
+      <div className="max-w-7xl mx-auto p-6 space-y-8">
+        <header className="jqs-glass rounded-3xl border border-white/10 bg-[linear-gradient(180deg,rgba(20,25,35,0.85),rgba(15,18,28,0.92))] backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,0.45)] px-6 py-5">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold text-white">Admin Dashboard</h1>
+              <p className="text-slate-300 text-sm mt-1">
+                Manage users, bookings, configuration, and communications.
+              </p>
+            </div>
+            <div className="grid grid-flow-col auto-cols-max gap-3">
+              <StatPill label="Users" value={users.length} />
+              <StatPill label="Bookings" value={bookings.length} />
+              <StatPill label="Logs" value={activityLogs.length} />
+              <StatPill label="Feedback" value={feedbacks.length} />
+            </div>
           </div>
         </header>
 
-        <div className="sticky top-0 z-20 -mx-6 px-6 py-2 md:static">
-          <div className="jqs-glass rounded-full px-2 py-2 bg-white/60 dark:bg-white/5 border border-white/40 dark:border-white/10 backdrop-blur-xl shadow-sm">
+        <div className="sticky top-0 z-20 -mx-6 px-6 py-3 md:static">
+          <div className="jqs-glass rounded-full px-2 py-2 border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_12px_30px_rgba(0,0,0,0.45)]">
             <div className="flex gap-2 overflow-x-auto whitespace-nowrap scrollbar-thin">
               {tabs.map((tab) => {
                 const isActive = activeTab === tab.id;
@@ -1164,8 +1166,8 @@ export default function AdminDashboard() {
                     onClick={() => setActiveTab(tab.id)}
                     className={`px-4 py-2 rounded-full text-xs font-semibold transition ${
                       isActive
-                        ? 'bg-indigo-600 text-white shadow'
-                        : 'text-slate-600 dark:text-slate-200 hover:bg-white/30 dark:hover:bg-white/10'
+                        ? 'bg-indigo-500/20 text-indigo-100 shadow-[0_8px_24px_rgba(79,70,229,0.45)] ring-1 ring-indigo-400/40'
+                        : 'text-slate-300 hover:bg-white/5 hover:text-white'
                     }`}
                   >
                     {tab.label}
@@ -1178,15 +1180,15 @@ export default function AdminDashboard() {
 
         {activeTab === 'overview' && (
           <>
-            <div className="jqs-glass rounded-2xl p-4">
+            <div className="jqs-glass rounded-2xl p-4 border border-white/10 bg-white/5 shadow-[0_16px_40px_rgba(0,0,0,0.35)]">
               <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                 <div>
-                  <h2 className="text-lg font-semibold">Resident Breakdown</h2>
-                  <p className="text-xs opacity-75">
+                  <h2 className="text-lg font-semibold text-slate-100">Resident Breakdown</h2>
+                  <p className="text-xs text-slate-400">
                     Admin/system accounts excluded from totals.
                   </p>
                 </div>
-                <div className="text-xs opacity-70">Matches the filtered user list.</div>
+                <div className="text-xs text-slate-400">Matches the filtered user list.</div>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                 <StatPill label="Total Residents" value={residentStats.total} />
@@ -1196,7 +1198,7 @@ export default function AdminDashboard() {
                 <StatPill label="Inactive 30+ days" value={activityStats.inactive} />
               </div>
             </div>
-            <div className="jqs-glass rounded-2xl px-4 py-3 text-xs opacity-80">
+            <div className="jqs-glass rounded-2xl px-4 py-3 text-xs text-slate-400 border border-white/10 bg-white/5">
               Some residents signed up before resident-type confirmation existed. Unknown residents will be
               asked to confirm their status later. (Admin-only notice)
             </div>
@@ -1351,7 +1353,7 @@ export default function AdminDashboard() {
               </div>
               <div className="space-y-2 mb-4">
                 {isActionProcessing && (
-                  <div className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+                  <div className="text-xs font-semibold uppercase tracking-wide text-emerald-300">
                     Saving…
                   </div>
                 )}
@@ -1359,8 +1361,8 @@ export default function AdminDashboard() {
                   <div
                     className={`rounded-xl px-4 py-2 text-sm ${
                       actionFeedback.type === 'success'
-                        ? 'bg-emerald-100 text-emerald-900 dark:bg-emerald-500/20 dark:text-emerald-100'
-                        : 'bg-red-100 text-red-900 dark:bg-red-500/20 dark:text-red-100'
+                        ? 'bg-emerald-500/15 text-emerald-100 border border-emerald-400/30'
+                        : 'bg-red-500/15 text-red-100 border border-red-400/30'
                     }`}
                   >
                     {actionFeedback.message}
@@ -1373,13 +1375,13 @@ export default function AdminDashboard() {
                     <span className="font-semibold">STL residents</span>
                     <span className="text-xs opacity-70">{stlUsers.length} total</span>
                   </div>
-                  <ul className="mt-2 space-y-1 text-xs text-slate-600 dark:text-slate-300">
+                  <ul className="mt-2 space-y-1 text-xs text-slate-300">
                     {stlUsers.map((user) => (
                       <li key={user.id} className="flex flex-wrap justify-between gap-2">
-                        <span className="font-medium text-slate-900 dark:text-slate-100">
+                        <span className="font-medium text-slate-100">
                           {user.fullName || user.email}
                         </span>
-                        <span className="text-slate-500 dark:text-slate-400">{user.email}</span>
+                        <span className="text-slate-400">{user.email}</span>
                       </li>
                     ))}
                   </ul>
@@ -1471,7 +1473,7 @@ export default function AdminDashboard() {
                                     <div className="text-xs text-amber-600">Inactive 30+ days</div>
                                   )}
                                   {lastLogin.status === 'never' && (
-                                    <div className="text-xs text-slate-500">Never logged in</div>
+                                    <div className="text-xs text-slate-400">Never logged in</div>
                                   )}
                                 </div>
                               );
@@ -1571,7 +1573,7 @@ export default function AdminDashboard() {
                                     <div className="text-xs text-amber-600">Inactive 30+ days</div>
                                   )}
                                   {lastLogin.status === 'never' && (
-                                    <div className="text-xs text-slate-500">Never logged in</div>
+                                    <div className="text-xs text-slate-400">Never logged in</div>
                                   )}
                                 </div>
                               );
@@ -1751,7 +1753,7 @@ export default function AdminDashboard() {
                             <p className="text-xs text-amber-600">Inactive 30+ days</p>
                           )}
                           {getLastLoginDisplay(user).status === 'never' && (
-                            <p className="text-xs text-slate-500">Never logged in</p>
+                            <p className="text-xs text-slate-400">Never logged in</p>
                           )}
                           <p><strong>Flagged:</strong> {user.isFlagged ? 'Yes' : 'No'}</p>
                           <p><strong>Admin:</strong> {user.isAdmin ? 'Yes' : 'No'}</p>
@@ -2199,7 +2201,7 @@ export default function AdminDashboard() {
                               <span className="font-medium">{item.time}</span>
                               <span className="opacity-70">{item.total} bookings</span>
                             </div>
-                            <div className="mt-2 h-2 rounded-full bg-slate-200/40 overflow-hidden">
+                            <div className="mt-2 h-2 rounded-full bg-slate-700/40 overflow-hidden">
                               <div
                                 className={`h-full ${
                                   timeSlotBreakdown.topTimes.has(item.time)
