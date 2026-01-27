@@ -97,6 +97,15 @@ const isPeakTime = (time: string) => PEAK_TIMES.has(time);
 
 const SHOW_VOTING_OVERVIEW = false;
 
+const ADMIN_SURFACE =
+  'bg-[rgba(255,255,255,0.04)] border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.45)] backdrop-blur-[12px]';
+const ADMIN_SURFACE_SOFT =
+  'bg-[rgba(255,255,255,0.05)] border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_12px_25px_rgba(0,0,0,0.5)] backdrop-blur-[12px]';
+const ADMIN_HEADER_SURFACE =
+  'bg-[linear-gradient(180deg,rgba(18,22,32,0.85),rgba(14,18,26,0.9))] border border-white/10 backdrop-blur-[14px] shadow-[0_16px_40px_rgba(0,0,0,0.45)]';
+const ADMIN_RAIL_SURFACE =
+  'bg-[rgba(12,16,24,0.7)] border border-white/10 shadow-[0_8px_24px_rgba(0,0,0,0.45)] backdrop-blur-[14px]';
+
 /* ---------- Small UI helpers (visual-only) ---------- */
 function Section({
   title,
@@ -113,21 +122,21 @@ function Section({
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <section className="jqs-glass rounded-3xl p-6 border border-white/40 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur-xl shadow-sm">
+    <section className={`jqs-glass rounded-3xl p-6 ${ADMIN_SURFACE}`}>
       <button
         className="w-full flex items-start justify-between gap-4 text-left"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
       >
         <div>
-          <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">{title}</h2>
+          <h2 className="text-xl font-semibold text-slate-100">{title}</h2>
           {subtitle && (
-            <p className="text-sm text-slate-600 dark:text-slate-300 mt-0.5">{subtitle}</p>
+            <p className="text-sm text-slate-400 mt-0.5">{subtitle}</p>
           )}
         </div>
         <div className="flex items-center gap-3">
           {typeof count === 'number' && (
-            <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-white/60 dark:bg-white/10 text-slate-700 dark:text-slate-200 border border-white/40 dark:border-white/10">
+            <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-[rgba(255,255,255,0.08)] text-slate-200 border border-white/10">
               {count}
             </span>
           )}
@@ -156,9 +165,9 @@ function Section({
 /* Badge “pills” for quick KPIs */
 function StatPill({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="jqs-glass rounded-2xl px-4 py-3 text-sm bg-white/60 dark:bg-white/5 border border-white/30 dark:border-white/10 backdrop-blur-lg">
-      <div className="text-slate-600 dark:text-slate-300">{label}</div>
-      <div className="text-lg font-semibold text-slate-900 dark:text-slate-100">{value}</div>
+    <div className={`jqs-glass rounded-2xl px-4 py-3 text-sm ${ADMIN_SURFACE_SOFT}`}>
+      <div className="text-slate-400">{label}</div>
+      <div className="text-lg font-semibold text-slate-100">{value}</div>
     </div>
   );
 }
@@ -192,10 +201,10 @@ function ConfirmationModal({
       role="dialog"
       aria-modal="true"
     >
-      <div className="w-full max-w-lg rounded-2xl bg-white dark:bg-slate-900 border border-white/40 dark:border-white/10 shadow-xl p-6 space-y-4">
+      <div className={`w-full max-w-lg rounded-2xl p-6 space-y-4 ${ADMIN_SURFACE}`}>
         <div className="space-y-2">
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{title}</h3>
-          <p className="text-sm text-slate-700 dark:text-slate-300">{description}</p>
+          <h3 className="text-lg font-semibold text-white">{title}</h3>
+          <p className="text-sm text-slate-300">{description}</p>
           {warning && (
             <p className="text-sm font-semibold text-amber-700 dark:text-amber-400">
               {warning}
@@ -212,7 +221,7 @@ function ConfirmationModal({
             type="button"
             onClick={onCancel}
             disabled={isProcessing}
-            className="rounded-full px-4 py-2 text-sm font-semibold jqs-glass disabled:opacity-60 disabled:cursor-not-allowed"
+            className={`rounded-full px-4 py-2 text-sm font-semibold jqs-glass ${ADMIN_SURFACE_SOFT} disabled:opacity-60 disabled:cursor-not-allowed`}
           >
             Cancel
           </button>
@@ -1098,7 +1107,9 @@ export default function AdminDashboard() {
     return (
       <main className="jqs-gradient-bg min-h-screen">
         <div className="max-w-7xl mx-auto p-6">
-          <div className="jqs-glass rounded-2xl p-4">Loading admin dashboard...</div>
+          <div className={`jqs-glass rounded-2xl p-4 ${ADMIN_SURFACE}`}>
+            Loading admin dashboard...
+          </div>
         </div>
       </main>
     );
@@ -1108,7 +1119,7 @@ export default function AdminDashboard() {
     return (
       <main className="jqs-gradient-bg min-h-screen">
         <div className="max-w-7xl mx-auto p-6">
-          <div className="jqs-glass rounded-2xl p-4 text-red-600 dark:text-red-400">
+          <div className={`jqs-glass rounded-2xl p-4 text-red-400 ${ADMIN_SURFACE}`}>
             Access denied. Admins only.
           </div>
         </div>
@@ -1136,11 +1147,13 @@ export default function AdminDashboard() {
 
   return (
     <main className="jqs-gradient-bg min-h-screen text-slate-900 dark:text-slate-100">
-      <div className="max-w-7xl mx-auto p-6 space-y-6">
-        <header className="flex flex-wrap items-end justify-between gap-4">
+      <div className="max-w-7xl mx-auto p-6 space-y-8">
+        <header
+          className={`flex flex-wrap items-end justify-between gap-4 rounded-3xl px-6 py-5 ${ADMIN_HEADER_SURFACE}`}
+        >
           <div>
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Admin Dashboard</h1>
-            <p className="text-slate-600 dark:text-slate-300 text-sm mt-1">
+            <h1 className="text-3xl font-bold text-white">Admin Dashboard</h1>
+            <p className="text-slate-300 text-sm mt-1">
               Manage users, bookings, configuration, and communications.
             </p>
           </div>
@@ -1153,7 +1166,7 @@ export default function AdminDashboard() {
         </header>
 
         <div className="sticky top-0 z-20 -mx-6 px-6 py-2 md:static">
-          <div className="jqs-glass rounded-full px-2 py-2 bg-white/60 dark:bg-white/5 border border-white/40 dark:border-white/10 backdrop-blur-xl shadow-sm">
+          <div className={`jqs-glass rounded-2xl px-2 py-2 ${ADMIN_RAIL_SURFACE}`}>
             <div className="flex gap-2 overflow-x-auto whitespace-nowrap scrollbar-thin">
               {tabs.map((tab) => {
                 const isActive = activeTab === tab.id;
@@ -1164,8 +1177,8 @@ export default function AdminDashboard() {
                     onClick={() => setActiveTab(tab.id)}
                     className={`px-4 py-2 rounded-full text-xs font-semibold transition ${
                       isActive
-                        ? 'bg-indigo-600 text-white shadow'
-                        : 'text-slate-600 dark:text-slate-200 hover:bg-white/30 dark:hover:bg-white/10'
+                        ? 'bg-[rgba(99,102,241,0.15)] text-indigo-200 shadow-[0_0_0_1px_rgba(99,102,241,0.35),0_0_20px_rgba(99,102,241,0.25)]'
+                        : 'text-slate-400 hover:text-slate-100 hover:bg-[rgba(255,255,255,0.06)] hover:shadow-[0_0_15px_rgba(99,102,241,0.12)]'
                     }`}
                   >
                     {tab.label}
@@ -1178,15 +1191,15 @@ export default function AdminDashboard() {
 
         {activeTab === 'overview' && (
           <>
-            <div className="jqs-glass rounded-2xl p-4">
+            <div className={`jqs-glass rounded-2xl p-4 ${ADMIN_SURFACE}`}>
               <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                 <div>
-                  <h2 className="text-lg font-semibold">Resident Breakdown</h2>
-                  <p className="text-xs opacity-75">
+                  <h2 className="text-lg font-semibold text-slate-100">Resident Breakdown</h2>
+                  <p className="text-xs text-slate-400">
                     Admin/system accounts excluded from totals.
                   </p>
                 </div>
-                <div className="text-xs opacity-70">Matches the filtered user list.</div>
+                <div className="text-xs text-slate-400">Matches the filtered user list.</div>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                 <StatPill label="Total Residents" value={residentStats.total} />
@@ -1196,7 +1209,7 @@ export default function AdminDashboard() {
                 <StatPill label="Inactive 30+ days" value={activityStats.inactive} />
               </div>
             </div>
-            <div className="jqs-glass rounded-2xl px-4 py-3 text-xs opacity-80">
+            <div className={`jqs-glass rounded-2xl px-4 py-3 text-xs text-slate-400 ${ADMIN_SURFACE}`}>
               Some residents signed up before resident-type confirmation existed. Unknown residents will be
               asked to confirm their status later. (Admin-only notice)
             </div>
@@ -1230,9 +1243,11 @@ export default function AdminDashboard() {
           >
             <div className="space-y-4">
               {votingLoading ? (
-                <div className="jqs-glass rounded-xl p-3">Loading voting overview...</div>
+                <div className={`jqs-glass rounded-xl p-3 ${ADMIN_SURFACE}`}>
+                  Loading voting overview...
+                </div>
               ) : votingError ? (
-                <div className="jqs-glass rounded-xl p-3 text-red-600 dark:text-red-400">
+                <div className={`jqs-glass rounded-xl p-3 text-red-400 ${ADMIN_SURFACE}`}>
                   {votingError}
                 </div>
               ) : (
@@ -1240,26 +1255,26 @@ export default function AdminDashboard() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <StatPill label="Active votes" value={votingOverview.activeCount} />
                     <StatPill label="Total ballots cast" value={votingOverview.totalBallotsCast} />
-                    <div className="jqs-glass rounded-2xl px-4 py-3 text-sm flex flex-col justify-between gap-2">
-                      <div className="opacity-80">Voting audit</div>
+                    <div className={`jqs-glass rounded-2xl px-4 py-3 text-sm flex flex-col justify-between gap-2 ${ADMIN_SURFACE_SOFT}`}>
+                      <div className="text-slate-400">Voting audit</div>
                       <Link
                         href="/admin/voting"
-                        className="text-sm font-semibold text-indigo-600 hover:underline"
+                        className="text-sm font-semibold text-indigo-300 hover:text-indigo-200 hover:underline"
                       >
                         Open detailed audit →
                       </Link>
                     </div>
                   </div>
-                  <div className="jqs-glass rounded-2xl p-4">
-                    <h3 className="text-sm font-semibold mb-3">Votes per question</h3>
+                  <div className={`jqs-glass rounded-2xl p-4 ${ADMIN_SURFACE}`}>
+                    <h3 className="text-sm font-semibold mb-3 text-slate-100">Votes per question</h3>
                     {votingOverview.totalsByQuestion.length === 0 ? (
-                      <div className="text-sm opacity-80">No questions created yet.</div>
+                      <div className="text-sm text-slate-400">No questions created yet.</div>
                     ) : (
                       <div className="space-y-2 text-sm">
                         {votingOverview.totalsByQuestion.map((question) => (
                           <div key={question.id} className="flex flex-wrap justify-between gap-2">
-                            <span className="font-medium">{question.title}</span>
-                            <span className="opacity-80">{question.total} ballots</span>
+                            <span className="font-medium text-slate-200">{question.title}</span>
+                            <span className="text-slate-400">{question.total} ballots</span>
                           </div>
                         ))}
                       </div>
@@ -1286,12 +1301,12 @@ export default function AdminDashboard() {
             defaultOpen
           >
             {filteredUsers.length === 0 ? (
-              <div className="jqs-glass rounded-xl p-3">No users found.</div>
+              <div className={`jqs-glass rounded-xl p-3 ${ADMIN_SURFACE}`}>No users found.</div>
             ) : (
               <>
               <div className="flex flex-col gap-3 mb-4">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-xs font-semibold uppercase tracking-wide opacity-70">Resident type</span>
+                  <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">Resident type</span>
                   {[
                     { id: 'all', label: 'All' },
                     { id: 'owners', label: 'Owners' },
@@ -1311,7 +1326,7 @@ export default function AdminDashboard() {
                         className={`rounded-full px-4 py-2 text-xs font-semibold transition ${
                           isActive
                             ? 'bg-indigo-600 text-white shadow'
-                            : 'jqs-glass hover:brightness-[1.05]'
+                            : `jqs-glass text-slate-200 ${ADMIN_SURFACE_SOFT} hover:brightness-[1.05]`
                         }`}
                       >
                         {filter.label}
@@ -1320,7 +1335,7 @@ export default function AdminDashboard() {
                   })}
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-xs font-semibold uppercase tracking-wide opacity-70">Activity</span>
+                  <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">Activity</span>
                   {[
                     { id: 'all', label: 'All' },
                     { id: 'active', label: 'Active' },
@@ -1340,7 +1355,7 @@ export default function AdminDashboard() {
                         className={`rounded-full px-4 py-2 text-xs font-semibold transition ${
                           isActive
                             ? 'bg-emerald-600 text-white shadow'
-                            : 'jqs-glass hover:brightness-[1.05]'
+                            : `jqs-glass text-slate-200 ${ADMIN_SURFACE_SOFT} hover:brightness-[1.05]`
                         }`}
                       >
                         {filter.label}
@@ -1351,7 +1366,7 @@ export default function AdminDashboard() {
               </div>
               <div className="space-y-2 mb-4">
                 {isActionProcessing && (
-                  <div className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+                  <div className="text-xs font-semibold uppercase tracking-wide text-emerald-300">
                     Saving…
                   </div>
                 )}
@@ -1368,25 +1383,25 @@ export default function AdminDashboard() {
                 )}
               </div>
               {stlUsers.length > 0 && (
-                <div className="jqs-glass rounded-xl p-3 text-sm mb-4">
+                <div className={`jqs-glass rounded-xl p-3 text-sm mb-4 ${ADMIN_SURFACE}`}>
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <span className="font-semibold">STL residents</span>
-                    <span className="text-xs opacity-70">{stlUsers.length} total</span>
+                    <span className="font-semibold text-slate-100">STL residents</span>
+                    <span className="text-xs text-slate-400">{stlUsers.length} total</span>
                   </div>
-                  <ul className="mt-2 space-y-1 text-xs text-slate-600 dark:text-slate-300">
+                  <ul className="mt-2 space-y-1 text-xs text-slate-300">
                     {stlUsers.map((user) => (
                       <li key={user.id} className="flex flex-wrap justify-between gap-2">
-                        <span className="font-medium text-slate-900 dark:text-slate-100">
+                        <span className="font-medium text-slate-100">
                           {user.fullName || user.email}
                         </span>
-                        <span className="text-slate-500 dark:text-slate-400">{user.email}</span>
+                        <span className="text-slate-400">{user.email}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
               )}
               {/* Desktop Table */}
-              <div className="hidden md:block overflow-x-auto jqs-glass rounded-2xl">
+              <div className={`hidden md:block overflow-x-auto jqs-glass rounded-2xl ${ADMIN_SURFACE}`}>
                 <table className="min-w-full text-sm">
                   <thead>
                     <tr className="text-left">
@@ -1491,7 +1506,7 @@ export default function AdminDashboard() {
                             <button
                               onClick={cancelEditing}
                               disabled={isUserActionLocked}
-                              className="rounded-full px-3 py-1 text-xs jqs-glass disabled:opacity-60 disabled:cursor-not-allowed"
+                              className={`rounded-full px-3 py-1 text-xs jqs-glass ${ADMIN_SURFACE_SOFT} disabled:opacity-60 disabled:cursor-not-allowed`}
                             >
                               Cancel
                             </button>
@@ -1584,7 +1599,7 @@ export default function AdminDashboard() {
                             <button
                               onClick={() => startEditing(user)}
                               disabled={isUserActionLocked}
-                              className="rounded-full px-3 py-1 text-xs jqs-glass disabled:opacity-60 disabled:cursor-not-allowed"
+                              className={`rounded-full px-3 py-1 text-xs jqs-glass ${ADMIN_SURFACE_SOFT} disabled:opacity-60 disabled:cursor-not-allowed`}
                             >
                               Edit
                             </button>
@@ -1678,10 +1693,10 @@ export default function AdminDashboard() {
                 {filteredUsers.map((user) => {
                   const isEditing = editingUser?.id === user.id;
                   return (
-                    <div key={user.id} className="jqs-glass rounded-2xl p-3 text-sm">
+                    <div key={user.id} className={`jqs-glass rounded-2xl p-3 text-sm ${ADMIN_SURFACE}`}>
                       <div className="flex flex-col gap-1">
-                        <div className="text-base font-semibold">{user.fullName}</div>
-                        <div className="text-sm opacity-80">{user.property}</div>
+                        <div className="text-base font-semibold text-slate-100">{user.fullName}</div>
+                        <div className="text-sm text-slate-400">{user.property}</div>
                       </div>
                       {isEditing ? (
                         <div className="mt-3 space-y-3">
@@ -1771,7 +1786,7 @@ export default function AdminDashboard() {
                             <button
                               onClick={cancelEditing}
                               disabled={isUserActionLocked}
-                              className="jqs-glass px-4 py-2 rounded-full text-xs font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
+                              className={`jqs-glass px-4 py-2 rounded-full text-xs font-semibold ${ADMIN_SURFACE_SOFT} disabled:opacity-60 disabled:cursor-not-allowed`}
                             >
                               Cancel
                             </button>
@@ -1819,7 +1834,7 @@ export default function AdminDashboard() {
                             <button
                               onClick={() => startEditing(user)}
                               disabled={isUserActionLocked}
-                              className="jqs-glass px-4 py-2 rounded-full text-xs font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
+                              className={`jqs-glass px-4 py-2 rounded-full text-xs font-semibold ${ADMIN_SURFACE_SOFT} disabled:opacity-60 disabled:cursor-not-allowed`}
                             >
                               Edit
                             </button>
@@ -1922,12 +1937,12 @@ export default function AdminDashboard() {
             <div>
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
-                  <h3 className="text-lg font-semibold">Overview</h3>
-                  <p className="text-xs opacity-75">
+                  <h3 className="text-lg font-semibold text-slate-100">Overview</h3>
+                  <p className="text-xs text-slate-400">
                     Admin and system accounts are excluded from insight totals.
                   </p>
                 </div>
-                <div className="text-xs opacity-70">
+                <div className="text-xs text-slate-400">
                   Based on all bookings in the system.
                 </div>
               </div>
@@ -1947,18 +1962,18 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            <div className="jqs-glass rounded-2xl p-4">
+            <div className={`jqs-glass rounded-2xl p-4 ${ADMIN_SURFACE}`}>
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <h3 className="text-sm font-semibold">Booking filters</h3>
-                  <p className="text-xs opacity-75">
+                  <h3 className="text-sm font-semibold text-slate-100">Booking filters</h3>
+                  <p className="text-xs text-slate-400">
                     Filters apply to the insights and recent activity list below.
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setShowBookingFilters((prev) => !prev)}
-                  className="md:hidden text-xs font-semibold rounded-full px-3 py-1 jqs-glass"
+                  className={`md:hidden text-xs font-semibold rounded-full px-3 py-1 jqs-glass ${ADMIN_SURFACE_SOFT}`}
                 >
                   {showBookingFilters ? 'Hide filters' : 'Show filters'}
                 </button>
@@ -1969,7 +1984,7 @@ export default function AdminDashboard() {
                 }`}
               >
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide opacity-70 mb-2">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">
                     Facility
                   </p>
                   <div className="flex flex-wrap gap-2">
@@ -1992,7 +2007,7 @@ export default function AdminDashboard() {
                           className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
                             isActive
                               ? 'bg-indigo-600 text-white shadow'
-                              : 'jqs-glass hover:brightness-[1.05]'
+                              : `jqs-glass text-slate-200 ${ADMIN_SURFACE_SOFT} hover:brightness-[1.05]`
                           }`}
                         >
                           {filter.label}
@@ -2002,7 +2017,7 @@ export default function AdminDashboard() {
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide opacity-70 mb-2">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">
                     Time category
                   </p>
                   <div className="flex flex-wrap gap-2">
@@ -2022,7 +2037,7 @@ export default function AdminDashboard() {
                           className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
                             isActive
                               ? 'bg-emerald-600 text-white shadow'
-                              : 'jqs-glass hover:brightness-[1.05]'
+                              : `jqs-glass text-slate-200 ${ADMIN_SURFACE_SOFT} hover:brightness-[1.05]`
                           }`}
                         >
                           {filter.label}
@@ -2032,13 +2047,13 @@ export default function AdminDashboard() {
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide opacity-70 mb-2">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">
                     User
                   </p>
                   <select
                     value={bookingUserFilter}
                     onChange={(event) => setBookingUserFilter(event.target.value)}
-                    className="w-full rounded-xl border border-transparent bg-transparent jqs-glass px-3 py-2 text-sm"
+                    className={`w-full rounded-xl border border-transparent bg-transparent jqs-glass px-3 py-2 text-sm text-slate-200 ${ADMIN_SURFACE_SOFT}`}
                   >
                     <option value="all">All users</option>
                     {bookingFilterOptions.map((email) => (
@@ -2052,20 +2067,20 @@ export default function AdminDashboard() {
             </div>
 
             <div className="grid gap-4 lg:grid-cols-2">
-              <div className="jqs-glass rounded-2xl p-4">
+              <div className={`jqs-glass rounded-2xl p-4 ${ADMIN_SURFACE}`}>
                 <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                   <div>
-                    <h3 className="text-sm font-semibold">Bookings per user</h3>
-                    <p className="text-xs opacity-75">
+                    <h3 className="text-sm font-semibold text-slate-100">Bookings per user</h3>
+                    <p className="text-xs text-slate-400">
                       Compare booking share by resident email.
                     </p>
                   </div>
-                  <div className="text-xs opacity-70">
+                  <div className="text-xs text-slate-400">
                     Baseline: {bookingUserBreakdown.averagePerUser.toFixed(1)} avg per user
                   </div>
                 </div>
                 {bookingUserBreakdown.breakdown.length === 0 ? (
-                  <div className="text-sm opacity-80">No bookings match the filters.</div>
+                  <div className="text-sm text-slate-400">No bookings match the filters.</div>
                 ) : (
                   <>
                     <div className="hidden md:block overflow-x-auto">
@@ -2091,11 +2106,11 @@ export default function AdminDashboard() {
                               <td className="px-3 py-2">{item.peak}</td>
                               <td className="px-3 py-2">
                                 {item.indicator ? (
-                                  <span className="text-xs font-semibold px-2 py-1 rounded-full jqs-glass">
+                                  <span className={`text-xs font-semibold px-2 py-1 rounded-full jqs-glass ${ADMIN_SURFACE_SOFT}`}>
                                     {item.indicator}
                                   </span>
                                 ) : (
-                                  <span className="text-xs opacity-70">In line with average</span>
+                                  <span className="text-xs text-slate-400">In line with average</span>
                                 )}
                               </td>
                             </tr>
@@ -2105,8 +2120,8 @@ export default function AdminDashboard() {
                     </div>
                     <div className="md:hidden space-y-3">
                       {bookingUserBreakdown.breakdown.map((item) => (
-                        <div key={item.user} className="jqs-glass rounded-2xl p-3 text-sm">
-                          <div className="font-semibold">{item.user}</div>
+                        <div key={item.user} className={`jqs-glass rounded-2xl p-3 text-sm ${ADMIN_SURFACE}`}>
+                          <div className="font-semibold text-slate-100">{item.user}</div>
                           <div className="mt-2 space-y-1">
                             <p>
                               <strong>Total bookings:</strong> {item.total} (
@@ -2116,7 +2131,7 @@ export default function AdminDashboard() {
                               <strong>Peak-time bookings:</strong> {item.peak}
                             </p>
                             <div className="pt-1">
-                              <span className="text-xs font-semibold px-2 py-1 rounded-full jqs-glass">
+                              <span className={`text-xs font-semibold px-2 py-1 rounded-full jqs-glass ${ADMIN_SURFACE_SOFT}`}>
                                 {item.indicator ?? 'In line with average'}
                               </span>
                             </div>
@@ -2128,9 +2143,9 @@ export default function AdminDashboard() {
                 )}
               </div>
 
-              <div className="jqs-glass rounded-2xl p-4">
-                <h3 className="text-sm font-semibold">Peak vs off-peak usage</h3>
-                <p className="text-xs opacity-75 mt-1">
+              <div className={`jqs-glass rounded-2xl p-4 ${ADMIN_SURFACE}`}>
+                <h3 className="text-sm font-semibold text-slate-100">Peak vs off-peak usage</h3>
+                <p className="text-xs text-slate-400 mt-1">
                   Peak time is defined as 5pm–8:30pm, matching the booking system&apos;s fair-use
                   logic.
                 </p>
@@ -2152,10 +2167,10 @@ export default function AdminDashboard() {
             </div>
 
             <div className="grid gap-4 lg:grid-cols-2">
-              <div className="jqs-glass rounded-2xl p-4">
-                <h3 className="text-sm font-semibold mb-3">Busiest time slots</h3>
+              <div className={`jqs-glass rounded-2xl p-4 ${ADMIN_SURFACE}`}>
+                <h3 className="text-sm font-semibold mb-3 text-slate-100">Busiest time slots</h3>
                 {timeSlotBreakdown.breakdown.length === 0 ? (
-                  <div className="text-sm opacity-80">No time slots to display yet.</div>
+                  <div className="text-sm text-slate-400">No time slots to display yet.</div>
                 ) : (
                   <>
                     <div className="hidden md:block overflow-x-auto">
@@ -2196,10 +2211,10 @@ export default function AdminDashboard() {
                         return (
                           <div key={item.time} className="text-sm">
                             <div className="flex items-center justify-between">
-                              <span className="font-medium">{item.time}</span>
-                              <span className="opacity-70">{item.total} bookings</span>
+                              <span className="font-medium text-slate-100">{item.time}</span>
+                              <span className="text-slate-400">{item.total} bookings</span>
                             </div>
-                            <div className="mt-2 h-2 rounded-full bg-slate-200/40 overflow-hidden">
+                            <div className="mt-2 h-2 rounded-full bg-[rgba(255,255,255,0.08)] overflow-hidden">
                               <div
                                 className={`h-full ${
                                   timeSlotBreakdown.topTimes.has(item.time)
@@ -2217,15 +2232,15 @@ export default function AdminDashboard() {
                 )}
               </div>
 
-              <div className="jqs-glass rounded-2xl p-4">
-                <h3 className="text-sm font-semibold mb-3">Facility usage comparison</h3>
+              <div className={`jqs-glass rounded-2xl p-4 ${ADMIN_SURFACE}`}>
+                <h3 className="text-sm font-semibold mb-3 text-slate-100">Facility usage comparison</h3>
                 {facilityUsage.length === 0 ? (
-                  <div className="text-sm opacity-80">No facility usage data available.</div>
+                  <div className="text-sm text-slate-400">No facility usage data available.</div>
                 ) : (
                   <div className="grid gap-3 sm:grid-cols-2">
                     {facilityUsage.map((facility) => (
-                      <div key={facility.facility} className="jqs-glass rounded-2xl p-3 text-sm">
-                        <div className="text-base font-semibold">{facility.facility}</div>
+                      <div key={facility.facility} className={`jqs-glass rounded-2xl p-3 text-sm ${ADMIN_SURFACE_SOFT}`}>
+                        <div className="text-base font-semibold text-slate-100">{facility.facility}</div>
                         <div className="mt-2 space-y-1">
                           <p>
                             <strong>Total bookings:</strong> {facility.total} (
@@ -2253,11 +2268,13 @@ export default function AdminDashboard() {
             count={filteredBookings.length}
           >
             {filteredBookings.length === 0 ? (
-              <div className="jqs-glass rounded-xl p-3">No booking activities found.</div>
+              <div className={`jqs-glass rounded-xl p-3 ${ADMIN_SURFACE}`}>
+                No booking activities found.
+              </div>
             ) : (
               <>
                 <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-                  <div className="text-xs opacity-70">
+                  <div className="text-xs text-slate-400">
                     Showing {filteredBookings.length} of {nonAdminBookings.length} bookings.
                   </div>
                   <div className="flex items-center gap-2 md:hidden">
@@ -2267,7 +2284,7 @@ export default function AdminDashboard() {
                       className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
                         bookingViewMode === 'chronological'
                           ? 'bg-indigo-600 text-white shadow'
-                          : 'jqs-glass hover:brightness-[1.05]'
+                          : `jqs-glass text-slate-200 ${ADMIN_SURFACE_SOFT} hover:brightness-[1.05]`
                       }`}
                     >
                       Chronological
@@ -2278,14 +2295,14 @@ export default function AdminDashboard() {
                       className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
                         bookingViewMode === 'grouped'
                           ? 'bg-indigo-600 text-white shadow'
-                          : 'jqs-glass hover:brightness-[1.05]'
+                          : `jqs-glass text-slate-200 ${ADMIN_SURFACE_SOFT} hover:brightness-[1.05]`
                       }`}
                     >
                       Grouped by user
                     </button>
                   </div>
                 </div>
-                <div className="hidden md:block overflow-x-auto jqs-glass rounded-2xl">
+                <div className={`hidden md:block overflow-x-auto jqs-glass rounded-2xl ${ADMIN_SURFACE}`}>
                   <table className="min-w-full text-sm">
                     <thead>
                       <tr className="text-left">
@@ -2316,13 +2333,13 @@ export default function AdminDashboard() {
                 <div className="md:hidden space-y-4">
                   {bookingViewMode === 'chronological' ? (
                     mobileBookingGroups.map((group, index) => (
-                      <div key={`${group.user}-${index}`} className="jqs-glass rounded-2xl p-3">
-                        <div className="text-sm font-semibold">{group.user}</div>
+                      <div key={`${group.user}-${index}`} className={`jqs-glass rounded-2xl p-3 ${ADMIN_SURFACE}`}>
+                        <div className="text-sm font-semibold text-slate-100">{group.user}</div>
                         <div className="mt-2 space-y-2">
                           {group.entries.map((booking) => (
                             <div key={booking.id} className="text-sm">
-                              <div className="font-medium">{booking.facility}</div>
-                              <div className="text-xs opacity-80">
+                              <div className="font-medium text-slate-200">{booking.facility}</div>
+                              <div className="text-xs text-slate-400">
                                 {booking.date} · {booking.time}
                               </div>
                             </div>
@@ -2332,16 +2349,16 @@ export default function AdminDashboard() {
                     ))
                   ) : (
                     groupedBookingsByUser.map((group) => (
-                      <div key={group.user} className="jqs-glass rounded-2xl p-3">
-                        <div className="text-sm font-semibold">{group.user}</div>
-                        <div className="text-xs opacity-80">
+                      <div key={group.user} className={`jqs-glass rounded-2xl p-3 ${ADMIN_SURFACE}`}>
+                        <div className="text-sm font-semibold text-slate-100">{group.user}</div>
+                        <div className="text-xs text-slate-400">
                           {group.total} bookings
                         </div>
                         <div className="mt-2 space-y-2">
                           {group.entries.map((booking) => (
                             <div key={booking.id} className="text-sm">
-                              <div className="font-medium">{booking.facility}</div>
-                              <div className="text-xs opacity-80">
+                              <div className="font-medium text-slate-200">{booking.facility}</div>
+                              <div className="text-xs text-slate-400">
                                 {booking.date} · {booking.time}
                               </div>
                             </div>
@@ -2363,13 +2380,15 @@ export default function AdminDashboard() {
             subtitle="Quick totals by facility"
           >
             {Object.keys(bookingStats).length === 0 ? (
-              <div className="jqs-glass rounded-xl p-3">No booking data available.</div>
+              <div className={`jqs-glass rounded-xl p-3 ${ADMIN_SURFACE}`}>
+                No booking data available.
+              </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {Object.entries(bookingStats).map(([facility, count]) => (
-                  <div key={facility} className="jqs-glass p-4 rounded-2xl">
-                    <h3 className="text-lg font-semibold">{facility}</h3>
-                    <p className="opacity-80">{count} bookings</p>
+                  <div key={facility} className={`jqs-glass p-4 rounded-2xl ${ADMIN_SURFACE}`}>
+                    <h3 className="text-lg font-semibold text-slate-100">{facility}</h3>
+                    <p className="text-slate-400">{count} bookings</p>
                   </div>
                 ))}
               </div>
@@ -2385,9 +2404,11 @@ export default function AdminDashboard() {
             count={activityLogs.length}
           >
             {activityLogs.length === 0 ? (
-              <div className="jqs-glass rounded-xl p-3">No activity logs found.</div>
+              <div className={`jqs-glass rounded-xl p-3 ${ADMIN_SURFACE}`}>
+                No activity logs found.
+              </div>
             ) : (
-              <div className="overflow-x-auto jqs-glass rounded-2xl">
+              <div className={`overflow-x-auto jqs-glass rounded-2xl ${ADMIN_SURFACE}`}>
                 <table className="min-w-full text-sm">
                   <thead>
                     <tr className="text-left">
@@ -2425,8 +2446,8 @@ export default function AdminDashboard() {
             defaultOpen
           >
             <div className="grid gap-4">
-              <div className="jqs-glass rounded-2xl p-4">
-                <label className="block font-medium mb-1">Custom Notice:</label>
+              <div className={`jqs-glass rounded-2xl p-4 ${ADMIN_SURFACE}`}>
+                <label className="block font-medium mb-1 text-slate-100">Custom Notice:</label>
                 <textarea
                   value={customNotice}
                   onChange={(e) => setCustomNotice(e.target.value)}
@@ -2434,8 +2455,8 @@ export default function AdminDashboard() {
                   className="w-full border rounded p-2 bg-transparent"
                 />
               </div>
-              <div className="jqs-glass rounded-2xl p-4">
-                <label className="block font-medium mb-1">Facility Rules:</label>
+              <div className={`jqs-glass rounded-2xl p-4 ${ADMIN_SURFACE}`}>
+                <label className="block font-medium mb-1 text-slate-100">Facility Rules:</label>
                 <textarea
                   value={facilityRules}
                   onChange={(e) => setFacilityRules(e.target.value)}
@@ -2446,7 +2467,7 @@ export default function AdminDashboard() {
               <div>
                 <button
                   onClick={updateFacilityConfig}
-                  className="px-4 py-2 rounded-full jqs-glass font-semibold hover:brightness-[1.05] transition"
+                  className={`px-4 py-2 rounded-full jqs-glass font-semibold hover:brightness-[1.05] transition ${ADMIN_SURFACE_SOFT}`}
                 >
                   Update Facility Info
                 </button>
@@ -2464,20 +2485,20 @@ export default function AdminDashboard() {
             <div className="flex flex-wrap gap-3 mb-4">
               <button
                 onClick={toggleDebugMode}
-                className="px-4 py-2 rounded-full jqs-glass font-semibold hover:brightness-[1.05] transition"
+                className={`px-4 py-2 rounded-full jqs-glass font-semibold hover:brightness-[1.05] transition ${ADMIN_SURFACE_SOFT}`}
               >
                 {debugMode ? 'Disable Debug Mode' : 'Enable Debug Mode'}
               </button>
               <button
                 onClick={exportDataAsCSV}
-                className="px-4 py-2 rounded-full jqs-glass font-semibold hover:brightness-[1.05] transition"
+                className={`px-4 py-2 rounded-full jqs-glass font-semibold hover:brightness-[1.05] transition ${ADMIN_SURFACE_SOFT}`}
               >
                 Export Data as CSV
               </button>
             </div>
 
-            <div className="jqs-glass rounded-2xl p-4">
-              <h3 className="text-lg font-semibold mb-2">Feedback Inbox</h3>
+            <div className={`jqs-glass rounded-2xl p-4 ${ADMIN_SURFACE}`}>
+              <h3 className="text-lg font-semibold mb-2 text-slate-100">Feedback Inbox</h3>
               {feedbacks.length === 0 ? (
                 <div>No feedback found.</div>
               ) : (
@@ -2511,8 +2532,8 @@ export default function AdminDashboard() {
             </div>
 
             {debugMode && (
-              <div className="jqs-glass rounded-2xl p-4 mt-4">
-                <h3 className="text-lg font-semibold mb-2">Debug Information</h3>
+              <div className={`jqs-glass rounded-2xl p-4 mt-4 ${ADMIN_SURFACE}`}>
+                <h3 className="text-lg font-semibold mb-2 text-slate-100">Debug Information</h3>
                 <pre className="text-xs overflow-auto">
                   {JSON.stringify({ users, bookings, activityLogs, feedbacks }, null, 2)}
                 </pre>
@@ -2527,8 +2548,8 @@ export default function AdminDashboard() {
             title="Danger Zone"
             subtitle="Irreversible system actions — use with caution"
           >
-            <div className="jqs-glass p-4 rounded-2xl">
-              <p className="text-sm opacity-90 mb-3">
+            <div className={`jqs-glass p-4 rounded-2xl ${ADMIN_SURFACE}`}>
+              <p className="text-sm text-slate-300 mb-3">
                 Clicking the button below will <strong>delete all existing facility bookings</strong> from the system.
                 This action is <strong>permanent and cannot be undone</strong>.
               </p>
