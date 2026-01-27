@@ -207,10 +207,9 @@ body::before {
 }
 
 .admin-scope .jqs-glass {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(6px);
-  box-shadow: 0 12px 40px rgb(0 0 0 / 0.12);
+  background: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 10px 28px rgb(0 0 0 / 0.35);
 }
 
 @keyframes footer-glow {

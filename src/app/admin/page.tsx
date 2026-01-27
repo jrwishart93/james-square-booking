@@ -113,7 +113,7 @@ function Section({
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <section className="rounded-3xl border border-white/[0.08] bg-white/[0.04] p-6 shadow-[0_12px_40px_rgba(0,0,0,0.12)]">
+    <section className="rounded-3xl border border-white/[0.08] bg-white/[0.04] p-4 md:p-6 shadow-[0_12px_40px_rgba(0,0,0,0.12)]">
       <button
         className="w-full flex items-start justify-between gap-4 text-left"
         onClick={() => setOpen((v) => !v)}
@@ -156,8 +156,17 @@ function Section({
 /* Badge “pills” for quick KPIs */
 function StatPill({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="rounded-2xl px-4 py-3 text-sm bg-white/[0.04] border border-white/[0.08] backdrop-blur-[6px] shadow-[0_12px_40px_rgba(0,0,0,0.12)]">
-      <div className="text-slate-300">{label}</div>
+    <div className="rounded-2xl px-4 py-3 text-sm bg-[#111827] border border-white/[0.06] shadow-[0_6px_18px_rgba(0,0,0,0.35)]">
+      <div className="text-slate-200">{label}</div>
+      <div className="text-lg font-semibold text-white">{value}</div>
+    </div>
+  );
+}
+
+function MetricTile({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="rounded-xl px-3 py-3 text-sm bg-[#020617] border border-white/[0.06] shadow-[0_6px_16px_rgba(0,0,0,0.35)]">
+      <div className="text-slate-200">{label}</div>
       <div className="text-lg font-semibold text-white">{value}</div>
     </div>
   );
@@ -1136,7 +1145,7 @@ export default function AdminDashboard() {
 
   return (
     <main className="jqs-gradient-bg min-h-screen text-slate-900 dark:text-slate-100 admin-scope">
-      <div className="border-b border-white/[0.06] bg-[linear-gradient(180deg,_#0f1624_0%,_#0c1220_100%)]">
+      <div className="border-b border-white/[0.06] bg-[linear-gradient(180deg,_#0b1220_0%,_#0a1020_100%)]">
         <div className="max-w-7xl mx-auto px-6 pt-6 pb-4 space-y-4">
           <header className="flex flex-wrap items-end justify-between gap-4">
             <div>
@@ -1179,11 +1188,11 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto p-6 space-y-6">
+      <div className="max-w-7xl mx-auto p-6 space-y-8 md:space-y-6">
 
         {activeTab === 'overview' && (
           <>
-            <div className="jqs-glass rounded-2xl p-4">
+            <div className="rounded-2xl border border-white/[0.05] bg-[#0f172a] p-4 shadow-[0_10px_30px_rgba(0,0,0,0.35)]">
               <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                 <div>
                   <h2 className="text-lg font-semibold">Resident Breakdown</h2>
@@ -1194,11 +1203,11 @@ export default function AdminDashboard() {
                 <div className="text-xs opacity-70">Matches the filtered user list.</div>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                <StatPill label="Total Residents" value={residentStats.total} />
-                <StatPill label="Owners" value={residentStats.owners} />
-                <StatPill label="Renters" value={residentStats.renters} />
-                <StatPill label="Unknown" value={residentStats.unknown} />
-                <StatPill label="Inactive 30+ days" value={activityStats.inactive} />
+                <MetricTile label="Total Residents" value={residentStats.total} />
+                <MetricTile label="Owners" value={residentStats.owners} />
+                <MetricTile label="Renters" value={residentStats.renters} />
+                <MetricTile label="Unknown" value={residentStats.unknown} />
+                <MetricTile label="Inactive 30+ days" value={activityStats.inactive} />
               </div>
             </div>
             <div className="jqs-glass rounded-2xl px-4 py-3 text-xs opacity-80">
