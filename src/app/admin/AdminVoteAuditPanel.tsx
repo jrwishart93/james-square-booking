@@ -303,7 +303,7 @@ const AdminVoteAuditPanel = ({
                           return (
                         <div
                           key={vote.id}
-                          className="rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-900 dark:bg-white/5 dark:text-slate-100"
+                          className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-100"
                         >
                           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                             <div className="space-y-1">
@@ -312,7 +312,7 @@ const AdminVoteAuditPanel = ({
                                   <span className="font-medium">{primaryName}</span>
                                 )}
                                 {secondaryLine && (
-                                  <span className="text-slate-500 dark:text-slate-400">
+                                  <span className="text-slate-400">
                                     {secondaryLine}
                                   </span>
                                 )}
@@ -321,7 +321,7 @@ const AdminVoteAuditPanel = ({
                                 {optionMap?.get(vote.optionId) ?? '—'}
                               </div>
                             </div>
-                            <div className="text-xs text-slate-500 dark:text-slate-400">
+                            <div className="text-xs text-slate-400">
                               {formatTimestamp(vote.createdAt)}
                             </div>
                           </div>
