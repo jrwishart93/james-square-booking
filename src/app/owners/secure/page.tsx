@@ -174,6 +174,60 @@ function SgmSection() {
           confirmed in due course.
         </p>
       </div>
+      <div className="mt-6 space-y-4 text-sm md:text-base text-slate-700 dark:text-slate-200">
+        <div className="space-y-3">
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Formal notice issued to Fior</h3>
+          <p>
+            Following the vote, the committee has now issued formal written notice to Fior Asset &amp; Property
+            confirming termination of their appointment as factor for James Square and advising that Myreside Management
+            has been appointed as the replacement factor.
+          </p>
+          <p>For transparency, a copy of the termination notice letter can be viewed below.</p>
+          <div className="space-y-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Documents</p>
+            <a
+              href="/images/venues/fior-termination-letter.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-600 text-white text-sm font-medium transition-colors hover:bg-cyan-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/60"
+            >
+              View termination notice letter (PDF)
+            </a>
+          </div>
+        </div>
+        <div className="space-y-3">
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Contact Myreside Management</h3>
+          <p>
+            Owners are encouraged to contact Myreside Management as soon as possible to ensure their details are up to
+            date and to arrange any new payment plans or standing orders.
+          </p>
+          <p>
+            Early contact will help support a smooth transition and avoid delays once the handover date is confirmed.
+          </p>
+          <a
+            href="https://myreside-management.co.uk/contact-us/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-150 ease-out hover:bg-white/95 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 dark:border-white/15 dark:bg-white/20 dark:text-white dark:hover:bg-white/25"
+          >
+            Contact Myreside via online form
+          </a>
+          <div className="space-y-1 text-sm md:text-base text-slate-700 dark:text-slate-200">
+            <p>
+              <span className="font-semibold text-slate-900 dark:text-slate-100">Telephone:</span> 0131 466 3001
+            </p>
+            <p className="text-slate-700 dark:text-slate-200">
+              <span className="font-semibold text-slate-900 dark:text-slate-100">Address:</span>
+              <br />
+              Myreside Management Limited
+              <br />
+              3 Dalkeith Road Mews
+              <br />
+              Edinburgh EH16 5GA
+            </p>
+          </div>
+        </div>
+      </div>
     </GlassCard>
   );
 }
