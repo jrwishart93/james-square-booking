@@ -1,11 +1,38 @@
 import type { Metadata } from 'next';
 
+import { Info } from 'lucide-react';
+
 import FactorInfoPage from '@/components/FactorInfoPage';
 import { GlassCard } from '@/components/GlassCard';
 
+const socialTitle = 'Myreside Management | James Square';
+const socialDescription = 'Information for James Square owners about Myreside Management as incoming property factor.';
+const socialImage = 'https://www.james-square.com/images/logo/Myreside-JS-image.png';
+const canonicalUrl = 'https://www.james-square.com/myreside';
+
 export const metadata: Metadata = {
-  title: 'Myreside Management | James Square',
-  description: 'Information for James Square owners about Myreside Management as incoming property factor.',
+  title: socialTitle,
+  description: socialDescription,
+  openGraph: {
+    title: socialTitle,
+    description: socialDescription,
+    url: canonicalUrl,
+    type: 'website',
+    images: [
+      {
+        url: socialImage,
+        width: 1536,
+        height: 1024,
+        alt: 'Myreside Management incoming factor notice for James Square',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: socialTitle,
+    description: socialDescription,
+    images: [socialImage],
+  },
 };
 
 const MyresidePage = () => {
@@ -20,10 +47,49 @@ const MyresidePage = () => {
             Management has been selected as the preferred replacement factor for James Square.
           </p>
           <p>
-            Myreside Management is intending to take over the management of the development from 1 February, subject to
+            Myreside Management intend to take over the management of the development from 1 February 2025, subject to
             final confirmation and completion of handover arrangements with the outgoing factor.
           </p>
         </>
+      }
+      alertContent={
+        <div
+          role="status"
+          className="w-full rounded-2xl border border-sky-200/80 bg-sky-50/90 p-6 text-left text-slate-800 shadow-sm dark:border-sky-700/60 dark:bg-sky-900/30 dark:text-slate-100"
+        >
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-sky-100 text-sky-700 dark:bg-sky-800/60 dark:text-sky-100">
+              <Info className="h-5 w-5" aria-hidden="true" />
+            </span>
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Update – Incoming factor change</h2>
+          </div>
+          <div className="mt-4 space-y-4 text-sm md:text-base text-slate-700 dark:text-slate-200">
+            <p>
+              Myreside Management intend to take over as factor for James Square from 1 February 2025.
+            </p>
+            <p>
+              All owners are advised to contact Myreside Management for further information and to arrange any new
+              building payment arrangements prior to this date where possible.
+            </p>
+            <div className="space-y-1">
+              <p className="font-semibold text-slate-900 dark:text-white">Myreside Management Limited</p>
+              <p>3 Dalkeith Road Mews</p>
+              <p>Edinburgh</p>
+              <p>EH16 5GA</p>
+              <p>
+                <span className="font-semibold text-slate-900 dark:text-white">Telephone:</span> 0131 466 3001
+              </p>
+            </div>
+          </div>
+          <a
+            href="https://myreside-management.co.uk/contact-us/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 sm:w-auto"
+          >
+            Contact Myreside Management
+          </a>
+        </div>
       }
       logoSrc="/images/logo/myreside-logo-removebg-preview.png"
       logoAlt="Myreside Management logo"

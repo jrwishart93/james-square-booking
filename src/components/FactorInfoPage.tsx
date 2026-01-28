@@ -14,6 +14,7 @@ type FactorInfoPageProps = {
   logoAlt: string;
   statusTitle?: string;
   statusContent?: ReactNode;
+  alertContent?: ReactNode;
   managementTitle: string;
   managementText: string;
   communicationText: string;
@@ -33,6 +34,7 @@ const FactorInfoPage = ({
   logoAlt,
   statusTitle,
   statusContent,
+  alertContent,
   managementTitle,
   managementText,
   communicationText,
@@ -61,6 +63,7 @@ const FactorInfoPage = ({
               <p className="text-sm md:text-base text-slate-600 dark:text-slate-300">{subtitle}</p>
             </div>
           </div>
+          {alertContent}
           <div className="max-w-3xl space-y-3 text-sm md:text-base text-slate-600 dark:text-slate-300">{intro}</div>
         </header>
 
