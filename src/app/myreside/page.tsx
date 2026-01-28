@@ -5,9 +5,34 @@ import { Info } from 'lucide-react';
 import FactorInfoPage from '@/components/FactorInfoPage';
 import { GlassCard } from '@/components/GlassCard';
 
+const socialTitle = 'Myreside Management | James Square';
+const socialDescription = 'Information for James Square owners about Myreside Management as incoming property factor.';
+const socialImage = 'https://www.james-square.com/images/logo/Myreside-JS-image.png';
+const canonicalUrl = 'https://www.james-square.com/myreside';
+
 export const metadata: Metadata = {
-  title: 'Myreside Management | James Square',
-  description: 'Information for James Square owners about Myreside Management as incoming property factor.',
+  title: socialTitle,
+  description: socialDescription,
+  openGraph: {
+    title: socialTitle,
+    description: socialDescription,
+    url: canonicalUrl,
+    type: 'website',
+    images: [
+      {
+        url: socialImage,
+        width: 1536,
+        height: 1024,
+        alt: 'Myreside Management incoming factor notice for James Square',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: socialTitle,
+    description: socialDescription,
+    images: [socialImage],
+  },
 };
 
 const MyresidePage = () => {
