@@ -2,15 +2,11 @@ import type { Metadata } from 'next';
 
 import FactorInfoPage from '@/components/FactorInfoPage';
 import { GlassCard } from '@/components/GlassCard';
-import TimedVimeoEmbed from '@/components/TimedVimeoEmbed';
-import VotingCallout from '@/components/VotingCallout';
 
 export const metadata: Metadata = {
   title: 'Myreside Management | James Square',
   description: 'Information for James Square owners about Myreside Management as incoming property factor.',
 };
-
-const PRESENTATION_EXPIRY = '2026-01-23T17:00:00+00:00';
 
 const MyresidePage = () => {
   return (
@@ -206,15 +202,8 @@ const MyresidePage = () => {
           label: 'View updated Myreside tender documentation (18 January 2025 PDF)',
         },
       ]}
-      postDocumentationContent={
+      additionalContent={
         <>
-          <TimedVimeoEmbed
-            videoId="1156995632"
-            title="Myreside – Online Presentation"
-            expiryDate={PRESENTATION_EXPIRY}
-            aspectRatio={56.25}
-          />
-          <VotingCallout />
           <GlassCard title="Contact Myreside Management" titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100">
             <div className="space-y-3 text-sm md:text-base text-slate-700 dark:text-slate-200">
               <p>
@@ -243,42 +232,40 @@ const MyresidePage = () => {
               </a>
             </div>
           </GlassCard>
-        </>
-      }
-      additionalContent={
-        <GlassCard
-          title="Cleaning Standard – Current vs Planned"
-          titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100"
-        >
-          <div className="space-y-4 text-sm md:text-base text-slate-700 dark:text-slate-200">
-            <p>
-              One-page summary prepared by Myreside Management outlining the current routine cleaning standard at James
-              Square and the enhanced standard expected once Myreside begins management.
-            </p>
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <a
-                href="/images/buildingimages/Cleaning.pdf"
-                className="inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold text-slate-900 transition hover:brightness-[1.05] jqs-glass dark:text-slate-100"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                View Cleaning Standard PDF
-              </a>
-              <span className="text-xs text-slate-500 dark:text-slate-400">
-                Opens in a new tab for easy viewing.
-              </span>
-            </div>
-            <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white/70 shadow-sm dark:border-white/10 dark:bg-white/5">
-              <div className="relative aspect-[3/4] w-full">
-                <iframe
-                  title="Cleaning Standard – Current vs Planned PDF preview"
-                  src="/images/buildingimages/Cleaning.pdf"
-                  className="absolute inset-0 h-full w-full"
-                />
+          <GlassCard
+            title="Cleaning Standard – Current vs Planned"
+            titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100"
+          >
+            <div className="space-y-4 text-sm md:text-base text-slate-700 dark:text-slate-200">
+              <p>
+                One-page summary prepared by Myreside Management outlining the current routine cleaning standard at
+                James Square and the enhanced standard expected once Myreside begins management.
+              </p>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <a
+                  href="/images/buildingimages/Cleaning.pdf"
+                  className="inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold text-slate-900 transition hover:brightness-[1.05] jqs-glass dark:text-slate-100"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  View Cleaning Standard PDF
+                </a>
+                <span className="text-xs text-slate-500 dark:text-slate-400">
+                  Opens in a new tab for easy viewing.
+                </span>
+              </div>
+              <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white/70 shadow-sm dark:border-white/10 dark:bg-white/5">
+                <div className="relative aspect-[3/4] w-full">
+                  <iframe
+                    title="Cleaning Standard – Current vs Planned PDF preview"
+                    src="/images/buildingimages/Cleaning.pdf"
+                    className="absolute inset-0 h-full w-full"
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        </GlassCard>
+          </GlassCard>
+        </>
       }
     />
   );
