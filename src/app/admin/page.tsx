@@ -97,6 +97,23 @@ const isPeakTime = (time: string) => PEAK_TIMES.has(time);
 
 const SHOW_VOTING_OVERVIEW = false;
 
+const PROPERTY_OVERVIEW_LIST = [
+  '39/1', '39/2', '39/3', '39/4', '39/5', '39/6', '39/7', '39/8', '39/9', '39/10',
+  '39/11', '39/12', '39/13', '39/14', '39/15', '39B',
+  '45/1', '45/2', '45/3', '45/4', '45/5', '45/6', '45/7', '45/8', '45/9', '45/10',
+  '45/11', '45/12', '45/13', '45/14', '45/15', '45/16', '45/17', '45/18', '45/19',
+  '51/1', '51/2', '51/3', '51/4', '51/5', '51/6', '51/7', '51/8', '51/9', '51/10',
+  '51/11', '51/12', '51/13', '51/14', '51/15', '51/16', '51/17', '51/18', '51/19',
+  '51/20', '51/21', '51/22', '51/23', '51/24', '51/25', '51/26', '51/27', '51/28',
+  '51/29', '51/30', '51/31',
+  '55/1', '55/2', '55/3', '55/4', '55/5', '55/6', '55/7', '55/8', '55/9', '55/10',
+  '55/11', '55/12', '55/13', '55/14', '55/15',
+  '57/1', '57/2', '57/3', '57/4', '57/5', '57/6',
+  '59/1', '59/2', '59/3', '59/4', '59/5', '59/6',
+  '61/1', '61/2', '61/3', '61/4', '61/5', '61/6', '61/7', '61/8',
+  '65/1', '65/2',
+];
+
 /* ---------- Small UI helpers (visual-only) ---------- */
 function Section({
   title,
@@ -269,6 +286,7 @@ export default function AdminDashboard() {
     'chronological' | 'grouped'
   >('chronological');
   const [showBookingFilters, setShowBookingFilters] = useState<boolean>(false);
+  const [showPropertyOverview, setShowPropertyOverview] = useState<boolean>(false);
 
   /* ---------- Admin action confirmation ---------- */
   const [pendingAction, setPendingAction] = useState<PendingAdminAction | null>(null);
@@ -797,6 +815,19 @@ export default function AdminDashboard() {
     return 'unknown';
   };
 
+  const getPropertyRoleLabel = (user: UserRegistration) => {
+    const rawLabel = (
+      user.residentTypeLabel ||
+      user.residentType ||
+      user.userRole ||
+      ''
+    ).toLowerCase();
+    if (rawLabel.includes('owner')) return 'Owner';
+    if (rawLabel.includes('tenant') || rawLabel.includes('renter')) return 'Tenant';
+    if (rawLabel.includes('holiday') || rawLabel.includes('stl')) return 'Holiday Guest';
+    return 'Unknown';
+  };
+
   const formatPercentage = (value: number) => `${value.toFixed(1)}%`;
 
   /* ---------- Derived stats (unchanged) ---------- */
@@ -1012,6 +1043,81 @@ export default function AdminDashboard() {
     return { ...stats };
   }, [users]);
 
+  const propertyOverview = useMemo(() => {
+    if (!showPropertyOverview) {
+      return {
+        rows: [],
+        summary: {
+          totalProperties: PROPERTY_OVERVIEW_LIST.length,
+          propertiesWithResidents: 0,
+          propertiesWithoutResidents: PROPERTY_OVERVIEW_LIST.length,
+          unknownResidents: 0,
+        },
+      };
+    }
+
+    const nonAdminUsers = users.filter((user) => !user.isAdmin);
+    const residentsByProperty = new Map<string, UserRegistration[]>();
+    nonAdminUsers.forEach((user) => {
+      const property = user.property?.trim();
+      if (!property) return;
+      const group = residentsByProperty.get(property) ?? [];
+      group.push(user);
+      residentsByProperty.set(property, group);
+    });
+
+    let propertiesWithResidents = 0;
+    let unknownResidents = 0;
+
+    const rows = PROPERTY_OVERVIEW_LIST.map((property) => {
+      const residents = residentsByProperty.get(property) ?? [];
+      if (residents.length > 0) {
+        propertiesWithResidents += 1;
+      }
+
+      const residentEntries = residents.map((resident) => {
+        const name =
+          resident.fullName?.trim() ||
+          resident.username?.trim() ||
+          resident.email?.trim() ||
+          'Unknown name';
+        const email = resident.email?.trim() || '';
+        const roleLabel = getPropertyRoleLabel(resident);
+        if (roleLabel === 'Unknown') {
+          unknownResidents += 1;
+        }
+        return {
+          id: resident.id,
+          name,
+          email,
+          roleLabel,
+        };
+      });
+
+      const hasResidents = residentEntries.length > 0;
+      const hasMissingEmail = residentEntries.some((entry) => !entry.email);
+      const hasUnknownRole = residentEntries.some((entry) => entry.roleLabel === 'Unknown');
+
+      return {
+        property,
+        residentEntries,
+        hasResidents,
+        hasMissingEmail,
+        hasUnknownRole,
+      };
+    });
+
+    return {
+      rows,
+      summary: {
+        totalProperties: PROPERTY_OVERVIEW_LIST.length,
+        propertiesWithResidents,
+        propertiesWithoutResidents: PROPERTY_OVERVIEW_LIST.length - propertiesWithResidents,
+        unknownResidents,
+      },
+    };
+  }, [showPropertyOverview, users]);
+
   const activityStats = useMemo(() => {
     const nonAdminUsers = users.filter((user) => !user.isAdmin);
     return nonAdminUsers.reduce(
@@ -1199,6 +1305,127 @@ export default function AdminDashboard() {
             <div className="jqs-glass rounded-2xl px-4 py-3 text-xs opacity-80">
               Some residents signed up before resident-type confirmation existed. Unknown residents will be
               asked to confirm their status later. (Admin-only notice)
+            </div>
+            <div className="jqs-glass rounded-2xl p-4 space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-lg font-semibold">Property Overview</h2>
+                  <p className="text-xs opacity-75">
+                    Shows all properties and associated residents. Useful for identifying missing or incomplete records.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowPropertyOverview((prev) => !prev)}
+                  className="text-xs font-semibold rounded-full px-3 py-1 jqs-glass"
+                >
+                  {showPropertyOverview
+                    ? '▼ Hide property list'
+                    : `▶ Show property list (${PROPERTY_OVERVIEW_LIST.length} properties)`}
+                </button>
+              </div>
+              {showPropertyOverview && (
+                <div className="space-y-3">
+                  <div className="text-xs opacity-70">
+                    {propertyOverview.summary.totalProperties} properties •{' '}
+                    {propertyOverview.summary.propertiesWithResidents} with at least one resident •{' '}
+                    {propertyOverview.summary.propertiesWithoutResidents} with no linked residents •{' '}
+                    {propertyOverview.summary.unknownResidents} residents marked as “Unknown”
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full text-sm">
+                      <thead>
+                        <tr className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-300">
+                          <th className="px-3 py-2 text-left">Property</th>
+                          <th className="px-3 py-2 text-left">Residents</th>
+                          <th className="px-3 py-2 text-left">Contact</th>
+                          <th className="px-3 py-2 text-left">Role</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {propertyOverview.rows.map((row) => {
+                          const showMissingBadge =
+                            !row.hasResidents || row.hasMissingEmail || row.hasUnknownRole;
+                          return (
+                            <tr
+                              key={row.property}
+                              className="border-t border-white/40 dark:border-white/10"
+                            >
+                              <td className="px-3 py-3 align-top">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-semibold">{row.property}</span>
+                                  {showMissingBadge && (
+                                    <span className="text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-200">
+                                      Missing data
+                                    </span>
+                                  )}
+                                </div>
+                              </td>
+                              <td className="px-3 py-3 align-top">
+                                {row.residentEntries.length === 0 ? (
+                                  <span className="italic text-amber-700 dark:text-amber-300">
+                                    No residents linked
+                                  </span>
+                                ) : (
+                                  <div className="flex flex-col gap-1">
+                                    {row.residentEntries.map((resident) => (
+                                      <span key={resident.id}>{resident.name}</span>
+                                    ))}
+                                  </div>
+                                )}
+                              </td>
+                              <td className="px-3 py-3 align-top">
+                                {row.residentEntries.length === 0 ? (
+                                  <span className="italic text-amber-700 dark:text-amber-300">
+                                    No residents linked
+                                  </span>
+                                ) : (
+                                  <div className="flex flex-col gap-1">
+                                    {row.residentEntries.map((resident) => (
+                                      <span
+                                        key={resident.id}
+                                        className={
+                                          resident.email
+                                            ? 'break-all'
+                                            : 'italic text-amber-700 dark:text-amber-300'
+                                        }
+                                      >
+                                        {resident.email || 'Missing email'}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+                              </td>
+                              <td className="px-3 py-3 align-top">
+                                {row.residentEntries.length === 0 ? (
+                                  <span className="italic text-amber-700 dark:text-amber-300">
+                                    Unknown
+                                  </span>
+                                ) : (
+                                  <div className="flex flex-col gap-1">
+                                    {row.residentEntries.map((resident) => (
+                                      <span
+                                        key={resident.id}
+                                        className={
+                                          resident.roleLabel === 'Unknown'
+                                            ? 'italic text-amber-700 dark:text-amber-300'
+                                            : ''
+                                        }
+                                      >
+                                        {resident.roleLabel}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
             </div>
           </>
         )}
