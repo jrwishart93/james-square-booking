@@ -207,31 +207,46 @@ body::before {
 }
 
 /* Admin-only dark mode overrides (scoped) */
-.dark .admin-scope {
-  background:
-    radial-gradient(1200px 600px at 50% -200px, rgba(30, 45, 80, 0.35), transparent 70%),
-    linear-gradient(180deg, #070b15 0%, #0a1020 45%, #05080f 100%);
+.dark .admin-dark-scope {
+  background-color: #070b15;
+  background-image: radial-gradient(
+    900px 500px at 50% -200px,
+    rgba(40, 70, 130, 0.25),
+    transparent 70%
+  );
 }
 
-.dark .admin-scope .admin-panel {
-  background: rgba(10, 14, 24, 0.75);
-  border-color: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 18px 50px rgba(3, 5, 12, 0.55);
+.dark .admin-dark-scope .admin-panel,
+.dark .admin-dark-scope .admin-header,
+.dark .admin-dark-scope .admin-section {
+  background: rgba(10, 14, 28, 0.85);
+  border-color: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 18px 50px rgba(3, 5, 12, 0.6);
 }
 
-.dark .admin-scope .jqs-glass {
-  background: rgba(10, 14, 24, 0.68);
-  border-color: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 20px 50px rgba(3, 5, 12, 0.5);
+.dark .admin-dark-scope .jqs-glass {
+  background: rgba(10, 14, 28, 0.82);
+  border-color: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 18px 50px rgba(3, 5, 12, 0.6);
 }
 
-.dark .admin-scope .stat-card {
+.dark .admin-dark-scope .stat-card {
   background: linear-gradient(
     180deg,
-    rgba(18, 22, 38, 0.85),
-    rgba(12, 15, 28, 0.85)
+    rgba(14, 18, 34, 0.95),
+    rgba(10, 13, 26, 0.95)
   );
-  border-color: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55);
+}
+
+.dark .admin-dark-scope .admin-tabs {
+  background: rgba(12, 16, 30, 0.9);
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+.dark .admin-dark-scope .admin-card {
+  background: rgba(9, 12, 24, 0.9);
 }
 
 @keyframes footer-glow {
