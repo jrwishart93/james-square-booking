@@ -9,9 +9,11 @@ import GradientBG from '@/components/GradientBG';
 type FactorInfoPageProps = {
   title: string;
   subtitle: string;
-  intro: string;
+  intro: ReactNode;
   logoSrc: string;
   logoAlt: string;
+  statusTitle?: string;
+  statusContent?: ReactNode;
   managementTitle: string;
   managementText: string;
   communicationText: string;
@@ -29,6 +31,8 @@ const FactorInfoPage = ({
   intro,
   logoSrc,
   logoAlt,
+  statusTitle,
+  statusContent,
   managementTitle,
   managementText,
   communicationText,
@@ -57,10 +61,15 @@ const FactorInfoPage = ({
               <p className="text-sm md:text-base text-slate-600 dark:text-slate-300">{subtitle}</p>
             </div>
           </div>
-          <p className="max-w-3xl text-sm md:text-base text-slate-600 dark:text-slate-300">{intro}</p>
+          <div className="max-w-3xl space-y-3 text-sm md:text-base text-slate-600 dark:text-slate-300">{intro}</div>
         </header>
 
         <div className="space-y-6">
+          {statusTitle && statusContent ? (
+            <GlassCard title={statusTitle} titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100">
+              <div className="space-y-3 text-sm md:text-base text-slate-700 dark:text-slate-200">{statusContent}</div>
+            </GlassCard>
+          ) : null}
           <GlassCard title={managementTitle} titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100">
             <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">{managementText}</p>
           </GlassCard>
@@ -105,8 +114,8 @@ const FactorInfoPage = ({
           <div className="rounded-2xl border border-slate-200/80 bg-slate-50/80 p-6 shadow-sm dark:border-white/10 dark:bg-white/5">
             <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">Important note</h2>
             <p className="mt-2 text-sm text-slate-700 dark:text-slate-200">
-              The documents linked on this page are initial proposals provided for information only. They are subject to
-              clarification and change. Updated documents will be uploaded in due course ahead of the general meeting.
+              The information on this page is provided for transparency and reference. Final arrangements remain subject
+              to confirmation as part of the handover process.
             </p>
           </div>
         </div>
