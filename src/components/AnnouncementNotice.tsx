@@ -1,11 +1,17 @@
 'use client';
 
 const SHOW_ANNOUNCEMENT = true;
+const GATES_NOTICE_PUBLISHED_AT = new Date('2026-02-06T00:00:00Z');
+const GATES_NOTICE_EXPIRES_AT = new Date(
+  GATES_NOTICE_PUBLISHED_AT.getTime() + 5 * 24 * 60 * 60 * 1000,
+);
 
 export default function AnnouncementNotice() {
   if (!SHOW_ANNOUNCEMENT) {
     return null;
   }
+
+  const isGatesNoticeActive = Date.now() < GATES_NOTICE_EXPIRES_AT.getTime();
 
   return (
     <section className="mx-auto max-w-6xl mt-6 sm:mt-8">
@@ -44,25 +50,26 @@ export default function AnnouncementNotice() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-4">
-            <header className="space-y-1">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-700/80 dark:text-amber-300/90">
-                Owner Notice
-              </p>
-              <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100 sm:text-2xl">
-                Faulty Main Gates
-              </h2>
-            </header>
+          {isGatesNoticeActive && (
+            <div className="flex flex-col gap-4">
+              <header className="space-y-1">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-700/80 dark:text-amber-300/90">
+                  Owner Notice
+                </p>
+                <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100 sm:text-2xl">
+                  Update – Main Gates
+                </h2>
+              </header>
 
-            <div className="space-y-3 text-sm text-neutral-700 dark:text-neutral-200 sm:text-base">
-              <p>The damage to the main entrance gates has been reported.</p>
-              <p>
-                The caretaker is aware and is progressing the matter. Contact has been made with
-                the relevant company to attend site and carry out repairs.
-              </p>
-              <p>Further updates will follow.</p>
+              <div className="space-y-3 text-sm text-neutral-700 dark:text-neutral-200 sm:text-base">
+                <p>
+                  The issue with the main entrance gates has now been resolved. Repairs were
+                  completed on Friday, and the gates are fully operational.
+                </p>
+                <p>Thank you for your patience while this was addressed.</p>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </section>
