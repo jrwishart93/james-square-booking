@@ -7,7 +7,7 @@ import { auth, db } from '@/lib/firebase';
 import { sendAdminEmailRequest } from '@/lib/client/sendAdminEmailRequest';
 
 const baseCardClasses =
-  'rounded-2xl border border-white/20 bg-white/10 dark:border-white/10 dark:bg-white/5 backdrop-blur px-6 py-6 shadow-md space-y-5';
+  'rounded-2xl border border-white/10 bg-white/5 backdrop-blur px-6 py-6 shadow-[0_18px_40px_rgba(0,0,0,0.4)] space-y-5';
 
 type AdminUser = {
   id: string;
@@ -243,23 +243,23 @@ const AdminEmailPanel = () => {
     <section className={baseCardClasses}>
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Email Residents</h2>
-          <p className="text-sm text-slate-600 dark:text-slate-300">
+          <h2 className="text-lg font-semibold text-white">Email Residents</h2>
+          <p className="text-sm text-slate-300">
             Compose and send an announcement using the official James Square admin system.
           </p>
         </div>
-        <div className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-xs text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
+        <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-slate-300">
           Recipients: <strong>{recipientCount}</strong>
         </div>
       </header>
 
-      <div className="rounded-xl border border-indigo-200/70 bg-indigo-50 px-4 py-3 text-sm text-indigo-900 dark:border-indigo-400/20 dark:bg-indigo-900/20 dark:text-indigo-100">
+      <div className="rounded-xl border border-indigo-400/30 bg-indigo-500/10 px-4 py-3 text-sm text-indigo-100">
         Emails are delivered from the official James Square admin system. Replies go to the configured Resend sender.
       </div>
 
       <div className="grid gap-4">
         <div>
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
+          <label className="block text-sm font-medium text-slate-200">
             Recipients
           </label>
           <div className="mt-2 grid gap-2 sm:grid-cols-3">
@@ -275,8 +275,8 @@ const AdminEmailPanel = () => {
                 key={option.value}
                 className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-sm transition ${
                   recipientMode === option.value
-                    ? 'border-indigo-300 bg-indigo-50 text-indigo-900 dark:border-indigo-400/40 dark:bg-indigo-900/30 dark:text-indigo-100'
-                    : 'border-white/15 bg-white/5 text-slate-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-300'
+                    ? 'border-indigo-400/40 bg-indigo-500/15 text-indigo-100'
+                    : 'border-white/10 bg-white/5 text-slate-300'
                 }`}
               >
                 <input
@@ -293,13 +293,13 @@ const AdminEmailPanel = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
+          <label className="block text-sm font-medium text-slate-200">
             Sender address
           </label>
           <select
             value={senderEmail}
             onChange={(event) => setSenderEmail(event.target.value)}
-            className="mt-1 w-full rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-sm text-slate-900 dark:border-white/10 dark:bg-white/5 dark:text-white"
+            className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-100"
           >
             {senderOptions.map((option) => (
               <option key={option.value} value={option.value} className="text-slate-900">
@@ -311,7 +311,7 @@ const AdminEmailPanel = () => {
 
         {recipientMode === 'custom' && (
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
+            <label className="block text-sm font-medium text-slate-200">
               Custom recipient email
             </label>
             <input
@@ -319,10 +319,10 @@ const AdminEmailPanel = () => {
               value={customEmail}
               onChange={(event) => setCustomEmail(event.target.value)}
               onBlur={() => setCustomEmail(normalizedCustomEmail)}
-              className="w-full rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 dark:border-white/10 dark:bg-white/5 dark:text-white"
+              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500"
               placeholder="someone@example.com"
             />
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs text-slate-400">
               This email will not be saved.
             </p>
             {!customEmailIsValid && customEmail.trim().length > 0 && (
@@ -334,21 +334,21 @@ const AdminEmailPanel = () => {
         {recipientMode === 'selected' && (
           <div>
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium text-slate-700 dark:text-slate-200">Select recipients</h3>
-              <span className="text-xs text-slate-500 dark:text-slate-400">
+              <h3 className="text-sm font-medium text-slate-200">Select recipients</h3>
+              <span className="text-xs text-slate-400">
                 {selectedIds.length} selected
               </span>
             </div>
-            <div className="mt-2 max-h-64 overflow-auto rounded-xl border border-white/15 bg-white/5 dark:border-white/10 dark:bg-white/5">
+            <div className="mt-2 max-h-64 overflow-auto rounded-xl border border-white/10 bg-white/5">
               {loadingUsers ? (
-                <div className="px-3 py-4 text-sm text-slate-500 dark:text-slate-400">Loading users…</div>
+                <div className="px-3 py-4 text-sm text-slate-400">Loading users…</div>
               ) : users.length === 0 ? (
-                <div className="px-3 py-4 text-sm text-slate-500 dark:text-slate-400">No users found.</div>
+                <div className="px-3 py-4 text-sm text-slate-400">No users found.</div>
               ) : (
                 users.map((user) => (
                   <label
                     key={user.id}
-                    className="flex items-center gap-3 border-b border-white/10 px-3 py-2 last:border-b-0 dark:border-white/5"
+                    className="flex items-center gap-3 border-b border-white/10 px-3 py-2 last:border-b-0"
                   >
                     <input
                       type="checkbox"
@@ -356,10 +356,10 @@ const AdminEmailPanel = () => {
                       onChange={() => handleToggleSelected(user.id)}
                     />
                     <div>
-                      <p className="text-sm text-slate-900 dark:text-white">
+                      <p className="text-sm text-slate-100">
                         {user.fullName || user.email}
                       </p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">{user.email}</p>
+                      <p className="text-xs text-slate-400">{user.email}</p>
                     </div>
                   </label>
                 ))
@@ -370,32 +370,32 @@ const AdminEmailPanel = () => {
 
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
+            <label className="block text-sm font-medium text-slate-200">
               Subject
             </label>
             <input
               type="text"
               value={subject}
               onChange={(event) => setSubject(event.target.value)}
-              className="mt-1 w-full rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 dark:border-white/10 dark:bg-white/5 dark:text-white"
+              className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500"
               placeholder="Enter email subject"
             />
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
+            <label className="block text-sm font-medium text-slate-200">
               Message
             </label>
             <textarea
               value={message}
               onChange={(event) => setMessage(event.target.value)}
               rows={5}
-              className="mt-1 w-full rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 dark:border-white/10 dark:bg-white/5 dark:text-white"
+              className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500"
               placeholder="Write a clear message for residents."
             />
           </div>
         </div>
 
-        <div className="rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-slate-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
+        <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-300">
           This email will be sent to <strong>{recipientCount}</strong> recipients ({recipientTypeLabel}) using{' '}
           <strong>{senderEmail}</strong>.
         </div>
@@ -408,8 +408,8 @@ const AdminEmailPanel = () => {
                 : status.tone === 'success'
                   ? 'text-sm text-emerald-400'
                   : status.tone === 'loading'
-                    ? 'text-sm text-slate-500 dark:text-slate-300'
-                    : 'text-sm text-slate-600 dark:text-slate-300'
+                    ? 'text-sm text-slate-400'
+                    : 'text-sm text-slate-300'
             }
             aria-live="polite"
           >
@@ -422,11 +422,11 @@ const AdminEmailPanel = () => {
             type="button"
             onClick={handleSubmit}
             disabled={status.tone === 'loading' || loadingUsers}
-            className="inline-flex items-center justify-center rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white/90"
+            className="inline-flex items-center justify-center rounded-xl border border-white/10 bg-white/10 px-4 py-2 text-sm font-semibold text-white shadow transition hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {status.tone === 'loading' ? 'Sending…' : shouldConfirmSend ? 'Review and send' : 'Send email'}
           </button>
-          <span className="text-xs text-slate-500 dark:text-slate-400">
+          <span className="text-xs text-slate-400">
             Emails are sent only after you confirm the send.
           </span>
         </div>
@@ -438,21 +438,21 @@ const AdminEmailPanel = () => {
           role="dialog"
           aria-modal="true"
         >
-          <div className="w-full max-w-lg space-y-4 rounded-2xl border border-white/40 bg-white p-6 shadow-xl dark:border-white/10 dark:bg-slate-900">
+          <div className="w-full max-w-lg space-y-4 rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(17,24,39,0.96),rgba(15,23,42,0.95))] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.6)]">
             <div className="space-y-2">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+              <h3 className="text-lg font-semibold text-white">
                 Confirm email send
               </h3>
-              <p className="text-sm text-slate-700 dark:text-slate-300">
+              <p className="text-sm text-slate-300">
                 You are about to email{' '}
                 <strong>{isAllRecipients ? 'ALL users' : `${recipientCount} recipients`}</strong>. This
                 action cannot be undone. Are you sure you want to continue?
               </p>
-              <p className="text-sm text-slate-700 dark:text-slate-300">
+              <p className="text-sm text-slate-300">
                 This email will be sent using <strong>{senderEmail}</strong>.
               </p>
               {showCommitteeWarning && (
-                <p className="text-sm font-semibold text-amber-700 dark:text-amber-400">
+                <p className="text-sm font-semibold text-amber-400">
                   Committee mail is selected for multiple recipients. Please confirm this is intended.
                 </p>
               )}
@@ -460,19 +460,19 @@ const AdminEmailPanel = () => {
 
             {isAllRecipients ? (
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
+                <label className="block text-sm font-medium text-slate-200">
                   Type {confirmationPhrase} to confirm
                 </label>
                 <input
                   type="text"
                   value={confirmText}
                   onChange={(event) => setConfirmText(event.target.value)}
-                  className="w-full rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-sm text-slate-900 dark:border-white/10 dark:bg-white/5 dark:text-white"
+                  className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-100"
                   placeholder={confirmationPhrase}
                 />
               </div>
             ) : (
-              <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+              <label className="flex items-center gap-2 text-sm text-slate-300">
                 <input
                   type="checkbox"
                   checked={confirmAcknowledged}
