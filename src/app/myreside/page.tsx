@@ -61,15 +61,19 @@ const MyresidePage = () => {
             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-sky-100 text-sky-700 dark:bg-sky-800/60 dark:text-sky-100">
               <Info className="h-5 w-5" aria-hidden="true" />
             </span>
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Update – Incoming factor change</h2>
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+              Update – Myreside Management Now Acting as Factor
+            </h2>
           </div>
           <div className="mt-4 space-y-4 text-sm md:text-base text-slate-700 dark:text-slate-200">
+            <p>Myreside Management have now formally taken over as factor for James Square.</p>
             <p>
-              Myreside Management intend to take over as factor for James Square from 1 February 2025.
+              All owners should ensure that any previous payments to Fior Asset &amp; Property have been stopped and
+              that new payment arrangements are made directly with Myreside Management.
             </p>
             <p>
-              All owners are advised to contact Myreside Management for further information and to arrange any new
-              building payment arrangements prior to this date where possible.
+              If you have not yet made contact with Myreside, please do so as soon as possible to confirm your
+              details and arrange ongoing building payments.
             </p>
             <div className="space-y-1">
               <p className="font-semibold text-slate-900 dark:text-white">Myreside Management Limited</p>
