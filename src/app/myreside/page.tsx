@@ -6,7 +6,7 @@ import FactorInfoPage from '@/components/FactorInfoPage';
 import { GlassCard } from '@/components/GlassCard';
 
 const socialTitle = 'Myreside Management | James Square';
-const socialDescription = 'Information for James Square owners about Myreside Management as incoming property factor.';
+const socialDescription = 'Information for James Square owners about Myreside Management as the active property factor.';
 const socialImage = 'https://www.james-square.com/images/logo/Myreside-JS-image.png';
 const canonicalUrl = 'https://www.james-square.com/myreside';
 
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
         url: socialImage,
         width: 1536,
         height: 1024,
-        alt: 'Myreside Management incoming factor notice for James Square',
+        alt: 'Myreside Management factor information for James Square',
       },
     ],
   },
@@ -39,16 +39,16 @@ const MyresidePage = () => {
   return (
     <FactorInfoPage
       title="Myreside Management"
-      subtitle="Incoming property factor for James Square"
+      subtitle="Active property factor for James Square"
       intro={
         <>
           <p>
             Following a decision by owners at the Extraordinary General Meeting and subsequent vote, Myreside
-            Management has been selected as the preferred replacement factor for James Square.
+            Management was appointed as factor for James Square and formally took over management on 1 February 2025.
           </p>
           <p>
-            Myreside Management intend to take over the management of the development from 1 February 2025, subject to
-            final confirmation and completion of handover arrangements with the outgoing factor.
+            Myreside Management now manages day-to-day operations for the development, including owner communications,
+            payments, contractor coordination, and routine site oversight.
           </p>
         </>
       }
@@ -100,29 +100,26 @@ const MyresidePage = () => {
       statusTitle="Current status"
       statusContent={
         <>
-          <p>Fior Asset &amp; Property remains responsible for the management of James Square until midnight on 31 January.</p>
-          <p>
-            During the transition period, the committee is working with both factors to ensure an orderly handover of
-            records, contracts, and services.
-          </p>
-          <p>This helps prevent confusion during the overlap period.</p>
+          <p>Myreside Management is now responsible for managing James Square.</p>
+          <p>Fior Asset &amp; Property no longer acts as factor for the development.</p>
+          <p>All owner payments, account queries, and management-related requests should be directed to Myreside.</p>
         </>
       }
-      managementTitle="How Myreside will manage James Square"
-      managementText="Myreside Management will manage James Square using a traditional factoring model, with an emphasis on in-house service delivery and regular site inspections. Myreside’s approach includes maintaining a close working relationship with the owners’ committee and dealing with issues in a practical and flexible manner rather than relying on rigid systems or processes."
-      communicationText="Communication will be handled directly through a named property manager, with issues raised by phone or email. Maintenance will be coordinated using Myreside’s internal teams or approved contractors, with committee involvement where appropriate and agreed."
+      managementTitle="How Myreside manages James Square"
+      managementText="Myreside Management manages James Square using a traditional factoring model, with an emphasis on in-house service delivery, regular site inspections, and practical day-to-day management. Myreside works directly with the owners’ committee and addresses issues through a responsive and flexible approach."
+      communicationText="Communication is handled directly through Myreside by phone, email, and their online contact channels. Maintenance is coordinated through Myreside’s internal teams and approved contractors, with committee involvement where appropriate."
       costs={[]}
-      costsTitle="Costs and documentation"
+      costsTitle="Current costs and documentation"
       costsContent={
         <div className="space-y-6 text-sm md:text-base text-slate-700 dark:text-slate-200">
           <div className="space-y-2">
             <p>
-              The documents below were provided by Myreside Management during the selection process and are shared for
-              reference.
+              The documents below set out the current Myreside management framework and active cost structure for
+              James Square.
             </p>
             <p>
-              Myreside have provided an updated version of their tender following a further internal review of their
-              proposal.
+              Owners should use these figures and terms as the live basis for ongoing factoring and payment
+              arrangements.
             </p>
             <p>
               They have advised that two modest incentives have been introduced for owners who choose to pay by Direct
@@ -140,13 +137,9 @@ const MyresidePage = () => {
               improve efficiency and value for owners, and that these updates form part of that ongoing process.
             </p>
             <p>
-              In addition, Myreside have advised that they will be carrying out sample deep cleaning works at James
-              Square, including areas such as the pool, the main entrance, sections of carpet, and bin areas. This is
-              intended to demonstrate the standard of cleaning they expect to deliver once management begins. They have
-              indicated that a short document with before-and-after photographs will be prepared and made available for
-              owners to review.
+              Owners are encouraged to refer to the linked documentation for full details of current service delivery
+              and charging.
             </p>
-            <p>Owners are encouraged to refer to the updated tender document for full details.</p>
           </div>
           <div className="space-y-2">
             <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Overall budget</h3>
@@ -269,19 +262,20 @@ const MyresidePage = () => {
       documentationLinks={[
         {
           href: '/images/venues/myreside-tender-update-18jan.pdf',
-          label: 'View updated Myreside tender documentation (18 January 2025 PDF)',
+          label: 'View current Myreside management documentation (18 January 2025 PDF)',
         },
       ]}
       additionalContent={
         <>
-          <GlassCard title="Contact Myreside Management" titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100">
+          <GlassCard title="Confirm your details and payment arrangements" titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100">
             <div className="space-y-3 text-sm md:text-base text-slate-700 dark:text-slate-200">
               <p>
-                Owners are encouraged to contact Myreside Management directly to ensure their details are up to date and
-                to arrange any new payment plans or standing orders ahead of the proposed transfer date.
+                Owners should contact Myreside Management now to confirm contact details, update account information,
+                and ensure payment arrangements are active.
               </p>
               <p>
-                Early contact will help support a smooth transition once the handover is confirmed.
+                Use the portal or contact channels below for billing questions, statement queries, and ongoing
+                management requests.
               </p>
               <div className="space-y-1 text-sm md:text-base text-slate-700 dark:text-slate-200">
                 <p>Myreside Management Limited</p>
@@ -291,6 +285,20 @@ const MyresidePage = () => {
                 <p>
                   <span className="font-semibold text-slate-900 dark:text-slate-100">Telephone:</span> 0131 466 3001
                 </p>
+                <p>
+                  <span className="font-semibold text-slate-900 dark:text-slate-100">Email:</span>{' '}
+                  <a href="mailto:info@myreside-management.co.uk" className="underline underline-offset-2">
+                    info@myreside-management.co.uk
+                  </a>
+                </p>
+              </div>
+              <div className="flex flex-col gap-2 text-sm md:text-base text-slate-700 dark:text-slate-200">
+                <p>
+                  <span className="font-semibold text-slate-900 dark:text-slate-100">Owner portal:</span>{' '}
+                  <a href="https://myreside-management.co.uk/" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
+                    myreside-management.co.uk
+                  </a>
+                </p>
               </div>
               <a
                 href="https://myreside-management.co.uk/contact-us/"
@@ -298,18 +306,18 @@ const MyresidePage = () => {
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-150 ease-out hover:bg-white/95 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 dark:border-white/15 dark:bg-white/20 dark:text-white dark:hover:bg-white/25"
               >
-                Contact Myreside Management
+                Contact Myreside via online form
               </a>
             </div>
           </GlassCard>
           <GlassCard
-            title="Cleaning Standard – Current vs Planned"
+            title="Cleaning Standard – Current Service Overview"
             titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100"
           >
             <div className="space-y-4 text-sm md:text-base text-slate-700 dark:text-slate-200">
               <p>
-                One-page summary prepared by Myreside Management outlining the current routine cleaning standard at
-                James Square and the enhanced standard expected once Myreside begins management.
+                One-page summary prepared by Myreside Management outlining the current routine cleaning standard in
+                place at James Square.
               </p>
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                 <a
@@ -327,7 +335,7 @@ const MyresidePage = () => {
               <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white/70 shadow-sm dark:border-white/10 dark:bg-white/5">
                 <div className="relative aspect-[3/4] w-full">
                   <iframe
-                    title="Cleaning Standard – Current vs Planned PDF preview"
+                    title="Cleaning Standard – Current Service Overview PDF preview"
                     src="/images/buildingimages/Cleaning.pdf"
                     className="absolute inset-0 h-full w-full"
                   />
