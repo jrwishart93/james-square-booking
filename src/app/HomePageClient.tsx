@@ -207,7 +207,7 @@ export default function HomePageClient() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45 }}
-          className={`${glass} overflow-hidden`}
+          className={`${glass} relative overflow-hidden`}
         >
           {/* Top image */}
           <div className="relative overflow-hidden">
@@ -219,12 +219,7 @@ export default function HomePageClient() {
                 duration: reduceMotion ? 0 : 45,
                 ease: 'linear',
               }}
-              style={{
-                willChange: 'transform',
-                maskImage: 'radial-gradient(ellipse at center, black 65%, transparent 100%)',
-                WebkitMaskImage:
-                  'radial-gradient(ellipse at center, black 65%, transparent 100%)',
-              }}
+              style={{ willChange: 'transform' }}
             >
               {/* Light mode – daytime drone */}
               <Image
@@ -246,6 +241,11 @@ export default function HomePageClient() {
                 className="w-full h-[200px] sm:h-[320px] object-cover hidden dark:block"
               />
             </motion.div>
+
+            <div className="pointer-events-none absolute inset-0">
+              <div className="absolute bottom-0 inset-x-0 h-24 sm:h-28 bg-gradient-to-t from-white/15 to-transparent dark:from-black/10" />
+              <div className="absolute bottom-0 inset-x-0 h-20 sm:h-28 bg-gradient-to-t from-[#f4f7fa] via-[#f4f7fa]/90 to-transparent dark:from-[#020617] dark:via-[#020617]/95" />
+            </div>
 
             <div className="relative h-[200px] sm:h-[320px]" />
           </div>
