@@ -38,7 +38,7 @@ export const metadata: Metadata = {
 const MyresidePage = () => {
   return (
     <FactorInfoPage
-      title="Myreside Management"
+      title="Myreside Management (active from 1 February 2025)"
       subtitle="Active property factor for James Square"
       intro={
         <>
@@ -106,8 +106,8 @@ const MyresidePage = () => {
         </>
       }
       managementTitle="How Myreside manages James Square"
-      managementText="Myreside Management manages James Square using a traditional factoring model, with an emphasis on in-house service delivery, regular site inspections, and practical day-to-day management. Myreside works directly with the owners’ committee and addresses issues through a responsive and flexible approach."
-      communicationText="Communication is handled directly through Myreside by phone, email, and their online contact channels. Maintenance is coordinated through Myreside’s internal teams and approved contractors, with committee involvement where appropriate."
+      managementText="Myreside Management currently delivers James Square’s factoring services through regular site inspections, day-to-day operational oversight, contractor coordination, and direct engagement with the owners’ committee."
+      communicationText="Owners should contact Myreside directly for all account, payment, maintenance, and general management queries using the phone, email, and online contact options shown on this page."
       costs={[]}
       costsTitle="Current costs and documentation"
       costsContent={
@@ -121,21 +121,13 @@ const MyresidePage = () => {
               Owners should use these figures and terms as the live basis for ongoing factoring and payment
               arrangements.
             </p>
-            <p>
-              They have advised that two modest incentives have been introduced for owners who choose to pay by Direct
-              Debit and who opt to receive communications digitally. Myreside have explained that these changes follow a
-              review of their operational processes and costs and are intended to pass on genuine efficiency savings to
-              owners, rather than change the underlying management fee.
-            </p>
+            <p>Direct Debit and digital communication incentives are currently available where applicable.</p>
             <p>
               Myreside have also confirmed that the building insurance figure has been amended to reflect the final
               premium agreed with their broker and insurer. They have stated that this premium has been set with full
               knowledge of the building’s claims history and is not subject to later adjustment on that basis.
             </p>
-            <p>
-              They have noted that they are continually reviewing how they deliver services and looking for ways to
-              improve efficiency and value for owners, and that these updates form part of that ongoing process.
-            </p>
+            <p>Owners should continue to use Myreside’s current billing and service terms for active accounts.</p>
             <p>
               Owners are encouraged to refer to the linked documentation for full details of current service delivery
               and charging.
