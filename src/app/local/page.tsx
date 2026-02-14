@@ -5,11 +5,24 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import Tabs from '@/components/Tabs';
 import FireAction from '@/components/fire-action/FireAction';
+import { collection, onSnapshot, orderBy, query, where } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 /* -------------------------------------------------
    Helpers / Types
 -------------------------------------------------- */
 type LightboxItem = { src: string; alt: string } | null;
+type LocalSectionCategory = 'useful-info' | 'about-james-square';
+type LocalSection = {
+  id: string;
+  title: string;
+  body: string;
+  category: LocalSectionCategory;
+  linkUrl?: string;
+  linkLabel?: string;
+  order: number;
+  isActive: boolean;
+};
 const TAB_IDS = ['about', 'projects', 'restaurants', 'groceries', 'coffee'] as const;
 type TabId = (typeof TAB_IDS)[number];
 const glass =
@@ -28,6 +41,22 @@ const carouselVariants = {
   center: { x: 0, opacity: 1 },
   exit: (direction: number) => ({ x: direction > 0 ? -32 : 32, opacity: 0 }),
 };
+const fallbackAboutAnchors = [
+  { id: 'pool-access', label: 'Swimming Pool Access' },
+  { id: 'factor', label: 'Factor' },
+  { id: 'caretaker', label: 'Caretaker' },
+  { id: 'bins', label: 'Bins' },
+  { id: 'fire', label: 'Fire' },
+  { id: 'winter-visitors', label: 'Winter Visitors' },
+  { id: 'history', label: 'History' },
+];
+
+const slugify = (value: string) =>
+  value
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/\s+/g, '-');
 
 function WaxwingCarousel({ onOpenLightbox }: { onOpenLightbox?: (item: LightboxItem) => void }) {
   const [index, setIndex] = useState(0);
@@ -153,6 +182,9 @@ export default function UsefulInfoPage() {
   const [activeSection, setActiveSection] = useState('pool-access');
   const [scrollingDown, setScrollingDown] = useState(false);
   const lastScrollY = useRef(0);
+  const [localSections, setLocalSections] = useState<LocalSection[]>([]);
+  const [localSectionsLoading, setLocalSectionsLoading] = useState(true);
+  const [localSectionsError, setLocalSectionsError] = useState<string | null>(null);
   const tabs = useMemo(
     () => [
       { id: 'about', label: 'About James Square' },
@@ -164,20 +196,52 @@ export default function UsefulInfoPage() {
     []
   );
 
-  const aboutAnchors = useMemo(
-    () => [
-      { id: 'pool-access', label: 'Swimming Pool Access' },
-      { id: 'factor', label: 'Factor' },
-      { id: 'caretaker', label: 'Caretaker' },
-      { id: 'bins', label: 'Bins' },
-      { id: 'fire', label: 'Fire' },
-      { id: 'winter-visitors', label: 'Winter Visitors' },
-      { id: 'history', label: 'History' },
-    ],
-    []
-  );
+  const hasDynamicSections = localSections.length > 0;
+  const aboutAnchors = useMemo(() => {
+    if (hasDynamicSections) {
+      return localSections.map((section) => ({
+        id: slugify(section.title),
+        label: section.title,
+      }));
+    }
+    return fallbackAboutAnchors;
+  }, [hasDynamicSections, localSections]);
 
   const [activeTab, setActiveTab] = useState<TabId>('about');
+
+  useEffect(() => {
+    const sectionsQuery = query(
+      collection(db, 'localSections'),
+      where('category', '==', 'about-james-square'),
+      where('isActive', '==', true),
+      orderBy('order', 'asc')
+    );
+
+    const unsubscribe = onSnapshot(
+      sectionsQuery,
+      (snapshot) => {
+        const nextSections = snapshot.docs.map((doc) => {
+          const data = doc.data() as Omit<LocalSection, 'id'>;
+          return {
+            id: doc.id,
+            ...data,
+            linkUrl: data.linkUrl ?? undefined,
+            linkLabel: data.linkLabel ?? undefined,
+          };
+        });
+        setLocalSections(nextSections);
+        setLocalSectionsLoading(false);
+        setLocalSectionsError(null);
+      },
+      (error) => {
+        console.error('Failed to load local sections', error);
+        setLocalSectionsError('Unable to load local sections.');
+        setLocalSectionsLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     if (window.location.hash === '#local-projects') {
@@ -227,6 +291,12 @@ export default function UsefulInfoPage() {
   }, [aboutAnchors, activeTab]);
 
   useEffect(() => {
+    if (activeTab !== 'about') return;
+    if (!aboutAnchors[0]) return;
+    setActiveSection(aboutAnchors[0].id);
+  }, [aboutAnchors, activeTab]);
+
+  useEffect(() => {
     if (activeTab !== 'about') return undefined;
 
     const handleScroll = () => {
@@ -246,6 +316,8 @@ export default function UsefulInfoPage() {
       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
+
+  const showFallbackSections = localSectionsLoading || localSections.length === 0;
 
   return (
     <main className="relative max-w-6xl mx-auto py-10 px-4 pb-24 lg:pb-32">
@@ -278,6 +350,14 @@ export default function UsefulInfoPage() {
               what’s good nearby, and updates on local projects.
             </p>
 
+            {localSectionsError && (
+              <p className="text-center text-sm text-red-600 dark:text-red-400">
+                {localSectionsError}
+              </p>
+            )}
+
+            {showFallbackSections ? (
+              <>
             {/* ---------------- Swimming Pool Access ---------------- */}
             <SectionCard id="pool-access" headingId="swimming-pool-access" title="Swimming Pool Access" initial>
               <div className="space-y-6">
@@ -891,6 +971,36 @@ export default function UsefulInfoPage() {
                 )}
               </div>
             </SectionCard>
+              </>
+            ) : (
+              <div className="space-y-10">
+                {localSections.map((section, index) => (
+                  <SectionCard
+                    key={section.id}
+                    id={slugify(section.title)}
+                    headingId={slugify(section.title)}
+                    title={section.title}
+                    initial={index === 0}
+                  >
+                    <div className="space-y-3 text-[color:var(--text-muted)]">
+                      {section.body.split(/\n\n+/).map((paragraph, idx) => (
+                        <p key={`${section.id}-p-${idx}`}>{paragraph}</p>
+                      ))}
+                      {section.linkUrl && (
+                        <a
+                          href={section.linkUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1 text-sm font-medium underline underline-offset-4"
+                        >
+                          {section.linkLabel ?? section.linkUrl}
+                        </a>
+                      )}
+                    </div>
+                  </SectionCard>
+                ))}
+              </div>
+            )}
 
             {/* ---- Site-wide image disclaimer (bottom of page) ---- */}
             <section className="mt-2">
