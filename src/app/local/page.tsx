@@ -343,114 +343,54 @@ export default function UsefulInfoPage() {
                 <div className="flex-1 space-y-4">
                   <div className="space-y-3">
                     <p>
-                      Fior Asset &amp; Property currently manages the overall upkeep of James Square, including communal
-                      areas, landscaping, cleaning, and the shared facilities (pool, gym, sauna).
+                      Following the owner vote, Myreside Management received the most votes and is now the appointed
+                      factor for James Square.
                     </p>
                     <p>
-                      Following a decision by owners, James Square is in the process of changing property factor. Fior
-                      Asset &amp; Property will remain responsible for the management of the development until midnight
-                      on 31 January.
+                      Myreside Management formally became the factor for James Square on 1 February 2026 and now
+                      manages the development, including communal areas, landscaping, cleaning, and shared facilities
+                      (pool, gym, sauna).
                     </p>
                     <p>
-                      Myreside Management is intending to take over management of James Square from 1 February, subject
-                      to final confirmation and completion of handover arrangements.
+                      Fior Asset &amp; Property are no longer responsible for management of James Square from 1 February
+                      2026.
                     </p>
                   </div>
 
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">Current factor (until midnight on 31 January)</h3>
-                    <div className="space-y-3">
-                      <p className="font-semibold">Fior Asset &amp; Property</p>
-                      <div className="rounded-xl border p-4 bg-white/40 dark:bg-white/10 backdrop-blur space-y-2">
-                        <p className="font-semibold">General enquiries</p>
-                        <p>
-                          Email:{' '}
-                          <a
-                            href="mailto:info@fiorassetandproperty.com"
-                            className="underline font-medium"
-                          >
-                            info@fiorassetandproperty.com
-                          </a>
-                        </p>
-                        <p>
-                          Phone:{' '}
-                          <a href="tel:+443334440586" className="underline font-medium">
-                            0333 444 0586
-                          </a>
-                        </p>
-                        <p>
-                          Mobile:{' '}
-                          <a href="tel:+447548910618" className="underline font-medium">
-                            07548 910618
-                          </a>
-                        </p>
-                      </div>
-
-                      <div className="grid gap-3 md:grid-cols-2">
-                        <div className="rounded-xl border p-4 bg-white/40 dark:bg-white/10 backdrop-blur">
-                          <p className="font-semibold">Director</p>
-                          <p className="font-medium">Pedrom Aghabala</p>
-                          <a
-                            href="mailto:pedrom@fiorassetandproperty.com"
-                            className="underline break-all"
-                          >
-                            pedrom@fiorassetandproperty.com
-                          </a>
-                        </div>
-                        <div className="rounded-xl border p-4 bg-white/40 dark:bg-white/10 backdrop-blur">
-                          <p className="font-semibold">Manager (property queries)</p>
-                          <p className="font-medium">Matthew</p>
-                          <a
-                            href="mailto:matthew@fiorassetandproperty.com"
-                            className="underline break-all"
-                          >
-                            matthew@fiorassetandproperty.com
-                          </a>
-                        </div>
-                      </div>
-
-                      <div className="rounded-xl border p-4 bg-white/40 dark:bg-white/10 backdrop-blur">
-                        <p className="font-semibold">Address</p>
-                        <address className="not-italic">
-                          Fior Asset &amp; Property<br />
-                          24 Canning Street<br />
-                          Edinburgh EH3 8EG
-                        </address>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">Incoming factor (intended from 1 February)</h3>
+                    <h3 className="text-lg font-semibold">Current Factor – Myreside Management (from 1 February 2026)</h3>
                     <div className="space-y-3">
                       <p className="font-semibold">Myreside Management Limited</p>
                       <p>
-                        Owners are encouraged to contact Myreside Management directly for further information about the
-                        proposed transition and to arrange any new payment plans or standing orders in advance.
+                        Owners should direct all current factoring enquiries, account queries, maintenance requests,
+                        and payment matters to Myreside Management.
                       </p>
-                      <p>
-                        Early contact will help support a smooth handover once the transfer date is formally confirmed.
-                      </p>
-                      <div className="space-y-1">
+                      <div className="rounded-xl border p-4 bg-white/40 dark:bg-white/10 backdrop-blur space-y-2">
+                        <p className="font-semibold">Contact details</p>
+                        <p>Myreside Management Limited</p>
                         <p>
-                          Myreside Management Limited
-                          <br />
                           3 Dalkeith Road Mews
                           <br />
                           Edinburgh
                           <br />
                           EH16 5GA
                         </p>
-                        <p>Telephone: 0131 466 3001</p>
+                        <p>
+                          Telephone:{' '}
+                          <a
+                            href="tel:+441314663001"
+                            className="underline font-medium"
+                          >
+                            0131 466 3001
+                          </a>
+                        </p>
+                        <p>
+                          Email:{' '}
+                          <a href="mailto:info@myreside-management.co.uk" className="underline font-medium break-all">
+                            info@myreside-management.co.uk
+                          </a>
+                        </p>
                       </div>
-                      <a
-                        href="https://myreside-management.co.uk/contact-us/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/40 px-4 py-2 text-sm font-medium shadow-sm transition hover:bg-white/60 dark:bg-white/10 dark:hover:bg-white/20"
-                      >
-                        Contact Myreside Management
-                      </a>
                     </div>
                   </div>
                 </div>
@@ -458,8 +398,8 @@ export default function UsefulInfoPage() {
                 {/* Right: logo */}
                 <div className="relative w-32 h-16 md:w-48 md:h-24 shrink-0">
                   <Image
-                    src="/images/logo/fior-logo.png"
-                    alt="Fior Asset & Property logo"
+                    src="/images/logo/myreside-logo-removebg-preview.png"
+                    alt="Myreside Management logo"
                     fill
                     sizes="192px"
                     className="object-contain"
