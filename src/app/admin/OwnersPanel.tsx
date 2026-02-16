@@ -93,23 +93,23 @@ const OwnersPanel = () => {
   const ownersList = useMemo(() => {
     if (owners.length === 0) {
       return (
-        <p className="text-sm text-slate-500 dark:text-slate-400">
+        <p className="text-sm text-slate-400">
           No owners have been added yet.
         </p>
       );
     }
 
     return (
-      <ul className="divide-y divide-white/10 dark:divide-white/5 text-sm">
+      <ul className="divide-y divide-white/10 text-sm">
         {owners.map((owner) => (
           <li key={owner.id} className="flex items-center justify-between py-2">
             <div>
-              <p className="font-medium text-slate-900 dark:text-white">{owner.email}</p>
+              <p className="font-medium text-slate-100">{owner.email}</p>
               {owner.fullName && (
-                <p className="text-xs text-slate-500 dark:text-slate-400">{owner.fullName}</p>
+                <p className="text-xs text-slate-400">{owner.fullName}</p>
               )}
             </div>
-            <code className="text-xs text-slate-500 dark:text-slate-400">{owner.id}</code>
+            <code className="text-xs text-slate-400">{owner.id}</code>
           </li>
         ))}
       </ul>
@@ -117,15 +117,15 @@ const OwnersPanel = () => {
   }, [owners]);
 
   return (
-    <section className="rounded-2xl border border-white/20 bg-white/10 p-6 shadow-md backdrop-blur dark:border-white/10 dark:bg-white/5 space-y-6">
+    <section className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-[0_18px_40px_rgba(0,0,0,0.4)] backdrop-blur space-y-6">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Owners Control Panel</h2>
-          <p className="text-sm text-slate-600 dark:text-slate-300">
+          <h2 className="text-lg font-semibold text-white">Owners Control Panel</h2>
+          <p className="text-sm text-slate-300">
             Manage owner access by email and monitor current members.
           </p>
         </div>
-        <span className="inline-flex items-center rounded-full border border-white/30 px-3 py-1 text-xs font-medium text-slate-700 dark:text-slate-200">
+        <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-slate-200">
           Owners: {ownerCount}
         </span>
       </header>
@@ -139,7 +139,7 @@ const OwnersPanel = () => {
             resetStatus();
           }}
           placeholder="owner@example.com"
-          className="flex-1 rounded-xl border border-white/20 bg-white/40 px-3 py-2 text-sm text-slate-900 backdrop-blur focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-400/60 dark:border-white/10 dark:bg-white/10 dark:text-white"
+          className="flex-1 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-100 backdrop-blur focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-400/60"
           autoComplete="email"
           aria-label="Owner email"
           disabled={isProcessing}
@@ -157,7 +157,7 @@ const OwnersPanel = () => {
             type="button"
             onClick={() => handleOwnerToggle(false)}
             disabled={isProcessing}
-            className="inline-flex items-center justify-center rounded-xl border border-white/25 px-4 py-2 text-sm font-medium text-white/90 shadow transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center justify-center rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-white/90 shadow transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
           >
             Revoke owner
           </button>
@@ -171,7 +171,7 @@ const OwnersPanel = () => {
               ? 'text-sm text-rose-400'
               : status.tone === 'success'
                 ? 'text-sm text-emerald-400'
-                : 'text-sm text-slate-600 dark:text-slate-300'
+                : 'text-sm text-slate-300'
           }
           aria-live="polite"
         >
@@ -180,8 +180,8 @@ const OwnersPanel = () => {
       )}
 
       <div>
-        <h3 className="text-sm font-medium text-slate-700 dark:text-slate-200">Current owners</h3>
-        <div className="mt-2 rounded-xl border border-white/15 bg-white/5 p-3 shadow-inner dark:border-white/10 dark:bg-white/5">
+        <h3 className="text-sm font-medium text-slate-200">Current owners</h3>
+        <div className="mt-2 rounded-xl border border-white/10 bg-white/5 p-3 shadow-inner">
           {ownersList}
         </div>
       </div>

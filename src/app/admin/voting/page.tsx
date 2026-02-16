@@ -190,57 +190,58 @@ export default function AdminVotingAuditPage() {
   if (!isAdmin) return null;
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
-      <header className="space-y-2">
-        <p className="text-xs uppercase tracking-[0.2em] text-cyan-700 font-semibold">
-          Admin view – voting audit
-        </p>
-        <div className="flex items-center gap-3">
-          <ShieldCheck className="text-cyan-600" size={20} />
-          <h1 className="text-3xl font-bold text-slate-900">Voting dashboard</h1>
-        </div>
-        <p className="text-slate-600">
-          Review ballot totals and the full audit trail. Only administrators can access voter details.
-        </p>
-      </header>
-
-      <section className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5 space-y-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 className="text-lg font-semibold text-slate-900">Select a question</h2>
-            <p className="text-sm text-slate-600">
-              Switch between open and closed polls to audit their ballots.
-            </p>
+    <main className="jqs-gradient-bg min-h-screen text-slate-100">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+        <header className="space-y-2">
+          <p className="text-xs uppercase tracking-[0.2em] text-cyan-300 font-semibold">
+            Admin view – voting audit
+          </p>
+          <div className="flex items-center gap-3">
+            <ShieldCheck className="text-cyan-400" size={20} />
+            <h1 className="text-3xl font-bold text-white">Voting dashboard</h1>
           </div>
-          <div className="flex items-center gap-2">
-            {loadingQuestions && <Loader2 className="w-4 h-4 animate-spin text-cyan-600" />}
-            <select
-              value={selectedQuestionId}
-              onChange={(e) => setSelectedQuestionId(e.target.value)}
-              className="border border-slate-300 rounded-xl px-3 py-2 text-sm shadow-sm focus:ring-2 focus:ring-cyan-500"
-            >
-              {questions.map((q) => (
-                <option key={q.id} value={q.id}>
-                  {q.title}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-        {questionError && <p className="text-sm text-red-600">{questionError}</p>}
-        {!loadingQuestions && questions.length === 0 && (
-          <p className="text-sm text-slate-600">No voting questions available yet.</p>
-        )}
-      </section>
+          <p className="text-slate-300">
+            Review ballot totals and the full audit trail. Only administrators can access voter details.
+          </p>
+        </header>
 
-      {selectedQuestion && (
-        <>
-          <section className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 space-y-4">
+        <section className="rounded-2xl border border-white/10 bg-white/5 shadow-[0_18px_40px_rgba(0,0,0,0.4)] p-5 space-y-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-white">Select a question</h2>
+              <p className="text-sm text-slate-300">
+                Switch between open and closed polls to audit their ballots.
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              {loadingQuestions && <Loader2 className="w-4 h-4 animate-spin text-cyan-600" />}
+              <select
+                value={selectedQuestionId}
+                onChange={(e) => setSelectedQuestionId(e.target.value)}
+                className="border border-white/10 bg-white/5 rounded-xl px-3 py-2 text-sm text-slate-100 shadow-sm focus:ring-2 focus:ring-cyan-500"
+              >
+                {questions.map((q) => (
+                  <option key={q.id} value={q.id}>
+                    {q.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          {questionError && <p className="text-sm text-red-300">{questionError}</p>}
+          {!loadingQuestions && questions.length === 0 && (
+            <p className="text-sm text-slate-300">No voting questions available yet.</p>
+          )}
+        </section>
+
+        {selectedQuestion && (
+          <>
+            <section className="rounded-2xl border border-white/10 bg-white/5 shadow-[0_18px_40px_rgba(0,0,0,0.4)] p-6 space-y-4">
             <div className="flex items-center gap-3">
               <BarDividerIcon />
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-slate-600 font-semibold">Results summary</p>
-                <h3 className="text-lg font-semibold text-slate-900">{selectedQuestion.title}</h3>
+                <p className="text-xs uppercase tracking-[0.2em] text-slate-400 font-semibold">Results summary</p>
+                <h3 className="text-lg font-semibold text-white">{selectedQuestion.title}</h3>
               </div>
             </div>
 
@@ -250,11 +251,11 @@ export default function AdminVotingAuditPage() {
                 const percentage = totalVotes === 0 ? 0 : Math.round((count / Math.max(totalVotes, 1)) * 100);
                 return (
                   <div key={opt.id} className="space-y-2">
-                    <div className="flex justify-between text-sm text-slate-700">
+                    <div className="flex justify-between text-sm text-slate-300">
                       <span className="font-medium">{opt.label}</span>
-                      <span className="font-semibold text-slate-900">{count}</span>
+                      <span className="font-semibold text-white">{count}</span>
                     </div>
-                    <div className="h-2 rounded-full bg-slate-100 overflow-hidden border border-slate-200">
+                    <div className="h-2 rounded-full bg-slate-800/70 overflow-hidden border border-white/10">
                       <div
                         className="h-full bg-gradient-to-r from-cyan-500 to-indigo-500 rounded-full transition-all"
                         style={{ width: `${percentage}%` }}
@@ -264,29 +265,29 @@ export default function AdminVotingAuditPage() {
                 );
               })}
             </div>
-            <div className="text-sm text-slate-600 font-medium">
-              Total ballots recorded: <span className="text-slate-900">{totalVotes}</span>
+            <div className="text-sm text-slate-300 font-medium">
+              Total ballots recorded: <span className="text-white">{totalVotes}</span>
             </div>
-          </section>
+            </section>
 
-          <section className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 space-y-4">
+            <section className="rounded-2xl border border-white/10 bg-white/5 shadow-[0_18px_40px_rgba(0,0,0,0.4)] p-6 space-y-4">
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div className="flex items-center gap-3">
-                <Table className="text-cyan-600" size={18} />
+                <Table className="text-cyan-400" size={18} />
                 <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-slate-600 font-semibold">
+                  <p className="text-xs uppercase tracking-[0.2em] text-slate-400 font-semibold">
                     Voting audit table
                   </p>
-                  <h3 className="text-lg font-semibold text-slate-900">Ballots for this question</h3>
+                  <h3 className="text-lg font-semibold text-white">Ballots for this question</h3>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <div className="flex items-center gap-2 border border-slate-200 rounded-xl px-3 py-2 text-sm">
-                  <Filter size={14} className="text-slate-500" />
+                <div className="flex items-center gap-2 border border-white/10 rounded-xl px-3 py-2 text-sm bg-white/5">
+                  <Filter size={14} className="text-slate-400" />
                   <select
                     value={optionFilter}
                     onChange={(e) => setOptionFilter(e.target.value)}
-                    className="bg-transparent focus:outline-none"
+                    className="bg-transparent focus:outline-none text-slate-100"
                   >
                     <option value="all">All options</option>
                     {selectedQuestion.options.map((opt) => (
@@ -324,11 +325,11 @@ export default function AdminVotingAuditPage() {
             </div>
 
             <div className="hidden md:block overflow-x-auto">
-              <table className="min-w-full divide-y divide-slate-200 text-sm">
-                <thead className="bg-slate-50">
+              <table className="min-w-full divide-y divide-white/10 text-sm">
+                <thead className="bg-white/5">
                   <tr>
-                    <th className="px-4 py-3 text-left font-semibold text-slate-700">Voter</th>
-                    <th className="px-4 py-3 text-left font-semibold text-slate-700">
+                    <th className="px-4 py-3 text-left font-semibold text-slate-200">Voter</th>
+                    <th className="px-4 py-3 text-left font-semibold text-slate-200">
                       <button
                         type="button"
                         className="flex items-center gap-1"
@@ -340,7 +341,7 @@ export default function AdminVotingAuditPage() {
                         Flat
                       </button>
                     </th>
-                    <th className="px-4 py-3 text-left font-semibold text-slate-700">
+                    <th className="px-4 py-3 text-left font-semibold text-slate-200">
                       <button
                         type="button"
                         className="flex items-center gap-1"
@@ -352,13 +353,13 @@ export default function AdminVotingAuditPage() {
                         Option
                       </button>
                     </th>
-                    <th className="px-4 py-3 text-left font-semibold text-slate-700">Cast at</th>
+                    <th className="px-4 py-3 text-left font-semibold text-slate-200">Cast at</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-white/5">
                   {votesLoading ? (
                     <tr>
-                      <td colSpan={4} className="px-4 py-6 text-center text-slate-600">
+                      <td colSpan={4} className="px-4 py-6 text-center text-slate-300">
                         <span className="inline-flex items-center gap-2">
                           <Loader2 className="w-4 h-4 animate-spin text-cyan-600" /> Loading ballots…
                         </span>
@@ -366,25 +367,25 @@ export default function AdminVotingAuditPage() {
                     </tr>
                   ) : votesError ? (
                     <tr>
-                      <td colSpan={4} className="px-4 py-6 text-center text-red-600">
+                      <td colSpan={4} className="px-4 py-6 text-center text-red-300">
                         {votesError}
                       </td>
                     </tr>
                   ) : filteredVotes.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="px-4 py-6 text-center text-slate-600">
+                      <td colSpan={4} className="px-4 py-6 text-center text-slate-300">
                         No ballots recorded yet.
                       </td>
                     </tr>
                   ) : (
                     filteredVotes.map((vote) => (
-                      <tr key={vote.id} className="hover:bg-slate-50">
-                        <td className="px-4 py-3 text-slate-900 font-medium">{vote.userName}</td>
-                        <td className="px-4 py-3 text-slate-700">{vote.flat}</td>
-                        <td className="px-4 py-3 text-slate-700">
+                      <tr key={vote.id} className="hover:bg-white/5">
+                        <td className="px-4 py-3 text-slate-100 font-medium">{vote.userName}</td>
+                        <td className="px-4 py-3 text-slate-300">{vote.flat}</td>
+                        <td className="px-4 py-3 text-slate-300">
                           {optionLabelMap[vote.optionId] ?? vote.optionId}
                         </td>
-                        <td className="px-4 py-3 text-slate-700 whitespace-nowrap">
+                        <td className="px-4 py-3 text-slate-300 whitespace-nowrap">
                           {formatDateTime(vote.createdAt)}
                         </td>
                       </tr>
@@ -396,41 +397,42 @@ export default function AdminVotingAuditPage() {
 
             <div className="md:hidden space-y-3">
               {votesLoading ? (
-                <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-300">
                   <span className="inline-flex items-center gap-2">
                     <Loader2 className="w-4 h-4 animate-spin text-cyan-600" /> Loading ballots…
                   </span>
                 </div>
               ) : votesError ? (
-                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+                <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
                   {votesError}
                 </div>
               ) : filteredVotes.length === 0 ? (
-                <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-300">
                   No ballots recorded yet.
                 </div>
               ) : (
                 filteredVotes.map((vote) => (
-                  <div key={vote.id} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                  <div key={vote.id} className="rounded-xl border border-white/10 bg-white/5 p-4 shadow-[0_12px_30px_rgba(0,0,0,0.35)]">
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <div className="font-semibold text-slate-900">{vote.userName}</div>
-                      <div className="text-sm text-slate-600">Flat {vote.flat}</div>
+                      <div className="font-semibold text-slate-100">{vote.userName}</div>
+                      <div className="text-sm text-slate-300">Flat {vote.flat}</div>
                     </div>
-                    <div className="mt-2 text-sm text-slate-700">
+                    <div className="mt-2 text-sm text-slate-300">
                       <span className="font-medium">Option:</span>{' '}
                       {optionLabelMap[vote.optionId] ?? vote.optionId}
                     </div>
-                    <div className="mt-1 text-xs text-slate-500">
+                    <div className="mt-1 text-xs text-slate-400">
                       Cast at {formatDateTime(vote.createdAt)}
                     </div>
                   </div>
                 ))
               )}
             </div>
-          </section>
-        </>
-      )}
-    </div>
+            </section>
+          </>
+        )}
+      </div>
+    </main>
   );
 }
 
