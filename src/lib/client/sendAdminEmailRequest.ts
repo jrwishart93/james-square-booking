@@ -13,6 +13,7 @@ export async function sendAdminEmailRequest(
       userIds?: string[];
       emails?: string[];
     };
+    bcc?: string[];
   },
 ) {
   const token = await user.getIdToken();
