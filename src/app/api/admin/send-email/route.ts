@@ -18,6 +18,7 @@ type AdminEmailRequest = {
   message: string;
   sender?: string;
   recipients: RecipientSelection;
+  bcc?: string[];
 };
 
 const MAX_RECIPIENTS_PER_BATCH = 50;
@@ -114,7 +115,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const emails = Array.from(
+    const primaryEmails = Array.from(
       new Set(
         (Array.isArray(recipients.emails) ? recipients.emails : [])
           .map((email) => (typeof email === "string" ? email.trim() : ""))
@@ -122,15 +123,25 @@ export async function POST(req: NextRequest) {
       ),
     );
 
+    const bccEmails = Array.from(
+      new Set(
+        (Array.isArray(body.bcc) ? body.bcc : [])
+          .map((email) => (typeof email === "string" ? email.trim() : ""))
+          .filter((email) => email.length > 0),
+      ),
+    );
+
+    const emails = Array.from(new Set([...primaryEmails, ...bccEmails]));
+
     if (recipients.mode === "custom") {
-      if (emails.length !== 1) {
+      if (primaryEmails.length !== 1) {
         return NextResponse.json(
           { error: "Custom recipient mode requires exactly one email address." },
           { status: 400 },
         );
       }
 
-      if (!isValidEmail(emails[0] ?? "")) {
+      if (!isValidEmail(primaryEmails[0] ?? "")) {
         return NextResponse.json(
           { error: "Custom recipient email address is invalid." },
           { status: 400 },
@@ -138,9 +149,16 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    if (emails.length === 0) {
+    if (primaryEmails.length === 0 && bccEmails.length === 0) {
       return NextResponse.json(
         { error: "No recipient emails found" },
+        { status: 400 },
+      );
+    }
+
+    if (emails.some((email) => !isValidEmail(email))) {
+      return NextResponse.json(
+        { error: "One or more recipient email addresses are invalid." },
         { status: 400 },
       );
     }

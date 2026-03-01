@@ -5,6 +5,7 @@ import { collection, getDocs, orderBy, query } from 'firebase/firestore';
 
 import { auth, db } from '@/lib/firebase';
 import { sendAdminEmailRequest } from '@/lib/client/sendAdminEmailRequest';
+import { EMAIL_GROUPS, type EmailGroupKey } from '@/lib/emailGroups';
 
 const baseCardClasses =
   'rounded-2xl border border-white/20 bg-white/10 dark:border-white/10 dark:bg-white/5 backdrop-blur px-6 py-6 shadow-md space-y-5';
@@ -38,6 +39,10 @@ const senderOptions: SenderOption[] = [
 ];
 
 const confirmationPhrase = 'SEND TO ALL';
+const availableGroups: Array<{ key: EmailGroupKey; label: string }> = [
+  { key: 'committee', label: 'Send to Committee' },
+  { key: 'myreside', label: 'Copy in Myreside' },
+];
 
 const AdminEmailPanel = () => {
   const [users, setUsers] = useState<AdminUser[]>([]);
@@ -49,6 +54,7 @@ const AdminEmailPanel = () => {
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState<Status>({ tone: 'idle', message: '' });
   const [senderEmail, setSenderEmail] = useState(senderOptions[0]?.value ?? '');
+  const [selectedGroups, setSelectedGroups] = useState<EmailGroupKey[]>([]);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmText, setConfirmText] = useState('');
   const [confirmAcknowledged, setConfirmAcknowledged] = useState(false);
@@ -115,24 +121,7 @@ const AdminEmailPanel = () => {
     customEmailIsValid,
   ]);
 
-  const recipientTypeLabel = useMemo(() => {
-    if (recipientMode === 'all') return 'everyone';
-    if (recipientCount === 1) return 'one user';
-    return 'a group';
-  }, [recipientCount, recipientMode]);
-
-  const shouldConfirmSend = recipientMode === 'all' || recipientCount > 1;
-  const isAllRecipients = recipientMode === 'all';
-  const showCommitteeWarning =
-    senderEmail === 'committee@james-square.com' && recipientCount > 1;
-
-  const handleToggleSelected = (userId: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId],
-    );
-  };
-
-  const buildRecipientEmails = () => {
+  const primaryRecipientEmails = useMemo(() => {
     if (recipientMode === 'all') {
       return users.map((user) => user.email);
     }
@@ -147,7 +136,44 @@ const AdminEmailPanel = () => {
 
     const selected = new Set(selectedIds);
     return users.filter((user) => selected.has(user.id)).map((user) => user.email);
+  }, [recipientMode, users, ownerUsers, normalizedCustomEmail, selectedIds]);
+
+  const groupBccRecipients = useMemo(
+    () => Array.from(new Set(selectedGroups.flatMap((group) => EMAIL_GROUPS[group]))),
+    [selectedGroups],
+  );
+
+  const totalRecipientCount = useMemo(
+    () => Array.from(new Set([...primaryRecipientEmails, ...groupBccRecipients])).length,
+    [primaryRecipientEmails, groupBccRecipients],
+  );
+
+  const recipientTypeLabel = useMemo(() => {
+    if (recipientMode === 'all') return 'everyone';
+    if (recipientCount === 1) return 'one user';
+    return 'a group';
+  }, [recipientCount, recipientMode]);
+
+  const shouldConfirmSend = recipientMode === 'all' || totalRecipientCount > 1;
+  const isAllRecipients = recipientMode === 'all';
+  const showCommitteeWarning =
+    senderEmail === 'committee@james-square.com' && recipientCount > 1;
+
+  const handleToggleSelected = (userId: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId],
+    );
   };
+
+  const handleToggleGroup = (groupKey: EmailGroupKey) => {
+    setSelectedGroups((prev) =>
+      prev.includes(groupKey)
+        ? prev.filter((key) => key !== groupKey)
+        : [...prev, groupKey],
+    );
+  };
+
+  const buildRecipientEmails = () => primaryRecipientEmails;
 
   const validateSend = () => {
     const currentUser = auth.currentUser;
@@ -171,6 +197,14 @@ const AdminEmailPanel = () => {
       return null;
     }
 
+    if (buildRecipientEmails().length === 0 && groupBccRecipients.length === 0) {
+      setStatus({
+        tone: 'error',
+        message: 'Choose at least one recipient or select a BCC group.',
+      });
+      return null;
+    }
+
     return currentUser;
   };
 
@@ -188,16 +222,18 @@ const AdminEmailPanel = () => {
           mode: recipientMode,
           emails: buildRecipientEmails(),
         },
+        bcc: groupBccRecipients,
       });
 
       setStatus({
         tone: 'success',
-        message: `Email sent to ${response?.recipients ?? recipientCount} recipient(s).`,
+        message: `Email sent to ${response?.recipients ?? totalRecipientCount} recipient(s).`,
       });
       setSubject('');
       setMessage('');
       setSelectedIds([]);
       setCustomEmail('');
+      setSelectedGroups([]);
     } catch (error) {
       console.error('Failed to send admin email', error);
       setStatus({
@@ -249,7 +285,7 @@ const AdminEmailPanel = () => {
           </p>
         </div>
         <div className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-xs text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
-          Recipients: <strong>{recipientCount}</strong>
+          Recipients: <strong>{totalRecipientCount}</strong>
         </div>
       </header>
 
@@ -396,8 +432,24 @@ const AdminEmailPanel = () => {
         </div>
 
         <div className="rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-slate-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
-          This email will be sent to <strong>{recipientCount}</strong> recipients ({recipientTypeLabel}) using{' '}
+          This email will be sent to <strong>{totalRecipientCount}</strong> recipients ({recipientTypeLabel}) using{' '}
           <strong>{senderEmail}</strong>.
+        </div>
+
+        <div className="grid gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-3 dark:border-white/10 dark:bg-white/5">
+          {availableGroups.map((group) => (
+            <label
+              key={group.key}
+              className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"
+            >
+              <input
+                type="checkbox"
+                checked={selectedGroups.includes(group.key)}
+                onChange={() => handleToggleGroup(group.key)}
+              />
+              {group.label}
+            </label>
+          ))}
         </div>
 
         {status.message && (
@@ -445,12 +497,26 @@ const AdminEmailPanel = () => {
               </h3>
               <p className="text-sm text-slate-700 dark:text-slate-300">
                 You are about to email{' '}
-                <strong>{isAllRecipients ? 'ALL users' : `${recipientCount} recipients`}</strong>. This
+                <strong>
+                  {isAllRecipients ? 'ALL users' : `${totalRecipientCount} recipients`}
+                </strong>. This
                 action cannot be undone. Are you sure you want to continue?
               </p>
               <p className="text-sm text-slate-700 dark:text-slate-300">
                 This email will be sent using <strong>{senderEmail}</strong>.
               </p>
+              {selectedGroups.includes('committee') && (
+                <p className="text-sm text-slate-700 dark:text-slate-300">
+                  This email will be sent to <strong>{EMAIL_GROUPS.committee.length}</strong>{' '}
+                  committee members via BCC.
+                </p>
+              )}
+              {selectedGroups.includes('myreside') && (
+                <p className="text-sm text-slate-700 dark:text-slate-300">
+                  This email will be copied to Myreside via BCC ({EMAIL_GROUPS.myreside.length}{' '}
+                  recipients).
+                </p>
+              )}
               {showCommitteeWarning && (
                 <p className="text-sm font-semibold text-amber-700 dark:text-amber-400">
                   Committee mail is selected for multiple recipients. Please confirm this is intended.
