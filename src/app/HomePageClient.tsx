@@ -295,6 +295,33 @@ export default function HomePageClient() {
         </motion.div>
       </section>
 
+      <section className="mx-auto max-w-6xl mt-6">
+        <div className="jqs-glass rounded-2xl p-6 mb-6 border border-amber-400/30 bg-amber-500/10">
+          <h2 className="text-lg font-semibold mb-3">Resident Update – Tuesday 10th March</h2>
+
+          <p className="text-sm leading-relaxed">
+            On <strong>Tuesday 10th March</strong>, the fire alarm was triggered at James Square
+            following an electrical fault in the pool plant room caused by water ingress. The alarm
+            has now been silenced and power to the affected area has been isolated as a precaution.
+          </p>
+
+          <p className="text-sm leading-relaxed mt-3">
+            As a result, the <strong>pool area will remain closed</strong> until the system has been
+            inspected and made safe.
+          </p>
+
+          <p className="text-sm leading-relaxed mt-3">
+            Due to the power being isolated, the <strong>main gates are currently open</strong>.
+          </p>
+
+          <p className="text-sm leading-relaxed mt-3">
+            The issue has been brought to the attention of <strong>Myreside</strong> and will
+            hopefully be resolved soon. A further update will follow once more information is
+            available.
+          </p>
+        </div>
+      </section>
+
       <AnnouncementNotice />
 
       {/* MAIN ICON GRID */}
