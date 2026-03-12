@@ -29,23 +29,58 @@ export default function AnnouncementNotice() {
 
             <div className="space-y-3 text-sm text-neutral-700 dark:text-neutral-200 sm:text-base">
               <p>
-                Following the conclusion of the owner vote, Myreside Property Management received
-                the most votes and are now the appointed factor for James Square with effect from 1
-                February 2026, replacing Fior Asset &amp; Property.
+                Following the conclusion of the owner vote, the factor for James Square was
+                formally changed from Fior Asset &amp; Property to Myreside Management Limited with
+                effect from 1 February 2026.
               </p>
               <p>
-                As Myreside are now responsible for the management of the development, owners are
-                strongly encouraged to contact Myreside directly as soon as possible to introduce
-                themselves and ensure their contact and payment details are up to date. Early
-                engagement will help ensure a smooth handover and minimise any disruption during
-                the transition.
+                Owners should no longer make any payments to Fior Asset &amp; Property. If any
+                payments have been made to Fior after 1 February 2026, owners are advised to
+                contact Fior directly and request a refund as soon as possible.
               </p>
               <p>
-                Further information regarding the transition and key dates will continue to be
-                published on the website and within the owners’ section.
+                Following a meeting with Myreside on 11 March 2026, it was confirmed that
+                approximately 50% of owners at James Square have already begun making payments to
+                Myreside since February. Myreside are aware that some owners have experienced
+                technical issues with their online portal and are currently working to resolve
+                these. In the meantime, they have asked that any owners who have not yet made
+                payment contact them directly so they can assist.
               </p>
+
+              <p className="font-semibold">Myreside Management Limited – Contact Details</p>
+
               <p>
-                Thank you to everyone who took the time to participate in the voting process.
+                <span className="font-medium">Telephone</span>
+                <br />
+                0131 466 3001
+              </p>
+
+              <p>
+                <span className="font-medium">24 Hour Emergencies</span>
+                <br />
+                0131 466 3001 – then press 1
+              </p>
+
+              <p>
+                <span className="font-medium">Address</span>
+                <br />
+                Myreside Management Limited
+                <br />
+                3 Dalkeith Road Mews
+                <br />
+                Edinburgh EH16 5GA
+              </p>
+
+              <p>
+                <span className="font-medium">Opening Hours</span>
+                <br />
+                Monday – Friday: 9am – 5:30pm
+              </p>
+
+              <p>
+                Company Number SC213664
+                <br />
+                Registered Property Factor Number PF000177
               </p>
             </div>
           </div>
