@@ -111,6 +111,10 @@ const OwnersSecurePage = () => {
 
         <div className="space-y-6">
           <motion.div variants={itemVariants}>
+            <CommitteeUpdateSection />
+          </motion.div>
+
+          <motion.div variants={itemVariants}>
             <SgmSection />
           </motion.div>
 
@@ -128,6 +132,97 @@ const OwnersSecurePage = () => {
 };
 
 export default OwnersSecurePage;
+
+function CommitteeUpdateSection() {
+  return (
+    <GlassCard titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100">
+      <article className="rounded-xl border border-white/15 bg-white/5 p-6 space-y-4">
+        <header className="space-y-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Committee Update – James Square</h2>
+            <span className="inline-flex items-center rounded-full border border-cyan-300/40 bg-cyan-500/10 px-2.5 py-0.5 text-xs font-semibold text-cyan-700 dark:text-cyan-300">
+              Committee Update
+            </span>
+          </div>
+          <p className="text-sm text-slate-600 dark:text-slate-300">12 March 2026</p>
+        </header>
+
+        <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+          The committee met with representatives from Myreside Property Management on Wednesday 11 March 2026 to
+          discuss a number of ongoing matters affecting the development at James Square.
+        </p>
+        <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+          A new property manager has now been appointed for the development. It is hoped this will help ensure that
+          issues are addressed more consistently going forward and that communication between the factor and owners
+          improves as matters progress.
+        </p>
+        <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+          Myreside have been liaising with owners, plumbers and the building’s insurance company in relation to the
+          water leaks affecting parts of the building. Unfortunately it has been difficult to identify the precise
+          source of the leaks and it may be the case that there is more than one issue contributing. Investigations are
+          ongoing and work is continuing to arrange dehumidifiers where required while the matter is being addressed.
+        </p>
+        <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+          Following the recent fire alarm activation, an electrician is currently working to resolve the electrical
+          fault within the swimming pool pump and plant room. Once the fault has been rectified and the system has been
+          checked, a further update will be shared regarding the reopening of the pool facilities.
+        </p>
+        <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+          It has also been highlighted that a number of bulky items have been left within communal areas. Residents are
+          asked to remove any personal belongings from these areas as soon as possible. Items left in communal areas can
+          invalidate the terms of the building’s insurance policy. Myreside are arranging for some items to be removed
+          and any associated costs may be billed to the individuals responsible.
+        </p>
+        <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+          There are a number of ongoing matters around the development which are gradually being addressed. On a
+          positive note, the gardening contractors and cleaning staff have recently been carrying out additional work
+          around the development and improvements in the general standard of the grounds and communal areas have already
+          been noticed.
+        </p>
+        <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+          A cherry picker has also been arranged to clear the drainage guttering around James Square which may help
+          reduce water ingress in certain areas of the building.
+        </p>
+        <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+          Myreside will also be contacting owners in the near future regarding arrangements for the roof repair fund.
+        </p>
+        <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+          The committee also discussed plans for the next Annual General Meeting. The intention is to circulate a short
+          survey beforehand so owners can submit questions and topics for discussion in advance. This should help ensure
+          that key matters such as roof repairs and potential renovation works can be discussed effectively at the AGM.
+        </p>
+        <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+          Owners who have not yet been in contact with Myreside are encouraged to reach out to ensure their contact
+          details and payment arrangements are up to date.
+        </p>
+
+        <div className="rounded-xl border border-cyan-300/30 bg-cyan-500/10 p-4 space-y-2 text-sm md:text-base text-slate-800 dark:text-slate-100">
+          <p className="font-semibold">Myreside Management Limited</p>
+          <p>
+            3 Dalkeith Road Mews
+            <br />
+            Edinburgh
+            <br />
+            EH16 5GA
+          </p>
+          <p>
+            <span className="font-semibold">Telephone:</span> 0131 466 3001
+            <br />
+            <span className="font-semibold">24 Hour Emergencies:</span> 0131 466 3001 (Press 1)
+          </p>
+        </div>
+
+        <div className="rounded-xl border border-amber-300/30 bg-amber-500/10 p-4 space-y-2 text-sm md:text-base text-slate-800 dark:text-slate-100">
+          <h3 className="text-base font-semibold">Factor Update Reminder</h3>
+          <p>
+            Myreside took over from Fior Asset &amp; Property on 1 February 2026. Any owners who may have made
+            payments to Fior after this date should contact them as soon as possible to request a refund.
+          </p>
+        </div>
+      </article>
+    </GlassCard>
+  );
+}
 
 function SgmSection() {
   return (
