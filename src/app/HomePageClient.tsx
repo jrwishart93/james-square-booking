@@ -296,29 +296,53 @@ export default function HomePageClient() {
       </section>
 
       <section className="mx-auto max-w-6xl mt-6">
-        <div className="jqs-glass rounded-2xl p-6 mb-6 border border-amber-400/30 bg-amber-500/10">
-          <h2 className="text-lg font-semibold mb-3">Resident Update – Tuesday 10th March</h2>
+        <div className="jqs-glass rounded-2xl p-6 mb-6 border border-sky-400/30 bg-gradient-to-br from-sky-500/10 via-cyan-500/10 to-emerald-500/10 shadow-lg shadow-sky-900/10">
+          <div className="mb-4 flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center rounded-full border border-sky-500/40 bg-sky-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-sky-900 dark:text-sky-200">
+              Latest resident notice
+            </span>
+          </div>
 
-          <p className="text-sm leading-relaxed">
-            On <strong>Tuesday 10th March</strong>, the fire alarm was triggered at James Square
-            following an electrical fault in the pool plant room caused by water ingress. The alarm
-            has now been silenced and power to the affected area has been isolated as a precaution.
-          </p>
+          <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
+            Resident Update – Tuesday 10th March
+          </h2>
 
-          <p className="text-sm leading-relaxed mt-3">
-            As a result, the <strong>pool area will remain closed</strong> until the system has been
-            inspected and made safe.
-          </p>
+          <div className="mt-4 space-y-3 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
+            <p>
+              On Tuesday 10th March, the fire alarm was triggered at James Square following an issue
+              within the swimming pool plant room.
+            </p>
 
-          <p className="text-sm leading-relaxed mt-3">
-            Due to the power being isolated, the <strong>main gates are currently open</strong>.
-          </p>
+            <p>
+              The cause has now been identified as a small hole in a pipe connected to the chlorine
+              system. As the pipe operates under pressure, water sprayed upwards onto the ceiling and
+              wall area where the electrical fuse box is located. This caused the fuses to blow and
+              resulted in a small electrical fire within the fuse box.
+            </p>
 
-          <p className="text-sm leading-relaxed mt-3">
-            The issue has been brought to the attention of <strong>Myreside</strong> and will
-            hopefully be resolved soon. A further update will follow once more information is
-            available.
-          </p>
+            <p>
+              An electrician has attended and has managed to restore most of the power, however
+              additional fuses still require to be ordered and fitted before the system can be fully
+              reinstated.
+            </p>
+
+            <p>
+              Arrangements are now being made for the damaged pipe to be replaced, and a protective
+              layer will be installed around the pipework to help prevent a similar issue in the
+              future.
+            </p>
+
+            <p>
+              The pool area will remain closed for the time being while these repairs are completed.
+              The hope is that the pool can reopen towards the beginning of next week once the pipe
+              has been replaced and the new fuses installed.
+            </p>
+
+            <p>
+              Further updates will continue to be posted on James-Square.com as soon as more
+              information is available.
+            </p>
+          </div>
         </div>
       </section>
 
