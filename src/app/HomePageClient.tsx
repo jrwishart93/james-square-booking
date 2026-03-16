@@ -309,38 +309,26 @@ export default function HomePageClient() {
 
           <div className="mt-4 space-y-3 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
             <p>
-              On Tuesday 10th March, the fire alarm was triggered at James Square following an issue
+              On Tuesday 10th March the fire alarm was triggered at James Square following an issue
               within the swimming pool plant room.
             </p>
 
             <p>
-              The cause has now been identified as a small hole in a pipe connected to the chlorine
-              system. As the pipe operates under pressure, water sprayed upwards onto the ceiling and
-              wall area where the electrical fuse box is located. This caused the fuses to blow and
-              resulted in a small electrical fire within the fuse box.
+              The cause was identified as a small hole in a pipe connected to the chlorine system. As
+              the pipe operates under pressure, water sprayed onto the wall and ceiling area where the
+              electrical fuse box is located, causing the fuses to blow and resulting in a small
+              electrical fire within the fuse box.
             </p>
 
             <p>
-              An electrician has attended and has managed to restore most of the power, however
-              additional fuses still require to be ordered and fitted before the system can be fully
-              reinstated.
+              An electrician has since attended and restored most of the power, however some breakers
+              still require to be replaced and the damaged chlorine pipe is due to be replaced.
             </p>
 
             <p>
-              Arrangements are now being made for the damaged pipe to be replaced, and a protective
-              layer will be installed around the pipework to help prevent a similar issue in the
-              future.
-            </p>
-
-            <p>
-              The pool area will remain closed for the time being while these repairs are completed.
-              The hope is that the pool can reopen towards the beginning of next week once the pipe
-              has been replaced and the new fuses installed.
-            </p>
-
-            <p>
-              Further updates will continue to be posted on James-Square.com as soon as more
-              information is available.
+              The pool has now reopened on a phased basis while the remaining repairs are carried out.
+              As the dehumidifier is not currently operational, the pool temperature has been lowered
+              slightly to help reduce evaporation and humidity within the pool area.
             </p>
           </div>
         </div>
