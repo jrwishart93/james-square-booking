@@ -391,6 +391,20 @@ export default function UsefulInfoPage() {
                           </a>
                         </p>
                       </div>
+
+                      <div className="rounded-xl border border-white/30 bg-white/45 p-4 backdrop-blur-md dark:border-white/20 dark:bg-white/10 space-y-3">
+                        <h4 className="text-base font-semibold">Need more detail?</h4>
+                        <p className="text-sm text-[color:var(--text-muted)]">
+                          You can view the full Myreside information page for further details on current management
+                          arrangements, documentation, and the £450 opening float.
+                        </p>
+                        <a
+                          href="/myreside"
+                          className="inline-flex items-center rounded-full bg-neutral-900 px-4 py-2 text-sm font-semibold text-white transition duration-200 hover:brightness-110 hover:scale-[1.01] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900/70 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:bg-white dark:text-neutral-900 dark:focus-visible:ring-white/80 dark:focus-visible:ring-offset-neutral-900"
+                        >
+                          View Myreside information
+                        </a>
+                      </div>
                     </div>
                   </div>
                 </div>
