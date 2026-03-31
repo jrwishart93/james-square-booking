@@ -612,7 +612,7 @@ function Comments({ postId, currentUser }: { postId: string; currentUser: User |
   const [list, setList] = useState<Comment[]>([]);
   const [body, setBody] = useState('');
   const [isCommenting, setIsCommenting] = useState(false);
-  const commentInputRef = useRef<HTMLInputElement>(null);
+  const commentInputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     const qC = query(
@@ -747,7 +747,7 @@ function Comments({ postId, currentUser }: { postId: string; currentUser: User |
       >
         <div className="overflow-hidden">
           <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center">
-            <input
+            <textarea
               ref={commentInputRef}
               value={body}
               onChange={(e) => setBody(e.target.value)}
@@ -758,7 +758,8 @@ function Comments({ postId, currentUser }: { postId: string; currentUser: User |
                 }
               }}
               placeholder="Add a comment…"
-              className="flex-1 px-4 py-2.5 rounded-2xl message-field text-sm sm:text-base text-slate-900 placeholder:text-slate-500 dark:text-slate-100 dark:placeholder:text-slate-500 border-none focus:outline-none focus:ring-0 transition-all duration-200 ease-out leading-relaxed"
+              rows={3}
+              className="flex-1 px-4 py-2.5 rounded-2xl message-field text-sm sm:text-base text-slate-900 placeholder:text-slate-500 dark:text-slate-100 dark:placeholder:text-slate-500 border-none focus:outline-none focus:ring-0 transition-all duration-200 ease-out leading-relaxed resize-y min-h-[72px]"
             />
             <div className="flex items-center gap-3 sm:gap-2 sm:flex-row">
               <button
@@ -799,7 +800,7 @@ function Replies({
   const [list, setList] = useState<Reply[]>([]);
   const [body, setBody] = useState('');
   const [isReplying, setIsReplying] = useState(false);
-  const replyInputRef = useRef<HTMLInputElement>(null);
+  const replyInputRef = useRef<HTMLTextAreaElement>(null);
   const [showReplies, setShowReplies] = useState(false);
 
   useEffect(() => {
@@ -1002,7 +1003,7 @@ function Replies({
       {isReplying && (
         <div className="pl-3 sm:pl-4">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center transition-opacity duration-150 ease-out">
-            <input
+            <textarea
               ref={replyInputRef}
               value={body}
               onChange={(e) => setBody(e.target.value)}
@@ -1013,7 +1014,8 @@ function Replies({
                 }
               }}
               placeholder="Write a reply…"
-              className="flex-1 px-4 py-2.5 rounded-2xl message-field text-sm sm:text-base text-slate-900 placeholder:text-slate-500 dark:text-slate-100 dark:placeholder:text-slate-500 border-none focus:outline-none focus:ring-0 transition-all duration-150 ease-out leading-relaxed"
+              rows={3}
+              className="flex-1 px-4 py-2.5 rounded-2xl message-field text-sm sm:text-base text-slate-900 placeholder:text-slate-500 dark:text-slate-100 dark:placeholder:text-slate-500 border-none focus:outline-none focus:ring-0 transition-all duration-150 ease-out leading-relaxed resize-y min-h-[72px]"
             />
             <div className="flex items-center gap-3 sm:gap-2 sm:flex-row">
               <button
