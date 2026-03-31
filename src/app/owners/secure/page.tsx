@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, type ReactNode } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { Calendar, ClipboardCheck, FileText, Mail, X } from 'lucide-react';
+import { Calendar, ChevronDown, ClipboardCheck, FileText, Mail, X } from 'lucide-react';
 
 import { GlassCard } from '@/components/GlassCard';
 import GradientBG from '@/components/GradientBG';
@@ -134,6 +134,8 @@ const OwnersSecurePage = () => {
 export default OwnersSecurePage;
 
 function CommitteeUpdateSection() {
+  const [open, setOpen] = useState(false);
+
   return (
     <GlassCard titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100">
       <article className="rounded-xl border border-white/15 bg-white/5 p-6 space-y-4">
@@ -151,80 +153,104 @@ function CommitteeUpdateSection() {
           The committee met with representatives from Myreside Property Management on Wednesday 11 March 2026 to
           discuss a number of ongoing matters affecting the development at James Square.
         </p>
-        <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
-          A new property manager has now been appointed for the development. It is hoped this will help ensure that
-          issues are addressed more consistently going forward and that communication between the factor and owners
-          improves as matters progress.
-        </p>
-        <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
-          Myreside have been liaising with owners, plumbers and the building’s insurance company in relation to the
-          water leaks affecting parts of the building. Unfortunately it has been difficult to identify the precise
-          source of the leaks and it may be the case that there is more than one issue contributing. Investigations are
-          ongoing and work is continuing to arrange dehumidifiers where required while the matter is being addressed.
-        </p>
-        <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
-          Following the recent fire alarm activation, an electrician is currently working to resolve the electrical
-          fault within the swimming pool pump and plant room. Once the fault has been rectified and the system has been
-          checked, a further update will be shared regarding the reopening of the pool facilities.
-        </p>
-        <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
-          It has also been highlighted that a number of bulky items have been left within communal areas. Residents are
-          asked to remove any personal belongings from these areas as soon as possible. Items left in communal areas can
-          invalidate the terms of the building’s insurance policy. Myreside are arranging for some items to be removed
-          and any associated costs may be billed to the individuals responsible.
-        </p>
-        <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
-          There are a number of ongoing matters around the development which are gradually being addressed. On a
-          positive note, the gardening contractors and cleaning staff have recently been carrying out additional work
-          around the development and improvements in the general standard of the grounds and communal areas have already
-          been noticed.
-        </p>
-        <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
-          A cherry picker has also been arranged to clear the drainage guttering around James Square which may help
-          reduce water ingress in certain areas of the building.
-        </p>
-        <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
-          Myreside will also be contacting owners in the near future regarding arrangements for the roof repair fund.
-        </p>
-        <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
-          The committee also discussed plans for the next Annual General Meeting. The intention is to circulate a short
-          survey beforehand so owners can submit questions and topics for discussion in advance. This should help ensure
-          that key matters such as roof repairs and potential renovation works can be discussed effectively at the AGM.
-        </p>
-        <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
-          Owners who have not yet been in contact with Myreside are encouraged to reach out to ensure their contact
-          details and payment arrangements are up to date.
-        </p>
 
-        <div className="rounded-xl border border-cyan-300/30 bg-cyan-500/10 p-4 space-y-2 text-sm md:text-base text-slate-800 dark:text-slate-100">
-          <p className="font-semibold">Myreside Management Limited</p>
-          <p>
-            3 Dalkeith Road Mews
-            <br />
-            Edinburgh
-            <br />
-            EH16 5GA
-          </p>
-          <p>
-            <span className="font-semibold">Telephone:</span> 0131 466 3001
-            <br />
-            <span className="font-semibold">24 Hour Emergencies:</span> 0131 466 3001 (Press 1)
-          </p>
-        </div>
+        <ExpandButton
+          open={open}
+          setOpen={setOpen}
+          labelWhenClosed="Read full committee update"
+          labelWhenOpen="Hide full update"
+          controlsId="committee-update-details"
+        />
 
-        <div className="rounded-xl border border-amber-300/30 bg-amber-500/10 p-4 space-y-2 text-sm md:text-base text-slate-800 dark:text-slate-100">
-          <h3 className="text-base font-semibold">Factor Update Reminder</h3>
-          <p>
-            Myreside took over from Fior Asset &amp; Property on 1 February 2026. Any owners who may have made
-            payments to Fior after this date should contact them as soon as possible to request a refund.
-          </p>
-        </div>
+        <AnimatePresence initial={false}>
+          {open && (
+            <motion.div
+              id="committee-update-details"
+              className="space-y-4 overflow-hidden"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.28 }}
+            >
+              <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+                A new property manager has now been appointed for the development. It is hoped this will help ensure that
+                issues are addressed more consistently going forward and that communication between the factor and owners
+                improves as matters progress.
+              </p>
+              <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+                Myreside have been liaising with owners, plumbers and the building’s insurance company in relation to the
+                water leaks affecting parts of the building. Unfortunately it has been difficult to identify the precise
+                source of the leaks and it may be the case that there is more than one issue contributing. Investigations are
+                ongoing and work is continuing to arrange dehumidifiers where required while the matter is being addressed.
+              </p>
+              <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+                Following the recent fire alarm activation, an electrician is currently working to resolve the electrical
+                fault within the swimming pool pump and plant room. Once the fault has been rectified and the system has been
+                checked, a further update will be shared regarding the reopening of the pool facilities.
+              </p>
+              <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+                It has also been highlighted that a number of bulky items have been left within communal areas. Residents are
+                asked to remove any personal belongings from these areas as soon as possible. Items left in communal areas can
+                invalidate the terms of the building’s insurance policy. Myreside are arranging for some items to be removed
+                and any associated costs may be billed to the individuals responsible.
+              </p>
+              <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+                There are a number of ongoing matters around the development which are gradually being addressed. On a
+                positive note, the gardening contractors and cleaning staff have recently been carrying out additional work
+                around the development and improvements in the general standard of the grounds and communal areas have already
+                been noticed.
+              </p>
+              <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+                A cherry picker has also been arranged to clear the drainage guttering around James Square which may help
+                reduce water ingress in certain areas of the building.
+              </p>
+              <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+                Myreside will also be contacting owners in the near future regarding arrangements for the roof repair fund.
+              </p>
+              <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+                The committee also discussed plans for the next Annual General Meeting. The intention is to circulate a short
+                survey beforehand so owners can submit questions and topics for discussion in advance. This should help ensure
+                that key matters such as roof repairs and potential renovation works can be discussed effectively at the AGM.
+              </p>
+              <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+                Owners who have not yet been in contact with Myreside are encouraged to reach out to ensure their contact
+                details and payment arrangements are up to date.
+              </p>
+
+              <div className="rounded-xl border border-cyan-300/30 bg-cyan-500/10 p-4 space-y-2 text-sm md:text-base text-slate-800 dark:text-slate-100">
+                <p className="font-semibold">Myreside Management Limited</p>
+                <p>
+                  3 Dalkeith Road Mews
+                  <br />
+                  Edinburgh
+                  <br />
+                  EH16 5GA
+                </p>
+                <p>
+                  <span className="font-semibold">Telephone:</span> 0131 466 3001
+                  <br />
+                  <span className="font-semibold">24 Hour Emergencies:</span> 0131 466 3001 (Press 1)
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-amber-300/30 bg-amber-500/10 p-4 space-y-2 text-sm md:text-base text-slate-800 dark:text-slate-100">
+                <h3 className="text-base font-semibold">Factor Update Reminder</h3>
+                <p>
+                  Myreside took over from Fior Asset &amp; Property on 1 February 2026. Any owners who may have made
+                  payments to Fior after this date should contact them as soon as possible to request a refund.
+                </p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </article>
     </GlassCard>
   );
 }
 
 function SgmSection() {
+  const [open, setOpen] = useState(false);
+
   return (
     <GlassCard
       title={
@@ -240,95 +266,121 @@ function SgmSection() {
       <div className="space-y-3 text-sm md:text-base text-slate-700 dark:text-slate-200">
         <p>The Extraordinary General Meeting was held on Wednesday 21 January 2026.</p>
         <p>
-          Following the meeting, owners were invited to vote on the preferred property factor for James Square. Voting
-          remained open until Friday 23 January 2026.
-        </p>
-        <p>
           After votes were counted, Myreside Management received the majority of votes and has therefore been selected
           to replace Fior Asset &amp; Property as the managing factor for James Square.
         </p>
-        <p>
-          Owners may view Myreside Management information, including the tender document, via the Myreside section of the
-          website.
-        </p>
-        <Link
-          href="/myreside"
-          className="inline-flex items-center gap-2 font-semibold text-slate-900 transition hover:text-slate-700 dark:text-slate-100 dark:hover:text-white"
-        >
-          <span>View Myreside Management information</span>
-          <span aria-hidden>→</span>
-        </Link>
       </div>
-      <div className={`${glassPanel} mt-4 space-y-2 text-sm md:text-base text-slate-700 dark:text-slate-200`}>
-        <p>
-          The committee will now follow up with Myreside Management to discuss transition arrangements and next steps.
-          Further updates will be shared with owners once details have been confirmed.
-        </p>
-        <p>
-          In the meantime, Fior Asset &amp; Property remains the managing factor, and a formal transfer date will be
-          confirmed in due course.
-        </p>
-      </div>
-      <div className="mt-6 space-y-4 text-sm md:text-base text-slate-700 dark:text-slate-200">
-        <div className="space-y-3">
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Formal notice issued to Fior</h3>
-          <p>
-            Following the vote, the committee has now issued formal written notice to Fior Asset &amp; Property
-            confirming termination of their appointment as factor for James Square and advising that Myreside Management
-            has been appointed as the replacement factor.
-          </p>
-          <p>For transparency, a copy of the termination notice letter can be viewed below.</p>
-          <div className="space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Documents</p>
-            <a
-              href="/images/venues/fior-termination-letter.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-600 text-white text-sm font-medium transition-colors hover:bg-cyan-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/60"
-            >
-              View termination notice letter (PDF)
-            </a>
-          </div>
-        </div>
-        <div className="space-y-3">
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Contact Myreside Management</h3>
-          <p>
-            Owners are encouraged to contact Myreside Management as soon as possible to ensure their details are up to
-            date and to arrange any new payment plans or standing orders.
-          </p>
-          <p>
-            Early contact will help support a smooth transition and avoid delays once the handover date is confirmed.
-          </p>
-          <a
-            href="https://myreside-management.co.uk/contact-us/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-150 ease-out hover:bg-white/95 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 dark:border-white/15 dark:bg-white/20 dark:text-white dark:hover:bg-white/25"
+
+      <ExpandButton
+        open={open}
+        setOpen={setOpen}
+        labelWhenClosed="Read full EGM outcome"
+        labelWhenOpen="Hide EGM outcome"
+        controlsId="sgm-details"
+      />
+
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            id="sgm-details"
+            className="space-y-4 overflow-hidden"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.28 }}
           >
-            Contact Myreside via online form
-          </a>
-          <div className="space-y-1 text-sm md:text-base text-slate-700 dark:text-slate-200">
-            <p>
-              <span className="font-semibold text-slate-900 dark:text-slate-100">Telephone:</span> 0131 466 3001
-            </p>
-            <p className="text-slate-700 dark:text-slate-200">
-              <span className="font-semibold text-slate-900 dark:text-slate-100">Address:</span>
-              <br />
-              Myreside Management Limited
-              <br />
-              3 Dalkeith Road Mews
-              <br />
-              Edinburgh EH16 5GA
-            </p>
-          </div>
-        </div>
-      </div>
+            <div className="space-y-3 text-sm md:text-base text-slate-700 dark:text-slate-200">
+              <p>
+                Following the meeting, owners were invited to vote on the preferred property factor for James Square.
+                Voting remained open until Friday 23 January 2026.
+              </p>
+              <p>
+                Owners may view Myreside Management information, including the tender document, via the Myreside section
+                of the website.
+              </p>
+              <Link
+                href="/myreside"
+                className="inline-flex items-center gap-2 font-semibold text-slate-900 transition hover:text-slate-700 dark:text-slate-100 dark:hover:text-white"
+              >
+                <span>View Myreside Management information</span>
+                <span aria-hidden>→</span>
+              </Link>
+            </div>
+            <div className={`${glassPanel} space-y-2 text-sm md:text-base text-slate-700 dark:text-slate-200`}>
+              <p>
+                The committee will now follow up with Myreside Management to discuss transition arrangements and next
+                steps. Further updates will be shared with owners once details have been confirmed.
+              </p>
+              <p>
+                In the meantime, Fior Asset &amp; Property remains the managing factor, and a formal transfer date will
+                be confirmed in due course.
+              </p>
+            </div>
+            <div className="space-y-4 text-sm md:text-base text-slate-700 dark:text-slate-200">
+              <div className="space-y-3">
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Formal notice issued to Fior</h3>
+                <p>
+                  Following the vote, the committee has now issued formal written notice to Fior Asset &amp; Property
+                  confirming termination of their appointment as factor for James Square and advising that Myreside
+                  Management has been appointed as the replacement factor.
+                </p>
+                <p>For transparency, a copy of the termination notice letter can be viewed below.</p>
+                <div className="space-y-3">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Documents</p>
+                  <a
+                    href="/images/venues/fior-termination-letter.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-600 text-white text-sm font-medium transition-colors hover:bg-cyan-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/60"
+                  >
+                    View termination notice letter (PDF)
+                  </a>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Contact Myreside Management</h3>
+                <p>
+                  Owners are encouraged to contact Myreside Management as soon as possible to ensure their details are
+                  up to date and to arrange any new payment plans or standing orders.
+                </p>
+                <p>
+                  Early contact will help support a smooth transition and avoid delays once the handover date is
+                  confirmed.
+                </p>
+                <a
+                  href="https://myreside-management.co.uk/contact-us/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-150 ease-out hover:bg-white/95 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 dark:border-white/15 dark:bg-white/20 dark:text-white dark:hover:bg-white/25"
+                >
+                  Contact Myreside via online form
+                </a>
+                <div className="space-y-1 text-sm md:text-base text-slate-700 dark:text-slate-200">
+                  <p>
+                    <span className="font-semibold text-slate-900 dark:text-slate-100">Telephone:</span> 0131 466 3001
+                  </p>
+                  <p className="text-slate-700 dark:text-slate-200">
+                    <span className="font-semibold text-slate-900 dark:text-slate-100">Address:</span>
+                    <br />
+                    Myreside Management Limited
+                    <br />
+                    3 Dalkeith Road Mews
+                    <br />
+                    Edinburgh EH16 5GA
+                  </p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </GlassCard>
   );
 }
 
 function FiorFactorUpdateSection() {
   const [showEmail, setShowEmail] = useState(false);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     if (!showEmail) {
@@ -350,39 +402,62 @@ function FiorFactorUpdateSection() {
       <div className="space-y-3 text-sm md:text-base text-slate-700 dark:text-slate-200">
         <p>
           Owners are advised of an update following correspondence received from Fior Asset &amp; Property Management on
-          19 December 2025.
+          19 December 2025. Fior confirmed that they intend to step down as factor for James Square and proposed a
+          managed departure to allow outstanding matters to be addressed.
         </p>
-        <p>
-          In this correspondence, Fior confirmed that they intend to step down as factor for James Square. They have
-          proposed a managed departure to allow outstanding matters to be addressed, including completion of financial
-          reconciliation, recovery of outstanding and historic debts, resolution of ongoing utility matters, and the
-          orderly handover of information to a new factor.
-        </p>
-        <p>
-          Fior advised that updated invoices were issued to owners prior to the Christmas period and that a full
-          financial report will follow. They also confirmed that several active building issues are currently being dealt
-          with, including multiple water leaks across the development, and that actions agreed at the AGM, such as the
-          pool window works and clarification of staff roles, are being progressed.
-        </p>
-        <p>
-          Plans are now in place to review and appoint a new factor for James Square, and further information will be
-          shared with owners as this process moves forward.
-        </p>
-        <p>
-          To discuss the factoring arrangements and the next steps in more detail, a meeting has been arranged for owners
-          on Wednesday 21 January at 6:00 pm. Further details of this meeting will be shared shortly, and owners are
-          encouraged to attend.
-        </p>
-        <p>For transparency, owners can view the previous email sent by Fior Asset &amp; Property to the committee.</p>
-        <button
-          type="button"
-          onClick={() => setShowEmail(true)}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-150 ease-out hover:bg-white/95 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 dark:border-white/15 dark:bg-white/20 dark:text-white dark:hover:bg-white/25"
-        >
-          <FileText className="h-4 w-4 text-slate-500 dark:text-slate-300" aria-hidden="true" />
-          <span>View email from Fior</span>
-        </button>
       </div>
+
+      <ExpandButton
+        open={open}
+        setOpen={setOpen}
+        labelWhenClosed="Read full Fior update"
+        labelWhenOpen="Hide Fior update"
+        controlsId="fior-update-details"
+      />
+
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            id="fior-update-details"
+            className="space-y-3 overflow-hidden text-sm md:text-base text-slate-700 dark:text-slate-200"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.28 }}
+          >
+            <p>
+              In this correspondence, Fior confirmed that they intend to step down as factor for James Square. They have
+              proposed a managed departure to allow outstanding matters to be addressed, including completion of financial
+              reconciliation, recovery of outstanding and historic debts, resolution of ongoing utility matters, and the
+              orderly handover of information to a new factor.
+            </p>
+            <p>
+              Fior advised that updated invoices were issued to owners prior to the Christmas period and that a full
+              financial report will follow. They also confirmed that several active building issues are currently being
+              dealt with, including multiple water leaks across the development, and that actions agreed at the AGM, such
+              as the pool window works and clarification of staff roles, are being progressed.
+            </p>
+            <p>
+              Plans are now in place to review and appoint a new factor for James Square, and further information will be
+              shared with owners as this process moves forward.
+            </p>
+            <p>
+              To discuss the factoring arrangements and the next steps in more detail, a meeting has been arranged for
+              owners on Wednesday 21 January at 6:00 pm. Further details of this meeting will be shared shortly, and
+              owners are encouraged to attend.
+            </p>
+            <p>For transparency, owners can view the previous email sent by Fior Asset &amp; Property to the committee.</p>
+            <button
+              type="button"
+              onClick={() => setShowEmail(true)}
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-150 ease-out hover:bg-white/95 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 dark:border-white/15 dark:bg-white/20 dark:text-white dark:hover:bg-white/25"
+            >
+              <FileText className="h-4 w-4 text-slate-500 dark:text-slate-300" aria-hidden="true" />
+              <span>View email from Fior</span>
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {showEmail && (
@@ -507,13 +582,8 @@ function AgmSection() {
       <p className="text-sm text-slate-600 dark:text-slate-300">Held at 8:00 pm on Monday 8 September 2025 (via Zoom)</p>
 
       <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
-        The 2025 Annual General Meeting has now taken place. The meeting brought owners together to review the past
-        year, discuss current building and facilities matters, and agree priorities and actions for the year ahead.
-      </p>
-
-      <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
-        If you were unable to attend, or would like a refresher, you can read a full summary of what was discussed
-        using the tab below.
+        The 2025 AGM brought owners together to review the past year, discuss building matters, and agree priorities
+        for the year ahead. Use the buttons below to read a summary of what was discussed.
       </p>
 
       <div className="space-y-4">
@@ -774,8 +844,8 @@ function AgmSection() {
 function ExpandButton({
   open,
   setOpen,
-  labelWhenClosed = 'Read full details',
-  labelWhenOpen = 'Hide details',
+  labelWhenClosed = 'Show more',
+  labelWhenOpen = 'Show less',
   controlsId = 'expander',
 }: {
   open: boolean;
@@ -789,9 +859,14 @@ function ExpandButton({
       onClick={() => setOpen(!open)}
       aria-expanded={open}
       aria-controls={controlsId}
-      className="px-4 py-2 rounded-xl bg-black/80 text-white hover:bg-black transition"
+      className="inline-flex items-center gap-1.5 rounded-full border border-black/10 bg-white/70 px-4 py-2 text-sm font-medium text-slate-800 shadow-sm backdrop-blur transition-all hover:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/40 dark:border-white/15 dark:bg-white/10 dark:text-slate-200 dark:hover:bg-white/20"
     >
       {open ? labelWhenOpen : labelWhenClosed}
+      <ChevronDown
+        className="h-4 w-4 text-slate-500 dark:text-slate-400 transition-transform duration-200"
+        style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}
+        aria-hidden="true"
+      />
     </button>
   );
 }
