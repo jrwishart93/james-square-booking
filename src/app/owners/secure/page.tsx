@@ -151,7 +151,8 @@ function CommitteeUpdateSection() {
 
         <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
           The committee met with representatives from Myreside Property Management on Wednesday 11 March 2026 to
-          discuss a number of ongoing matters affecting the development at James Square.
+          discuss ongoing matters at James Square, including active leaks, pool plant faults, and maintenance priorities.
+          A full update is available below with next steps and contact details.
         </p>
 
         <ExpandButton
@@ -264,10 +265,12 @@ function SgmSection() {
       className="bg-white/70 border-slate-200/70 shadow-[0_12px_34px_rgba(15,23,42,0.08)] dark:bg-white/5 dark:border-white/10"
     >
       <div className="space-y-3 text-sm md:text-base text-slate-700 dark:text-slate-200">
-        <p>The Extraordinary General Meeting was held on Wednesday 21 January 2026.</p>
         <p>
-          After votes were counted, Myreside Management received the majority of votes and has therefore been selected
-          to replace Fior Asset &amp; Property as the managing factor for James Square.
+          The Extraordinary General Meeting took place on Wednesday 21 January 2026, followed by an owner vote that
+          selected Myreside Management as James Square’s new factor.
+        </p>
+        <p>
+          Open the full update for transition details, formal notice information, and direct contact options.
         </p>
       </div>
 
@@ -401,9 +404,11 @@ function FiorFactorUpdateSection() {
     <GlassCard title="Fior Factor Update" titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100">
       <div className="space-y-3 text-sm md:text-base text-slate-700 dark:text-slate-200">
         <p>
-          Owners are advised of an update following correspondence received from Fior Asset &amp; Property Management on
-          19 December 2025. Fior confirmed that they intend to step down as factor for James Square and proposed a
-          managed departure to allow outstanding matters to be addressed.
+          Fior Asset &amp; Property confirmed in correspondence dated 19 December 2025 that they intended to step down
+          as factor for James Square and proposed a managed departure period.
+        </p>
+        <p>
+          Expand this section to view the full summary and the original email shared with the committee.
         </p>
       </div>
 
@@ -859,14 +864,16 @@ function ExpandButton({
       onClick={() => setOpen(!open)}
       aria-expanded={open}
       aria-controls={controlsId}
-      className="inline-flex items-center gap-1.5 rounded-full border border-black/10 bg-white/70 px-4 py-2 text-sm font-medium text-slate-800 shadow-sm backdrop-blur transition-all hover:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/40 dark:border-white/15 dark:bg-white/10 dark:text-slate-200 dark:hover:bg-white/20"
+      className="group inline-flex items-center gap-2 rounded-full border border-white/45 bg-gradient-to-b from-white/80 to-white/55 px-4 py-2 text-sm font-semibold text-slate-800 shadow-[0_8px_24px_rgba(15,23,42,0.12)] backdrop-blur-md transition-all duration-200 hover:-translate-y-0.5 hover:from-white/90 hover:to-white/70 hover:shadow-[0_12px_28px_rgba(15,23,42,0.16)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/40 dark:border-white/20 dark:from-white/20 dark:to-white/10 dark:text-slate-100 dark:hover:from-white/25 dark:hover:to-white/15"
     >
       {open ? labelWhenOpen : labelWhenClosed}
-      <ChevronDown
-        className="h-4 w-4 text-slate-500 dark:text-slate-400 transition-transform duration-200"
-        style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}
-        aria-hidden="true"
-      />
+      <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-900/8 text-slate-600 transition-colors group-hover:bg-slate-900/12 dark:bg-white/15 dark:text-slate-200 dark:group-hover:bg-white/20">
+        <ChevronDown
+          className="h-3.5 w-3.5 transition-transform duration-200"
+          style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}
+          aria-hidden="true"
+        />
+      </span>
     </button>
   );
 }
