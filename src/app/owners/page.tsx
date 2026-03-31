@@ -16,12 +16,6 @@ const EMAIL_BODY =
 const EMAIL_LINK = `mailto:${COMMITTEE_EMAIL}?subject=${encodeURIComponent(
   EMAIL_SUBJECT
 )}&body=${encodeURIComponent(EMAIL_BODY)}`;
-const TEAMS_LINK = 'https://teams.live.com/meet/9361186540157?p=3nM4fcihwFSrOLglvH';
-const GOOGLE_CALENDAR_URL = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
-  'Extraordinary General Meeting (EGM) – James Square'
-)}&dates=20260121T180000Z/20260121T203000Z&details=${encodeURIComponent(
-  `Online via Microsoft Teams\nThe access code will be shared with owners during the meeting.\n\nJoin online via Microsoft Teams: ${TEAMS_LINK}`
-)}&location=${encodeURIComponent('Online via Microsoft Teams')}`;
 
 const OwnersPage = () => {
   const router = useRouter();
@@ -61,40 +55,33 @@ const OwnersPage = () => {
         <div className="space-y-6">
           <GlassCard
             title="Owners access"
+            subtitle="Use your owners access code to open the secure area."
             titleClassName="text-slate-800/80 dark:text-slate-100/90"
             className="bg-white/80 border-white/80 shadow-[0_18px_45px_rgba(15,23,42,0.08)] dark:bg-slate-900/30"
           >
-            <p className="text-sm text-slate-700 dark:text-slate-200">
-              This is a private area for owners of James Square.
-            </p>
-            <p className="text-sm text-slate-700 dark:text-slate-200">
-              Owners can access secure documents, building updates, and the current voting area using an access code.
-            </p>
-            <div className="space-y-2 pt-2 text-left">
-              <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-                The access code is available from a committee member, another owner, or at the upcoming Extraordinary
-                General Meeting.
+            <div className="space-y-4 text-left">
+              <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+                This private area contains secure documents, updates, and active voting information for James Square
+                owners.
               </p>
-
-              <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-                The code should only be shared with owners of James Square.
-              </p>
-
-              <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-                <a
-                  href={EMAIL_LINK}
-                  className="font-semibold text-cyan-700 transition-colors hover:text-cyan-600 dark:text-cyan-300 dark:hover:text-cyan-200"
-                >
-                  Request access code by email
-                </a>
-              </p>
-
-              <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-                The access code will also be shared during the Extraordinary General Meeting.
-              </p>
+              <ul className="list-disc space-y-2 pl-5 text-sm text-slate-700 dark:text-slate-300">
+                <li>Ask a committee member or another owner for the current code.</li>
+                <li>The code is only for verified owners.</li>
+                <li>The code will also be shared during the Extraordinary General Meeting.</li>
+              </ul>
             </div>
 
-            <form className="space-y-3 pt-2" onSubmit={handleOwnersAccessSubmit}>
+            <div className="flex flex-col gap-2 pt-1 sm:flex-row sm:items-center">
+              <a
+                href={EMAIL_LINK}
+                className="inline-flex items-center justify-center rounded-full border border-cyan-200/70 bg-cyan-50/80 px-4 py-2 text-sm font-semibold text-cyan-800 transition-colors hover:bg-cyan-100 dark:border-cyan-200/25 dark:bg-cyan-400/10 dark:text-cyan-200 dark:hover:bg-cyan-400/20"
+              >
+                Request code by email
+              </a>
+              <p className="text-xs text-slate-600 dark:text-slate-400">Email opens your mail app with pre-filled details.</p>
+            </div>
+
+            <form className="space-y-3 border-t border-slate-200/70 pt-4 dark:border-white/15" onSubmit={handleOwnersAccessSubmit}>
               <label className="block text-sm font-semibold text-slate-800 dark:text-slate-100">
                 Enter owners access code
               </label>
@@ -108,12 +95,12 @@ const OwnersPage = () => {
                     setAccessCode(event.target.value);
                     setShowError(false);
                   }}
-                  className="w-full rounded-xl border border-black/10 bg-white/85 px-4 py-2 text-sm font-medium text-slate-900 shadow-sm transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/50 focus-visible:border-cyan-500/40 dark:border-white/15 dark:bg-white/20 dark:text-white"
+                  className="w-full rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-medium text-slate-900 shadow-sm transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/50 focus-visible:border-cyan-500/40 dark:border-white/15 dark:bg-white/20 dark:text-white"
                 />
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="inline-flex items-center justify-center rounded-full px-5 py-2.5 text-sm font-semibold text-slate-900 bg-white/90 backdrop-blur-lg shadow-[0_6px_18px_rgba(0,0,0,0.08)] border border-black/5 transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.01] hover:shadow-[0_10px_28px_rgba(0,0,0,0.12)] active:translate-y-[1px] active:shadow-[0_4px_12px_rgba(0,0,0,0.08)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/40 disabled:opacity-70 disabled:cursor-not-allowed dark:bg-white/85 dark:text-slate-900 dark:border-white/20"
+                  className="inline-flex items-center justify-center rounded-full px-5 py-3 text-sm font-semibold text-slate-900 bg-white/90 backdrop-blur-lg shadow-[0_6px_18px_rgba(0,0,0,0.08)] border border-black/5 transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.01] hover:shadow-[0_10px_28px_rgba(0,0,0,0.12)] active:translate-y-[1px] active:shadow-[0_4px_12px_rgba(0,0,0,0.08)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/40 disabled:opacity-70 disabled:cursor-not-allowed dark:bg-white/85 dark:text-slate-900 dark:border-white/20"
                 >
                   Enter secure area
                 </button>
