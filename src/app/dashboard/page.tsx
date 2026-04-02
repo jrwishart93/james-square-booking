@@ -347,7 +347,7 @@ export default function MyDashboardPage() {
                 Make New Booking
               </Button>
               <Link
-                href="/AGM"
+                href="/agm"
                 className="inline-flex items-center text-sm font-semibold text-[color:var(--text-secondary)] underline underline-offset-4 hover:text-[color:var(--text-primary)]"
               >
                 Go to AGM Page
