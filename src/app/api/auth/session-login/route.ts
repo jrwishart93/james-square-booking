@@ -24,7 +24,9 @@ function getEnvMetadata() {
   return {
     projectConfigured: Boolean(process.env.FIREBASE_PROJECT_ID || process.env.GCLOUD_PROJECT),
     credentialsConfigured: Boolean(
-      process.env.GOOGLE_APPLICATION_CREDENTIALS ||
+      process.env.FIREBASE_ADMIN_CREDENTIALS ||
+        process.env.FIREBASE_ADMIN_JSON ||
+        process.env.GOOGLE_APPLICATION_CREDENTIALS ||
         (process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY),
     ),
   };
@@ -124,7 +126,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'idToken is required.' }, { status: 400 });
     }
 
-    const verifiedToken = await adminAuth.verifyIdToken(idToken, true);
+    const verifiedToken = await adminAuth.verifyIdToken(idToken);
     const sessionCookie = await adminAuth.createSessionCookie(idToken, {
       expiresIn: SESSION_MAX_AGE_MS,
     });

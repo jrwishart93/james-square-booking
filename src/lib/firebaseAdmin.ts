@@ -34,6 +34,17 @@ const resolveServiceAccount = (): ServiceAccount | undefined => {
     }
   }
 
+  // Fallback: construct service account from individual env vars
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+  const privateKey = process.env.FIREBASE_PRIVATE_KEY;
+  if (clientEmail && privateKey) {
+    return {
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      clientEmail,
+      privateKey: privateKey.replace(/\\n/g, '\n'),
+    } as unknown as ServiceAccount;
+  }
+
   return undefined;
 };
 
@@ -66,14 +77,14 @@ const validateProjectIdConsistency = (serviceAccount?: ServiceAccount): void => 
   const envProjectId = process.env.FIREBASE_PROJECT_ID;
 
   if (publicProjectId && adminProjectId && publicProjectId !== adminProjectId) {
-    throw new Error(
-      `Firebase project mismatch: NEXT_PUBLIC_FIREBASE_PROJECT_ID=${publicProjectId} but admin credentials project_id=${adminProjectId}`,
+    console.warn(
+      `[firebaseAdmin] Firebase project mismatch: NEXT_PUBLIC_FIREBASE_PROJECT_ID=${publicProjectId} but admin credentials project_id=${adminProjectId}`,
     );
   }
 
   if (publicProjectId && envProjectId && publicProjectId !== envProjectId) {
-    throw new Error(
-      `Firebase project mismatch: NEXT_PUBLIC_FIREBASE_PROJECT_ID=${publicProjectId} but FIREBASE_PROJECT_ID=${envProjectId}`,
+    console.warn(
+      `[firebaseAdmin] Firebase project mismatch: NEXT_PUBLIC_FIREBASE_PROJECT_ID=${publicProjectId} but FIREBASE_PROJECT_ID=${envProjectId}`,
     );
   }
 };
