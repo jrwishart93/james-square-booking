@@ -70,7 +70,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => unsubscribe();
   }, []);
 
-  const logout = () => signOut(auth);
+  const logout = async () => {
+    await fetch('/api/auth/session-logout', { method: 'POST' });
+    await signOut(auth);
+  };
 
   return (
     <AuthContext.Provider value={{ user, loading, logout }}>
