@@ -304,32 +304,60 @@ export default function HomePageClient() {
           </div>
 
           <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
-            Resident Update – Tuesday 10th March
+            Resident Update – Pool Area
           </h2>
 
           <div className="mt-4 space-y-3 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
-            <p>
-              On Tuesday 10th March the fire alarm was triggered at James Square following an issue
-              within the swimming pool plant room.
+            <p className="font-medium">
+              New update: The ventilation/dehumidifier system has been affected by the high levels of
+              humidity following the initial incident. As a result, a fault has developed within the
+              system which requires a replacement motherboard.
             </p>
 
-            <p>
-              The cause was identified as a small hole in a pipe connected to the chlorine system. As
-              the pipe operates under pressure, water sprayed onto the wall and ceiling area where the
-              electrical fuse box is located, causing the fuses to blow and resulting in a small
-              electrical fire within the fuse box.
-            </p>
+            <details className="group rounded-xl border border-sky-400/25 bg-white/40 p-4 dark:bg-neutral-900/20">
+              <summary className="cursor-pointer font-semibold text-sky-900 dark:text-sky-200 list-none">
+                Expand for more information
+              </summary>
 
-            <p>
-              An electrician has since attended and restored most of the power, however some breakers
-              still require to be replaced and the damaged chlorine pipe is due to be replaced.
-            </p>
+              <div className="mt-3 space-y-3">
+                <p className="font-semibold">Pool Area Update (in full)</p>
 
-            <p>
-              The pool has now reopened on a phased basis while the remaining repairs are carried out.
-              As the dehumidifier is not currently operational, the pool temperature has been lowered
-              slightly to help reduce evaporation and humidity within the pool area.
-            </p>
+                <p>
+                  On Tuesday 10th March the fire alarm was triggered at James Square following an
+                  issue within the swimming pool plant room.
+                </p>
+
+                <p>
+                  The cause was identified as a small hole in a pipe connected to the chlorine system.
+                  As the pipe operates under pressure, water sprayed onto the wall and ceiling area
+                  where the electrical fuse box is located, causing the fuses to blow and resulting in
+                  a small electrical fire within the fuse box.
+                </p>
+
+                <p>
+                  An electrician has since attended and restored most of the power, and the required
+                  breakers have now been replaced. The damaged chlorine tubing has also now been
+                  replaced, with additional protective measures being put in place to help prevent a
+                  similar issue occurring again.
+                </p>
+
+                <p>
+                  The pool has reopened on a phased basis while the remaining repairs are carried out.
+                  As the dehumidifier is not currently operational, the pool temperature has been
+                  lowered to help reduce condensation within the pool area.
+                </p>
+
+                <p>
+                  Due to the high levels of humidity, additional electrical faults have been
+                  identified, including within the main ventilation/dehumidifier system. A replacement
+                  motherboard has been ordered, and once this has been delivered and fitted, the pool
+                  temperature can be increased back to normal levels and the remaining systems brought
+                  fully back online.
+                </p>
+
+                <p>The sauna remains out of action until these works have been completed.</p>
+              </div>
+            </details>
           </div>
         </div>
       </section>
