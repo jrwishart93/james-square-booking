@@ -53,6 +53,31 @@ const resolveProjectId = (
   return undefined;
 };
 
+
+const validateProjectIdConsistency = (serviceAccount?: ServiceAccount): void => {
+  const publicProjectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+  const adminProjectId =
+    serviceAccount &&
+    typeof serviceAccount === 'object' &&
+    'project_id' in serviceAccount &&
+    typeof serviceAccount.project_id === 'string'
+      ? serviceAccount.project_id
+      : undefined;
+  const envProjectId = process.env.FIREBASE_PROJECT_ID;
+
+  if (publicProjectId && adminProjectId && publicProjectId !== adminProjectId) {
+    throw new Error(
+      `Firebase project mismatch: NEXT_PUBLIC_FIREBASE_PROJECT_ID=${publicProjectId} but admin credentials project_id=${adminProjectId}`,
+    );
+  }
+
+  if (publicProjectId && envProjectId && publicProjectId !== envProjectId) {
+    throw new Error(
+      `Firebase project mismatch: NEXT_PUBLIC_FIREBASE_PROJECT_ID=${publicProjectId} but FIREBASE_PROJECT_ID=${envProjectId}`,
+    );
+  }
+};
+
 const initFirebaseAdmin = (): App => {
   if (adminAppInstance) return adminAppInstance;
   if (getApps().length) {
@@ -61,6 +86,7 @@ const initFirebaseAdmin = (): App => {
   }
 
   const serviceAccount = resolveServiceAccount();
+  validateProjectIdConsistency(serviceAccount);
   const projectId = resolveProjectId(serviceAccount);
 
   if (serviceAccount) {
