@@ -7,14 +7,18 @@ export const dynamic = 'force-dynamic';
 
 const SESSION_MAX_AGE_MS = 1000 * 60 * 60 * 24 * 5; // 5 days
 
-const FIREBASE_AUTH_ERROR_CODES = new Set([
-  'auth/argument-error',
-  'auth/id-token-expired',
-  'auth/id-token-revoked',
-  'auth/insufficient-permission',
-  'auth/invalid-id-token',
-  'auth/user-disabled',
-]);
+type ErrorHandlingStrategy = {
+  status: 401 | 500;
+  reason:
+    | 'invalid-admin-credentials'
+    | 'project-mismatch'
+    | 'token-expired'
+    | 'token-revoked'
+    | 'invalid-token'
+    | 'user-disabled'
+    | 'token-verification-failed'
+    | 'auth-runtime-failure';
+};
 
 function getEnvMetadata() {
   return {
@@ -26,10 +30,24 @@ function getEnvMetadata() {
   };
 }
 
-function getAuthFailureReason(errorCode?: string, errorMessage?: string) {
-  if (errorCode === 'auth/argument-error') {
-    const message = errorMessage?.toLowerCase() ?? '';
+function getErrorHandlingStrategy(errorCode?: string, errorMessage?: string): ErrorHandlingStrategy {
+  const message = errorMessage?.toLowerCase() ?? '';
 
+  if (errorCode === 'auth/invalid-credential' || errorCode === 'app/invalid-credential') {
+    return {
+      status: 500,
+      reason: 'invalid-admin-credentials',
+    };
+  }
+
+  if (errorCode === 'auth/insufficient-permission') {
+    return {
+      status: 500,
+      reason: 'auth-runtime-failure',
+    };
+  }
+
+  if (errorCode === 'auth/argument-error') {
     if (
       message.includes('incorrect "aud"') ||
       message.includes("incorrect 'aud'") ||
@@ -37,27 +55,57 @@ function getAuthFailureReason(errorCode?: string, errorMessage?: string) {
       message.includes("incorrect 'iss'") ||
       message.includes('project')
     ) {
-      return 'token-project-mismatch';
+      return {
+        status: 401,
+        reason: 'project-mismatch',
+      };
     }
+
+    return {
+      status: 401,
+      reason: 'token-verification-failed',
+    };
   }
 
   if (errorCode === 'auth/id-token-expired') {
-    return 'token-expired';
+    return {
+      status: 401,
+      reason: 'token-expired',
+    };
   }
 
   if (errorCode === 'auth/id-token-revoked') {
-    return 'token-revoked';
+    return {
+      status: 401,
+      reason: 'token-revoked',
+    };
   }
 
   if (errorCode === 'auth/invalid-id-token') {
-    return 'invalid-token';
+    return {
+      status: 401,
+      reason: 'invalid-token',
+    };
   }
 
   if (errorCode === 'auth/user-disabled') {
-    return 'user-disabled';
+    return {
+      status: 401,
+      reason: 'user-disabled',
+    };
   }
 
-  return 'authentication-failed';
+  if (errorCode?.startsWith('auth/')) {
+    return {
+      status: 401,
+      reason: 'token-verification-failed',
+    };
+  }
+
+  return {
+    status: 500,
+    reason: 'auth-runtime-failure',
+  };
 }
 
 export async function POST(request: NextRequest) {
@@ -95,30 +143,24 @@ export async function POST(request: NextRequest) {
     const authError = error as { code?: string; message?: string };
     const errorCode = authError.code;
     const errorMessage = authError.message;
+    const handling = getErrorHandlingStrategy(errorCode, errorMessage);
     const envMetadata = getEnvMetadata();
 
     console.error('[session-login] Failed to create session cookie', {
-      code: errorCode,
-      message: errorMessage,
+      firebaseError: {
+        code: errorCode,
+        message: errorMessage,
+      },
+      classification: handling,
       ...envMetadata,
     });
 
-    if (errorCode && FIREBASE_AUTH_ERROR_CODES.has(errorCode)) {
-      return NextResponse.json(
-        {
-          error: 'Unauthorized',
-          reason: getAuthFailureReason(errorCode, errorMessage),
-        },
-        { status: 401 },
-      );
-    }
-
     return NextResponse.json(
       {
-        error: 'Internal Server Error',
-        reason: 'auth-infra-error',
+        error: handling.status === 401 ? 'Unauthorized' : 'Internal Server Error',
+        reason: handling.reason,
       },
-      { status: 500 },
+      { status: handling.status },
     );
   }
 }
