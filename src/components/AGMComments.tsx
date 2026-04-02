@@ -86,17 +86,17 @@ function CommentRow({
   };
 
   return (
-    <article className="rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur">
-      <p className="text-sm font-semibold text-white">{comment.userName}</p>
-      <p className="mt-0.5 text-xs text-slate-300">{formatTimestampLabel(comment.createdAt)}</p>
-      <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-slate-100">{comment.message}</p>
+    <article className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800/80">
+      <p className="text-sm font-semibold text-slate-900 dark:text-white">{comment.userName}</p>
+      <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-300">{formatTimestampLabel(comment.createdAt)}</p>
+      <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-slate-700 dark:text-slate-100">{comment.message}</p>
 
       <div className="mt-3">
         <button
           type="button"
           onClick={() => setShowReply((current) => !current)}
           disabled={!currentUser}
-          className="text-xs font-medium text-cyan-300 hover:text-cyan-200 disabled:cursor-not-allowed disabled:text-slate-400"
+          className="text-xs font-medium text-cyan-700 hover:text-cyan-600 disabled:cursor-not-allowed disabled:text-slate-400 dark:text-cyan-300 dark:hover:text-cyan-200"
         >
           Reply
         </button>
@@ -109,7 +109,7 @@ function CommentRow({
             onChange={(event) => setReplyText(event.target.value)}
             rows={3}
             maxLength={MAX_MESSAGE_LENGTH}
-            className="w-full rounded-xl border border-white/20 bg-slate-900/40 px-3 py-2 text-sm text-white placeholder:text-slate-400 focus:border-cyan-300 focus:outline-none"
+            className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-cyan-500 focus:outline-none dark:border-slate-600 dark:bg-slate-900/60 dark:text-white"
             placeholder="Write a reply..."
             disabled={!currentUser || isPostingReply}
           />
@@ -124,12 +124,12 @@ function CommentRow({
       )}
 
       {replies.length > 0 && (
-        <ul className="mt-4 space-y-3 border-l border-white/20 pl-4">
+        <ul className="mt-4 space-y-3 border-l border-slate-300 pl-3 sm:pl-4 dark:border-slate-600">
           {replies.map((reply) => (
-            <li key={reply.id} className="rounded-xl border border-white/15 bg-white/5 p-3">
-              <p className="text-xs font-semibold text-white">{reply.userName}</p>
-              <p className="mt-0.5 text-[11px] text-slate-300">{formatTimestampLabel(reply.createdAt)}</p>
-              <p className="mt-2 whitespace-pre-wrap text-sm text-slate-100">{reply.message}</p>
+            <li key={reply.id} className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900/50">
+              <p className="text-xs font-semibold text-slate-900 dark:text-white">{reply.userName}</p>
+              <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-300">{formatTimestampLabel(reply.createdAt)}</p>
+              <p className="mt-2 whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-100">{reply.message}</p>
             </li>
           ))}
         </ul>
@@ -224,18 +224,18 @@ export default function AGMComments() {
   };
 
   return (
-    <section className="rounded-2xl border bg-white/10 px-6 py-6 backdrop-blur">
-      <h2 className="text-2xl font-semibold text-white">AGM Agenda Comments</h2>
-      <p className="mt-2 text-sm text-slate-200">
+    <section className="rounded-2xl border border-slate-200 bg-white/90 px-4 py-5 shadow-sm sm:px-6 sm:py-6 dark:border-slate-800 dark:bg-slate-900/80">
+      <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">AGM Agenda Comments</h2>
+      <p className="mt-2 text-sm text-slate-700 dark:text-slate-200">
         Owners can suggest topics or raise questions ahead of the AGM in June 2026. All comments are visible to the
         community.
       </p>
 
       <div className="mt-6 space-y-4">
         {loading ? (
-          <p className="text-sm text-slate-300">Loading comments...</p>
+          <p className="text-sm text-slate-600 dark:text-slate-300">Loading comments...</p>
         ) : topLevelComments.length === 0 ? (
-          <p className="text-sm text-slate-300">No comments yet. Be the first to suggest an agenda item.</p>
+          <p className="text-sm text-slate-600 dark:text-slate-300">No comments yet. Be the first to suggest an agenda item.</p>
         ) : (
           topLevelComments.map((comment) => (
             <CommentRow
@@ -253,7 +253,7 @@ export default function AGMComments() {
       </div>
 
       <form onSubmit={submitTopLevel} className="mt-6 space-y-3">
-        <label htmlFor="agm-comment-input" className="block text-sm font-medium text-white">
+        <label htmlFor="agm-comment-input" className="block text-sm font-medium text-slate-900 dark:text-white">
           Add a comment
         </label>
         <textarea
@@ -262,15 +262,15 @@ export default function AGMComments() {
           onChange={(event) => setMessage(event.target.value)}
           rows={4}
           maxLength={MAX_MESSAGE_LENGTH}
-          className="w-full rounded-xl border border-white/20 bg-slate-900/40 px-3 py-2 text-sm text-white placeholder:text-slate-400 focus:border-cyan-300 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+          className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-cyan-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900/60 dark:text-white"
           placeholder={currentUser ? 'Share your agenda item or question...' : 'Please log in to add a comment'}
           disabled={!currentUser || postingId === 'root'}
         />
-        {!currentUser && <p className="text-sm text-amber-200">Please log in to add a comment</p>}
+        {!currentUser && <p className="text-sm text-amber-700 dark:text-amber-200">Please log in to add a comment</p>}
         <button
           type="submit"
           disabled={!currentUser || !message.trim() || postingId === 'root'}
-          className="inline-flex items-center rounded-xl bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-900 shadow disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex w-full items-center justify-center rounded-xl bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-900 shadow disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
         >
           {postingId === 'root' ? 'Posting...' : 'Post comment'}
         </button>
