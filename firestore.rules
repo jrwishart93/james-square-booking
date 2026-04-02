@@ -125,26 +125,6 @@ service cloud.firestore {
       );
     }
 
-    // ────────────── AGM COMMENTS (NEW) ──────────────
-    match /agmComments/{commentId} {
-      allow read: if true;
-      allow create: if isSignedIn()
-        && request.resource.data.keys().hasAll(['message', 'userId', 'userName', 'createdAt', 'parentId'])
-        && request.resource.data.userId == request.auth.uid
-        && request.resource.data.message is string
-        && request.resource.data.message.size() > 0
-        && request.resource.data.message.size() <= 1200
-        && request.resource.data.userName is string
-        && (
-          request.resource.data.parentId == null ||
-          request.resource.data.parentId is string
-        );
-      allow update, delete: if isSignedIn() && (
-        resource.data.userId == request.auth.uid ||
-        isAdmin()
-      );
-    }
-
     // ────────────── OWNERS-ONLY AREAS (NEW) ──────────────
 
     // 1) Owners Discussions (threads + messages)

@@ -1,31 +1,11 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { getAuth, isSignInWithEmailLink, signInWithEmailLink } from 'firebase/auth';
-
-function resolveRedirectTarget(from: string | null): string {
-  if (!from || !from.startsWith('/')) return '/dashboard';
-  if (from.startsWith('//')) return '/dashboard';
-  return from;
-}
-
-async function createServerSession(idToken: string) {
-  const response = await fetch('/api/auth/session-login', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ idToken }),
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to establish server session.');
-  }
-}
 
 export default function LoginCallback() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const redirectTarget = resolveRedirectTarget(searchParams.get('from'));
 
   useEffect(() => {
     const completeSignIn = async () => {
@@ -40,17 +20,17 @@ export default function LoginCallback() {
       }
 
       try {
-          const auth = getAuth();
-          if (isSignInWithEmailLink(auth, window.location.href)) {
-            const credential = await signInWithEmailLink(auth, email, window.location.href);
-            const idToken = await credential.user.getIdToken(true);
-            await createServerSession(idToken);
-            window.localStorage.removeItem('emailForSignIn');
-            window.localStorage.removeItem('nameForSignIn');
-            window.localStorage.removeItem('buildingForSignIn');
-            window.localStorage.removeItem('flatForSignIn');
-            router.push(redirectTarget);
-          }
+        const auth = getAuth();
+        if (isSignInWithEmailLink(auth, window.location.href)) {
+          const credential = await signInWithEmailLink(auth, email, window.location.href);
+          await credential.user.getIdToken(true);
+          window.localStorage.removeItem('emailForSignIn');
+          window.localStorage.removeItem('nameForSignIn');
+          window.localStorage.removeItem('buildingForSignIn');
+          window.localStorage.removeItem('flatForSignIn');
+          // Redirect to dashboard after successful email sign in.
+          router.push('/dashboard');
+        }
       } catch (error) {
         console.error('Error signing in with email link:', error);
         alert('Sign-in failed. Please try again.');
@@ -59,7 +39,7 @@ export default function LoginCallback() {
     };
 
     completeSignIn();
-  }, [redirectTarget, router]);
+  }, [router]);
 
   return (
     <main className="text-center mt-32">

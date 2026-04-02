@@ -51,14 +51,6 @@ export default function Header() {
     });
   };
 
-  const handleSignOut = async () => {
-    try {
-      await fetch("/api/auth/session-logout", { method: "POST" });
-    } finally {
-      await signOut(auth);
-    }
-  };
-
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (u) => {
       setUser(u);
@@ -283,7 +275,7 @@ export default function Header() {
                       <motion.button
                         whileHover={{ scale: 1.03 }}
                         whileTap={{ scale: 0.97 }}
-                        onClick={() => void handleSignOut()}
+                        onClick={() => signOut(auth)}
                         className="px-3 py-2 rounded-xl bg-black/80 text-white hover:bg-black"
                       >
                         Sign Out
@@ -302,7 +294,7 @@ export default function Header() {
               className="sm:hidden px-4 py-2 rounded-2xl border backdrop-blur-xl bg-white/55 dark:bg-white/10 border-black/10 dark:border-white/15 shadow-[0_8px_24px_rgba(0,0,0,0.10)] text-black/80 dark:text-white/90 relative overflow-hidden"
               aria-expanded={open}
               aria-label="Toggle menu"
-              onClick={handleMenuToggle}
+              onClick={() => setOpen((value) => !value)}
             >
               <span
                 className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.35),rgba(255,255,255,0.08),rgba(255,255,255,0))] opacity-60 dark:opacity-40"
@@ -338,7 +330,7 @@ export default function Header() {
                       whileTap={{ scale: 0.97 }}
                       onClick={() => {
                         handleMenuClose();
-                        void handleSignOut();
+                        signOut(auth);
                       }}
                       className="w-full px-3 py-2 rounded-xl bg-black/80 text-white hover:bg-black"
                     >

@@ -14,24 +14,6 @@ import { collection, doc, getDoc, getDocs, query, serverTimestamp, where, setDoc
 
 type ResidentType = 'owner' | 'renter' | 'stl_guest';
 
-function resolveRedirectTarget(from: string | null): string {
-  if (!from || !from.startsWith('/')) return '/dashboard';
-  if (from.startsWith('//')) return '/dashboard';
-  return from;
-}
-
-async function createServerSession(idToken: string) {
-  const response = await fetch('/api/auth/session-login', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ idToken }),
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to establish server session.');
-  }
-}
-
 export default function LoginClient() {
   const searchParams = useSearchParams();
   // In registration mode we use separate inputs for email and username,
@@ -52,7 +34,6 @@ export default function LoginClient() {
   const [message, setMessage] = useState('');
   const [isRegistering, setIsRegistering] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
-  const redirectTarget = resolveRedirectTarget(searchParams.get('from'));
 
   // List of property options
   const propertyOptions = [
@@ -119,8 +100,7 @@ export default function LoginClient() {
         // Registration: Create user with email and password, then store additional info.
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
-        const idToken = await user.getIdToken(true);
-        await createServerSession(idToken);
+        await user.getIdToken(true);
         const residentTypeLabel =
           residentType === 'owner'
             ? 'Owner'
@@ -142,10 +122,10 @@ export default function LoginClient() {
           },
           { merge: true }
         );
-        setMessage('Registration successful! Redirecting...');
+        setMessage('Registration successful! Redirecting to dashboard...');
         setIsRedirecting(true);
         setTimeout(() => {
-          window.location.href = redirectTarget;
+          window.location.href = '/dashboard';
         }, 2000);
       } else {
         // Login: Treat identifier as email if it contains "@" otherwise as username.
@@ -161,10 +141,9 @@ export default function LoginClient() {
           }
         }
         const userCredential = await signInWithEmailAndPassword(auth, loginEmail, password);
-        const idToken = await userCredential.user.getIdToken(true);
-        await createServerSession(idToken);
+        await userCredential.user.getIdToken(true);
         setIsRedirecting(true);
-        window.location.href = redirectTarget;
+        window.location.href = '/dashboard';
       }
     } catch (error: unknown) {
       const err = error as { code?: string; message?: string };
