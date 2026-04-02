@@ -14,13 +14,23 @@ type ServiceAccount = Parameters<typeof cert>[0];
 let adminAppInstance: App | null = null;
 
 const resolveServiceAccount = (): ServiceAccount | undefined => {
-  const credentials = process.env.FIREBASE_ADMIN_CREDENTIALS;
+  const credentials =
+    process.env.FIREBASE_ADMIN_CREDENTIALS ?? process.env.FIREBASE_ADMIN_JSON;
 
   if (credentials) {
     try {
-      return JSON.parse(credentials) as ServiceAccount;
+      const parsed = JSON.parse(credentials) as ServiceAccount & {
+        private_key?: string;
+      };
+      if (typeof parsed.private_key === 'string') {
+        parsed.private_key = parsed.private_key.replace(/\\n/g, '\n');
+      }
+      return parsed;
     } catch (error) {
-      console.error('Failed to parse FIREBASE_ADMIN_CREDENTIALS', error);
+      console.error(
+        'Failed to parse FIREBASE_ADMIN_CREDENTIALS/FIREBASE_ADMIN_JSON',
+        error
+      );
     }
   }
 
