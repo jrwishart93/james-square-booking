@@ -191,6 +191,100 @@ function PhotoCarousel() {
 }
 
 /** ------------------------------------------------
+ *  Pool area update notice (collapsible)
+ *  ------------------------------------------------ */
+function PoolAreaNotice() {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <section className="mx-auto max-w-6xl mt-6">
+      <div className="jqs-glass rounded-2xl p-6 mb-6 border border-sky-400/30 bg-gradient-to-br from-sky-500/10 via-cyan-500/10 to-emerald-500/10 shadow-lg shadow-sky-900/10">
+        <div className="mb-3 flex flex-wrap items-center gap-2">
+          <span className="inline-flex items-center rounded-full border border-sky-500/40 bg-sky-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-sky-900 dark:text-sky-200">
+            Latest resident notice
+          </span>
+          <span className="inline-flex items-center rounded-full border border-amber-500/40 bg-amber-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-900 dark:text-amber-200">
+            Updated
+          </span>
+        </div>
+
+        <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
+          Pool Area Update – 10th March (latest update 3rd April)
+        </h2>
+
+        <p className="mt-3 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
+          The ventilation/dehumidifier system has been affected by the high levels of humidity
+          following the initial incident. As a result, a fault has developed within the system
+          which requires a replacement motherboard.
+        </p>
+
+        <button
+          onClick={() => setExpanded((v: boolean) => !v)}
+          className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-sky-700 dark:text-sky-300 hover:underline focus:outline-none"
+          aria-expanded={expanded}
+        >
+          <motion.span
+            animate={{ rotate: expanded ? 90 : 0 }}
+            transition={{ duration: 0.2 }}
+            className="inline-block"
+          >
+            ▶
+          </motion.span>
+          {expanded ? 'Show less' : 'Read full update'}
+        </button>
+
+        <AnimatePresence initial={false}>
+          {expanded && (
+            <motion.div
+              key="pool-notice-body"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.25 }}
+              className="overflow-hidden"
+            >
+              <div className="mt-4 space-y-3 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200 border-t border-sky-400/20 pt-4">
+                <p>
+                  On Tuesday 10th March the fire alarm was triggered at James Square following an
+                  issue within the swimming pool plant room.
+                </p>
+                <p>
+                  The cause was identified as a small hole in a pipe connected to the chlorine
+                  system. As the pipe operates under pressure, water sprayed onto the wall and
+                  ceiling area where the electrical fuse box is located, causing the fuses to blow
+                  and resulting in a small electrical fire within the fuse box.
+                </p>
+                <p>
+                  An electrician has since attended and restored most of the power, and the required
+                  breakers have now been replaced. The damaged chlorine tubing has also now been
+                  replaced, with additional protective measures being put in place to help prevent a
+                  similar issue occurring again.
+                </p>
+                <p>
+                  The pool has reopened on a phased basis while the remaining repairs are carried
+                  out. As the dehumidifier is not currently operational, the pool temperature has
+                  been lowered to help reduce condensation within the pool area.
+                </p>
+                <p>
+                  Due to the high levels of humidity, additional electrical faults have been
+                  identified, including within the main ventilation/dehumidifier system. A
+                  replacement motherboard has been ordered, and once this has been delivered and
+                  fitted, the pool temperature can be increased back to normal levels and the
+                  remaining systems brought fully back online.
+                </p>
+                <p>
+                  The sauna remains out of action until these works have been completed.
+                </p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </section>
+  );
+}
+
+/** ------------------------------------------------
  *  Page
  *  ------------------------------------------------ */
 export default function HomePageClient() {
@@ -295,44 +389,7 @@ export default function HomePageClient() {
         </motion.div>
       </section>
 
-      <section className="mx-auto max-w-6xl mt-6">
-        <div className="jqs-glass rounded-2xl p-6 mb-6 border border-sky-400/30 bg-gradient-to-br from-sky-500/10 via-cyan-500/10 to-emerald-500/10 shadow-lg shadow-sky-900/10">
-          <div className="mb-4 flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center rounded-full border border-sky-500/40 bg-sky-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-sky-900 dark:text-sky-200">
-              Latest resident notice
-            </span>
-          </div>
-
-          <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
-            Resident Update – Tuesday 10th March
-          </h2>
-
-          <div className="mt-4 space-y-3 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
-            <p>
-              On Tuesday 10th March the fire alarm was triggered at James Square following an issue
-              within the swimming pool plant room.
-            </p>
-
-            <p>
-              The cause was identified as a small hole in a pipe connected to the chlorine system. As
-              the pipe operates under pressure, water sprayed onto the wall and ceiling area where the
-              electrical fuse box is located, causing the fuses to blow and resulting in a small
-              electrical fire within the fuse box.
-            </p>
-
-            <p>
-              An electrician has since attended and restored most of the power, however some breakers
-              still require to be replaced and the damaged chlorine pipe is due to be replaced.
-            </p>
-
-            <p>
-              The pool has now reopened on a phased basis while the remaining repairs are carried out.
-              As the dehumidifier is not currently operational, the pool temperature has been lowered
-              slightly to help reduce evaporation and humidity within the pool area.
-            </p>
-          </div>
-        </div>
-      </section>
+      <PoolAreaNotice />
 
       <AnnouncementNotice />
 
