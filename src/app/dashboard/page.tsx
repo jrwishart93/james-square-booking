@@ -326,7 +326,7 @@ export default function MyDashboardPage() {
 
   const quickLinks = [
     { href: '/owners', icon: Users, title: 'Owners Area', description: 'Access owner documents, voting records, and owners-only updates.' },
-    { href: '/AGM', icon: CalendarDays, title: 'AGM 2026', description: 'View the agenda, minutes, and materials for the 2026 AGM.' },
+    { href: '/agm', icon: CalendarDays, title: 'AGM 2026', description: 'View the agenda, minutes, and materials for the 2026 AGM.' },
     { href: '/book/schedule', icon: Calendar, title: 'Make a Booking', description: 'Reserve a slot for the pool, gym or sauna.' },
   ] as const;
 
