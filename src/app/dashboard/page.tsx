@@ -19,7 +19,8 @@ import Button from '@/components/ui/Button';
 import GlassCard from '@/components/ui/GlassCard';
 import SegmentedControl from '@/components/ui/SegmentedControl';
 import MobileAppPoster from '@/components/home/MobileAppPoster';
-import { Calendar, CalendarDays, CalendarX2, Clock3, MapPin, User as UserIcon } from 'lucide-react';
+import { Calendar, CalendarDays, CalendarX2, ChevronRight, Clock3, MapPin, User as UserIcon, Users } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface Booking {
   id: string;
@@ -321,6 +322,13 @@ export default function MyDashboardPage() {
   }
 
   const bookingView = showUpcoming ? 'upcoming' : 'past';
+  const upcomingCount = bookings.filter((b) => b.date >= today).length;
+
+  const quickLinks = [
+    { href: '/owners', icon: Users, title: 'Owners Area', description: 'Access owner documents, voting records, and owners-only updates.' },
+    { href: '/AGM', icon: CalendarDays, title: 'AGM 2026', description: 'View the agenda, minutes, and materials for the 2026 AGM.' },
+    { href: '/book/schedule', icon: Calendar, title: 'Make a Booking', description: 'Reserve a slot for the pool, gym or sauna.' },
+  ] as const;
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[linear-gradient(180deg,#f6f8fb_0%,#e7edf6_100%)] text-[color:var(--text-primary)] dark:bg-[linear-gradient(180deg,#070d1a_0%,#0a1426_58%,#060b18_100%)]">
@@ -333,20 +341,26 @@ export default function MyDashboardPage() {
       </div>
 
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-10 space-y-6 leading-relaxed">
-        <div className="flex flex-col gap-3 text-center sm:text-left">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[color:var(--muted)]">My dashboard</p>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4">
-            <div className="space-y-2">
-              <h1 className="text-3xl sm:text-4xl font-extrabold leading-tight drop-shadow-sm">My Dashboard</h1>
-              <p className="text-[color:var(--text-secondary)] leading-relaxed">
-                Keep on top of your bookings and account details.
-              </p>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div className="space-y-2">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[color:var(--muted)]">My dashboard</p>
+            <h1 className="text-3xl sm:text-4xl font-extrabold leading-tight drop-shadow-sm">
+              {username ? `Welcome back, ${username}` : 'My Dashboard'}
+            </h1>
+            <div className="flex flex-wrap items-center gap-3">
+              <p className="text-[color:var(--text-secondary)] leading-relaxed">Keep on top of your bookings and account details.</p>
+              {upcomingCount > 0 && (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-[color:var(--glass-border)] bg-white/60 px-3 py-1 text-xs font-semibold text-[color:var(--text-primary)] shadow-sm backdrop-blur-sm dark:bg-white/10">
+                  <Calendar className="h-3.5 w-3.5 text-[color:var(--muted)]" aria-hidden />
+                  {upcomingCount} upcoming {upcomingCount === 1 ? 'booking' : 'bookings'}
+                </span>
+              )}
             </div>
-            <div className="sm:mb-1">
-              <Button variant="primary" href="/book/schedule" className="w-full sm:w-auto">
-                Make New Booking
-              </Button>
-            </div>
+          </div>
+          <div className="shrink-0">
+            <Button variant="primary" href="/book/schedule" className="w-full sm:w-auto">
+              Make New Booking
+            </Button>
           </div>
         </div>
 
@@ -648,6 +662,37 @@ export default function MyDashboardPage() {
             </div>
           </GlassCard>
         </div>
+
+        <GlassCard
+          title={
+            <span className="flex items-center gap-3">
+              <ChevronRight className="h-5 w-5 text-slate-700 dark:text-white/80" aria-hidden />
+              <span className="text-lg font-semibold text-slate-900 dark:text-white">Quick Links</span>
+            </span>
+          }
+          subtitle="Jump to key areas of the site."
+        >
+          <div className="grid gap-4 sm:grid-cols-3">
+            {quickLinks.map(({ href, icon: Icon, title, description }) => (
+              <Link key={href} href={href} className="group block focus:outline-none">
+                <motion.div
+                  whileHover={{ y: -2, scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
+                  className="flex items-center gap-4 rounded-2xl border border-white/20 bg-white/50 p-4 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.06)] transition-colors group-hover:bg-white/70 dark:bg-white/10 dark:group-hover:bg-white/15"
+                >
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[color:var(--btn-bg)]/10 text-[color:var(--text-primary)]">
+                    <Icon className="h-5 w-5" aria-hidden />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-[color:var(--text-primary)] leading-snug">{title}</p>
+                    <p className="mt-0.5 text-xs text-[color:var(--text-secondary)] leading-relaxed line-clamp-2">{description}</p>
+                  </div>
+                  <ChevronRight className="h-4 w-4 shrink-0 text-[color:var(--muted)] transition-transform group-hover:translate-x-0.5" aria-hidden />
+                </motion.div>
+              </Link>
+            ))}
+          </div>
+        </GlassCard>
 
       </div>
 
