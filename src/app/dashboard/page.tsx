@@ -342,10 +342,16 @@ export default function MyDashboardPage() {
                 Keep on top of your bookings and account details.
               </p>
             </div>
-            <div className="sm:mb-1">
+            <div className="sm:mb-1 space-y-2">
               <Button variant="primary" href="/book/schedule" className="w-full sm:w-auto">
                 Make New Booking
               </Button>
+              <Link
+                href="/agm"
+                className="inline-flex items-center text-sm font-semibold text-[color:var(--text-secondary)] underline underline-offset-4 hover:text-[color:var(--text-primary)]"
+              >
+                Go to AGM Page
+              </Link>
             </div>
           </div>
         </div>

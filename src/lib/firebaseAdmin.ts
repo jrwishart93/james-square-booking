@@ -14,14 +14,35 @@ type ServiceAccount = Parameters<typeof cert>[0];
 let adminAppInstance: App | null = null;
 
 const resolveServiceAccount = (): ServiceAccount | undefined => {
-  const credentials = process.env.FIREBASE_ADMIN_CREDENTIALS;
+  const credentials =
+    process.env.FIREBASE_ADMIN_CREDENTIALS ?? process.env.FIREBASE_ADMIN_JSON;
 
   if (credentials) {
     try {
-      return JSON.parse(credentials) as ServiceAccount;
+      const parsed = JSON.parse(credentials) as ServiceAccount & {
+        private_key?: string;
+      };
+      if (typeof parsed.private_key === 'string') {
+        parsed.private_key = parsed.private_key.replace(/\\n/g, '\n');
+      }
+      return parsed;
     } catch (error) {
-      console.error('Failed to parse FIREBASE_ADMIN_CREDENTIALS', error);
+      console.error(
+        'Failed to parse FIREBASE_ADMIN_CREDENTIALS/FIREBASE_ADMIN_JSON',
+        error
+      );
     }
+  }
+
+  // Fallback: construct service account from individual env vars
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+  const privateKey = process.env.FIREBASE_PRIVATE_KEY;
+  if (clientEmail && privateKey) {
+    return {
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      clientEmail,
+      privateKey: privateKey.replace(/\\n/g, '\n'),
+    } as unknown as ServiceAccount;
   }
 
   return undefined;
@@ -43,6 +64,31 @@ const resolveProjectId = (
   return undefined;
 };
 
+
+const validateProjectIdConsistency = (serviceAccount?: ServiceAccount): void => {
+  const publicProjectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+  const adminProjectId =
+    serviceAccount &&
+    typeof serviceAccount === 'object' &&
+    'project_id' in serviceAccount &&
+    typeof serviceAccount.project_id === 'string'
+      ? serviceAccount.project_id
+      : undefined;
+  const envProjectId = process.env.FIREBASE_PROJECT_ID;
+
+  if (publicProjectId && adminProjectId && publicProjectId !== adminProjectId) {
+    console.warn(
+      `[firebaseAdmin] Firebase project mismatch: NEXT_PUBLIC_FIREBASE_PROJECT_ID=${publicProjectId} but admin credentials project_id=${adminProjectId}`,
+    );
+  }
+
+  if (publicProjectId && envProjectId && publicProjectId !== envProjectId) {
+    console.warn(
+      `[firebaseAdmin] Firebase project mismatch: NEXT_PUBLIC_FIREBASE_PROJECT_ID=${publicProjectId} but FIREBASE_PROJECT_ID=${envProjectId}`,
+    );
+  }
+};
+
 const initFirebaseAdmin = (): App => {
   if (adminAppInstance) return adminAppInstance;
   if (getApps().length) {
@@ -51,6 +97,7 @@ const initFirebaseAdmin = (): App => {
   }
 
   const serviceAccount = resolveServiceAccount();
+  validateProjectIdConsistency(serviceAccount);
   const projectId = resolveProjectId(serviceAccount);
 
   if (serviceAccount) {

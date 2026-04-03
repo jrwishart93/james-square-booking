@@ -17,6 +17,7 @@ export default function LogoutButton() {
 
   const handleLogout = async () => {
     try {
+      await fetch('/api/auth/session-logout', { method: 'POST' });
       await signOut(auth);
     } catch (error) {
       console.error("Logout failed", error);
