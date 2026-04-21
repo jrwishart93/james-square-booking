@@ -757,8 +757,11 @@ export default function HomePageClient() {
                 variants={fadeUpVariants(Boolean(reduceMotion))}
                 className="absolute inset-x-5 top-[34%] z-20 text-center text-4xl font-bold leading-none tracking-normal text-slate-950 drop-shadow-[0_1px_12px_rgba(255,255,255,0.36)] dark:text-slate-100 dark:drop-shadow-[0_1px_16px_rgba(0,0,0,0.72)] sm:top-[36%] sm:text-6xl lg:text-7xl"
               >
-                <span>James</span>{' '}
-                <span className="text-slate-500 dark:text-slate-400">Square</span>
+                <span className="relative inline-block">
+                  <span className="absolute inset-x-[-0.35em] inset-y-[-0.22em] -z-10 rounded-full bg-white/70 blur-xl dark:hidden" />
+                  <span>James</span>{' '}
+                  <span className="text-slate-500 dark:text-slate-400">Square</span>
+                </span>
               </motion.h1>
             </div>
             <div className="pointer-events-none absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-white via-white/45 to-transparent dark:from-neutral-950/80 dark:via-neutral-950/25 dark:to-transparent" />
