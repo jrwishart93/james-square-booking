@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { useState } from 'react';
+import { CalendarDays, ArrowRight } from 'lucide-react';
 import MobileAppPoster from '@/components/home/MobileAppPoster';
 import EGMAnnouncementBanner from '@/components/EGMAnnouncementBanner';
 import AnnouncementNotice from '@/components/AnnouncementNotice';
@@ -292,6 +293,88 @@ function PoolNotice() {
 }
 
 /** ------------------------------------------------
+ *  AGM Announcement
+ *  ------------------------------------------------ */
+function AGMNotice() {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <section className="mx-auto max-w-6xl mt-6">
+      <div className="jqs-glass rounded-2xl p-6 mb-6 border border-violet-400/30 bg-gradient-to-br from-violet-500/10 via-purple-500/10 to-indigo-500/10 shadow-lg shadow-violet-900/10">
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-violet-500/40 bg-violet-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-violet-900 dark:text-violet-200">
+            <CalendarDays className="h-3.5 w-3.5" />
+            Owners notice
+          </span>
+        </div>
+
+        <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
+          AGM Thursday 4th June 2026
+        </h2>
+
+        <div className="mt-3 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
+          <p>
+            The James Square AGM is approaching. Owners can review updates around what&apos;s been
+            happening around James Square and vote on plans for improvements. If you are a tenant,
+            please make your owner aware.
+          </p>
+
+          <AnimatePresence initial={false}>
+            {expanded && (
+              <motion.div
+                key="agm-detail"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3, ease: 'easeInOut' }}
+                className="overflow-hidden"
+              >
+                <div className="mt-4 space-y-3 border-t border-violet-400/30 pt-4">
+                  <p>
+                    The Annual General Meeting gives owners the opportunity to find out what has
+                    been happening at James Square and to vote on plans for improvements going
+                    forward. This will be our first AGM with Myreside Management as factors, taking
+                    place on Thursday 4th June 2026 via Microsoft Teams.
+                  </p>
+                  <p>
+                    For more information, and to leave suggestions on what you would like discussed,
+                    please visit the AGM page, email Ania at Myreside Management, or leave a
+                    comment on the AGM page.
+                  </p>
+                  <Link
+                    href="/agm"
+                    className="mt-2 inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white shadow hover:bg-violet-700 transition-colors"
+                  >
+                    <CalendarDays className="h-4 w-4" />
+                    View AGM page
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <button
+            onClick={() => setExpanded((v) => !v)}
+            className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-violet-700 dark:text-violet-300 hover:underline focus:outline-none"
+            aria-expanded={expanded}
+          >
+            {expanded ? 'Show less' : 'Read more'}
+            <motion.span
+              animate={{ rotate: expanded ? 180 : 0 }}
+              transition={{ duration: 0.2 }}
+              className="inline-block"
+            >
+              ▾
+            </motion.span>
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/** ------------------------------------------------
  *  Page
  *  ------------------------------------------------ */
 export default function HomePageClient() {
@@ -397,6 +480,8 @@ export default function HomePageClient() {
       </section>
 
       <PoolNotice />
+
+      <AGMNotice />
 
       <AnnouncementNotice />
 
