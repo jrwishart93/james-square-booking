@@ -903,8 +903,8 @@ export default function HomePageClient() {
                   Book the pool, gym &amp; sauna
                 </h2>
                 <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-                  Morning and evening sessions need to be booked. Open use does not need a
-                  booking.
+                  Bookings are recommended for morning and evening sessions. Open use during the
+                  day does not require a booking.
                 </p>
 
                 <div className="mt-4 grid grid-cols-2 gap-3">
