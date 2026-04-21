@@ -36,7 +36,27 @@ export const metadata: Metadata = {
     description: "Book pool, gym and sauna.",
     images: ["/images/logo/Logo.png"],
   },
-  icons: { icon: "/favicon.ico" },
+  icons: {
+    icon: [
+      {
+        url: "/images/logo/favicon-light.png",
+        sizes: "512x512",
+        type: "image/png",
+      },
+      {
+        url: "/images/logo/favicon-light.png",
+        media: "(prefers-color-scheme: light)",
+        sizes: "512x512",
+        type: "image/png",
+      },
+      {
+        url: "/images/logo/favicon-dark.png",
+        media: "(prefers-color-scheme: dark)",
+        sizes: "512x512",
+        type: "image/png",
+      },
+    ],
+  },
 };
 
 // New: proper Next.js viewport export (removes build warnings)
