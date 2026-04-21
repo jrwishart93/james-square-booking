@@ -25,11 +25,7 @@ const nextConfig: NextConfig = {
         destination: '/local',
         permanent: true,
       },
-      {
-        source: '/AGM',
-        destination: '/agm',
-        permanent: false,
-      },
+
     ];
   },
 };
