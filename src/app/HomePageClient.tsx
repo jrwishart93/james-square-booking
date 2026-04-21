@@ -647,6 +647,13 @@ function MyresideNotice() {
  *  ------------------------------------------------ */
 export default function HomePageClient() {
   const reduceMotion = useReducedMotion();
+  const shouldReduceMotion = Boolean(reduceMotion);
+  const heroKenBurnsAnimate = shouldReduceMotion
+    ? { scale: 1, x: 0, y: 0 }
+    : { scale: [1, 1.045, 1], x: [0, 10, 0], y: [0, -7, 0] };
+  const heroKenBurnsTransition = shouldReduceMotion
+    ? { duration: 0 }
+    : { duration: 30, ease: easeOut, repeat: Infinity };
 
   return (
     <div className="px-4 py-10 sm:py-14">
@@ -709,19 +716,10 @@ export default function HomePageClient() {
             <div className="relative z-10 h-[240px] overflow-hidden bg-slate-100/80 dark:bg-[#070d18]/80 sm:h-[430px] lg:h-[460px]">
               <div className="pointer-events-none absolute inset-0 z-10 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.12),transparent_46%),linear-gradient(180deg,rgba(255,255,255,0.12)_0%,transparent_32%,rgba(255,255,255,0.72)_100%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(15,23,42,0.18),transparent_46%),linear-gradient(180deg,rgba(2,6,23,0.16)_0%,transparent_34%,rgba(2,6,23,0.62)_100%)]" />
               <motion.div
-                className="flex h-full w-full items-center justify-center"
+                className="flex h-full w-full items-center justify-center dark:hidden"
                 initial={{ scale: 1, x: 0, y: 0 }}
-                animate={
-                  reduceMotion
-                    ? { scale: 1, x: 0, y: 0 }
-                    : { scale: 1.035, x: 6, y: -4 }
-                }
-                transition={{
-                  duration: reduceMotion ? 0 : 46,
-                  ease: 'easeInOut',
-                  repeat: reduceMotion ? 0 : Infinity,
-                  repeatType: 'reverse',
-                }}
+                animate={heroKenBurnsAnimate}
+                transition={heroKenBurnsTransition}
                 style={{ willChange: 'transform' }}
               >
                 {/* Light mode – daytime drone */}
@@ -733,7 +731,15 @@ export default function HomePageClient() {
                   priority
                   className="block h-[92%] w-full object-contain drop-shadow-[0_18px_35px_rgba(0,0,0,0.16)] dark:hidden"
                 />
+              </motion.div>
 
+              <motion.div
+                className="hidden h-full w-full items-center justify-center dark:flex"
+                initial={{ scale: 1, x: 0, y: 0 }}
+                animate={heroKenBurnsAnimate}
+                transition={heroKenBurnsTransition}
+                style={{ willChange: 'transform' }}
+              >
                 {/* Dark mode – nighttime drone */}
                 <Image
                   src="/images/buildingimages/Night-drone-js.png"
