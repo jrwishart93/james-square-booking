@@ -24,6 +24,7 @@ type FactorInfoPageProps = {
   documentationLinks: Array<{ href: string; label: string }>;
   additionalContent?: ReactNode;
   postDocumentationContent?: ReactNode;
+  importantNoteContent?: ReactNode;
 };
 
 const FactorInfoPage = ({
@@ -44,6 +45,7 @@ const FactorInfoPage = ({
   documentationLinks,
   additionalContent,
   postDocumentationContent,
+  importantNoteContent,
 }: FactorInfoPageProps) => {
   return (
     <GradientBG className="relative isolate min-h-screen w-screen -ml-[calc((100vw-100%)/2)] -mr-[calc((100vw-100%)/2)] px-4 md:px-8 py-12">
@@ -114,13 +116,17 @@ const FactorInfoPage = ({
 
           {postDocumentationContent}
 
-          <div className="rounded-2xl border border-slate-200/80 bg-slate-50/80 p-6 shadow-sm dark:border-white/10 dark:bg-white/5">
-            <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">Important note</h2>
-            <p className="mt-2 text-sm text-slate-700 dark:text-slate-200">
-              The information on this page is provided for transparency and reference. Final arrangements remain subject
-              to confirmation as part of the handover process.
-            </p>
-          </div>
+          {importantNoteContent === undefined ? (
+            <div className="rounded-2xl border border-slate-200/80 bg-slate-50/80 p-6 shadow-sm dark:border-white/10 dark:bg-white/5">
+              <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">Important note</h2>
+              <p className="mt-2 text-sm text-slate-700 dark:text-slate-200">
+                The information on this page is provided for transparency and reference. Final arrangements remain subject
+                to confirmation as part of the handover process.
+              </p>
+            </div>
+          ) : (
+            importantNoteContent
+          )}
         </div>
       </div>
     </GradientBG>

@@ -10,6 +10,15 @@ import { GlassCard } from '@/components/GlassCard';
 import GradientBG from '@/components/GradientBG';
 
 const OWNERS_ACCESS_KEY = 'owners_secure_access';
+const SURVEY_DOCUMENTS = [
+  { label: 'Elevations inspection report', href: '/docs/survey/21049_ElevationsReport_01.pdf' },
+  { label: 'Roof report: 01, 57 and 59',   href: '/docs/survey/21049_Report_01_57_59Roof.pdf' },
+  { label: 'Roof report: Block 39',         href: '/docs/survey/21049_Report_39_Roof.pdf' },
+  { label: 'Roof report: Blocks 45 and 51', href: '/docs/survey/21049_Report_45_51_Roof.pdf' },
+  { label: 'Roof report: Block 55',         href: '/docs/survey/21049_Report_55_Roof.pdf' },
+  { label: 'Roof report: Block 61',         href: '/docs/survey/21049_Report_61_Roof.pdf' },
+  { label: 'Roof report: Block 65',         href: '/docs/survey/21049_Report_65_Roof.pdf' },
+];
 const glassPanel =
   'rounded-2xl border border-white/40 bg-white/65 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5';
 
@@ -111,6 +120,10 @@ const OwnersSecurePage = () => {
 
         <div className="space-y-6">
           <motion.div variants={itemVariants}>
+            <SurveyDocumentsSection />
+          </motion.div>
+
+          <motion.div variants={itemVariants}>
             <AprilOwnersUpdateSection />
           </motion.div>
 
@@ -136,6 +149,39 @@ const OwnersSecurePage = () => {
 };
 
 export default OwnersSecurePage;
+
+function SurveyDocumentsSection() {
+  return (
+    <GlassCard
+      title="Building survey reports"
+      titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100"
+    >
+      <div className="space-y-4">
+        <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+          These PDF reports are from a building survey of James Square. They cover the condition of elevations and
+          roofs across all blocks.
+        </p>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {SURVEY_DOCUMENTS.map((doc) => (
+            <a
+              key={doc.href}
+              href={doc.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-14 items-center justify-between gap-3 rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-150 ease-out hover:-translate-y-0.5 hover:bg-white/95 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/40 dark:border-white/15 dark:bg-white/20 dark:text-white dark:hover:bg-white/25"
+            >
+              <span className="flex items-center gap-2">
+                <FileText className="h-4 w-4 shrink-0 text-slate-400 dark:text-slate-300" aria-hidden="true" />
+                {doc.label}
+              </span>
+              <span aria-hidden="true" className="text-slate-400 dark:text-slate-400">↗</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </GlassCard>
+  );
+}
 
 function AprilOwnersUpdateSection() {
   const [open, setOpen] = useState(false);

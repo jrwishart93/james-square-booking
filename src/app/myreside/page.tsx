@@ -38,113 +38,93 @@ export const metadata: Metadata = {
 const MyresidePage = () => {
   return (
     <FactorInfoPage
-      title="Myreside Management (active from 1 February 2025)"
-      subtitle="Active property factor for James Square"
+      title="Myreside Management"
+      subtitle="Current property factor for James Square, active from 1 February 2026"
       intro={
-        <>
-          <p>
-            Following a decision by owners at the Extraordinary General Meeting and subsequent vote, Myreside
-            Management was appointed as factor for James Square and formally took over management on 1 February 2025.
-          </p>
-          <p>
-            Myreside Management now manages day-to-day operations for the development, including owner communications,
-            payments, contractor coordination, and routine site oversight.
-          </p>
-        </>
+        <p>
+          Myreside Management is the current property factor for James Square. This page brings together the key
+          contact details, maintenance routes, owner payment information, costs, and documents residents may need.
+        </p>
       }
       alertContent={
         <div
-          role="status"
-          className="w-full rounded-2xl border border-sky-200/80 bg-sky-50/90 p-6 text-left text-slate-800 shadow-sm dark:border-sky-700/60 dark:bg-sky-900/30 dark:text-slate-100"
+          role="note"
+          className="w-full rounded-2xl border border-sky-200/80 bg-sky-50/90 p-5 text-left text-slate-800 shadow-sm dark:border-sky-700/60 dark:bg-sky-900/30 dark:text-slate-100"
         >
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-sky-100 text-sky-700 dark:bg-sky-800/60 dark:text-sky-100">
-              <Info className="h-5 w-5" aria-hidden="true" />
-            </span>
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
-              Update – Myreside Management Now Acting as Factor
-            </h2>
-          </div>
-          <div className="mt-4 space-y-4 text-sm md:text-base text-slate-700 dark:text-slate-200">
-            <p>Myreside Management have now formally taken over as factor for James Square.</p>
-            <p>
-              All owners should ensure that any previous payments to Fior Asset &amp; Property have been stopped and
-              that new payment arrangements are made directly with Myreside Management.
-            </p>
-            <p>
-              If you have not yet made contact with Myreside, please do so as soon as possible to confirm your
-              details and arrange ongoing building payments.
-            </p>
-            <div className="space-y-1">
-              <p className="font-semibold text-slate-900 dark:text-white">Myreside Management Limited</p>
-              <p>3 Dalkeith Road Mews</p>
-              <p>Edinburgh</p>
-              <p>EH16 5GA</p>
-              <p>
-                <span className="font-semibold text-slate-900 dark:text-white">Telephone:</span> 0131 466 3001
-              </p>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-3">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-sky-100 text-sky-700 dark:bg-sky-800/60 dark:text-sky-100">
+                <Info className="h-5 w-5" aria-hidden="true" />
+              </span>
+              <div className="space-y-1">
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Current factor</h2>
+                <p className="text-sm text-slate-700 dark:text-slate-200">
+                  Myreside Management has acted as the James Square factor since 1 February 2026. Fior Asset &amp;
+                  Property no longer manages the development.
+                </p>
+              </div>
             </div>
+            <a
+              href="#myreside-contact"
+              className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100"
+            >
+              View contact details
+            </a>
           </div>
-          <a
-            href="https://myreside-management.co.uk/contact-us/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 sm:w-auto"
-          >
-            Contact Myreside Management
-          </a>
         </div>
       }
       logoSrc="/images/logo/myreside-logo-removebg-preview.png"
       logoAlt="Myreside Management logo"
-      statusTitle="Current status"
-      statusContent={
-        <>
-          <p>Myreside Management is now responsible for managing James Square.</p>
-          <p>Fior Asset &amp; Property no longer acts as factor for the development.</p>
-          <p>All owner payments, account queries, and management-related requests should be directed to Myreside.</p>
-        </>
-      }
       managementTitle="How Myreside manages James Square"
-      managementText="Myreside Management currently delivers James Square’s factoring services through regular site inspections, day-to-day operational oversight, contractor coordination, and direct engagement with the owners’ committee."
-      communicationText="Owners should contact Myreside directly for all account, payment, maintenance, and general management queries using the phone, email, and online contact options shown on this page."
+      managementText="Myreside coordinates routine site oversight, contractor management, compliance administration, building services, and liaison with the owners’ committee for James Square’s shared areas."
+      communicationText="Residents can contact Myreside about shared-area maintenance and building management matters. Owners should use Myreside for account, payment, billing, and statement queries."
       costs={[]}
-      costsTitle="Current costs and documentation"
+      costsTitle="Owner costs summary"
       costsContent={
         <div className="space-y-6 text-sm md:text-base text-slate-700 dark:text-slate-200">
-          <div className="space-y-2">
-            <p>
-              The documents below set out the current Myreside management framework and active cost structure for
-              James Square.
-            </p>
-            <p>
-              Owners should use these figures and terms as the live basis for ongoing factoring and payment
-              arrangements.
-            </p>
-            <p>Direct Debit and digital communication incentives are currently available where applicable.</p>
-            <p>
-              Myreside have also confirmed that the building insurance figure has been amended to reflect the final
-              premium agreed with their broker and insurer. They have stated that this premium has been set with full
-              knowledge of the building’s claims history and is not subject to later adjustment on that basis.
-            </p>
-            <p>Owners should continue to use Myreside’s current billing and service terms for active accounts.</p>
-            <p>
-              Owners are encouraged to refer to the linked documentation for full details of current service delivery
-              and charging.
-            </p>
-          </div>
-          <div className="space-y-2">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Overall budget</h3>
-            <p>
-              <span className="font-semibold text-slate-900 dark:text-slate-100">Total annual factoring budget:</span>{' '}
-              £179,045.92
-            </p>
-            <p>This represents the full annual cost to manage and maintain James Square across all 103 properties.</p>
+          <p>
+            For owners, the current Myreside documentation sets out the live cost structure for factoring, insurance,
+            maintenance, and shared services at James Square.
+          </p>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="rounded-2xl border border-slate-200/80 bg-white/70 p-4 dark:border-white/10 dark:bg-white/5">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                Total annual budget
+              </p>
+              <p className="mt-1 text-xl font-semibold text-slate-900 dark:text-slate-100">£179,045.92</p>
+            </div>
+            <div className="rounded-2xl border border-slate-200/80 bg-white/70 p-4 dark:border-white/10 dark:bg-white/5">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                Management fee
+              </p>
+              <p className="mt-1 text-xl font-semibold text-slate-900 dark:text-slate-100">£180 per flat per year</p>
+            </div>
+            <div className="rounded-2xl border border-slate-200/80 bg-white/70 p-4 dark:border-white/10 dark:bg-white/5">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                Float
+              </p>
+              <p className="mt-1 text-xl font-semibold text-slate-900 dark:text-slate-100">£450 per flat</p>
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                Held as a refundable working balance, subject to account balance.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-slate-200/80 bg-white/70 p-4 dark:border-white/10 dark:bg-white/5">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                Insurance commission
+              </p>
+              <p className="mt-1 text-xl font-semibold text-slate-900 dark:text-slate-100">None</p>
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                Building insurance premium: £38,000.
+              </p>
+            </div>
           </div>
 
-          <div className="space-y-3">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Block-specific costs</h3>
-            <div className="overflow-x-auto">
+          <details className="rounded-2xl border border-slate-200/80 bg-white/70 p-4 dark:border-white/10 dark:bg-white/5">
+            <summary className="cursor-pointer text-sm font-semibold text-slate-900 marker:text-slate-500 dark:text-slate-100">
+              View block-by-block cost table
+            </summary>
+            <div className="mt-4 overflow-x-auto">
               <table className="w-full border-collapse text-left">
                 <thead className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
                   <tr>
@@ -206,115 +186,124 @@ const MyresidePage = () => {
                 </tbody>
               </table>
             </div>
-            <div className="space-y-2">
-              <p>Costs are not averaged across the development.</p>
-              <p>Each block’s cost reflects the number of flats in that block.</p>
-              <p>Lift maintenance and insurance are included where applicable.</p>
-              <p>Fire safety systems such as dry risers and alarm panels are also included.</p>
-              <p>Smaller blocks and blocks with additional infrastructure have a higher per-flat share.</p>
-              <p>Owners should refer to the figures for their block only.</p>
-            </div>
-          </div>
+            <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
+              Costs vary by block and are not averaged across the development. Owners should refer to the row for
+              their own block.
+            </p>
+          </details>
 
-          <div className="space-y-2">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Management fee</h3>
-            <p>
-              <span className="font-semibold text-slate-900 dark:text-slate-100">Management fee:</span> £180 per flat per
-              year
-            </p>
-            <p>This fee is included within the figures shown above.</p>
-            <p>The newly introduced incentives do not change the base management fee.</p>
-            <p>Covers property management, contractor coordination, compliance administration, and financial management.</p>
-          </div>
-
-          <div className="space-y-2">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Float</h3>
-            <p>
-              <span className="font-semibold text-slate-900 dark:text-slate-100">Float required:</span> £450 per flat
-            </p>
-            <p>Held as a refundable working balance, not a fee.</p>
-            <p>Used for cashflow and urgent expenditure.</p>
-            <p>Returned to the owner on sale, subject to account balance.</p>
-          </div>
-
-          <div className="space-y-2">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Insurance commission</h3>
-            <p>
-              <span className="font-semibold text-slate-900 dark:text-slate-100">Insurance commission:</span> none
-            </p>
-            <p>
-              The building insurance premium is £38,000 and has been agreed with Myreside’s broker and insurer with full
-              knowledge of the building’s claims history, so it is not subject to later adjustment on that basis.
-            </p>
-            <p>Myreside does not take commission on building insurance premiums.</p>
-          </div>
-          <p className="text-xs text-slate-500 dark:text-slate-400">*updated 18/01/2026</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Updated 18/01/2026. Owners should refer to Myreside’s documentation for full terms, service details, and
+            any applicable payment or digital communication incentives.
+          </p>
         </div>
       }
       documentationLinks={[
         {
           href: '/images/venues/myreside-tender-update-18jan.pdf',
-          label: 'View current Myreside management documentation (18 January 2025 PDF)',
+          label: 'View Myreside management documentation (18 January update PDF)',
+        },
+        {
+          href: '/images/buildingimages/Cleaning.pdf',
+          label: 'View cleaning standard PDF',
         },
       ]}
       additionalContent={
         <>
-          <GlassCard title="Confirm your details and payment arrangements" titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100">
-            <div className="space-y-3 text-sm md:text-base text-slate-700 dark:text-slate-200">
-              <p>
-                Owners should contact Myreside Management now to confirm contact details, update account information,
-                and ensure payment arrangements are active.
-              </p>
-              <p>
-                Use the portal or contact channels below for billing questions, statement queries, and ongoing
-                management requests.
-              </p>
-              <div className="space-y-1 text-sm md:text-base text-slate-700 dark:text-slate-200">
-                <p>Myreside Management Limited</p>
-                <p>3 Dalkeith Road Mews</p>
-                <p>Edinburgh</p>
-                <p>EH16 5GA</p>
+          <div id="myreside-contact">
+            <GlassCard
+              title="Contact Myreside"
+              titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100"
+            >
+              <div className="space-y-3 text-sm md:text-base text-slate-700 dark:text-slate-200">
                 <p>
-                  <span className="font-semibold text-slate-900 dark:text-slate-100">Telephone:</span> 0131 466 3001
+                  Use these details for shared-area maintenance, building management matters, and owner account
+                  queries.
                 </p>
                 <p>
-                  <span className="font-semibold text-slate-900 dark:text-slate-100">Email:</span>{' '}
-                  <a href="mailto:info@myreside-management.co.uk" className="underline underline-offset-2">
-                    info@myreside-management.co.uk
+                  <span className="font-semibold text-slate-900 dark:text-slate-100">For owners:</span> payment
+                  arrangements, billing questions, and statement queries should be handled directly with Myreside.
+                </p>
+                <div className="rounded-2xl border border-sky-200/80 bg-sky-50/90 p-4 dark:border-sky-700/60 dark:bg-sky-900/30">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="space-y-1">
+                      <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">
+                        Myreside owner portal
+                      </h3>
+                      <p className="text-sm text-slate-700 dark:text-slate-200">
+                        Owners can manage direct debits, view important documents, and check proposed works through
+                        the portal.
+                      </p>
+                    </div>
+                    <a
+                      href="https://portal.myreside-management.co.uk/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex shrink-0 items-center justify-center rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100"
+                    >
+                      Open Myreside Portal
+                    </a>
+                  </div>
+                </div>
+                <div className="space-y-1 text-sm md:text-base text-slate-700 dark:text-slate-200">
+                  <p>Myreside Management Limited</p>
+                  <p>3 Dalkeith Road Mews</p>
+                  <p>Edinburgh</p>
+                  <p>EH16 5GA</p>
+                  <p>
+                    <span className="font-semibold text-slate-900 dark:text-slate-100">Telephone:</span> 0131 466
+                    3001
+                  </p>
+                  <p>
+                    <span className="font-semibold text-slate-900 dark:text-slate-100">24hr emergencies:</span> 0131
+                    466 3001, then press 1
+                  </p>
+                  <p>
+                    <span className="font-semibold text-slate-900 dark:text-slate-100">Email:</span>{' '}
+                    <a href="mailto:info@myreside-management.co.uk" className="underline underline-offset-2">
+                      info@myreside-management.co.uk
+                    </a>
+                  </p>
+                </div>
+                <div className="flex flex-col gap-2 pt-1 sm:flex-row sm:flex-wrap">
+                  <a
+                    href="https://myreside-management.co.uk/contact-us/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-150 ease-out hover:bg-white/95 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 dark:border-white/15 dark:bg-white/20 dark:text-white dark:hover:bg-white/25"
+                  >
+                    Online contact form
                   </a>
-                </p>
-              </div>
-              <div className="flex flex-col gap-2 text-sm md:text-base text-slate-700 dark:text-slate-200">
-                <p>
-                  <span className="font-semibold text-slate-900 dark:text-slate-100">Owner portal:</span>{' '}
-                  <a href="https://myreside-management.co.uk/" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
-                    myreside-management.co.uk
+                  <a
+                    href="https://myreside-management.co.uk/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-150 ease-out hover:bg-white/95 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 dark:border-white/15 dark:bg-white/20 dark:text-white dark:hover:bg-white/25"
+                  >
+                    Myreside website
                   </a>
-                </p>
+                  <a
+                    href="mailto:info@myreside-management.co.uk"
+                    className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-150 ease-out hover:bg-white/95 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 dark:border-white/15 dark:bg-white/20 dark:text-white dark:hover:bg-white/25"
+                  >
+                    Email Myreside
+                  </a>
+                </div>
               </div>
-              <a
-                href="https://myreside-management.co.uk/contact-us/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-150 ease-out hover:bg-white/95 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 dark:border-white/15 dark:bg-white/20 dark:text-white dark:hover:bg-white/25"
-              >
-                Contact Myreside via online form
-              </a>
-            </div>
-          </GlassCard>
+            </GlassCard>
+          </div>
           <GlassCard
-            title="Cleaning Standard – Current Service Overview"
+            title="Cleaning standard"
             titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100"
           >
-            <div className="space-y-4 text-sm md:text-base text-slate-700 dark:text-slate-200">
+            <div className="space-y-3 text-sm md:text-base text-slate-700 dark:text-slate-200">
               <p>
-                One-page summary prepared by Myreside Management outlining the current routine cleaning standard in
-                place at James Square.
+                Myreside’s current routine cleaning standard for James Square is available as a compact PDF summary.
               </p>
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                 <a
                   href="/images/buildingimages/Cleaning.pdf"
-                  className="inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold text-slate-900 transition hover:brightness-[1.05] jqs-glass dark:text-slate-100"
+                  className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-150 ease-out hover:bg-white/95 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 dark:border-white/15 dark:bg-white/20 dark:text-white dark:hover:bg-white/25"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -324,18 +313,18 @@ const MyresidePage = () => {
                   Opens in a new tab for easy viewing.
                 </span>
               </div>
-              <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white/70 shadow-sm dark:border-white/10 dark:bg-white/5">
-                <div className="relative aspect-[3/4] w-full">
-                  <iframe
-                    title="Cleaning Standard – Current Service Overview PDF preview"
-                    src="/images/buildingimages/Cleaning.pdf"
-                    className="absolute inset-0 h-full w-full"
-                  />
-                </div>
-              </div>
             </div>
           </GlassCard>
         </>
+      }
+      importantNoteContent={
+        <div className="rounded-2xl border border-slate-200/80 bg-slate-50/80 p-6 shadow-sm dark:border-white/10 dark:bg-white/5">
+          <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">Important note</h2>
+          <p className="mt-2 text-sm text-slate-700 dark:text-slate-200">
+            Information on this page is provided as a practical guide for residents and owners. For formal account,
+            payment, or service instructions, use Myreside’s own correspondence, portal, and documentation.
+          </p>
+        </div>
       }
     />
   );
