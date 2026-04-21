@@ -52,14 +52,16 @@ const FactorInfoPage = ({
       <div className="relative mx-auto max-w-5xl px-2 sm:px-4 md:px-0 space-y-10">
         <header className="pt-5 md:pt-6 space-y-4 md:space-y-6 text-center md:text-left">
           <div className="flex flex-col items-center gap-4 md:flex-row md:items-center md:gap-6">
-            <Image
-              src={logoSrc}
-              alt={logoAlt}
-              width={220}
-              height={80}
-              className="h-20 w-auto object-contain"
-              priority
-            />
+            <div className="flex shrink-0 items-center justify-center rounded-2xl bg-white/75 px-6 py-3 shadow-[0_2px_20px_rgba(255,255,255,0.55),0_0_40px_rgba(148,163,184,0.18)] backdrop-blur-sm dark:bg-white/20 dark:shadow-[0_2px_20px_rgba(255,255,255,0.14)]">
+              <Image
+                src={logoSrc}
+                alt={logoAlt}
+                width={220}
+                height={80}
+                className="h-20 w-auto object-contain"
+                priority
+              />
+            </div>
             <div className="space-y-2">
               <h1 className="text-3xl md:text-4xl font-semibold text-neutral-900 dark:text-white">{title}</h1>
               <p className="text-sm md:text-base text-slate-600 dark:text-slate-300">{subtitle}</p>

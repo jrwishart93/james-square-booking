@@ -120,15 +120,15 @@ const OwnersSecurePage = () => {
 
         <div className="space-y-6">
           <motion.div variants={itemVariants}>
-            <SurveyDocumentsSection />
-          </motion.div>
-
-          <motion.div variants={itemVariants}>
             <AprilOwnersUpdateSection />
           </motion.div>
 
           <motion.div variants={itemVariants}>
             <CommitteeUpdateSection />
+          </motion.div>
+
+          <motion.div variants={itemVariants}>
+            <SurveyDocumentsSection />
           </motion.div>
 
           <motion.div variants={itemVariants}>
