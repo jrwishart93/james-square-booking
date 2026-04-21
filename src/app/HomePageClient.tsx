@@ -78,11 +78,68 @@ function cardRevealVariants(reduceMotion: boolean): Variants {
 }
 
 const carouselSlides = [
-  { src: '/images/buildingimages/front.jpg', alt: 'Front of James Square', w: 1535, h: 1024 },
-  { src: '/images/buildingimages/garden.jpg', alt: 'Garden at James Square', w: 1200, h: 900 },
-  { src: '/images/buildingimages/pool.jpg', alt: 'Pool at James Square', w: 1600, h: 1066 },
-  { src: '/images/buildingimages/above.jpg', alt: 'James Square from above', w: 1536, h: 1024 },
+  {
+    src: '/images/home-photos/01-calecresc.png',
+    alt: 'Caledonian Crescent near James Square',
+    w: 1235,
+    h: 956,
+  },
+  {
+    src: '/images/home-photos/02-poolatnight.png',
+    alt: 'Pool area at night',
+    w: 1536,
+    h: 1024,
+  },
+  {
+    src: '/images/home-photos/03-snowgarden.png',
+    alt: 'James Square garden in the snow',
+    w: 1329,
+    h: 1086,
+  },
+  {
+    src: '/images/home-photos/04-coffeeshop.png',
+    alt: 'Local coffee shop near James Square',
+    w: 1449,
+    h: 1086,
+  },
+  {
+    src: '/images/home-photos/05-bench.png',
+    alt: 'Bench in the James Square garden',
+    w: 1448,
+    h: 1086,
+  },
+  {
+    src: '/images/home-photos/06-building39.png',
+    alt: 'James Square building 39',
+    w: 1524,
+    h: 1032,
+  },
+  {
+    src: '/images/home-photos/07-building57.png',
+    alt: 'James Square building 57',
+    w: 1448,
+    h: 1086,
+  },
+  {
+    src: '/images/home-photos/08-building55.png',
+    alt: 'James Square building 55',
+    w: 1448,
+    h: 1086,
+  },
+  {
+    src: '/images/home-photos/09-building61.png',
+    alt: 'James Square building 61',
+    w: 1448,
+    h: 1086,
+  },
+  {
+    src: '/images/home-photos/10-frontgate.png',
+    alt: 'Front gate at James Square',
+    w: 1448,
+    h: 1086,
+  },
 ];
+const carouselSlideDurationSeconds = 6.5;
 
 function SectionHeader({
   children,
@@ -260,6 +317,8 @@ function PhotoCarousel() {
   const reduceMotion = useReducedMotion();
   const [idx, setIdx] = useState(0);
   const [paused, setPaused] = useState(false);
+  const activeSlide = carouselSlides[idx];
+  const panDirection = idx % 2 === 0 ? 1 : -1;
   const prev = () => setIdx((i) => (i - 1 + carouselSlides.length) % carouselSlides.length);
   const next = () => setIdx((i) => (i + 1) % carouselSlides.length);
 
@@ -268,7 +327,7 @@ function PhotoCarousel() {
 
     const interval = window.setInterval(() => {
       setIdx((i) => (i + 1) % carouselSlides.length);
-    }, 5000);
+    }, carouselSlideDurationSeconds * 1000);
 
     return () => window.clearInterval(interval);
   }, [paused, reduceMotion]);
@@ -307,25 +366,51 @@ function PhotoCarousel() {
           </div>
         </div>
 
-        <div className="relative overflow-hidden rounded-xl">
-          <AnimatePresence mode="popLayout" initial={false}>
+        <div className="relative overflow-hidden rounded-xl bg-neutral-950">
+          <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={idx}
-              initial={{ opacity: 0.0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0.0, scale: 0.98 }}
-              transition={{ duration: 0.25 }}
-              className="w-full"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: reduceMotion ? 0 : 0.9, ease: easeOut }}
+              className="relative h-[280px] w-full sm:h-[420px]"
             >
               <Image
-                src={carouselSlides[idx].src}
-                alt={carouselSlides[idx].alt}
-                width={carouselSlides[idx].w}
-                height={carouselSlides[idx].h}
-                className="w-full h-[280px] sm:h-[420px] object-cover"
+                src={activeSlide.src}
+                alt=""
+                width={activeSlide.w}
+                height={activeSlide.h}
+                aria-hidden="true"
+                className="absolute inset-0 h-full w-full scale-110 object-cover opacity-45 blur-xl saturate-125"
                 sizes="(min-width: 1024px) 1000px, 100vw"
                 priority={idx === 0}
               />
+              <motion.div
+                className="absolute inset-0"
+                initial={{ scale: 1.03, x: 0, y: 0 }}
+                animate={
+                  reduceMotion
+                    ? { scale: 1.03, x: 0, y: 0 }
+                    : { scale: 1.12, x: panDirection * 14, y: -10 }
+                }
+                transition={{
+                  duration: reduceMotion ? 0 : carouselSlideDurationSeconds,
+                  ease: 'linear',
+                }}
+                style={{ willChange: 'transform' }}
+              >
+                <Image
+                  src={activeSlide.src}
+                  alt={activeSlide.alt}
+                  width={activeSlide.w}
+                  height={activeSlide.h}
+                  className="h-full w-full object-cover"
+                  sizes="(min-width: 1024px) 1000px, 100vw"
+                  priority={idx === 0}
+                />
+              </motion.div>
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-black/10" />
             </motion.div>
           </AnimatePresence>
           <div className="absolute inset-x-0 bottom-0 h-0.5 bg-black/10 dark:bg-white/15">
@@ -334,7 +419,10 @@ function PhotoCarousel() {
               className="h-full origin-left bg-neutral-950/70 dark:bg-white/80"
               initial={{ scaleX: 0 }}
               animate={reduceMotion || paused ? { scaleX: 0 } : { scaleX: 1 }}
-              transition={{ duration: reduceMotion || paused ? 0 : 5, ease: 'linear' }}
+              transition={{
+                duration: reduceMotion || paused ? 0 : carouselSlideDurationSeconds,
+                ease: 'linear',
+              }}
             />
           </div>
         </div>
@@ -353,6 +441,17 @@ function PhotoCarousel() {
             />
           ))}
         </div>
+
+        <p className="mx-auto mt-4 max-w-2xl text-center text-xs leading-relaxed text-neutral-600 dark:text-neutral-400 sm:text-sm">
+          Have a photo of James Square you would like to share on the website? Email it to{' '}
+          <a
+            href="mailto:contact@james-square.com"
+            className="font-medium text-neutral-900 underline underline-offset-2 hover:text-sky-700 dark:text-neutral-100 dark:hover:text-sky-300"
+          >
+            contact@james-square.com
+          </a>
+          .
+        </p>
       </div>
     </section>
   );
