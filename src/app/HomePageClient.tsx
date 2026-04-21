@@ -677,7 +677,7 @@ export default function HomePageClient() {
             <motion.div
               className="absolute inset-0"
               initial={{ scale: 1, y: 0 }}
-              animate={reduceMotion ? { scale: 1, y: 0 } : { scale: 1.06, y: -8 }}
+              animate={reduceMotion ? { scale: 1, y: 0 } : { scale: 1.04, y: -4 }}
               transition={{
                 duration: reduceMotion ? 0 : 45,
                 ease: 'linear',
@@ -686,6 +686,27 @@ export default function HomePageClient() {
                 willChange: 'transform',
               }}
             >
+              <Image
+                src="/images/buildingimages/Day-drone-js.png"
+                alt=""
+                width={1536}
+                height={1024}
+                priority
+                aria-hidden="true"
+                className="block h-full w-full scale-105 object-cover opacity-45 blur-sm dark:hidden"
+              />
+              <Image
+                src="/images/buildingimages/Night-drone-js.png"
+                alt=""
+                width={1536}
+                height={1024}
+                priority
+                aria-hidden="true"
+                className="hidden h-full w-full scale-105 object-cover opacity-45 blur-sm dark:block"
+              />
+            </motion.div>
+
+            <div className="relative z-10 h-[220px] bg-white/20 dark:bg-black/15 sm:h-[420px]">
               {/* Light mode – daytime drone */}
               <Image
                 src="/images/buildingimages/Day-drone-js.png"
@@ -693,7 +714,7 @@ export default function HomePageClient() {
                 width={1536}
                 height={1024}
                 priority
-                className="block h-[220px] w-full object-cover object-[center_22%] dark:hidden sm:h-[380px]"
+                className="block h-full w-full object-contain drop-shadow-[0_18px_35px_rgba(0,0,0,0.16)] dark:hidden"
               />
 
               {/* Dark mode – nighttime drone */}
@@ -703,11 +724,9 @@ export default function HomePageClient() {
                 width={1536}
                 height={1024}
                 priority
-                className="hidden h-[220px] w-full object-cover object-[center_22%] dark:block sm:h-[380px]"
+                className="hidden h-full w-full object-contain drop-shadow-[0_18px_35px_rgba(0,0,0,0.28)] dark:block"
               />
-            </motion.div>
-
-            <div className="relative h-[220px] sm:h-[380px]" />
+            </div>
             <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white/80 via-white/20 to-transparent dark:from-neutral-950/35 dark:via-neutral-950/10" />
           </motion.div>
 
