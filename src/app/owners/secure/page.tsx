@@ -111,6 +111,10 @@ const OwnersSecurePage = () => {
 
         <div className="space-y-6">
           <motion.div variants={itemVariants}>
+            <AprilOwnersUpdateSection />
+          </motion.div>
+
+          <motion.div variants={itemVariants}>
             <CommitteeUpdateSection />
           </motion.div>
 
@@ -132,6 +136,158 @@ const OwnersSecurePage = () => {
 };
 
 export default OwnersSecurePage;
+
+function AprilOwnersUpdateSection() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <GlassCard titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100">
+      <article className="rounded-xl border border-emerald-400/20 bg-emerald-500/5 p-6 space-y-4">
+        <header className="space-y-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Owners Update – James Square</h2>
+            <span className="inline-flex items-center rounded-full border border-emerald-400/40 bg-emerald-500/15 px-2.5 py-0.5 text-xs font-semibold text-emerald-800 dark:text-emerald-300">
+              April 2026
+            </span>
+            <span className="inline-flex items-center rounded-full border border-cyan-300/40 bg-cyan-500/10 px-2.5 py-0.5 text-xs font-semibold text-cyan-700 dark:text-cyan-300">
+              Latest update
+            </span>
+          </div>
+        </header>
+
+        <div className="space-y-3 text-sm md:text-base text-slate-700 dark:text-slate-200">
+          <p>
+            Since Myreside Management took over earlier this year, a number of issues across James Square have been
+            identified and are now being actively worked through. There has been steady progress behind the scenes,
+            with the committee meeting regularly with the Myreside team to move matters forward.
+          </p>
+          <p>
+            While there is still work to be done, things are moving in the right direction. Owners are asked to
+            continue supporting this process and ensure all payments and contact details are now updated with Myreside
+            Management. Please also remember to save the date for this year&apos;s AGM and visit the{' '}
+            <Link href="/agm" className="font-semibold text-cyan-700 transition-colors hover:text-cyan-600 dark:text-cyan-300 dark:hover:text-cyan-200">
+              AGM page
+            </Link>
+            {' '}for full details and access to the meeting link.
+          </p>
+        </div>
+
+        <ExpandButton
+          open={open}
+          setOpen={setOpen}
+          labelWhenClosed="Read full April update"
+          labelWhenOpen="Hide full update"
+          controlsId="april-update-details"
+        />
+
+        <AnimatePresence initial={false}>
+          {open && (
+            <motion.div
+              id="april-update-details"
+              className="space-y-4 overflow-hidden"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.28 }}
+            >
+              <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+                Since Myreside Management took over responsibility for James Square on 1 February 2026, there has been
+                a significant amount of work ongoing to understand, stabilise, and improve the condition of the
+                development.
+              </p>
+              <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+                Ania Jennings was appointed as Property Manager and was immediately dealing with a number of urgent
+                issues. From the outset, there were problems relating to the pool plant room, including a leak which
+                led to electrical faults and associated damage. This required immediate action, including isolating
+                power and closing the pool area to ensure safety while investigations and repairs could be carried out.
+              </p>
+              <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+                As work progressed, it became clear that there were wider issues across the development. Multiple
+                leaks have been identified in different blocks, affecting both individual flats and communal areas. In
+                some cases, this has led to water ingress, damage to ceilings, and saturated flooring within shared
+                spaces. Specialist contractors have been instructed to investigate and identify the source of these
+                problems so that appropriate repairs can be planned.
+              </p>
+              <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+                At the same time, Myreside has had to manage a challenging transition from the previous factor. Key
+                information and documentation were not provided at handover, including proprietor contact details,
+                building drawings, and records relating to contractors and maintenance. This has meant that additional
+                time has been required to piece together a full understanding of the development before longer-term
+                solutions can be implemented.
+              </p>
+              <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+                Despite these challenges, progress is being made. The committee has now met with the directors of
+                Myreside Management and with Ania on several occasions. These meetings have been constructive, and
+                there is a clear plan forming around how to address both the immediate issues and the longer-term
+                maintenance of the development. Owners should be reassured that matters are moving in the right
+                direction, although this is a large workload that has been inherited and will take time to fully
+                resolve. Your patience and understanding during this period is appreciated.
+              </p>
+              <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+                A review of contractors has also been carried out. Where appropriate, existing contractors have been
+                retained due to their familiarity with the development, while Myreside continues to assess performance
+                and ensure that services such as lift maintenance, fire safety systems, pool plant servicing, and
+                general repairs are properly managed going forward.
+              </p>
+              <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+                Fire safety has been identified as an area requiring improvement. Initial inspections have highlighted
+                gaps in coverage and compliance, and proposals have been obtained to introduce regular servicing and
+                bring systems up to an appropriate standard. In addition, a proposal has been received to update the
+                previous building survey, which will provide a clear and current picture of the condition of each
+                block and allow works to be prioritised properly.
+              </p>
+              <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+                Alongside these larger items, a number of day-to-day issues have also been addressed. This includes
+                lift repairs, gutter maintenance, and the management of items left in communal areas. Owners are
+                reminded that leaving items in shared spaces can create both safety and access issues, and continued
+                cooperation in keeping these areas clear is important.
+              </p>
+              <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+                It was also noted that there had been ongoing issues with dog fouling within the central grass area.
+                Signage has since been put in place, and this has had a positive effect. There have been no recent
+                reports of further issues, and thanks are extended to residents for helping improve this situation.
+                Owners and residents are asked to continue being mindful and to clean up after their dogs to maintain
+                this standard.
+              </p>
+
+              <div className="rounded-xl border border-amber-300/30 bg-amber-500/10 p-4 space-y-2 text-sm md:text-base text-slate-800 dark:text-slate-100">
+                <h3 className="text-base font-semibold">Payment reminder</h3>
+                <p>
+                  Myreside Management is now the appointed factor for James Square. All payments should be directed to
+                  Myreside. Any owner who has made payments to Fior after February 2026 should contact them as soon
+                  as possible to request a refund and recover any funds sent in error.
+                </p>
+                <p>
+                  It is also important that owners ensure their contact details are up to date with Myreside so that
+                  they receive all future communications. Full contact and portal information can be found on the{' '}
+                  <Link href="/myreside" className="font-semibold text-cyan-700 transition-colors hover:text-cyan-600 dark:text-cyan-300 dark:hover:text-cyan-200">
+                    Myreside page
+                  </Link>.
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-cyan-300/30 bg-cyan-500/10 p-4 space-y-2 text-sm md:text-base text-slate-800 dark:text-slate-100">
+                <h3 className="text-base font-semibold">AGM – Thursday 4 June 2026</h3>
+                <p>
+                  Please save the date for this year&apos;s AGM. Visit the{' '}
+                  <Link href="/agm" className="font-semibold text-cyan-700 transition-colors hover:text-cyan-600 dark:text-cyan-300 dark:hover:text-cyan-200">
+                    AGM page
+                  </Link>
+                  {' '}for further information, to submit any points you would like raised, and to access the Teams
+                  meeting link.
+                </p>
+              </div>
+
+              <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+                Further updates will continue to be shared as progress is made.
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </article>
+    </GlassCard>
+  );
+}
 
 function CommitteeUpdateSection() {
   const [open, setOpen] = useState(false);
