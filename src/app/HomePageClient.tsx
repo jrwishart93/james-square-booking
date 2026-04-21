@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { useState } from 'react';
 import MobileAppPoster from '@/components/home/MobileAppPoster';
-import EGMAnnouncementBanner from '@/components/EGMAnnouncementBanner';
+import AGMAnnouncementBanner from '@/components/AGMAnnouncementBanner';
 import AnnouncementNotice from '@/components/AnnouncementNotice';
 
 /** ------------------------------------------------
@@ -299,9 +299,6 @@ export default function HomePageClient() {
 
   return (
     <main className="px-4 py-10 sm:py-14">
-      <div className="mb-8 sm:mb-10">
-        <EGMAnnouncementBanner />
-      </div>
       {/* HERO */}
       <section className="mx-auto max-w-6xl">
         <motion.div
@@ -389,6 +386,10 @@ export default function HomePageClient() {
                   <RulePill title="Bookable Windows" detail="05:30–09:30 • 17:00–23:00" />
                   <RulePill title="Daily Limit" detail="Max 2 slots per facility" />
                   <RulePill title="Free Use" detail="11:00–17:00 (no booking)" />
+                </div>
+
+                <div className="pt-3">
+                  <AGMAnnouncementBanner />
                 </div>
               </div>
             </header>
