@@ -707,43 +707,59 @@ export default function HomePageClient() {
             </motion.div>
 
             <div className="relative z-10 h-[220px] bg-white/20 dark:bg-black/15 sm:h-[420px]">
-              {/* Light mode – daytime drone */}
-              <Image
-                src="/images/buildingimages/Day-drone-js.png"
-                alt="James Square aerial daytime"
-                width={1536}
-                height={1024}
-                priority
-                className="block h-full w-full object-contain drop-shadow-[0_18px_35px_rgba(0,0,0,0.16)] dark:hidden"
-              />
+              <motion.div
+                className="flex h-full w-full items-center justify-center"
+                initial={{ scale: 1, x: 0, y: 0 }}
+                animate={
+                  reduceMotion
+                    ? { scale: 1, x: 0, y: 0 }
+                    : { scale: 1.025, x: 4, y: -3 }
+                }
+                transition={{
+                  duration: reduceMotion ? 0 : 36,
+                  ease: 'easeInOut',
+                  repeat: reduceMotion ? 0 : Infinity,
+                  repeatType: 'reverse',
+                }}
+                style={{ willChange: 'transform' }}
+              >
+                {/* Light mode – daytime drone */}
+                <Image
+                  src="/images/buildingimages/Day-drone-js.png"
+                  alt="James Square aerial daytime"
+                  width={1536}
+                  height={1024}
+                  priority
+                  className="block h-[94%] w-full object-contain drop-shadow-[0_18px_35px_rgba(0,0,0,0.16)] dark:hidden"
+                />
 
-              {/* Dark mode – nighttime drone */}
-              <Image
-                src="/images/buildingimages/Night-drone-js.png"
-                alt="James Square aerial nighttime"
-                width={1536}
-                height={1024}
-                priority
-                className="hidden h-full w-full object-contain drop-shadow-[0_18px_35px_rgba(0,0,0,0.28)] dark:block"
-              />
+                {/* Dark mode – nighttime drone */}
+                <Image
+                  src="/images/buildingimages/Night-drone-js.png"
+                  alt="James Square aerial nighttime"
+                  width={1536}
+                  height={1024}
+                  priority
+                  className="hidden h-[94%] w-full object-contain drop-shadow-[0_18px_35px_rgba(0,0,0,0.28)] dark:block"
+                />
+              </motion.div>
+
+              <motion.h1
+                variants={fadeUpVariants(Boolean(reduceMotion))}
+                className="absolute left-5 top-[36%] z-20 text-left text-4xl font-bold leading-none tracking-normal text-neutral-950 drop-shadow-[0_1px_12px_rgba(255,255,255,0.28)] dark:text-neutral-100 dark:drop-shadow-[0_1px_14px_rgba(0,0,0,0.55)] sm:left-10 sm:top-[38%] sm:text-6xl lg:left-14"
+              >
+                <span>James</span>{' '}
+                <span className="text-slate-500 dark:text-slate-500">Square</span>
+              </motion.h1>
             </div>
             <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white/80 via-white/20 to-transparent dark:from-neutral-950/35 dark:via-neutral-950/10" />
           </motion.div>
 
           <div className="p-6 sm:p-10">
             <header className="text-center">
-              <motion.h1
-                variants={fadeUpVariants(Boolean(reduceMotion))}
-                className="text-4xl font-bold leading-tight sm:text-5xl"
-              >
-                <span className="bg-gradient-to-r from-neutral-800 to-slate-600 bg-clip-text text-transparent dark:from-neutral-100 dark:to-slate-300">
-                  James Square
-                </span>
-              </motion.h1>
-
               <motion.p
                 variants={fadeUpVariants(Boolean(reduceMotion))}
-                className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-neutral-700 dark:text-neutral-300 sm:text-lg"
+                className="mx-auto max-w-xl text-base leading-relaxed text-neutral-700 dark:text-neutral-300 sm:text-lg"
               >
                 Keep up with resident notices, building information, and shared facilities in one
                 place.
