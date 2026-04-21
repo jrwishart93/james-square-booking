@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { useState } from 'react';
 import MobileAppPoster from '@/components/home/MobileAppPoster';
-import EGMAnnouncementBanner from '@/components/EGMAnnouncementBanner';
+import AGMAnnouncementBanner from '@/components/AGMAnnouncementBanner';
 import AnnouncementNotice from '@/components/AnnouncementNotice';
 
 /** ------------------------------------------------
@@ -300,7 +300,7 @@ export default function HomePageClient() {
   return (
     <main className="px-4 py-10 sm:py-14">
       <div className="mb-8 sm:mb-10">
-        <EGMAnnouncementBanner />
+        <AGMAnnouncementBanner />
       </div>
       {/* HERO */}
       <section className="mx-auto max-w-6xl">
