@@ -16,14 +16,40 @@ const glass =
 /** ------------------------------------------------
  *  Hero rule pill
  *  ------------------------------------------------ */
-function RulePill({ title, detail }: { title: string; detail: string }) {
+function RulePill({
+  title,
+  detail,
+  accent = false,
+}: {
+  title: string;
+  detail: string;
+  accent?: boolean;
+}) {
   return (
     <motion.div
       whileHover={{ scale: 1.02 }}
-      className={`rounded-full px-5 py-3 ${glass} text-center`}
+      className={
+        accent
+          ? 'rounded-2xl border border-emerald-400/35 bg-emerald-500/10 backdrop-blur-xl shadow-sm px-4 py-3 text-center'
+          : `rounded-2xl px-4 py-3 ${glass} text-center`
+      }
     >
-      <div className="text-sm font-semibold tracking-tight">{title}</div>
-      <div className="text-xs mt-0.5 text-neutral-700 dark:text-neutral-300">{detail}</div>
+      <div
+        className={`text-sm font-semibold tracking-tight ${
+          accent ? 'text-emerald-800 dark:text-emerald-300' : ''
+        }`}
+      >
+        {title}
+      </div>
+      <div
+        className={`text-xs mt-0.5 ${
+          accent
+            ? 'text-emerald-700/80 dark:text-emerald-400'
+            : 'text-neutral-700 dark:text-neutral-300'
+        }`}
+      >
+        {detail}
+      </div>
     </motion.div>
   );
 }
@@ -535,35 +561,41 @@ export default function HomePageClient() {
               <h1 className="text-3xl sm:text-4xl font-bold leading-tight">
                 James <span className="text-slate-500">Square</span>
                 <br />
-                <span className="text-neutral-900 dark:text-neutral-100">Community Website</span>
+                <span className="text-neutral-900 dark:text-neutral-100">Community</span>
               </h1>
-              <p className="mt-4 text-base sm:text-lg text-neutral-700 dark:text-neutral-300 max-w-2xl mx-auto">
-                A shared community website for residents and owners at James Square — access useful
-                info, discuss topics with neighbours, manage owners&apos; documents and AGM details,
-                take part in votes, and stay up to date with what&apos;s happening around the square.
+
+              <p className="mt-4 text-base sm:text-lg text-neutral-700 dark:text-neutral-300 max-w-xl mx-auto leading-relaxed">
+                A shared space to keep up with updates, find useful information, and stay in the
+                loop with what&apos;s happening at James Square.
               </p>
 
-              <div className="mt-7 border-t border-neutral-200/60 dark:border-white/10 pt-6 space-y-3">
+              <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400 max-w-lg mx-auto">
+                Resident notices, building information, and shared facilities — all in one place.
+              </p>
+
+              <div className="mt-8 border-t border-neutral-200/60 dark:border-white/10 pt-6">
                 <h2 className="text-lg sm:text-xl font-semibold">
                   Book the pool, gym &amp; sauna
                 </h2>
-                <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
                   Use{' '}
                   <Link href="/dashboard" className="underline underline-offset-2">
                     My Dashboard
                   </Link>{' '}
-                  to view and manage your bookings.
+                  to manage your existing bookings and profile information.
                 </p>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 pt-1">
-                  <RulePill title="Bookable Windows" detail="05:30–09:30 • 17:00–23:00" />
-                  <RulePill title="Daily Limit" detail="Max 2 slots per facility" />
-                  <RulePill title="Free Use" detail="11:00–17:00 (no booking needed)" />
-                </div>
-              </div>
 
-              <p className="mt-5 text-xs text-neutral-500 dark:text-neutral-500">
-                This site is still evolving — ideas, suggestions, and feedback are always welcome.
-              </p>
+                <div className="mt-4 grid grid-cols-2 gap-3">
+                  <RulePill title="Morning" detail="05:30 – 09:30" />
+                  <RulePill title="Evening" detail="17:00 – 23:00" />
+                  <RulePill title="Open use" detail="11:00 – 17:00" accent />
+                  <RulePill title="Daily limit" detail="Max 2 per facility" />
+                </div>
+
+                <p className="mt-3 text-xs text-neutral-500 dark:text-neutral-400">
+                  No booking needed during open use hours (11:00 – 17:00)
+                </p>
+              </div>
             </header>
           </div>
         </motion.div>
