@@ -19,8 +19,8 @@ import Button from '@/components/ui/Button';
 import GlassCard from '@/components/ui/GlassCard';
 import SegmentedControl from '@/components/ui/SegmentedControl';
 import MobileAppPoster from '@/components/home/MobileAppPoster';
-import { Calendar, CalendarDays, CalendarX2, ChevronRight, Clock3, MapPin, User as UserIcon, Users } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Building2, Calendar, CalendarDays, CalendarX2, ChevronRight, Clock3, MapPin, User as UserIcon, Users } from 'lucide-react';
+import { motion, useReducedMotion } from 'framer-motion';
 
 interface Booking {
   id: string;
@@ -113,11 +113,26 @@ export default function MyDashboardPage() {
     residentTypeLabel,
     userRole,
   });
+
+  const residentBadgeConfig: Record<string, { classes: string }> = {
+    owner:     { classes: 'border-indigo-500/40 bg-indigo-500/15 text-indigo-900 dark:text-indigo-200' },
+    renter:    { classes: 'border-sky-500/40 bg-sky-500/15 text-sky-900 dark:text-sky-200' },
+    stl:       { classes: 'border-amber-500/40 bg-amber-500/15 text-amber-900 dark:text-amber-200' },
+    stl_guest: { classes: 'border-amber-500/40 bg-amber-500/15 text-amber-900 dark:text-amber-200' },
+  };
+  const badgeConfig = effectiveStatus.value ? residentBadgeConfig[effectiveStatus.value] : null;
   const [isEditingResidentType, setIsEditingResidentType] = useState(false);
   const [selectedResidentType, setSelectedResidentType] = useState(effectiveStatus.value || '');
   const [showResidentTypeConfirm, setShowResidentTypeConfirm] = useState(false);
   const [residentTypeFeedback, setResidentTypeFeedback] = useState('');
   const router = useRouter();
+  const prefersReducedMotion = useReducedMotion();
+
+  const currentHour = new Date().getHours();
+  const timeGreeting =
+    currentHour < 12 ? 'Good morning' :
+    currentHour < 18 ? 'Good afternoon' :
+    'Good evening';
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -325,10 +340,47 @@ export default function MyDashboardPage() {
   const upcomingCount = bookings.filter((b) => b.date >= today).length;
 
   const quickLinks = [
-    { href: '/owners', icon: Users, title: 'Owners Area', description: 'Access owner documents, voting records, and owners-only updates.' },
-    { href: '/agm', icon: CalendarDays, title: 'AGM 2026', description: 'View the agenda, minutes, and materials for the 2026 AGM.' },
-    { href: '/book/schedule', icon: Calendar, title: 'Make a Booking', description: 'Reserve a slot for the pool, gym or sauna.' },
-  ] as const;
+    {
+      href: '/owners',
+      icon: Users,
+      title: 'Owners Area',
+      description: 'Access owner documents, voting records, and owners-only updates.',
+      cardClasses: 'border-indigo-400/30 bg-gradient-to-br from-indigo-500/10 via-violet-500/10 to-indigo-500/10 shadow-indigo-900/10',
+      iconBgClass: 'bg-indigo-500/15',
+      iconTextClass: 'text-indigo-700 dark:text-indigo-300',
+      chevronClass: 'text-indigo-400',
+    },
+    {
+      href: '/agm',
+      icon: CalendarDays,
+      title: 'AGM 2026',
+      description: 'View the agenda, minutes, and materials for the 2026 AGM.',
+      cardClasses: 'border-violet-400/30 bg-gradient-to-br from-violet-500/10 via-purple-500/10 to-indigo-500/10 shadow-violet-900/10',
+      iconBgClass: 'bg-violet-500/15',
+      iconTextClass: 'text-violet-700 dark:text-violet-300',
+      chevronClass: 'text-violet-400',
+    },
+    {
+      href: '/myreside',
+      icon: Building2,
+      title: 'Myreside Management',
+      description: 'Contact your factor, access portal links, and management information.',
+      cardClasses: 'border-emerald-400/30 bg-gradient-to-br from-emerald-500/10 via-teal-500/10 to-cyan-500/10 shadow-emerald-900/10',
+      iconBgClass: 'bg-emerald-500/15',
+      iconTextClass: 'text-emerald-700 dark:text-emerald-300',
+      chevronClass: 'text-emerald-400',
+    },
+    {
+      href: '/book/schedule',
+      icon: Calendar,
+      title: 'Make a Booking',
+      description: 'Reserve a slot for the pool, gym or sauna.',
+      cardClasses: 'border-sky-400/30 bg-gradient-to-br from-sky-500/10 via-cyan-500/10 to-emerald-500/10 shadow-sky-900/10',
+      iconBgClass: 'bg-sky-500/15',
+      iconTextClass: 'text-sky-700 dark:text-sky-300',
+      chevronClass: 'text-sky-400',
+    },
+  ];
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[linear-gradient(180deg,#f6f8fb_0%,#e7edf6_100%)] text-[color:var(--text-primary)] dark:bg-[linear-gradient(180deg,#070d1a_0%,#0a1426_58%,#060b18_100%)]">
@@ -345,10 +397,21 @@ export default function MyDashboardPage() {
           <div className="space-y-2">
             <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[color:var(--muted)]">My dashboard</p>
             <h1 className="text-3xl sm:text-4xl font-extrabold leading-tight drop-shadow-sm">
-              {username ? `Welcome back, ${username}` : 'My Dashboard'}
+              {username ? `${timeGreeting}, ${username}` : 'My Dashboard'}
             </h1>
-            <div className="flex flex-wrap items-center gap-3">
-              <p className="text-[color:var(--text-secondary)] leading-relaxed">Keep on top of your bookings and account details.</p>
+            <div className="flex flex-wrap items-center gap-2 pt-0.5">
+              {property && (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-[color:var(--glass-border)] bg-white/60 px-3 py-1 text-xs font-semibold text-[color:var(--text-primary)] shadow-sm backdrop-blur-sm dark:bg-white/10">
+                  <MapPin className="h-3.5 w-3.5 text-[color:var(--muted)]" aria-hidden />
+                  Flat {property}
+                </span>
+              )}
+              {badgeConfig && (
+                <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wide ${badgeConfig.classes}`}>
+                  <UserIcon className="h-3.5 w-3.5" aria-hidden />
+                  {effectiveStatus.label}
+                </span>
+              )}
               {upcomingCount > 0 && (
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-[color:var(--glass-border)] bg-white/60 px-3 py-1 text-xs font-semibold text-[color:var(--text-primary)] shadow-sm backdrop-blur-sm dark:bg-white/10">
                   <Calendar className="h-3.5 w-3.5 text-[color:var(--muted)]" aria-hidden />
@@ -356,6 +419,7 @@ export default function MyDashboardPage() {
                 </span>
               )}
             </div>
+            <p className="text-[color:var(--text-secondary)] leading-relaxed">Keep on top of your bookings and account details.</p>
           </div>
           <div className="shrink-0">
             <Button variant="primary" href="/book/schedule" className="w-full sm:w-auto">
@@ -672,22 +736,25 @@ export default function MyDashboardPage() {
           }
           subtitle="Jump to key areas of the site."
         >
-          <div className="grid gap-4 sm:grid-cols-3">
-            {quickLinks.map(({ href, icon: Icon, title, description }) => (
-              <Link key={href} href={href} className="group block focus:outline-none">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {quickLinks.map(({ href, icon: Icon, title, description, cardClasses, iconBgClass, iconTextClass, chevronClass }) => (
+              <Link key={href} href={href} className="group block focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--btn-ring)] rounded-2xl">
                 <motion.div
-                  whileHover={{ y: -2, scale: 1.01 }}
-                  whileTap={{ scale: 0.99 }}
-                  className="flex items-center gap-4 rounded-2xl border border-white/20 bg-white/50 p-4 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.06)] transition-colors group-hover:bg-white/70 dark:bg-white/10 dark:group-hover:bg-white/15"
+                  whileHover={prefersReducedMotion ? {} : { y: -2, scale: 1.01 }}
+                  whileTap={prefersReducedMotion ? {} : { scale: 0.99 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                  className={`jqs-glass flex flex-col gap-3 rounded-2xl border p-4 shadow-lg h-full ${cardClasses}`}
                 >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[color:var(--btn-bg)]/10 text-[color:var(--text-primary)]">
-                    <Icon className="h-5 w-5" aria-hidden />
+                  <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${iconBgClass}`}>
+                    <Icon className={`h-5 w-5 ${iconTextClass}`} aria-hidden />
                   </div>
-                  <div className="min-w-0 flex-1">
+                  <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-[color:var(--text-primary)] leading-snug">{title}</p>
-                    <p className="mt-0.5 text-xs text-[color:var(--text-secondary)] leading-relaxed line-clamp-2">{description}</p>
+                    <p className="mt-1 text-xs text-[color:var(--text-secondary)] leading-relaxed line-clamp-3">{description}</p>
                   </div>
-                  <ChevronRight className="h-4 w-4 shrink-0 text-[color:var(--muted)] transition-transform group-hover:translate-x-0.5" aria-hidden />
+                  <div className="flex items-center justify-end">
+                    <ChevronRight className={`h-4 w-4 transition-transform group-hover:translate-x-0.5 ${chevronClass}`} aria-hidden />
+                  </div>
                 </motion.div>
               </Link>
             ))}
