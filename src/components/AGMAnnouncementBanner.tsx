@@ -25,6 +25,14 @@ export default function AGMAnnouncementBanner() {
             improvements. If you are a tenant, please make your owner aware.
           </p>
 
+          <Link
+            href="/AGM"
+            className="inline-flex w-fit items-center gap-2 rounded-lg border border-indigo-400/50 bg-white/80 px-3 py-2 font-medium text-indigo-800 transition hover:bg-indigo-100 dark:border-indigo-300/40 dark:bg-indigo-900/30 dark:text-indigo-100 dark:hover:bg-indigo-900/50"
+          >
+            Visit AGM page
+            <ExternalLink className="h-4 w-4" aria-hidden="true" />
+          </Link>
+
           {expanded && (
             <div className="space-y-4 border-t border-indigo-300/40 pt-4 text-sm leading-relaxed text-indigo-950/85 dark:border-indigo-400/30 dark:text-indigo-100/90 sm:text-base">
               <p>
@@ -37,13 +45,6 @@ export default function AGMAnnouncementBanner() {
                 For more information, and to leave suggestions on what you would like discussed,
                 please visit the AGM page.
               </p>
-              <Link
-                href="/AGM"
-                className="inline-flex items-center gap-2 rounded-lg border border-indigo-400/50 bg-white/80 px-3 py-2 font-medium text-indigo-800 transition hover:bg-indigo-100 dark:border-indigo-300/40 dark:bg-indigo-900/30 dark:text-indigo-100 dark:hover:bg-indigo-900/50"
-              >
-                Visit AGM page
-                <ExternalLink className="h-4 w-4" aria-hidden="true" />
-              </Link>
             </div>
           )}
 

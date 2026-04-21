@@ -299,9 +299,6 @@ export default function HomePageClient() {
 
   return (
     <main className="px-4 py-10 sm:py-14">
-      <div className="mb-8 sm:mb-10">
-        <AGMAnnouncementBanner />
-      </div>
       {/* HERO */}
       <section className="mx-auto max-w-6xl">
         <motion.div
@@ -394,6 +391,10 @@ export default function HomePageClient() {
             </header>
           </div>
         </motion.div>
+      </section>
+
+      <section className="mt-8 sm:mt-10">
+        <AGMAnnouncementBanner />
       </section>
 
       <PoolNotice />
