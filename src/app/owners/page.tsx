@@ -16,12 +16,6 @@ const EMAIL_BODY =
 const EMAIL_LINK = `mailto:${COMMITTEE_EMAIL}?subject=${encodeURIComponent(
   EMAIL_SUBJECT
 )}&body=${encodeURIComponent(EMAIL_BODY)}`;
-const TEAMS_LINK = 'https://teams.live.com/meet/9361186540157?p=3nM4fcihwFSrOLglvH';
-const GOOGLE_CALENDAR_URL = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
-  'Extraordinary General Meeting (EGM) – James Square'
-)}&dates=20260121T180000Z/20260121T203000Z&details=${encodeURIComponent(
-  `Online via Microsoft Teams\nThe access code will be shared with owners during the meeting.\n\nJoin online via Microsoft Teams: ${TEAMS_LINK}`
-)}&location=${encodeURIComponent('Online via Microsoft Teams')}`;
 
 const OwnersPage = () => {
   const router = useRouter();
@@ -72,11 +66,7 @@ const OwnersPage = () => {
             </p>
             <div className="space-y-2 pt-2 text-left">
               <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-                The access code is available from a committee member, another owner, or at the upcoming Extraordinary
-                General Meeting.
-              </p>
-
-              <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+                The access code was shared at the January 2026 EGM and is available from any committee member or owner.
                 The code should only be shared with owners of James Square.
               </p>
 
@@ -87,10 +77,6 @@ const OwnersPage = () => {
                 >
                   Request access code by email
                 </a>
-              </p>
-
-              <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-                The access code will also be shared during the Extraordinary General Meeting.
               </p>
             </div>
 
@@ -136,6 +122,7 @@ const OwnersPage = () => {
               )}
             </AnimatePresence>
           </GlassCard>
+
         </div>
       </div>
     </GradientBG>

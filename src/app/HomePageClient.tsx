@@ -2,8 +2,8 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import { useState } from 'react';
+import { motion, AnimatePresence, useReducedMotion, type Variants } from 'framer-motion';
+import { useEffect, useState } from 'react';
 import { CalendarDays, ArrowRight, Building2, ChevronDown } from 'lucide-react';
 import MobileAppPoster from '@/components/home/MobileAppPoster';
 
@@ -12,6 +12,158 @@ import MobileAppPoster from '@/components/home/MobileAppPoster';
  *  ------------------------------------------------ */
 const glass =
   'jqs-glass rounded-2xl border border-white/20 bg-white/50 dark:bg-white/10 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.06)]';
+
+const viewportOnce = { once: true, margin: '0px 0px -60px 0px' };
+const easeOut = [0.22, 1, 0.36, 1] as [number, number, number, number];
+
+function fadeUpVariants(reduceMotion: boolean): Variants {
+  return reduceMotion
+    ? {
+        hidden: { opacity: 1, y: 0, scale: 1 },
+        show: { opacity: 1, y: 0, scale: 1 },
+      }
+    : {
+        hidden: { opacity: 0, y: 12, scale: 0.99 },
+        show: {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          transition: { duration: 0.45, ease: easeOut },
+        },
+      };
+}
+
+function staggerContainerVariants(reduceMotion: boolean, stagger = 0.1): Variants {
+  return reduceMotion
+    ? {
+        hidden: {},
+        show: { transition: { staggerChildren: 0, delayChildren: 0 } },
+      }
+    : {
+        hidden: {},
+        show: { transition: { staggerChildren: stagger } },
+      };
+}
+
+function sectionHeaderVariants(reduceMotion: boolean): Variants {
+  return reduceMotion
+    ? {
+        hidden: { opacity: 1, x: 0 },
+        show: { opacity: 1, x: 0 },
+      }
+    : {
+        hidden: { opacity: 0, x: -14 },
+        show: {
+          opacity: 1,
+          x: 0,
+          transition: { duration: 0.35, ease: easeOut },
+        },
+      };
+}
+
+function cardRevealVariants(reduceMotion: boolean): Variants {
+  return reduceMotion
+    ? {
+        hidden: { opacity: 1, y: 0 },
+        show: { opacity: 1, y: 0 },
+      }
+    : {
+        hidden: { opacity: 0, y: 16 },
+        show: {
+          opacity: 1,
+          y: 0,
+          transition: { duration: 0.4, ease: easeOut },
+        },
+      };
+}
+
+const carouselSlides = [
+  {
+    src: '/images/home-photos/01-calecresc.png',
+    alt: 'Caledonian Crescent near James Square',
+    w: 1235,
+    h: 956,
+  },
+  {
+    src: '/images/home-photos/02-poolatnight.png',
+    alt: 'Pool area at night',
+    w: 1536,
+    h: 1024,
+  },
+  {
+    src: '/images/home-photos/03-snowgarden.png',
+    alt: 'James Square garden in the snow',
+    w: 1329,
+    h: 1086,
+  },
+  {
+    src: '/images/home-photos/04-coffeeshop.png',
+    alt: 'Local coffee shop near James Square',
+    w: 1449,
+    h: 1086,
+  },
+  {
+    src: '/images/home-photos/05-bench.png',
+    alt: 'Bench in the James Square garden',
+    w: 1448,
+    h: 1086,
+  },
+  {
+    src: '/images/home-photos/06-building39.png',
+    alt: 'James Square building 39',
+    w: 1524,
+    h: 1032,
+  },
+  {
+    src: '/images/home-photos/07-building57.png',
+    alt: 'James Square building 57',
+    w: 1448,
+    h: 1086,
+  },
+  {
+    src: '/images/home-photos/08-building55.png',
+    alt: 'James Square building 55',
+    w: 1448,
+    h: 1086,
+  },
+  {
+    src: '/images/home-photos/09-building61.png',
+    alt: 'James Square building 61',
+    w: 1448,
+    h: 1086,
+  },
+  {
+    src: '/images/home-photos/10-frontgate.png',
+    alt: 'Front gate at James Square',
+    w: 1448,
+    h: 1086,
+  },
+];
+const carouselSlideDurationSeconds = 6.5;
+
+function SectionHeader({
+  children,
+  reduceMotion,
+}: {
+  children: string;
+  reduceMotion: boolean;
+}) {
+  return (
+    <motion.div
+      initial="hidden"
+      whileInView="show"
+      viewport={viewportOnce}
+      variants={sectionHeaderVariants(reduceMotion)}
+      className="mb-4 flex items-center gap-3"
+    >
+      <span className="h-1.5 w-1.5 rounded-full bg-neutral-400/80 dark:bg-neutral-500" />
+      <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
+        {children}
+      </p>
+      <div className="flex-1 border-t border-neutral-200 dark:border-white/10" />
+    </motion.div>
+  );
+}
 
 /** ------------------------------------------------
  *  Hero rule pill
@@ -91,7 +243,7 @@ function DualModeIcon({
         alt={alt}
         width={size}
         height={size}
-        className="block dark:hidden w-24 h-24 sm:w-28 sm:h-28 object-contain"
+        className="block dark:hidden h-20 w-20 object-contain sm:h-24 sm:w-24"
         priority
       />
       <Image
@@ -99,7 +251,7 @@ function DualModeIcon({
         alt={alt}
         width={size}
         height={size}
-        className="hidden dark:block w-24 h-24 sm:w-28 sm:h-28 object-contain"
+        className="hidden h-20 w-20 object-contain dark:block sm:h-24 sm:w-24"
         priority
       />
     </>
@@ -116,6 +268,7 @@ function IconCard({
   darkIcon,
   blurb,
   iconAlt,
+  reduceMotion,
 }: {
   title: string;
   href: string;
@@ -123,12 +276,18 @@ function IconCard({
   darkIcon: string;
   blurb: string;
   iconAlt?: string;
+  reduceMotion: boolean;
 }) {
   return (
     <Link href={href} className="group block focus:outline-none">
       <motion.div
-        whileHover={{ y: -2, scale: 1.01 }}
-        whileTap={{ scale: 0.99 }}
+        whileHover={
+          reduceMotion
+            ? undefined
+            : { y: -4, scale: 1.015, boxShadow: '0 16px 40px rgba(0,0,0,0.10)' }
+        }
+        whileTap={reduceMotion ? undefined : { scale: 0.99 }}
+        transition={{ type: 'spring', stiffness: 320, damping: 24 }}
         className={`${glass} p-5 flex items-center gap-4 sm:gap-5 relative overflow-hidden`}
       >
         {/* sheen */}
@@ -142,7 +301,7 @@ function IconCard({
         <div className="relative z-10">
           <h3 className="text-lg font-semibold">{title}</h3>
           <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">{blurb}</p>
-          <span className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-neutral-900/70 dark:text-neutral-100/80 group-hover:text-neutral-900 dark:group-hover:text-neutral-100 transition-colors">
+          <span className="mt-3 inline-flex translate-x-0 items-center gap-1 rounded-full border border-neutral-900/10 bg-white/55 px-3 py-1 text-xs font-semibold text-neutral-900/70 transition-all group-hover:translate-x-1 group-hover:bg-white/80 group-hover:text-neutral-900 dark:border-white/10 dark:bg-white/10 dark:text-neutral-100/80 dark:group-hover:bg-white/15 dark:group-hover:text-neutral-100">
             Open {title} <ArrowRight className="h-3.5 w-3.5" />
           </span>
         </div>
@@ -155,20 +314,38 @@ function IconCard({
  *  Lightweight photo carousel
  *  ------------------------------------------------ */
 function PhotoCarousel() {
-  const slides = [
-    { src: '/images/buildingimages/front.jpg', alt: 'Front of James Square', w: 1535, h: 1024 },
-    { src: '/images/buildingimages/garden.jpg', alt: 'Garden at James Square', w: 1200, h: 900 },
-    { src: '/images/buildingimages/pool.jpg', alt: 'Pool at James Square', w: 1600, h: 1066 },
-    { src: '/images/buildingimages/above.jpg', alt: 'James Square from above', w: 1536, h: 1024 },
-  ];
-
+  const reduceMotion = useReducedMotion();
   const [idx, setIdx] = useState(0);
-  const prev = () => setIdx((i) => (i - 1 + slides.length) % slides.length);
-  const next = () => setIdx((i) => (i + 1) % slides.length);
+  const [paused, setPaused] = useState(false);
+  const activeSlide = carouselSlides[idx];
+  const panDirection = idx % 2 === 0 ? 1 : -1;
+  const prev = () => setIdx((i) => (i - 1 + carouselSlides.length) % carouselSlides.length);
+  const next = () => setIdx((i) => (i + 1) % carouselSlides.length);
+
+  useEffect(() => {
+    if (reduceMotion || paused) return undefined;
+
+    const interval = window.setInterval(() => {
+      setIdx((i) => (i + 1) % carouselSlides.length);
+    }, carouselSlideDurationSeconds * 1000);
+
+    return () => window.clearInterval(interval);
+  }, [paused, reduceMotion]);
 
   return (
     <section className="mx-auto max-w-6xl mt-10 sm:mt-12">
-      <div className={`${glass} p-4 sm:p-6`}>
+      <div
+        className={`${glass} p-4 sm:p-6`}
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
+        onFocus={() => setPaused(true)}
+        onBlur={(event) => {
+          const nextTarget = event.relatedTarget;
+          if (!(nextTarget instanceof Node) || !event.currentTarget.contains(nextTarget)) {
+            setPaused(false);
+          }
+        }}
+      >
         <div className="flex items-center justify-between mb-3 sm:mb-4">
           <h2 className="text-lg font-semibold">Around James Square</h2>
           <div className="flex gap-2">
@@ -189,36 +366,74 @@ function PhotoCarousel() {
           </div>
         </div>
 
-        <div className="relative overflow-hidden rounded-xl">
-          <AnimatePresence mode="popLayout" initial={false}>
+        <div className="relative overflow-hidden rounded-xl bg-neutral-950">
+          <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={idx}
-              initial={{ opacity: 0.0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0.0, scale: 0.98 }}
-              transition={{ duration: 0.25 }}
-              className="w-full"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: reduceMotion ? 0 : 0.9, ease: easeOut }}
+              className="relative h-[280px] w-full sm:h-[420px]"
             >
               <Image
-                src={slides[idx].src}
-                alt={slides[idx].alt}
-                width={slides[idx].w}
-                height={slides[idx].h}
-                className="w-full h-[280px] sm:h-[420px] object-cover"
+                src={activeSlide.src}
+                alt=""
+                width={activeSlide.w}
+                height={activeSlide.h}
+                aria-hidden="true"
+                className="absolute inset-0 h-full w-full scale-110 object-cover opacity-45 blur-xl saturate-125"
                 sizes="(min-width: 1024px) 1000px, 100vw"
                 priority={idx === 0}
               />
+              <motion.div
+                className="absolute inset-0"
+                initial={{ scale: 1.03, x: 0, y: 0 }}
+                animate={
+                  reduceMotion
+                    ? { scale: 1.03, x: 0, y: 0 }
+                    : { scale: 1.12, x: panDirection * 14, y: -10 }
+                }
+                transition={{
+                  duration: reduceMotion ? 0 : carouselSlideDurationSeconds,
+                  ease: 'linear',
+                }}
+                style={{ willChange: 'transform' }}
+              >
+                <Image
+                  src={activeSlide.src}
+                  alt={activeSlide.alt}
+                  width={activeSlide.w}
+                  height={activeSlide.h}
+                  className="h-full w-full object-cover"
+                  sizes="(min-width: 1024px) 1000px, 100vw"
+                  priority={idx === 0}
+                />
+              </motion.div>
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-black/10" />
             </motion.div>
           </AnimatePresence>
+          <div className="absolute inset-x-0 bottom-0 h-0.5 bg-black/10 dark:bg-white/15">
+            <motion.div
+              key={`progress-${idx}-${paused ? 'paused' : 'running'}`}
+              className="h-full origin-left bg-neutral-950/70 dark:bg-white/80"
+              initial={{ scaleX: 0 }}
+              animate={reduceMotion || paused ? { scaleX: 0 } : { scaleX: 1 }}
+              transition={{
+                duration: reduceMotion || paused ? 0 : carouselSlideDurationSeconds,
+                ease: 'linear',
+              }}
+            />
+          </div>
         </div>
 
-        <div className="mt-3 flex justify-center gap-2">
-          {slides.map((_, i) => (
+        <div className="mt-3 flex justify-center gap-1.5">
+          {carouselSlides.map((_, i) => (
             <button
               key={`dot-${i}`}
               onClick={() => setIdx(i)}
               aria-label={`Go to slide ${i + 1}`}
-              className={`h-2 w-2 rounded-full transition ${
+              className={`h-1.5 w-1.5 rounded-full transition ${
                 i === idx
                   ? 'bg-neutral-900 dark:bg-neutral-100'
                   : 'bg-neutral-400/40 dark:bg-white/30'
@@ -226,6 +441,17 @@ function PhotoCarousel() {
             />
           ))}
         </div>
+
+        <p className="mx-auto mt-4 max-w-2xl text-center text-xs leading-relaxed text-neutral-600 dark:text-neutral-400 sm:text-sm">
+          Have a photo of James Square you would like to share on the website? Email it to{' '}
+          <a
+            href="mailto:contact@james-square.com"
+            className="font-medium text-neutral-900 underline underline-offset-2 hover:text-sky-700 dark:text-neutral-100 dark:hover:text-sky-300"
+          >
+            contact@james-square.com
+          </a>
+          .
+        </p>
       </div>
     </section>
   );
@@ -238,7 +464,7 @@ function PoolNotice() {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="jqs-glass rounded-2xl p-6 border border-sky-400/30 bg-gradient-to-br from-sky-500/10 via-cyan-500/10 to-emerald-500/10 shadow-lg shadow-sky-900/10">
+    <div className="jqs-glass rounded-2xl border border-l-[3px] border-sky-400/30 border-l-sky-400 bg-gradient-to-br from-sky-500/10 via-cyan-500/10 to-emerald-500/10 p-6 shadow-lg shadow-sky-900/10">
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <span className="inline-flex items-center rounded-full border border-sky-500/40 bg-sky-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-sky-900 dark:text-sky-200">
           Resident notice
@@ -336,7 +562,7 @@ function AGMNotice() {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="jqs-glass rounded-2xl p-6 border border-violet-400/30 bg-gradient-to-br from-violet-500/10 via-purple-500/10 to-indigo-500/10 shadow-lg shadow-violet-900/10">
+    <div className="jqs-glass rounded-2xl border border-l-[3px] border-violet-400/30 border-l-violet-400 bg-gradient-to-br from-violet-500/10 via-purple-500/10 to-indigo-500/10 p-6 shadow-lg shadow-violet-900/10">
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <span className="inline-flex items-center gap-1.5 rounded-full border border-violet-500/40 bg-violet-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-violet-900 dark:text-violet-200">
           <CalendarDays className="h-3.5 w-3.5" />
@@ -415,7 +641,7 @@ function MyresideNotice() {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="jqs-glass rounded-2xl p-6 border border-emerald-400/30 bg-gradient-to-br from-emerald-500/10 via-teal-500/10 to-cyan-500/10 shadow-lg shadow-emerald-900/10">
+    <div className="jqs-glass rounded-2xl border border-l-[3px] border-emerald-400/30 border-l-emerald-400 bg-gradient-to-br from-emerald-500/10 via-teal-500/10 to-cyan-500/10 p-6 shadow-lg shadow-emerald-900/10">
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-900 dark:text-emerald-200">
           <Building2 className="h-3.5 w-3.5" />
@@ -520,92 +746,165 @@ function MyresideNotice() {
  *  ------------------------------------------------ */
 export default function HomePageClient() {
   const reduceMotion = useReducedMotion();
+  const shouldReduceMotion = Boolean(reduceMotion);
+  const heroKenBurnsAnimate = shouldReduceMotion
+    ? { scale: 1, x: 0, y: 0 }
+    : { scale: [1, 1.045, 1], x: [0, 10, 0], y: [0, -7, 0] };
+  const heroKenBurnsTransition = shouldReduceMotion
+    ? { duration: 0 }
+    : { duration: 30, ease: easeOut, repeat: Infinity };
 
   return (
     <div className="px-4 py-10 sm:py-14">
       {/* HERO */}
       <section className="mx-auto max-w-6xl">
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45 }}
+          initial="hidden"
+          animate="show"
+          variants={staggerContainerVariants(Boolean(reduceMotion), 0.1)}
           className={`${glass} overflow-hidden`}
         >
           {/* Top image */}
-          <div className="relative overflow-hidden">
+          <motion.div
+            variants={
+              reduceMotion
+                ? fadeUpVariants(true)
+                : {
+                    hidden: { opacity: 0, scale: 0.97 },
+                    show: {
+                      opacity: 1,
+                      scale: 1,
+                      transition: { duration: 0.5, ease: easeOut },
+                    },
+                  }
+            }
+            className="relative overflow-hidden"
+          >
             <motion.div
               className="absolute inset-0"
               initial={{ scale: 1, y: 0 }}
-              animate={reduceMotion ? { scale: 1, y: 0 } : { scale: 1.06, y: -8 }}
+              animate={reduceMotion ? { scale: 1, y: 0 } : { scale: 1.035, y: -3 }}
               transition={{
                 duration: reduceMotion ? 0 : 45,
                 ease: 'linear',
               }}
               style={{
                 willChange: 'transform',
-                maskImage: 'radial-gradient(ellipse at center, black 65%, transparent 100%)',
-                WebkitMaskImage:
-                  'radial-gradient(ellipse at center, black 65%, transparent 100%)',
               }}
             >
-              {/* Light mode – daytime drone */}
               <Image
                 src="/images/buildingimages/Day-drone-js.png"
-                alt="James Square aerial daytime"
+                alt=""
                 width={1536}
                 height={1024}
                 priority
-                className="w-full h-[200px] sm:h-[320px] object-cover block dark:hidden"
+                aria-hidden="true"
+                className="block h-full w-full scale-105 object-cover opacity-30 blur-[6px] saturate-125 contrast-110 dark:hidden"
               />
-
-              {/* Dark mode – nighttime drone */}
               <Image
                 src="/images/buildingimages/Night-drone-js.png"
-                alt="James Square aerial nighttime"
+                alt=""
                 width={1536}
                 height={1024}
                 priority
-                className="w-full h-[200px] sm:h-[320px] object-cover hidden dark:block"
+                aria-hidden="true"
+                className="hidden h-full w-full scale-105 object-cover opacity-40 blur-[6px] saturate-110 contrast-110 dark:block"
               />
             </motion.div>
 
-            <div className="relative h-[200px] sm:h-[320px]" />
-          </div>
+            <div className="relative z-10 h-[240px] overflow-hidden bg-slate-100/80 dark:bg-[#070d18]/80 sm:h-[430px] lg:h-[460px]">
+              <div className="pointer-events-none absolute inset-0 z-10 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.12),transparent_46%),linear-gradient(180deg,rgba(255,255,255,0.12)_0%,transparent_32%,rgba(255,255,255,0.72)_100%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(15,23,42,0.18),transparent_46%),linear-gradient(180deg,rgba(2,6,23,0.16)_0%,transparent_34%,rgba(2,6,23,0.62)_100%)]" />
+              <motion.div
+                className="flex h-full w-full items-center justify-center dark:hidden"
+                initial={{ scale: 1, x: 0, y: 0 }}
+                animate={heroKenBurnsAnimate}
+                transition={heroKenBurnsTransition}
+                style={{ willChange: 'transform' }}
+              >
+                {/* Light mode – daytime drone */}
+                <Image
+                  src="/images/buildingimages/Day-drone-js.png"
+                  alt="James Square aerial daytime"
+                  width={1536}
+                  height={1024}
+                  priority
+                  className="block h-[92%] w-full object-contain drop-shadow-[0_18px_35px_rgba(0,0,0,0.16)] dark:hidden"
+                />
+              </motion.div>
 
-          <div className="p-6 sm:p-10">
+              <motion.div
+                className="hidden h-full w-full items-center justify-center dark:flex"
+                initial={{ scale: 1, x: 0, y: 0 }}
+                animate={heroKenBurnsAnimate}
+                transition={heroKenBurnsTransition}
+                style={{ willChange: 'transform' }}
+              >
+                {/* Dark mode – nighttime drone */}
+                <Image
+                  src="/images/buildingimages/Night-drone-js.png"
+                  alt="James Square aerial nighttime"
+                  width={1536}
+                  height={1024}
+                  priority
+                  className="hidden h-[92%] w-full object-contain drop-shadow-[0_18px_35px_rgba(0,0,0,0.28)] dark:block"
+                />
+              </motion.div>
+
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[15] h-28 bg-gradient-to-t from-white/95 via-white/55 to-transparent backdrop-blur-[2px] [-webkit-mask-image:linear-gradient(to_top,black_0%,black_42%,transparent_100%)] [mask-image:linear-gradient(to_top,black_0%,black_42%,transparent_100%)] dark:from-neutral-950/85 dark:via-neutral-950/45 sm:h-36" />
+
+              <motion.h1
+                variants={fadeUpVariants(Boolean(reduceMotion))}
+                className="absolute inset-x-5 top-[34%] z-20 text-center text-4xl font-bold leading-none tracking-normal text-slate-950 drop-shadow-[0_1px_12px_rgba(255,255,255,0.36)] dark:text-slate-100 dark:drop-shadow-[0_1px_16px_rgba(0,0,0,0.72)] sm:top-[36%] sm:text-6xl lg:text-7xl"
+              >
+                <span className="relative inline-block">
+                  <span className="absolute inset-x-[-0.35em] inset-y-[-0.22em] -z-10 rounded-full bg-white/70 blur-xl dark:hidden" />
+                  <span>James</span>{' '}
+                  <span className="text-slate-500 dark:text-slate-400">Square</span>
+                </span>
+              </motion.h1>
+            </div>
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-white via-white/45 to-transparent dark:from-neutral-950/80 dark:via-neutral-950/25 dark:to-transparent" />
+          </motion.div>
+
+          <div className="bg-gradient-to-b from-white/95 to-white/60 px-6 pb-6 pt-5 dark:from-neutral-950/60 dark:to-white/5 sm:px-10 sm:pb-8 sm:pt-6">
             <header className="text-center">
-              <h1 className="text-3xl sm:text-4xl font-bold leading-tight">
-                James <span className="text-slate-500">Square</span>
-              </h1>
+              <motion.p
+                variants={fadeUpVariants(Boolean(reduceMotion))}
+                className="mx-auto max-w-2xl text-base leading-relaxed text-neutral-700 dark:text-neutral-300 sm:text-lg"
+              >
+                Stay up to date with notices, building information and shared facilities at James
+                Square.
+              </motion.p>
 
-              <p className="mt-4 text-base sm:text-lg text-neutral-700 dark:text-neutral-300 max-w-xl mx-auto leading-relaxed">
-                Keep up with resident notices, building information, and shared facilities in one
-                place.
-              </p>
-
-              <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
+              <motion.div
+                variants={fadeUpVariants(Boolean(reduceMotion))}
+                className="mt-5 flex flex-col justify-center gap-3 sm:flex-row"
+              >
                 <Link
                   href="/booking"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-neutral-950 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-neutral-950/10 transition-colors hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200"
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-neutral-950 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-neutral-950/10 transition-colors hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200"
                 >
                   Book facilities
                   <ArrowRight className="h-4 w-4" />
                 </Link>
                 <Link
                   href="/dashboard"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-neutral-900/10 bg-white/60 px-5 py-3 text-sm font-semibold text-neutral-900 transition-colors hover:bg-white dark:border-white/15 dark:bg-white/10 dark:text-white dark:hover:bg-white/15"
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-neutral-900/10 bg-white/70 px-5 py-2.5 text-sm font-semibold text-neutral-900 shadow-sm transition-colors hover:bg-white dark:border-white/15 dark:bg-white/10 dark:text-white dark:hover:bg-white/15"
                 >
                   Manage bookings
                 </Link>
-              </div>
+              </motion.div>
 
-              <div className="mt-8 border-t border-neutral-200/60 dark:border-white/10 pt-6">
+              <motion.div
+                variants={fadeUpVariants(Boolean(reduceMotion))}
+                className="mt-6 border-t border-neutral-200/70 pt-5 dark:border-white/10"
+              >
                 <h2 className="text-lg sm:text-xl font-semibold">
                   Book the pool, gym &amp; sauna
                 </h2>
                 <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-                  Morning and evening sessions need to be booked. Open use does not need a
-                  booking.
+                  Bookings are recommended for morning and evening sessions. Open use during the
+                  day does not require a booking.
                 </p>
 
                 <div className="mt-4 grid grid-cols-2 gap-3">
@@ -618,7 +917,7 @@ export default function HomePageClient() {
                 <p className="mt-3 text-xs text-neutral-500 dark:text-neutral-400">
                   No booking needed during open use hours (11:00 – 17:00)
                 </p>
-              </div>
+              </motion.div>
             </header>
           </div>
         </motion.div>
@@ -626,69 +925,92 @@ export default function HomePageClient() {
 
       {/* NOTICES */}
       <section className="mx-auto max-w-6xl mt-10 sm:mt-12">
-        <div className="mb-4 flex items-center gap-3">
-          <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
-            Latest Updates
-          </p>
-          <div className="flex-1 border-t border-neutral-200 dark:border-white/10" />
-        </div>
-        <div className="space-y-4">
-          <PoolNotice />
-          <AGMNotice />
-          <MyresideNotice />
-        </div>
+        <SectionHeader reduceMotion={Boolean(reduceMotion)}>Latest Updates</SectionHeader>
+        <motion.div
+          initial="hidden"
+          whileInView="show"
+          viewport={viewportOnce}
+          variants={staggerContainerVariants(Boolean(reduceMotion), 0.08)}
+          className="space-y-4"
+        >
+          <motion.div variants={cardRevealVariants(Boolean(reduceMotion))}>
+            <PoolNotice />
+          </motion.div>
+          <motion.div variants={cardRevealVariants(Boolean(reduceMotion))}>
+            <AGMNotice />
+          </motion.div>
+          <motion.div variants={cardRevealVariants(Boolean(reduceMotion))}>
+            <MyresideNotice />
+          </motion.div>
+        </motion.div>
       </section>
 
       {/* QUICK LINKS */}
       <section className="mx-auto max-w-6xl mt-10 sm:mt-12">
-        <div className="mb-4 flex items-center gap-3">
-          <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
-            Quick Links
-          </p>
-          <div className="flex-1 border-t border-neutral-200 dark:border-white/10" />
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <IconCard
-            title="Message Board"
-            href="/message-board"
-            lightIcon="/images/icons/new-message-icon-light.png"
-            darkIcon="/images/icons/new-message-icon-dark.png"
-            blurb="Share updates, ask questions and discuss anything related to James Square."
-          />
+        <SectionHeader reduceMotion={Boolean(reduceMotion)}>Quick Links</SectionHeader>
+        <motion.div
+          initial="hidden"
+          whileInView="show"
+          viewport={viewportOnce}
+          variants={staggerContainerVariants(Boolean(reduceMotion), 0.06)}
+          className="grid grid-cols-1 gap-6 lg:grid-cols-2"
+        >
+          <motion.div variants={cardRevealVariants(Boolean(reduceMotion))}>
+            <IconCard
+              title="Message Board"
+              href="/message-board"
+              lightIcon="/images/icons/new-message-icon-light.png"
+              darkIcon="/images/icons/new-message-icon-dark.png"
+              blurb="Share updates, ask questions and discuss anything related to James Square."
+              reduceMotion={Boolean(reduceMotion)}
+            />
+          </motion.div>
 
-          <IconCard
-            title="My Dashboard"
-            href="/dashboard"
-            lightIcon="/images/icons/new-dashboard-icon-light.png"
-            darkIcon="/images/icons/new-dashboard-icon-dark.png"
-            blurb="View, edit and manage your bookings. Add bookings to your calendar."
-          />
+          <motion.div variants={cardRevealVariants(Boolean(reduceMotion))}>
+            <IconCard
+              title="My Dashboard"
+              href="/dashboard"
+              lightIcon="/images/icons/new-dashboard-icon-light.png"
+              darkIcon="/images/icons/new-dashboard-icon-dark.png"
+              blurb="View, edit and manage your bookings. Add bookings to your calendar."
+              reduceMotion={Boolean(reduceMotion)}
+            />
+          </motion.div>
 
-          <IconCard
-            title="Book Facilities"
-            href="/book"
-            lightIcon="/images/icons/new-pool-icon-light.png"
-            darkIcon="/images/icons/new-pool-icon-dark.png"
-            blurb="Reserve time for the pool, gym or sauna."
-          />
+          <motion.div variants={cardRevealVariants(Boolean(reduceMotion))}>
+            <IconCard
+              title="Book Facilities"
+              href="/book"
+              lightIcon="/images/icons/new-pool-icon-light.png"
+              darkIcon="/images/icons/new-pool-icon-dark.png"
+              blurb="Reserve time for the pool, gym or sauna."
+              reduceMotion={Boolean(reduceMotion)}
+            />
+          </motion.div>
 
-          <IconCard
-            title="Owners Area"
-            href="/owners"
-            lightIcon="/images/icons/Owner-icon-light.PNG"
-            darkIcon="/images/icons/new-Owner-icon-dark.png"
-            blurb="Access owner information, voting, and owners-only updates."
-            iconAlt="Owners area"
-          />
+          <motion.div variants={cardRevealVariants(Boolean(reduceMotion))}>
+            <IconCard
+              title="Owners Area"
+              href="/owners"
+              lightIcon="/images/icons/Owner-icon-light.PNG"
+              darkIcon="/images/icons/new-Owner-icon-dark.png"
+              blurb="Access owner information, voting, and owners-only updates."
+              iconAlt="Owners area"
+              reduceMotion={Boolean(reduceMotion)}
+            />
+          </motion.div>
 
-          <IconCard
-            title="Useful Info"
-            href="/local"
-            lightIcon="/images/icons/info-icon-light.png"
-            darkIcon="/images/icons/new-info-icon-dark.png"
-            blurb="Access, bins & recycling, contacts and local picks (food, shops, coffee)."
-          />
-        </div>
+          <motion.div variants={cardRevealVariants(Boolean(reduceMotion))}>
+            <IconCard
+              title="Useful Info"
+              href="/local"
+              lightIcon="/images/icons/info-icon-light.png"
+              darkIcon="/images/icons/new-info-icon-dark.png"
+              blurb="Access, bins & recycling, contacts and local picks (food, shops, coffee)."
+              reduceMotion={Boolean(reduceMotion)}
+            />
+          </motion.div>
+        </motion.div>
       </section>
 
       {/* PHOTO CAROUSEL */}
