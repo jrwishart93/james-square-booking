@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { useState } from 'react';
-import { CalendarDays, ArrowRight } from 'lucide-react';
+import { CalendarDays, ArrowRight, Building2 } from 'lucide-react';
 import MobileAppPoster from '@/components/home/MobileAppPoster';
 import EGMAnnouncementBanner from '@/components/EGMAnnouncementBanner';
 import AnnouncementNotice from '@/components/AnnouncementNotice';
@@ -375,6 +375,100 @@ function AGMNotice() {
 }
 
 /** ------------------------------------------------
+ *  Myreside Management Notice
+ *  ------------------------------------------------ */
+function MyresideNotice() {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <section className="mx-auto max-w-6xl mt-6">
+      <div className="jqs-glass rounded-2xl p-6 mb-6 border border-emerald-400/30 bg-gradient-to-br from-emerald-500/10 via-teal-500/10 to-cyan-500/10 shadow-lg shadow-emerald-900/10">
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-900 dark:text-emerald-200">
+            <Building2 className="h-3.5 w-3.5" />
+            Property management
+          </span>
+        </div>
+
+        <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
+          Myreside Management
+        </h2>
+
+        <div className="mt-3 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
+          <p>
+            Myreside Management are the active property factor for James Square, formally taking
+            over management of the development from 1 February 2025.
+          </p>
+
+          <AnimatePresence initial={false}>
+            {expanded && (
+              <motion.div
+                key="myreside-detail"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3, ease: 'easeInOut' }}
+                className="overflow-hidden"
+              >
+                <div className="mt-4 space-y-3 border-t border-emerald-400/30 pt-4">
+                  <p>
+                    Myreside Management handle day-to-day operations for the development, including
+                    owner communications, payments, contractor coordination, and routine site
+                    oversight.
+                  </p>
+                  <p>
+                    All owner payments, account queries, and management-related requests should be
+                    directed to Myreside. If you have not yet confirmed your details or payment
+                    arrangements, please do so as soon as possible.
+                  </p>
+                  <div className="space-y-0.5 text-sm">
+                    <p className="font-semibold text-neutral-900 dark:text-neutral-100">Myreside Management Limited</p>
+                    <p>3 Dalkeith Road Mews, Edinburgh, EH16 5GA</p>
+                    <p>Tel: <span className="font-medium">0131 466 3001</span></p>
+                    <p>
+                      Email:{' '}
+                      <a
+                        href="mailto:info@myreside-management.co.uk"
+                        className="underline underline-offset-2 hover:text-emerald-700 dark:hover:text-emerald-300"
+                      >
+                        info@myreside-management.co.uk
+                      </a>
+                    </p>
+                  </div>
+                  <Link
+                    href="/myreside"
+                    className="mt-2 inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow hover:bg-emerald-700 transition-colors"
+                  >
+                    <Building2 className="h-4 w-4" />
+                    Myreside information page
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <button
+            onClick={() => setExpanded((v) => !v)}
+            className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 dark:text-emerald-300 hover:underline focus:outline-none"
+            aria-expanded={expanded}
+          >
+            {expanded ? 'Show less' : 'View more'}
+            <motion.span
+              animate={{ rotate: expanded ? 180 : 0 }}
+              transition={{ duration: 0.2 }}
+              className="inline-block"
+            >
+              ▾
+            </motion.span>
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/** ------------------------------------------------
  *  Page
  *  ------------------------------------------------ */
 export default function HomePageClient() {
@@ -482,6 +576,8 @@ export default function HomePageClient() {
       <PoolNotice />
 
       <AGMNotice />
+
+      <MyresideNotice />
 
       <AnnouncementNotice />
 
