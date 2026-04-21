@@ -39,7 +39,7 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
-        url: "/images/logo/favicon-light.png",
+        url: "/images/logo/favicon-dark.png",
         sizes: "512x512",
         type: "image/png",
       },
@@ -53,6 +53,13 @@ export const metadata: Metadata = {
         url: "/images/logo/favicon-dark.png",
         media: "(prefers-color-scheme: dark)",
         sizes: "512x512",
+        type: "image/png",
+      },
+    ],
+    apple: [
+      {
+        url: "/images/logo/apple-touch-icon.png",
+        sizes: "180x180",
         type: "image/png",
       },
     ],
@@ -75,7 +82,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="apple-touch-icon" href="/images/icons/JS-app-icon-180.png" />
+        <link rel="apple-touch-icon" href="/images/logo/apple-touch-icon.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-title" content="James Square" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
