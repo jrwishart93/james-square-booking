@@ -677,7 +677,7 @@ export default function HomePageClient() {
             <motion.div
               className="absolute inset-0"
               initial={{ scale: 1, y: 0 }}
-              animate={reduceMotion ? { scale: 1, y: 0 } : { scale: 1.04, y: -4 }}
+              animate={reduceMotion ? { scale: 1, y: 0 } : { scale: 1.035, y: -3 }}
               transition={{
                 duration: reduceMotion ? 0 : 45,
                 ease: 'linear',
@@ -693,7 +693,7 @@ export default function HomePageClient() {
                 height={1024}
                 priority
                 aria-hidden="true"
-                className="block h-full w-full scale-105 object-cover opacity-45 blur-sm dark:hidden"
+                className="block h-full w-full scale-105 object-cover opacity-30 blur-[6px] saturate-125 contrast-110 dark:hidden"
               />
               <Image
                 src="/images/buildingimages/Night-drone-js.png"
@@ -702,21 +702,22 @@ export default function HomePageClient() {
                 height={1024}
                 priority
                 aria-hidden="true"
-                className="hidden h-full w-full scale-105 object-cover opacity-45 blur-sm dark:block"
+                className="hidden h-full w-full scale-105 object-cover opacity-40 blur-[6px] saturate-110 contrast-110 dark:block"
               />
             </motion.div>
 
-            <div className="relative z-10 h-[220px] bg-white/20 dark:bg-black/15 sm:h-[420px]">
+            <div className="relative z-10 h-[240px] overflow-hidden bg-slate-100/80 dark:bg-[#070d18]/80 sm:h-[430px] lg:h-[460px]">
+              <div className="pointer-events-none absolute inset-0 z-10 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.12),transparent_46%),linear-gradient(180deg,rgba(255,255,255,0.12)_0%,transparent_32%,rgba(255,255,255,0.72)_100%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(15,23,42,0.18),transparent_46%),linear-gradient(180deg,rgba(2,6,23,0.16)_0%,transparent_34%,rgba(2,6,23,0.62)_100%)]" />
               <motion.div
                 className="flex h-full w-full items-center justify-center"
                 initial={{ scale: 1, x: 0, y: 0 }}
                 animate={
                   reduceMotion
                     ? { scale: 1, x: 0, y: 0 }
-                    : { scale: 1.025, x: 4, y: -3 }
+                    : { scale: 1.02, x: 3, y: -2 }
                 }
                 transition={{
-                  duration: reduceMotion ? 0 : 36,
+                  duration: reduceMotion ? 0 : 40,
                   ease: 'easeInOut',
                   repeat: reduceMotion ? 0 : Infinity,
                   repeatType: 'reverse',
@@ -730,7 +731,7 @@ export default function HomePageClient() {
                   width={1536}
                   height={1024}
                   priority
-                  className="block h-[94%] w-full object-contain drop-shadow-[0_18px_35px_rgba(0,0,0,0.16)] dark:hidden"
+                  className="block h-[93%] w-full object-contain drop-shadow-[0_18px_35px_rgba(0,0,0,0.16)] dark:hidden"
                 />
 
                 {/* Dark mode – nighttime drone */}
@@ -740,45 +741,45 @@ export default function HomePageClient() {
                   width={1536}
                   height={1024}
                   priority
-                  className="hidden h-[94%] w-full object-contain drop-shadow-[0_18px_35px_rgba(0,0,0,0.28)] dark:block"
+                  className="hidden h-[93%] w-full object-contain drop-shadow-[0_18px_35px_rgba(0,0,0,0.28)] dark:block"
                 />
               </motion.div>
 
               <motion.h1
                 variants={fadeUpVariants(Boolean(reduceMotion))}
-                className="absolute left-5 top-[36%] z-20 text-left text-4xl font-bold leading-none tracking-normal text-neutral-950 drop-shadow-[0_1px_12px_rgba(255,255,255,0.28)] dark:text-neutral-100 dark:drop-shadow-[0_1px_14px_rgba(0,0,0,0.55)] sm:left-10 sm:top-[38%] sm:text-6xl lg:left-14"
+                className="absolute inset-x-5 top-[34%] z-20 text-center text-4xl font-bold leading-none tracking-normal text-slate-950 drop-shadow-[0_1px_12px_rgba(255,255,255,0.36)] dark:text-slate-100 dark:drop-shadow-[0_1px_16px_rgba(0,0,0,0.72)] sm:top-[36%] sm:text-6xl lg:text-7xl"
               >
                 <span>James</span>{' '}
-                <span className="text-slate-500 dark:text-slate-500">Square</span>
+                <span className="text-slate-500 dark:text-slate-400">Square</span>
               </motion.h1>
             </div>
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white/80 via-white/20 to-transparent dark:from-neutral-950/35 dark:via-neutral-950/10" />
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-white/95 via-white/30 to-transparent dark:from-neutral-950/70 dark:via-neutral-950/20 dark:to-transparent" />
           </motion.div>
 
-          <div className="p-6 sm:p-10">
+          <div className="bg-gradient-to-b from-white/95 to-white/60 px-6 pb-6 pt-5 dark:from-neutral-950/60 dark:to-white/5 sm:px-10 sm:pb-8 sm:pt-6">
             <header className="text-center">
               <motion.p
                 variants={fadeUpVariants(Boolean(reduceMotion))}
-                className="mx-auto max-w-xl text-base leading-relaxed text-neutral-700 dark:text-neutral-300 sm:text-lg"
+                className="mx-auto max-w-2xl text-base leading-relaxed text-neutral-700 dark:text-neutral-300 sm:text-lg"
               >
-                Keep up with resident notices, building information, and shared facilities in one
-                place.
+                Stay up to date with notices, building information and shared facilities at James
+                Square.
               </motion.p>
 
               <motion.div
                 variants={fadeUpVariants(Boolean(reduceMotion))}
-                className="mt-6 flex flex-col justify-center gap-3 sm:flex-row"
+                className="mt-5 flex flex-col justify-center gap-3 sm:flex-row"
               >
                 <Link
                   href="/booking"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-neutral-950 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-neutral-950/10 transition-colors hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200"
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-neutral-950 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-neutral-950/10 transition-colors hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200"
                 >
                   Book facilities
                   <ArrowRight className="h-4 w-4" />
                 </Link>
                 <Link
                   href="/dashboard"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-neutral-900/10 bg-white/60 px-5 py-3 text-sm font-semibold text-neutral-900 transition-colors hover:bg-white dark:border-white/15 dark:bg-white/10 dark:text-white dark:hover:bg-white/15"
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-neutral-900/10 bg-white/70 px-5 py-2.5 text-sm font-semibold text-neutral-900 shadow-sm transition-colors hover:bg-white dark:border-white/15 dark:bg-white/10 dark:text-white dark:hover:bg-white/15"
                 >
                   Manage bookings
                 </Link>
@@ -786,7 +787,7 @@ export default function HomePageClient() {
 
               <motion.div
                 variants={fadeUpVariants(Boolean(reduceMotion))}
-                className="mt-8 border-t border-neutral-200/60 pt-6 dark:border-white/10"
+                className="mt-6 border-t border-neutral-200/70 pt-5 dark:border-white/10"
               >
                 <h2 className="text-lg sm:text-xl font-semibold">
                   Book the pool, gym &amp; sauna
