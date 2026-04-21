@@ -16,7 +16,6 @@ export const metadata: Metadata = {
   description: "Residents community website for James Square, Edinburgh",
   metadataBase: new URL("https://james-square.com"),
   manifest: "/manifest.json",
-  themeColor: "#0f172a",
   appleWebApp: {
     capable: true,
     title: "James Square",

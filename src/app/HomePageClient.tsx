@@ -20,18 +20,22 @@ function RulePill({
   title,
   detail,
   accent = false,
+  href,
 }: {
   title: string;
   detail: string;
   accent?: boolean;
+  href?: string;
 }) {
-  return (
+  const content = (
     <motion.div
       whileHover={{ scale: 1.02 }}
       className={
         accent
           ? 'rounded-2xl border border-emerald-400/35 bg-emerald-500/10 backdrop-blur-xl shadow-sm px-4 py-3 text-center'
-          : `rounded-2xl px-4 py-3 ${glass} text-center`
+          : `rounded-2xl px-4 py-3 ${glass} text-center ${
+              href ? 'transition-colors hover:bg-white/70 dark:hover:bg-white/15' : ''
+            }`
       }
     >
       <div
@@ -51,6 +55,18 @@ function RulePill({
         {detail}
       </div>
     </motion.div>
+  );
+
+  if (!href) return content;
+
+  return (
+    <Link
+      href={href}
+      aria-label={`Book a ${title.toLowerCase()} facility slot`}
+      className="block rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+    >
+      {content}
+    </Link>
   );
 }
 
@@ -506,7 +522,7 @@ export default function HomePageClient() {
   const reduceMotion = useReducedMotion();
 
   return (
-    <main className="px-4 py-10 sm:py-14">
+    <div className="px-4 py-10 sm:py-14">
       {/* HERO */}
       <section className="mx-auto max-w-6xl">
         <motion.div
@@ -560,34 +576,41 @@ export default function HomePageClient() {
             <header className="text-center">
               <h1 className="text-3xl sm:text-4xl font-bold leading-tight">
                 James <span className="text-slate-500">Square</span>
-                <br />
-                <span className="text-neutral-900 dark:text-neutral-100">Community</span>
               </h1>
 
               <p className="mt-4 text-base sm:text-lg text-neutral-700 dark:text-neutral-300 max-w-xl mx-auto leading-relaxed">
-                A shared space to keep up with updates, find useful information, and stay in the
-                loop with what&apos;s happening at James Square.
+                Keep up with resident notices, building information, and shared facilities in one
+                place.
               </p>
 
-              <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400 max-w-lg mx-auto">
-                Resident notices, building information, and shared facilities — all in one place.
-              </p>
+              <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
+                <Link
+                  href="/booking"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-neutral-950 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-neutral-950/10 transition-colors hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200"
+                >
+                  Book facilities
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+                <Link
+                  href="/dashboard"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-neutral-900/10 bg-white/60 px-5 py-3 text-sm font-semibold text-neutral-900 transition-colors hover:bg-white dark:border-white/15 dark:bg-white/10 dark:text-white dark:hover:bg-white/15"
+                >
+                  Manage bookings
+                </Link>
+              </div>
 
               <div className="mt-8 border-t border-neutral-200/60 dark:border-white/10 pt-6">
                 <h2 className="text-lg sm:text-xl font-semibold">
                   Book the pool, gym &amp; sauna
                 </h2>
                 <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-                  Use{' '}
-                  <Link href="/dashboard" className="underline underline-offset-2">
-                    My Dashboard
-                  </Link>{' '}
-                  to manage your existing bookings and profile information.
+                  Morning and evening sessions need to be booked. Open use does not need a
+                  booking.
                 </p>
 
                 <div className="mt-4 grid grid-cols-2 gap-3">
-                  <RulePill title="Morning" detail="05:30 – 09:30" />
-                  <RulePill title="Evening" detail="17:00 – 23:00" />
+                  <RulePill title="Morning" detail="05:30 – 09:30" href="/booking" />
+                  <RulePill title="Evening" detail="17:00 – 23:00" href="/booking" />
                   <RulePill title="Open use" detail="11:00 – 17:00" accent />
                   <RulePill title="Daily limit" detail="Max 2 per facility" />
                 </div>
@@ -672,6 +695,6 @@ export default function HomePageClient() {
       <PhotoCarousel />
 
       <MobileAppPoster />
-    </main>
+    </div>
   );
 }
