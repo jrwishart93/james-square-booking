@@ -4,10 +4,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { useState } from 'react';
-import { CalendarDays, ArrowRight, Building2 } from 'lucide-react';
+import { CalendarDays, ArrowRight, Building2, ChevronDown } from 'lucide-react';
 import MobileAppPoster from '@/components/home/MobileAppPoster';
-import EGMAnnouncementBanner from '@/components/EGMAnnouncementBanner';
-import AnnouncementNotice from '@/components/AnnouncementNotice';
 
 /** ------------------------------------------------
  *  Shared styles
@@ -102,8 +100,8 @@ function IconCard({
         <div className="relative z-10">
           <h3 className="text-lg font-semibold">{title}</h3>
           <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">{blurb}</p>
-          <span className="mt-2 inline-flex items-center text-sm underline underline-offset-4 text-neutral-900/80 dark:text-neutral-100/90">
-            Open {title}
+          <span className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-neutral-900/70 dark:text-neutral-100/80 group-hover:text-neutral-900 dark:group-hover:text-neutral-100 transition-colors">
+            Open {title} <ArrowRight className="h-3.5 w-3.5" />
           </span>
         </div>
       </motion.div>
@@ -134,14 +132,14 @@ function PhotoCarousel() {
           <div className="flex gap-2">
             <button
               onClick={prev}
-              className="rounded-xl border px-3 py-1.5 hover:bg-black/5 dark:hover:bg-white/5"
+              className="rounded-full border border-white/20 bg-white/40 dark:bg-white/5 w-9 h-9 flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
               aria-label="Previous photo"
             >
               ←
             </button>
             <button
               onClick={next}
-              className="rounded-xl border px-3 py-1.5 hover:bg-black/5 dark:hover:bg-white/5"
+              className="rounded-full border border-white/20 bg-white/40 dark:bg-white/5 w-9 h-9 flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
               aria-label="Next photo"
             >
               →
@@ -198,97 +196,94 @@ function PoolNotice() {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <section className="mx-auto max-w-6xl mt-6">
-      <div className="jqs-glass rounded-2xl p-6 mb-6 border border-sky-400/30 bg-gradient-to-br from-sky-500/10 via-cyan-500/10 to-emerald-500/10 shadow-lg shadow-sky-900/10">
-        <div className="mb-4 flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center rounded-full border border-sky-500/40 bg-sky-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-sky-900 dark:text-sky-200">
-            Latest resident notice
-          </span>
-        </div>
-
-        <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
-          Pool &amp; Facilities Update
-        </h2>
-
-        <div className="mt-4 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
-          <p>
-            The pool area is currently closed following a plant room leak which caused an electrical
-            fault and dehumidifier failure, leading to high humidity and damage within the area. The
-            dehumidifier has now been repaired, and Myreside are arranging a full safety assessment
-            with the aim of reopening the facilities as soon as it is safe to do so.
-          </p>
-
-          <AnimatePresence initial={false}>
-            {expanded && (
-              <motion.div
-                key="full-update"
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.3, ease: 'easeInOut' }}
-                className="overflow-hidden"
-              >
-                <div className="mt-4 space-y-3 border-t border-sky-400/30 pt-4">
-                  <h3 className="font-semibold text-neutral-900 dark:text-neutral-100">
-                    Full Update – Pool &amp; Facilities
-                  </h3>
-                  <p>
-                    Following the earlier incident within the swimming pool plant room, a leak in the
-                    chlorine system caused water to come into contact with the electrical fuse box,
-                    resulting in an electrical fault.
-                  </p>
-                  <p>
-                    This fault affected the dehumidifier system, with a key motherboard component
-                    requiring replacement. This has now been fitted, and the dehumidifier is back up
-                    and running.
-                  </p>
-                  <p>
-                    During the period where the ventilation system was not operating correctly,
-                    elevated humidity levels built up within the pool area. Unfortunately, this
-                    prolonged moisture has caused damage to sections of the ceiling, with some areas
-                    becoming unsafe and partially falling.
-                  </p>
-                  <p>
-                    As a result, the pool, gym, and sauna facilities remain closed while the
-                    situation is properly assessed.
-                  </p>
-                  <p>
-                    Myreside Management are currently arranging for a surveyor to attend and carry
-                    out a full inspection of the affected areas. They are also in discussions with
-                    the building&apos;s insurance provider to determine the necessary remedial works.
-                  </p>
-                  <p>
-                    Now that the dehumidifier system has been restored, conditions within the pool
-                    area can begin to stabilise. Further repairs will follow based on the
-                    surveyor&apos;s findings.
-                  </p>
-                  <p>
-                    The facilities will reopen once all works have been completed and the area has
-                    been confirmed safe for residents to use. We appreciate your patience and
-                    understanding while this is being resolved.
-                  </p>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          <button
-            onClick={() => setExpanded((v) => !v)}
-            className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-sky-700 dark:text-sky-300 hover:underline focus:outline-none"
-            aria-expanded={expanded}
-          >
-            {expanded ? 'Show less' : 'Read full update'}
-            <motion.span
-              animate={{ rotate: expanded ? 180 : 0 }}
-              transition={{ duration: 0.2 }}
-              className="inline-block"
-            >
-              ▾
-            </motion.span>
-          </button>
-        </div>
+    <div className="jqs-glass rounded-2xl p-6 border border-sky-400/30 bg-gradient-to-br from-sky-500/10 via-cyan-500/10 to-emerald-500/10 shadow-lg shadow-sky-900/10">
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <span className="inline-flex items-center rounded-full border border-sky-500/40 bg-sky-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-sky-900 dark:text-sky-200">
+          Resident notice
+        </span>
       </div>
-    </section>
+
+      <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+        Pool &amp; Facilities Update
+      </h2>
+
+      <div className="mt-3 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
+        <p>
+          The pool area is currently closed following a plant room leak which caused an electrical
+          fault and dehumidifier failure. The dehumidifier has been repaired and Myreside are
+          arranging a full safety assessment before reopening.
+        </p>
+
+        <AnimatePresence initial={false}>
+          {expanded && (
+            <motion.div
+              key="full-update"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+              className="overflow-hidden"
+            >
+              <div className="mt-4 space-y-3 border-t border-sky-400/30 pt-4">
+                <h3 className="font-semibold text-neutral-900 dark:text-neutral-100">
+                  Full Update – Pool &amp; Facilities
+                </h3>
+                <p>
+                  Following the earlier incident within the swimming pool plant room, a leak in the
+                  chlorine system caused water to come into contact with the electrical fuse box,
+                  resulting in an electrical fault.
+                </p>
+                <p>
+                  This fault affected the dehumidifier system, with a key motherboard component
+                  requiring replacement. This has now been fitted, and the dehumidifier is back up
+                  and running.
+                </p>
+                <p>
+                  During the period where the ventilation system was not operating correctly,
+                  elevated humidity levels built up within the pool area. Unfortunately, this
+                  prolonged moisture has caused damage to sections of the ceiling, with some areas
+                  becoming unsafe and partially falling.
+                </p>
+                <p>
+                  As a result, the pool, gym, and sauna facilities remain closed while the
+                  situation is properly assessed.
+                </p>
+                <p>
+                  Myreside Management are currently arranging for a surveyor to attend and carry
+                  out a full inspection of the affected areas. They are also in discussions with
+                  the building&apos;s insurance provider to determine the necessary remedial works.
+                </p>
+                <p>
+                  Now that the dehumidifier system has been restored, conditions within the pool
+                  area can begin to stabilise. Further repairs will follow based on the
+                  surveyor&apos;s findings.
+                </p>
+                <p>
+                  The facilities will reopen once all works have been completed and the area has
+                  been confirmed safe for residents to use. We appreciate your patience and
+                  understanding while this is being resolved.
+                </p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <button
+          onClick={() => setExpanded((v) => !v)}
+          className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-sky-400/40 bg-sky-500/10 px-4 py-1.5 text-xs font-semibold text-sky-700 dark:text-sky-300 hover:bg-sky-500/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/50"
+          aria-expanded={expanded}
+        >
+          {expanded ? 'Show less' : 'Read full update'}
+          <motion.span
+            animate={{ rotate: expanded ? 180 : 0 }}
+            transition={{ duration: 0.2 }}
+            className="inline-block"
+          >
+            <ChevronDown className="h-3.5 w-3.5" />
+          </motion.span>
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -299,78 +294,75 @@ function AGMNotice() {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <section className="mx-auto max-w-6xl mt-6">
-      <div className="jqs-glass rounded-2xl p-6 mb-6 border border-violet-400/30 bg-gradient-to-br from-violet-500/10 via-purple-500/10 to-indigo-500/10 shadow-lg shadow-violet-900/10">
-        <div className="mb-4 flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-violet-500/40 bg-violet-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-violet-900 dark:text-violet-200">
-            <CalendarDays className="h-3.5 w-3.5" />
-            Owners notice
-          </span>
-        </div>
-
-        <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
-          AGM Thursday 4th June 2026
-        </h2>
-
-        <div className="mt-3 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
-          <p>
-            The James Square AGM is approaching. Owners can review updates around what&apos;s been
-            happening around James Square and vote on plans for improvements. If you are a tenant,
-            please make your owner aware.
-          </p>
-
-          <AnimatePresence initial={false}>
-            {expanded && (
-              <motion.div
-                key="agm-detail"
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.3, ease: 'easeInOut' }}
-                className="overflow-hidden"
-              >
-                <div className="mt-4 space-y-3 border-t border-violet-400/30 pt-4">
-                  <p>
-                    The Annual General Meeting gives owners the opportunity to find out what has
-                    been happening at James Square and to vote on plans for improvements going
-                    forward. This will be our first AGM with Myreside Management as factors, taking
-                    place on Thursday 4th June 2026 via Microsoft Teams.
-                  </p>
-                  <p>
-                    For more information, and to leave suggestions on what you would like discussed,
-                    please visit the AGM page, email Ania at Myreside Management, or leave a
-                    comment on the AGM page.
-                  </p>
-                  <Link
-                    href="/agm"
-                    className="mt-2 inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white shadow hover:bg-violet-700 transition-colors"
-                  >
-                    <CalendarDays className="h-4 w-4" />
-                    View AGM page
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          <button
-            onClick={() => setExpanded((v) => !v)}
-            className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-violet-700 dark:text-violet-300 hover:underline focus:outline-none"
-            aria-expanded={expanded}
-          >
-            {expanded ? 'Show less' : 'Read more'}
-            <motion.span
-              animate={{ rotate: expanded ? 180 : 0 }}
-              transition={{ duration: 0.2 }}
-              className="inline-block"
-            >
-              ▾
-            </motion.span>
-          </button>
-        </div>
+    <div className="jqs-glass rounded-2xl p-6 border border-violet-400/30 bg-gradient-to-br from-violet-500/10 via-purple-500/10 to-indigo-500/10 shadow-lg shadow-violet-900/10">
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-violet-500/40 bg-violet-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-violet-900 dark:text-violet-200">
+          <CalendarDays className="h-3.5 w-3.5" />
+          Owners notice
+        </span>
       </div>
-    </section>
+
+      <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+        AGM – Thursday 4 June 2026
+      </h2>
+
+      <div className="mt-3 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
+        <p>
+          The James Square AGM is approaching. Owners can review what&apos;s been happening and
+          vote on plans for improvements. Tenants, please make your owner aware.
+        </p>
+
+        <AnimatePresence initial={false}>
+          {expanded && (
+            <motion.div
+              key="agm-detail"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+              className="overflow-hidden"
+            >
+              <div className="mt-4 space-y-3 border-t border-violet-400/30 pt-4">
+                <p>
+                  The Annual General Meeting gives owners the opportunity to find out what has
+                  been happening at James Square and to vote on plans for improvements going
+                  forward. This will be our first AGM with Myreside Management as factors, taking
+                  place on Thursday 4th June 2026 via Microsoft Teams.
+                </p>
+                <p>
+                  For more information, and to leave suggestions on what you would like discussed,
+                  please visit the AGM page, email Ania at Myreside Management, or leave a
+                  comment on the AGM page.
+                </p>
+                <Link
+                  href="/agm"
+                  className="mt-2 inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white shadow hover:bg-violet-700 transition-colors"
+                >
+                  <CalendarDays className="h-4 w-4" />
+                  View AGM page
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <button
+          onClick={() => setExpanded((v) => !v)}
+          className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-violet-400/40 bg-violet-500/10 px-4 py-1.5 text-xs font-semibold text-violet-700 dark:text-violet-300 hover:bg-violet-500/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/50"
+          aria-expanded={expanded}
+        >
+          {expanded ? 'Show less' : 'Read more'}
+          <motion.span
+            animate={{ rotate: expanded ? 180 : 0 }}
+            transition={{ duration: 0.2 }}
+            className="inline-block"
+          >
+            <ChevronDown className="h-3.5 w-3.5" />
+          </motion.span>
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -381,90 +373,103 @@ function MyresideNotice() {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <section className="mx-auto max-w-6xl mt-6">
-      <div className="jqs-glass rounded-2xl p-6 mb-6 border border-emerald-400/30 bg-gradient-to-br from-emerald-500/10 via-teal-500/10 to-cyan-500/10 shadow-lg shadow-emerald-900/10">
-        <div className="mb-4 flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-900 dark:text-emerald-200">
-            <Building2 className="h-3.5 w-3.5" />
-            Property management
-          </span>
-        </div>
-
-        <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
-          Myreside Management
-        </h2>
-
-        <div className="mt-3 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
-          <p>
-            Myreside Management are the active property factor for James Square, formally taking
-            over management of the development from 1 February 2025.
-          </p>
-
-          <AnimatePresence initial={false}>
-            {expanded && (
-              <motion.div
-                key="myreside-detail"
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.3, ease: 'easeInOut' }}
-                className="overflow-hidden"
-              >
-                <div className="mt-4 space-y-3 border-t border-emerald-400/30 pt-4">
-                  <p>
-                    Myreside Management handle day-to-day operations for the development, including
-                    owner communications, payments, contractor coordination, and routine site
-                    oversight.
-                  </p>
-                  <p>
-                    All owner payments, account queries, and management-related requests should be
-                    directed to Myreside. If you have not yet confirmed your details or payment
-                    arrangements, please do so as soon as possible.
-                  </p>
-                  <div className="space-y-0.5 text-sm">
-                    <p className="font-semibold text-neutral-900 dark:text-neutral-100">Myreside Management Limited</p>
-                    <p>3 Dalkeith Road Mews, Edinburgh, EH16 5GA</p>
-                    <p>Tel: <span className="font-medium">0131 466 3001</span></p>
-                    <p>
-                      Email:{' '}
-                      <a
-                        href="mailto:info@myreside-management.co.uk"
-                        className="underline underline-offset-2 hover:text-emerald-700 dark:hover:text-emerald-300"
-                      >
-                        info@myreside-management.co.uk
-                      </a>
-                    </p>
-                  </div>
-                  <Link
-                    href="/myreside"
-                    className="mt-2 inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow hover:bg-emerald-700 transition-colors"
-                  >
-                    <Building2 className="h-4 w-4" />
-                    Myreside information page
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          <button
-            onClick={() => setExpanded((v) => !v)}
-            className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 dark:text-emerald-300 hover:underline focus:outline-none"
-            aria-expanded={expanded}
-          >
-            {expanded ? 'Show less' : 'View more'}
-            <motion.span
-              animate={{ rotate: expanded ? 180 : 0 }}
-              transition={{ duration: 0.2 }}
-              className="inline-block"
-            >
-              ▾
-            </motion.span>
-          </button>
-        </div>
+    <div className="jqs-glass rounded-2xl p-6 border border-emerald-400/30 bg-gradient-to-br from-emerald-500/10 via-teal-500/10 to-cyan-500/10 shadow-lg shadow-emerald-900/10">
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-900 dark:text-emerald-200">
+          <Building2 className="h-3.5 w-3.5" />
+          Property management
+        </span>
       </div>
-    </section>
+
+      <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+        Myreside Management
+      </h2>
+
+      <div className="mt-3 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
+        <p>
+          Myreside Management are the active property factor for James Square, taking over from
+          Fior Asset &amp; Property on 1 February 2026. All owner payments, maintenance requests,
+          and management queries should be directed to Myreside.
+        </p>
+
+        <AnimatePresence initial={false}>
+          {expanded && (
+            <motion.div
+              key="myreside-detail"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+              className="overflow-hidden"
+            >
+              <div className="mt-4 space-y-4 border-t border-emerald-400/30 pt-4">
+                <p>
+                  Myreside handle day-to-day operations including owner communications, payments,
+                  contractor coordination, and routine site oversight.
+                </p>
+                <p>
+                  Owners should no longer make any payments to Fior Asset &amp; Property. If any
+                  payments have been made to Fior after 1 February 2026, contact Fior directly to
+                  request a refund. If you have not yet set up payment with Myreside, please
+                  contact them as soon as possible.
+                </p>
+
+                <div className="rounded-xl border border-emerald-400/25 bg-emerald-500/5 p-4 space-y-1 text-sm">
+                  <p className="font-semibold text-neutral-900 dark:text-neutral-100">Myreside Management Limited</p>
+                  <p>3 Dalkeith Road Mews, Edinburgh EH16 5GA</p>
+                  <p>
+                    Tel:{' '}
+                    <a href="tel:01314663001" className="font-medium hover:underline">
+                      0131 466 3001
+                    </a>
+                  </p>
+                  <p>
+                    24hr Emergencies:{' '}
+                    <span className="font-medium">0131 466 3001 – press 1</span>
+                  </p>
+                  <p>
+                    Email:{' '}
+                    <a
+                      href="mailto:info@myreside-management.co.uk"
+                      className="underline underline-offset-2 hover:text-emerald-700 dark:hover:text-emerald-300"
+                    >
+                      info@myreside-management.co.uk
+                    </a>
+                  </p>
+                  <p className="text-neutral-500 dark:text-neutral-400 text-xs pt-1">
+                    Monday – Friday, 9am – 5:30pm
+                  </p>
+                </div>
+
+                <Link
+                  href="/myreside"
+                  className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow hover:bg-emerald-700 transition-colors"
+                >
+                  <Building2 className="h-4 w-4" />
+                  Myreside information page
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <button
+          onClick={() => setExpanded((v) => !v)}
+          className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-4 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
+          aria-expanded={expanded}
+        >
+          {expanded ? 'Show less' : 'View more'}
+          <motion.span
+            animate={{ rotate: expanded ? 180 : 0 }}
+            transition={{ duration: 0.2 }}
+            className="inline-block"
+          >
+            <ChevronDown className="h-3.5 w-3.5" />
+          </motion.span>
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -476,9 +481,6 @@ export default function HomePageClient() {
 
   return (
     <main className="px-4 py-10 sm:py-14">
-      <div className="mb-8 sm:mb-10">
-        <EGMAnnouncementBanner />
-      </div>
       {/* HERO */}
       <section className="mx-auto max-w-6xl">
         <motion.div
@@ -535,95 +537,103 @@ export default function HomePageClient() {
                 <br />
                 <span className="text-neutral-900 dark:text-neutral-100">Community Website</span>
               </h1>
-              <div className="mt-4 space-y-3 text-base sm:text-lg text-neutral-700 dark:text-neutral-300">
-                <p>
-                  James Square is a shared community website for residents and owners. It’s a place
-                  access useful info about the area, to discuss issues or topics with other residents
-                  and owners, access owners’ documents and AGM details, take part in votes, and stay
-                  up to date with what’s happening around the square.
-                </p>
-                <p>
-                  The site also provides the booking portal for the pool, gym, and sauna.
-                </p>
-              </div>
-              <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">
-                This website is still evolving and will continue to be improved over time. Ideas,
-                suggestions, and feedback are always welcome.
+              <p className="mt-4 text-base sm:text-lg text-neutral-700 dark:text-neutral-300 max-w-2xl mx-auto">
+                A shared community website for residents and owners at James Square — access useful
+                info, discuss topics with neighbours, manage owners&apos; documents and AGM details,
+                take part in votes, and stay up to date with what&apos;s happening around the square.
               </p>
 
-              <div className="mt-7 space-y-3">
-                <h2 className="text-xl sm:text-2xl font-semibold">
-                  Booking Portal - book the pool, gym and sauna.
+              <div className="mt-7 border-t border-neutral-200/60 dark:border-white/10 pt-6 space-y-3">
+                <h2 className="text-lg sm:text-xl font-semibold">
+                  Book the pool, gym &amp; sauna
                 </h2>
-                <p className="text-sm sm:text-base text-neutral-700 dark:text-neutral-300">
-                  You can also use{' '}
-                  <Link href="/dashboard" className="underline">
+                <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                  Use{' '}
+                  <Link href="/dashboard" className="underline underline-offset-2">
                     My Dashboard
                   </Link>{' '}
-                  to view, edit and manage bookings and your account.
+                  to view and manage your bookings.
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 pt-1">
                   <RulePill title="Bookable Windows" detail="05:30–09:30 • 17:00–23:00" />
                   <RulePill title="Daily Limit" detail="Max 2 slots per facility" />
-                  <RulePill title="Free Use" detail="11:00–17:00 (no booking)" />
+                  <RulePill title="Free Use" detail="11:00–17:00 (no booking needed)" />
                 </div>
               </div>
+
+              <p className="mt-5 text-xs text-neutral-500 dark:text-neutral-500">
+                This site is still evolving — ideas, suggestions, and feedback are always welcome.
+              </p>
             </header>
           </div>
         </motion.div>
       </section>
 
-      <PoolNotice />
+      {/* NOTICES */}
+      <section className="mx-auto max-w-6xl mt-10 sm:mt-12">
+        <div className="mb-4 flex items-center gap-3">
+          <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
+            Latest Updates
+          </p>
+          <div className="flex-1 border-t border-neutral-200 dark:border-white/10" />
+        </div>
+        <div className="space-y-4">
+          <PoolNotice />
+          <AGMNotice />
+          <MyresideNotice />
+        </div>
+      </section>
 
-      <AGMNotice />
+      {/* QUICK LINKS */}
+      <section className="mx-auto max-w-6xl mt-10 sm:mt-12">
+        <div className="mb-4 flex items-center gap-3">
+          <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
+            Quick Links
+          </p>
+          <div className="flex-1 border-t border-neutral-200 dark:border-white/10" />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <IconCard
+            title="Message Board"
+            href="/message-board"
+            lightIcon="/images/icons/new-message-icon-light.png"
+            darkIcon="/images/icons/new-message-icon-dark.png"
+            blurb="Share updates, ask questions and discuss anything related to James Square."
+          />
 
-      <MyresideNotice />
+          <IconCard
+            title="My Dashboard"
+            href="/dashboard"
+            lightIcon="/images/icons/new-dashboard-icon-light.png"
+            darkIcon="/images/icons/new-dashboard-icon-dark.png"
+            blurb="View, edit and manage your bookings. Add bookings to your calendar."
+          />
 
-      <AnnouncementNotice />
+          <IconCard
+            title="Book Facilities"
+            href="/book"
+            lightIcon="/images/icons/new-pool-icon-light.png"
+            darkIcon="/images/icons/new-pool-icon-dark.png"
+            blurb="Reserve time for the pool, gym or sauna."
+          />
 
-      {/* MAIN ICON GRID */}
-      <section className="mx-auto max-w-6xl mt-8 sm:mt-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <IconCard
-          title="Message Board"
-          href="/message-board"
-          lightIcon="/images/icons/new-message-icon-light.png"
-          darkIcon="/images/icons/new-message-icon-dark.png"
-          blurb="Share updates, ask questions and discuss anything related to James Square."
-        />
+          <IconCard
+            title="Owners Area"
+            href="/owners"
+            lightIcon="/images/icons/Owner-icon-light.PNG"
+            darkIcon="/images/icons/new-Owner-icon-dark.png"
+            blurb="Access owner information, voting, and owners-only updates."
+            iconAlt="Owners area"
+          />
 
-        <IconCard
-          title="My Dashboard"
-          href="/dashboard"
-          lightIcon="/images/icons/new-dashboard-icon-light.png"
-          darkIcon="/images/icons/new-dashboard-icon-dark.png"
-          blurb="View, edit and manage your bookings. Add bookings to your calendar."
-        />
-
-        <IconCard
-          title="Book Facilities"
-          href="/book"
-          lightIcon="/images/icons/new-pool-icon-light.png"
-          darkIcon="/images/icons/new-pool-icon-dark.png"
-          blurb="Reserve time for the pool, gym or sauna."
-        />
-
-        <IconCard
-          title="Owners Area"
-          href="/owners"
-          lightIcon="/images/icons/Owner-icon-light.PNG"
-          darkIcon="/images/icons/new-Owner-icon-dark.png"
-          blurb="Access owner information, voting, and owners-only updates."
-          iconAlt="Owners area"
-        />
-
-        {/* Keep this route aligned with your header */}
-        <IconCard
-          title="Useful Info"
-          href="/local"
-          lightIcon="/images/icons/info-icon-light.png"
-          darkIcon="/images/icons/new-info-icon-dark.png"
-          blurb="Access, bins & recycling, contacts and local picks (food, shops, coffee)."
-        />
+          <IconCard
+            title="Useful Info"
+            href="/local"
+            lightIcon="/images/icons/info-icon-light.png"
+            darkIcon="/images/icons/new-info-icon-dark.png"
+            blurb="Access, bins & recycling, contacts and local picks (food, shops, coffee)."
+          />
+        </div>
       </section>
 
       {/* PHOTO CAROUSEL */}
