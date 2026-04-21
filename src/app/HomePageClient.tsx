@@ -714,10 +714,10 @@ export default function HomePageClient() {
                 animate={
                   reduceMotion
                     ? { scale: 1, x: 0, y: 0 }
-                    : { scale: 1.02, x: 3, y: -2 }
+                    : { scale: 1.035, x: 6, y: -4 }
                 }
                 transition={{
-                  duration: reduceMotion ? 0 : 40,
+                  duration: reduceMotion ? 0 : 46,
                   ease: 'easeInOut',
                   repeat: reduceMotion ? 0 : Infinity,
                   repeatType: 'reverse',
@@ -731,7 +731,7 @@ export default function HomePageClient() {
                   width={1536}
                   height={1024}
                   priority
-                  className="block h-[93%] w-full object-contain drop-shadow-[0_18px_35px_rgba(0,0,0,0.16)] dark:hidden"
+                  className="block h-[92%] w-full object-contain drop-shadow-[0_18px_35px_rgba(0,0,0,0.16)] dark:hidden"
                 />
 
                 {/* Dark mode – nighttime drone */}
@@ -741,9 +741,11 @@ export default function HomePageClient() {
                   width={1536}
                   height={1024}
                   priority
-                  className="hidden h-[93%] w-full object-contain drop-shadow-[0_18px_35px_rgba(0,0,0,0.28)] dark:block"
+                  className="hidden h-[92%] w-full object-contain drop-shadow-[0_18px_35px_rgba(0,0,0,0.28)] dark:block"
                 />
               </motion.div>
+
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[15] h-28 bg-gradient-to-t from-white/95 via-white/55 to-transparent backdrop-blur-[2px] [-webkit-mask-image:linear-gradient(to_top,black_0%,black_42%,transparent_100%)] [mask-image:linear-gradient(to_top,black_0%,black_42%,transparent_100%)] dark:from-neutral-950/85 dark:via-neutral-950/45 sm:h-36" />
 
               <motion.h1
                 variants={fadeUpVariants(Boolean(reduceMotion))}
@@ -753,7 +755,7 @@ export default function HomePageClient() {
                 <span className="text-slate-500 dark:text-slate-400">Square</span>
               </motion.h1>
             </div>
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-white/95 via-white/30 to-transparent dark:from-neutral-950/70 dark:via-neutral-950/20 dark:to-transparent" />
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-white via-white/45 to-transparent dark:from-neutral-950/80 dark:via-neutral-950/25 dark:to-transparent" />
           </motion.div>
 
           <div className="bg-gradient-to-b from-white/95 to-white/60 px-6 pb-6 pt-5 dark:from-neutral-950/60 dark:to-white/5 sm:px-10 sm:pb-8 sm:pt-6">
