@@ -191,6 +191,107 @@ function PhotoCarousel() {
 }
 
 /** ------------------------------------------------
+ *  Pool & Facilities Notice
+ *  ------------------------------------------------ */
+function PoolNotice() {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <section className="mx-auto max-w-6xl mt-6">
+      <div className="jqs-glass rounded-2xl p-6 mb-6 border border-sky-400/30 bg-gradient-to-br from-sky-500/10 via-cyan-500/10 to-emerald-500/10 shadow-lg shadow-sky-900/10">
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          <span className="inline-flex items-center rounded-full border border-sky-500/40 bg-sky-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-sky-900 dark:text-sky-200">
+            Latest resident notice
+          </span>
+        </div>
+
+        <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
+          Pool &amp; Facilities Update
+        </h2>
+
+        <div className="mt-4 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
+          <p>
+            The pool area is currently closed following a plant room leak which caused an electrical
+            fault and dehumidifier failure, leading to high humidity and damage within the area. The
+            dehumidifier has now been repaired, and Myreside are arranging a full safety assessment
+            with the aim of reopening the facilities as soon as it is safe to do so.
+          </p>
+
+          <AnimatePresence initial={false}>
+            {expanded && (
+              <motion.div
+                key="full-update"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3, ease: 'easeInOut' }}
+                className="overflow-hidden"
+              >
+                <div className="mt-4 space-y-3 border-t border-sky-400/30 pt-4">
+                  <h3 className="font-semibold text-neutral-900 dark:text-neutral-100">
+                    Full Update – Pool &amp; Facilities
+                  </h3>
+                  <p>
+                    Following the earlier incident within the swimming pool plant room, a leak in the
+                    chlorine system caused water to come into contact with the electrical fuse box,
+                    resulting in an electrical fault.
+                  </p>
+                  <p>
+                    This fault affected the dehumidifier system, with a key motherboard component
+                    requiring replacement. This has now been fitted, and the dehumidifier is back up
+                    and running.
+                  </p>
+                  <p>
+                    During the period where the ventilation system was not operating correctly,
+                    elevated humidity levels built up within the pool area. Unfortunately, this
+                    prolonged moisture has caused damage to sections of the ceiling, with some areas
+                    becoming unsafe and partially falling.
+                  </p>
+                  <p>
+                    As a result, the pool, gym, and sauna facilities remain closed while the
+                    situation is properly assessed.
+                  </p>
+                  <p>
+                    Myreside Management are currently arranging for a surveyor to attend and carry
+                    out a full inspection of the affected areas. They are also in discussions with
+                    the building&apos;s insurance provider to determine the necessary remedial works.
+                  </p>
+                  <p>
+                    Now that the dehumidifier system has been restored, conditions within the pool
+                    area can begin to stabilise. Further repairs will follow based on the
+                    surveyor&apos;s findings.
+                  </p>
+                  <p>
+                    The facilities will reopen once all works have been completed and the area has
+                    been confirmed safe for residents to use. We appreciate your patience and
+                    understanding while this is being resolved.
+                  </p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <button
+            onClick={() => setExpanded((v) => !v)}
+            className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-sky-700 dark:text-sky-300 hover:underline focus:outline-none"
+            aria-expanded={expanded}
+          >
+            {expanded ? 'Show less' : 'Read full update'}
+            <motion.span
+              animate={{ rotate: expanded ? 180 : 0 }}
+              transition={{ duration: 0.2 }}
+              className="inline-block"
+            >
+              ▾
+            </motion.span>
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/** ------------------------------------------------
  *  Page
  *  ------------------------------------------------ */
 export default function HomePageClient() {
@@ -295,44 +396,7 @@ export default function HomePageClient() {
         </motion.div>
       </section>
 
-      <section className="mx-auto max-w-6xl mt-6">
-        <div className="jqs-glass rounded-2xl p-6 mb-6 border border-sky-400/30 bg-gradient-to-br from-sky-500/10 via-cyan-500/10 to-emerald-500/10 shadow-lg shadow-sky-900/10">
-          <div className="mb-4 flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center rounded-full border border-sky-500/40 bg-sky-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-sky-900 dark:text-sky-200">
-              Latest resident notice
-            </span>
-          </div>
-
-          <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
-            Resident Update – Tuesday 10th March
-          </h2>
-
-          <div className="mt-4 space-y-3 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
-            <p>
-              On Tuesday 10th March the fire alarm was triggered at James Square following an issue
-              within the swimming pool plant room.
-            </p>
-
-            <p>
-              The cause was identified as a small hole in a pipe connected to the chlorine system. As
-              the pipe operates under pressure, water sprayed onto the wall and ceiling area where the
-              electrical fuse box is located, causing the fuses to blow and resulting in a small
-              electrical fire within the fuse box.
-            </p>
-
-            <p>
-              An electrician has since attended and restored most of the power, however some breakers
-              still require to be replaced and the damaged chlorine pipe is due to be replaced.
-            </p>
-
-            <p>
-              The pool has now reopened on a phased basis while the remaining repairs are carried out.
-              As the dehumidifier is not currently operational, the pool temperature has been lowered
-              slightly to help reduce evaporation and humidity within the pool area.
-            </p>
-          </div>
-        </div>
-      </section>
+      <PoolNotice />
 
       <AnnouncementNotice />
 
