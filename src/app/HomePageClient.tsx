@@ -2,8 +2,8 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import { useState } from 'react';
+import { motion, AnimatePresence, useReducedMotion, type Variants } from 'framer-motion';
+import { useEffect, useState } from 'react';
 import { CalendarDays, ArrowRight, Building2, ChevronDown } from 'lucide-react';
 import MobileAppPoster from '@/components/home/MobileAppPoster';
 
@@ -12,6 +12,101 @@ import MobileAppPoster from '@/components/home/MobileAppPoster';
  *  ------------------------------------------------ */
 const glass =
   'jqs-glass rounded-2xl border border-white/20 bg-white/50 dark:bg-white/10 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.06)]';
+
+const viewportOnce = { once: true, margin: '0px 0px -60px 0px' };
+const easeOut = [0.22, 1, 0.36, 1] as [number, number, number, number];
+
+function fadeUpVariants(reduceMotion: boolean): Variants {
+  return reduceMotion
+    ? {
+        hidden: { opacity: 1, y: 0, scale: 1 },
+        show: { opacity: 1, y: 0, scale: 1 },
+      }
+    : {
+        hidden: { opacity: 0, y: 12, scale: 0.99 },
+        show: {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          transition: { duration: 0.45, ease: easeOut },
+        },
+      };
+}
+
+function staggerContainerVariants(reduceMotion: boolean, stagger = 0.1): Variants {
+  return reduceMotion
+    ? {
+        hidden: {},
+        show: { transition: { staggerChildren: 0, delayChildren: 0 } },
+      }
+    : {
+        hidden: {},
+        show: { transition: { staggerChildren: stagger } },
+      };
+}
+
+function sectionHeaderVariants(reduceMotion: boolean): Variants {
+  return reduceMotion
+    ? {
+        hidden: { opacity: 1, x: 0 },
+        show: { opacity: 1, x: 0 },
+      }
+    : {
+        hidden: { opacity: 0, x: -14 },
+        show: {
+          opacity: 1,
+          x: 0,
+          transition: { duration: 0.35, ease: easeOut },
+        },
+      };
+}
+
+function cardRevealVariants(reduceMotion: boolean): Variants {
+  return reduceMotion
+    ? {
+        hidden: { opacity: 1, y: 0 },
+        show: { opacity: 1, y: 0 },
+      }
+    : {
+        hidden: { opacity: 0, y: 16 },
+        show: {
+          opacity: 1,
+          y: 0,
+          transition: { duration: 0.4, ease: easeOut },
+        },
+      };
+}
+
+const carouselSlides = [
+  { src: '/images/buildingimages/front.jpg', alt: 'Front of James Square', w: 1535, h: 1024 },
+  { src: '/images/buildingimages/garden.jpg', alt: 'Garden at James Square', w: 1200, h: 900 },
+  { src: '/images/buildingimages/pool.jpg', alt: 'Pool at James Square', w: 1600, h: 1066 },
+  { src: '/images/buildingimages/above.jpg', alt: 'James Square from above', w: 1536, h: 1024 },
+];
+
+function SectionHeader({
+  children,
+  reduceMotion,
+}: {
+  children: string;
+  reduceMotion: boolean;
+}) {
+  return (
+    <motion.div
+      initial="hidden"
+      whileInView="show"
+      viewport={viewportOnce}
+      variants={sectionHeaderVariants(reduceMotion)}
+      className="mb-4 flex items-center gap-3"
+    >
+      <span className="h-1.5 w-1.5 rounded-full bg-neutral-400/80 dark:bg-neutral-500" />
+      <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
+        {children}
+      </p>
+      <div className="flex-1 border-t border-neutral-200 dark:border-white/10" />
+    </motion.div>
+  );
+}
 
 /** ------------------------------------------------
  *  Hero rule pill
@@ -91,7 +186,7 @@ function DualModeIcon({
         alt={alt}
         width={size}
         height={size}
-        className="block dark:hidden w-24 h-24 sm:w-28 sm:h-28 object-contain"
+        className="block dark:hidden h-20 w-20 object-contain sm:h-24 sm:w-24"
         priority
       />
       <Image
@@ -99,7 +194,7 @@ function DualModeIcon({
         alt={alt}
         width={size}
         height={size}
-        className="hidden dark:block w-24 h-24 sm:w-28 sm:h-28 object-contain"
+        className="hidden h-20 w-20 object-contain dark:block sm:h-24 sm:w-24"
         priority
       />
     </>
@@ -116,6 +211,7 @@ function IconCard({
   darkIcon,
   blurb,
   iconAlt,
+  reduceMotion,
 }: {
   title: string;
   href: string;
@@ -123,12 +219,18 @@ function IconCard({
   darkIcon: string;
   blurb: string;
   iconAlt?: string;
+  reduceMotion: boolean;
 }) {
   return (
     <Link href={href} className="group block focus:outline-none">
       <motion.div
-        whileHover={{ y: -2, scale: 1.01 }}
-        whileTap={{ scale: 0.99 }}
+        whileHover={
+          reduceMotion
+            ? undefined
+            : { y: -4, scale: 1.015, boxShadow: '0 16px 40px rgba(0,0,0,0.10)' }
+        }
+        whileTap={reduceMotion ? undefined : { scale: 0.99 }}
+        transition={{ type: 'spring', stiffness: 320, damping: 24 }}
         className={`${glass} p-5 flex items-center gap-4 sm:gap-5 relative overflow-hidden`}
       >
         {/* sheen */}
@@ -142,7 +244,7 @@ function IconCard({
         <div className="relative z-10">
           <h3 className="text-lg font-semibold">{title}</h3>
           <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">{blurb}</p>
-          <span className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-neutral-900/70 dark:text-neutral-100/80 group-hover:text-neutral-900 dark:group-hover:text-neutral-100 transition-colors">
+          <span className="mt-3 inline-flex translate-x-0 items-center gap-1 rounded-full border border-neutral-900/10 bg-white/55 px-3 py-1 text-xs font-semibold text-neutral-900/70 transition-all group-hover:translate-x-1 group-hover:bg-white/80 group-hover:text-neutral-900 dark:border-white/10 dark:bg-white/10 dark:text-neutral-100/80 dark:group-hover:bg-white/15 dark:group-hover:text-neutral-100">
             Open {title} <ArrowRight className="h-3.5 w-3.5" />
           </span>
         </div>
@@ -155,20 +257,36 @@ function IconCard({
  *  Lightweight photo carousel
  *  ------------------------------------------------ */
 function PhotoCarousel() {
-  const slides = [
-    { src: '/images/buildingimages/front.jpg', alt: 'Front of James Square', w: 1535, h: 1024 },
-    { src: '/images/buildingimages/garden.jpg', alt: 'Garden at James Square', w: 1200, h: 900 },
-    { src: '/images/buildingimages/pool.jpg', alt: 'Pool at James Square', w: 1600, h: 1066 },
-    { src: '/images/buildingimages/above.jpg', alt: 'James Square from above', w: 1536, h: 1024 },
-  ];
-
+  const reduceMotion = useReducedMotion();
   const [idx, setIdx] = useState(0);
-  const prev = () => setIdx((i) => (i - 1 + slides.length) % slides.length);
-  const next = () => setIdx((i) => (i + 1) % slides.length);
+  const [paused, setPaused] = useState(false);
+  const prev = () => setIdx((i) => (i - 1 + carouselSlides.length) % carouselSlides.length);
+  const next = () => setIdx((i) => (i + 1) % carouselSlides.length);
+
+  useEffect(() => {
+    if (reduceMotion || paused) return undefined;
+
+    const interval = window.setInterval(() => {
+      setIdx((i) => (i + 1) % carouselSlides.length);
+    }, 5000);
+
+    return () => window.clearInterval(interval);
+  }, [paused, reduceMotion]);
 
   return (
     <section className="mx-auto max-w-6xl mt-10 sm:mt-12">
-      <div className={`${glass} p-4 sm:p-6`}>
+      <div
+        className={`${glass} p-4 sm:p-6`}
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
+        onFocus={() => setPaused(true)}
+        onBlur={(event) => {
+          const nextTarget = event.relatedTarget;
+          if (!(nextTarget instanceof Node) || !event.currentTarget.contains(nextTarget)) {
+            setPaused(false);
+          }
+        }}
+      >
         <div className="flex items-center justify-between mb-3 sm:mb-4">
           <h2 className="text-lg font-semibold">Around James Square</h2>
           <div className="flex gap-2">
@@ -200,25 +318,34 @@ function PhotoCarousel() {
               className="w-full"
             >
               <Image
-                src={slides[idx].src}
-                alt={slides[idx].alt}
-                width={slides[idx].w}
-                height={slides[idx].h}
+                src={carouselSlides[idx].src}
+                alt={carouselSlides[idx].alt}
+                width={carouselSlides[idx].w}
+                height={carouselSlides[idx].h}
                 className="w-full h-[280px] sm:h-[420px] object-cover"
                 sizes="(min-width: 1024px) 1000px, 100vw"
                 priority={idx === 0}
               />
             </motion.div>
           </AnimatePresence>
+          <div className="absolute inset-x-0 bottom-0 h-0.5 bg-black/10 dark:bg-white/15">
+            <motion.div
+              key={`progress-${idx}-${paused ? 'paused' : 'running'}`}
+              className="h-full origin-left bg-neutral-950/70 dark:bg-white/80"
+              initial={{ scaleX: 0 }}
+              animate={reduceMotion || paused ? { scaleX: 0 } : { scaleX: 1 }}
+              transition={{ duration: reduceMotion || paused ? 0 : 5, ease: 'linear' }}
+            />
+          </div>
         </div>
 
-        <div className="mt-3 flex justify-center gap-2">
-          {slides.map((_, i) => (
+        <div className="mt-3 flex justify-center gap-1.5">
+          {carouselSlides.map((_, i) => (
             <button
               key={`dot-${i}`}
               onClick={() => setIdx(i)}
               aria-label={`Go to slide ${i + 1}`}
-              className={`h-2 w-2 rounded-full transition ${
+              className={`h-1.5 w-1.5 rounded-full transition ${
                 i === idx
                   ? 'bg-neutral-900 dark:bg-neutral-100'
                   : 'bg-neutral-400/40 dark:bg-white/30'
@@ -238,7 +365,7 @@ function PoolNotice() {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="jqs-glass rounded-2xl p-6 border border-sky-400/30 bg-gradient-to-br from-sky-500/10 via-cyan-500/10 to-emerald-500/10 shadow-lg shadow-sky-900/10">
+    <div className="jqs-glass rounded-2xl border border-l-[3px] border-sky-400/30 border-l-sky-400 bg-gradient-to-br from-sky-500/10 via-cyan-500/10 to-emerald-500/10 p-6 shadow-lg shadow-sky-900/10">
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <span className="inline-flex items-center rounded-full border border-sky-500/40 bg-sky-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-sky-900 dark:text-sky-200">
           Resident notice
@@ -336,7 +463,7 @@ function AGMNotice() {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="jqs-glass rounded-2xl p-6 border border-violet-400/30 bg-gradient-to-br from-violet-500/10 via-purple-500/10 to-indigo-500/10 shadow-lg shadow-violet-900/10">
+    <div className="jqs-glass rounded-2xl border border-l-[3px] border-violet-400/30 border-l-violet-400 bg-gradient-to-br from-violet-500/10 via-purple-500/10 to-indigo-500/10 p-6 shadow-lg shadow-violet-900/10">
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <span className="inline-flex items-center gap-1.5 rounded-full border border-violet-500/40 bg-violet-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-violet-900 dark:text-violet-200">
           <CalendarDays className="h-3.5 w-3.5" />
@@ -415,7 +542,7 @@ function MyresideNotice() {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="jqs-glass rounded-2xl p-6 border border-emerald-400/30 bg-gradient-to-br from-emerald-500/10 via-teal-500/10 to-cyan-500/10 shadow-lg shadow-emerald-900/10">
+    <div className="jqs-glass rounded-2xl border border-l-[3px] border-emerald-400/30 border-l-emerald-400 bg-gradient-to-br from-emerald-500/10 via-teal-500/10 to-cyan-500/10 p-6 shadow-lg shadow-emerald-900/10">
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-900 dark:text-emerald-200">
           <Building2 className="h-3.5 w-3.5" />
@@ -526,13 +653,27 @@ export default function HomePageClient() {
       {/* HERO */}
       <section className="mx-auto max-w-6xl">
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45 }}
+          initial="hidden"
+          animate="show"
+          variants={staggerContainerVariants(Boolean(reduceMotion), 0.1)}
           className={`${glass} overflow-hidden`}
         >
           {/* Top image */}
-          <div className="relative overflow-hidden">
+          <motion.div
+            variants={
+              reduceMotion
+                ? fadeUpVariants(true)
+                : {
+                    hidden: { opacity: 0, scale: 0.97 },
+                    show: {
+                      opacity: 1,
+                      scale: 1,
+                      transition: { duration: 0.5, ease: easeOut },
+                    },
+                  }
+            }
+            className="relative overflow-hidden"
+          >
             <motion.div
               className="absolute inset-0"
               initial={{ scale: 1, y: 0 }}
@@ -543,9 +684,6 @@ export default function HomePageClient() {
               }}
               style={{
                 willChange: 'transform',
-                maskImage: 'radial-gradient(ellipse at center, black 65%, transparent 100%)',
-                WebkitMaskImage:
-                  'radial-gradient(ellipse at center, black 65%, transparent 100%)',
               }}
             >
               {/* Light mode – daytime drone */}
@@ -555,7 +693,7 @@ export default function HomePageClient() {
                 width={1536}
                 height={1024}
                 priority
-                className="w-full h-[200px] sm:h-[320px] object-cover block dark:hidden"
+                className="block h-[220px] w-full object-cover object-[center_22%] dark:hidden sm:h-[380px]"
               />
 
               {/* Dark mode – nighttime drone */}
@@ -565,25 +703,37 @@ export default function HomePageClient() {
                 width={1536}
                 height={1024}
                 priority
-                className="w-full h-[200px] sm:h-[320px] object-cover hidden dark:block"
+                className="hidden h-[220px] w-full object-cover object-[center_22%] dark:block sm:h-[380px]"
               />
             </motion.div>
 
-            <div className="relative h-[200px] sm:h-[320px]" />
-          </div>
+            <div className="relative h-[220px] sm:h-[380px]" />
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white/80 via-white/20 to-transparent dark:from-neutral-950/35 dark:via-neutral-950/10" />
+          </motion.div>
 
           <div className="p-6 sm:p-10">
             <header className="text-center">
-              <h1 className="text-3xl sm:text-4xl font-bold leading-tight">
-                James <span className="text-slate-500">Square</span>
-              </h1>
+              <motion.h1
+                variants={fadeUpVariants(Boolean(reduceMotion))}
+                className="text-4xl font-bold leading-tight sm:text-5xl"
+              >
+                <span className="bg-gradient-to-r from-neutral-800 to-slate-600 bg-clip-text text-transparent dark:from-neutral-100 dark:to-slate-300">
+                  James Square
+                </span>
+              </motion.h1>
 
-              <p className="mt-4 text-base sm:text-lg text-neutral-700 dark:text-neutral-300 max-w-xl mx-auto leading-relaxed">
+              <motion.p
+                variants={fadeUpVariants(Boolean(reduceMotion))}
+                className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-neutral-700 dark:text-neutral-300 sm:text-lg"
+              >
                 Keep up with resident notices, building information, and shared facilities in one
                 place.
-              </p>
+              </motion.p>
 
-              <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
+              <motion.div
+                variants={fadeUpVariants(Boolean(reduceMotion))}
+                className="mt-6 flex flex-col justify-center gap-3 sm:flex-row"
+              >
                 <Link
                   href="/booking"
                   className="inline-flex items-center justify-center gap-2 rounded-xl bg-neutral-950 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-neutral-950/10 transition-colors hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200"
@@ -597,9 +747,12 @@ export default function HomePageClient() {
                 >
                   Manage bookings
                 </Link>
-              </div>
+              </motion.div>
 
-              <div className="mt-8 border-t border-neutral-200/60 dark:border-white/10 pt-6">
+              <motion.div
+                variants={fadeUpVariants(Boolean(reduceMotion))}
+                className="mt-8 border-t border-neutral-200/60 pt-6 dark:border-white/10"
+              >
                 <h2 className="text-lg sm:text-xl font-semibold">
                   Book the pool, gym &amp; sauna
                 </h2>
@@ -618,7 +771,7 @@ export default function HomePageClient() {
                 <p className="mt-3 text-xs text-neutral-500 dark:text-neutral-400">
                   No booking needed during open use hours (11:00 – 17:00)
                 </p>
-              </div>
+              </motion.div>
             </header>
           </div>
         </motion.div>
@@ -626,69 +779,92 @@ export default function HomePageClient() {
 
       {/* NOTICES */}
       <section className="mx-auto max-w-6xl mt-10 sm:mt-12">
-        <div className="mb-4 flex items-center gap-3">
-          <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
-            Latest Updates
-          </p>
-          <div className="flex-1 border-t border-neutral-200 dark:border-white/10" />
-        </div>
-        <div className="space-y-4">
-          <PoolNotice />
-          <AGMNotice />
-          <MyresideNotice />
-        </div>
+        <SectionHeader reduceMotion={Boolean(reduceMotion)}>Latest Updates</SectionHeader>
+        <motion.div
+          initial="hidden"
+          whileInView="show"
+          viewport={viewportOnce}
+          variants={staggerContainerVariants(Boolean(reduceMotion), 0.08)}
+          className="space-y-4"
+        >
+          <motion.div variants={cardRevealVariants(Boolean(reduceMotion))}>
+            <PoolNotice />
+          </motion.div>
+          <motion.div variants={cardRevealVariants(Boolean(reduceMotion))}>
+            <AGMNotice />
+          </motion.div>
+          <motion.div variants={cardRevealVariants(Boolean(reduceMotion))}>
+            <MyresideNotice />
+          </motion.div>
+        </motion.div>
       </section>
 
       {/* QUICK LINKS */}
       <section className="mx-auto max-w-6xl mt-10 sm:mt-12">
-        <div className="mb-4 flex items-center gap-3">
-          <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
-            Quick Links
-          </p>
-          <div className="flex-1 border-t border-neutral-200 dark:border-white/10" />
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <IconCard
-            title="Message Board"
-            href="/message-board"
-            lightIcon="/images/icons/new-message-icon-light.png"
-            darkIcon="/images/icons/new-message-icon-dark.png"
-            blurb="Share updates, ask questions and discuss anything related to James Square."
-          />
+        <SectionHeader reduceMotion={Boolean(reduceMotion)}>Quick Links</SectionHeader>
+        <motion.div
+          initial="hidden"
+          whileInView="show"
+          viewport={viewportOnce}
+          variants={staggerContainerVariants(Boolean(reduceMotion), 0.06)}
+          className="grid grid-cols-1 gap-6 lg:grid-cols-2"
+        >
+          <motion.div variants={cardRevealVariants(Boolean(reduceMotion))}>
+            <IconCard
+              title="Message Board"
+              href="/message-board"
+              lightIcon="/images/icons/new-message-icon-light.png"
+              darkIcon="/images/icons/new-message-icon-dark.png"
+              blurb="Share updates, ask questions and discuss anything related to James Square."
+              reduceMotion={Boolean(reduceMotion)}
+            />
+          </motion.div>
 
-          <IconCard
-            title="My Dashboard"
-            href="/dashboard"
-            lightIcon="/images/icons/new-dashboard-icon-light.png"
-            darkIcon="/images/icons/new-dashboard-icon-dark.png"
-            blurb="View, edit and manage your bookings. Add bookings to your calendar."
-          />
+          <motion.div variants={cardRevealVariants(Boolean(reduceMotion))}>
+            <IconCard
+              title="My Dashboard"
+              href="/dashboard"
+              lightIcon="/images/icons/new-dashboard-icon-light.png"
+              darkIcon="/images/icons/new-dashboard-icon-dark.png"
+              blurb="View, edit and manage your bookings. Add bookings to your calendar."
+              reduceMotion={Boolean(reduceMotion)}
+            />
+          </motion.div>
 
-          <IconCard
-            title="Book Facilities"
-            href="/book"
-            lightIcon="/images/icons/new-pool-icon-light.png"
-            darkIcon="/images/icons/new-pool-icon-dark.png"
-            blurb="Reserve time for the pool, gym or sauna."
-          />
+          <motion.div variants={cardRevealVariants(Boolean(reduceMotion))}>
+            <IconCard
+              title="Book Facilities"
+              href="/book"
+              lightIcon="/images/icons/new-pool-icon-light.png"
+              darkIcon="/images/icons/new-pool-icon-dark.png"
+              blurb="Reserve time for the pool, gym or sauna."
+              reduceMotion={Boolean(reduceMotion)}
+            />
+          </motion.div>
 
-          <IconCard
-            title="Owners Area"
-            href="/owners"
-            lightIcon="/images/icons/Owner-icon-light.PNG"
-            darkIcon="/images/icons/new-Owner-icon-dark.png"
-            blurb="Access owner information, voting, and owners-only updates."
-            iconAlt="Owners area"
-          />
+          <motion.div variants={cardRevealVariants(Boolean(reduceMotion))}>
+            <IconCard
+              title="Owners Area"
+              href="/owners"
+              lightIcon="/images/icons/Owner-icon-light.PNG"
+              darkIcon="/images/icons/new-Owner-icon-dark.png"
+              blurb="Access owner information, voting, and owners-only updates."
+              iconAlt="Owners area"
+              reduceMotion={Boolean(reduceMotion)}
+            />
+          </motion.div>
 
-          <IconCard
-            title="Useful Info"
-            href="/local"
-            lightIcon="/images/icons/info-icon-light.png"
-            darkIcon="/images/icons/new-info-icon-dark.png"
-            blurb="Access, bins & recycling, contacts and local picks (food, shops, coffee)."
-          />
-        </div>
+          <motion.div variants={cardRevealVariants(Boolean(reduceMotion))}>
+            <IconCard
+              title="Useful Info"
+              href="/local"
+              lightIcon="/images/icons/info-icon-light.png"
+              darkIcon="/images/icons/new-info-icon-dark.png"
+              blurb="Access, bins & recycling, contacts and local picks (food, shops, coffee)."
+              reduceMotion={Boolean(reduceMotion)}
+            />
+          </motion.div>
+        </motion.div>
       </section>
 
       {/* PHOTO CAROUSEL */}
