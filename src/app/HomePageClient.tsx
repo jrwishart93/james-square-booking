@@ -478,8 +478,8 @@ function PoolNotice() {
       <div className="mt-3 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
         <p>
           The pool area is currently closed following a plant room leak which caused an electrical
-          fault and dehumidifier failure. The dehumidifier has been repaired and Myreside are
-          arranging a full safety assessment before reopening.
+          fault and dehumidifier failure. The dehumidifier has now been repaired and is back up
+          and running.
         </p>
 
         <AnimatePresence initial={false}>
@@ -507,29 +507,30 @@ function PoolNotice() {
                   and running.
                 </p>
                 <p>
-                  During the period where the ventilation system was not operating correctly,
-                  elevated humidity levels built up within the pool area. Unfortunately, this
-                  prolonged moisture has caused damage to sections of the ceiling, with some areas
-                  becoming unsafe and partially falling.
+                  During the period where the ventilation and dehumidifier system was not operating
+                  correctly, elevated humidity levels built up within the pool area. Unfortunately,
+                  this prolonged moisture caused damage to sections of the ceiling and cornice,
+                  with some areas becoming unstable and partially falling.
                 </p>
                 <p>
-                  As a result, the pool, gym, and sauna facilities remain closed while the
-                  situation is properly assessed.
+                  As a result, the pool, gym and sauna facilities remain temporarily closed while the
+                  affected areas are properly assessed.
                 </p>
                 <p>
-                  Myreside Management are currently arranging for a surveyor to attend and carry
-                  out a full inspection of the affected areas. They are also in discussions with
-                  the building&apos;s insurance provider to determine the necessary remedial works.
+                  Myreside Management have arranged for a surveyor to attend during the first week
+                  of May to carry out a full inspection of the affected ceiling areas and
+                  surrounding structure. The aim of this inspection is to determine whether the
+                  facilities can safely reopen, or identify any essential works required before
+                  reopening can take place.
                 </p>
                 <p>
-                  Now that the dehumidifier system has been restored, conditions within the pool
-                  area can begin to stabilise. Further repairs will follow based on the
+                  Now that the dehumidifier system has been restored, conditions within the pool area
+                  can begin to stabilise. Further repairs and next steps will follow based on the
                   surveyor&apos;s findings.
                 </p>
                 <p>
-                  The facilities will reopen once all works have been completed and the area has
-                  been confirmed safe for residents to use. We appreciate your patience and
-                  understanding while this is being resolved.
+                  The facilities will reopen once the area has been confirmed safe for residents to use.
+                  Further updates to follow.
                 </p>
               </div>
             </motion.div>
