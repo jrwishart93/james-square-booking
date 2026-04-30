@@ -635,6 +635,91 @@ function AGMNotice() {
 }
 
 /** ------------------------------------------------
+ *  Orwell Terrace Roadworks Notice
+ *  ------------------------------------------------ */
+function RoadworksNotice() {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div className="jqs-glass rounded-2xl border border-l-[3px] border-amber-400/30 border-l-amber-400 bg-gradient-to-br from-amber-500/10 via-orange-500/10 to-yellow-500/10 p-6 shadow-lg shadow-amber-900/10">
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <span className="inline-flex items-center rounded-full border border-amber-500/40 bg-amber-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-900 dark:text-amber-200">
+          Residents update
+        </span>
+      </div>
+
+      <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+        Orwell Terrace Roadworks (In Progress)
+      </h2>
+
+      <div className="mt-3 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
+        <p>
+          Roadworks at the end of Orwell Terrace are now underway and are expected to last around
+          4 to 6 weeks. The junction with Dalry Road is currently closed, with a diversion in
+          place. Access is being maintained where possible, although some disruption and parking
+          restrictions should be expected.
+        </p>
+
+        <AnimatePresence initial={false}>
+          {expanded && (
+            <motion.div
+              key="roadworks-detail"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+              className="overflow-hidden"
+            >
+              <div className="mt-4 space-y-3 border-t border-amber-400/30 pt-4">
+                <p>
+                  Works are now in progress as part of the wider Dalry Side Streets improvement
+                  project led by Edinburgh Council. This first phase focuses on upgrading the
+                  footway at the junction of Orwell Terrace and Dalry Road, with construction
+                  taking place on weekdays between 8am and 5pm.
+                </p>
+                <p>
+                  Orwell Terrace is currently closed at its junction with Dalry Road. A signed
+                  diversion route is in place, and access to homes and businesses is being
+                  maintained wherever practical. Some parking spaces have been temporarily removed
+                  to allow for construction activity, and residents are asked not to park in coned
+                  off areas.
+                </p>
+                <p>
+                  Communal bins have been temporarily relocated to the junction with Caledonian
+                  Crescent. Emergency vehicle access and pedestrian routes remain available
+                  throughout the works.
+                </p>
+                <p>
+                  Further phases are planned, including additional footway improvements and
+                  resurfacing works in the surrounding area. Dates for these will be confirmed
+                  separately. While some disruption is expected, the overall aim is to improve the
+                  condition, safety and appearance of the local streets.
+                </p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <button
+          onClick={() => setExpanded((v) => !v)}
+          className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-amber-400/40 bg-amber-500/10 px-4 py-1.5 text-xs font-semibold text-amber-700 dark:text-amber-300 hover:bg-amber-500/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/50"
+          aria-expanded={expanded}
+        >
+          {expanded ? 'Show less' : 'Read more'}
+          <motion.span
+            animate={{ rotate: expanded ? 180 : 0 }}
+            transition={{ duration: 0.2 }}
+            className="inline-block"
+          >
+            <ChevronDown className="h-3.5 w-3.5" />
+          </motion.span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/** ------------------------------------------------
  *  Myreside Management Notice
  *  ------------------------------------------------ */
 function MyresideNotice() {
@@ -938,6 +1023,9 @@ export default function HomePageClient() {
           </motion.div>
           <motion.div variants={cardRevealVariants(Boolean(reduceMotion))}>
             <AGMNotice />
+          </motion.div>
+          <motion.div variants={cardRevealVariants(Boolean(reduceMotion))}>
+            <RoadworksNotice />
           </motion.div>
           <motion.div variants={cardRevealVariants(Boolean(reduceMotion))}>
             <MyresideNotice />
