@@ -29,7 +29,7 @@ function DualModeIcon() {
         alt="Questionnaire icon"
         width={96}
         height={96}
-        className="block h-16 w-16 object-contain dark:hidden sm:h-20 sm:w-20"
+        className="dark:hidden h-16 w-16 object-contain sm:h-20 sm:w-20"
         priority
       />
       <Image
@@ -77,11 +77,11 @@ export default function FiorQuestionnairePage() {
               collective discussion or advice may be worthwhile.
             </p>
 
-            <div className="flex flex-wrap gap-2 pt-1">
+            <div className="flex flex-wrap gap-2.5 pt-2">
               {['Owners Information', 'Takes around 2 minutes', 'Questionnaire currently open'].map((item) => (
                 <span
                   key={item}
-                  className="rounded-full border border-sky-200/80 bg-sky-100/70 px-3 py-1 text-xs font-medium text-sky-800 dark:border-sky-400/20 dark:bg-sky-500/10 dark:text-sky-200"
+                  className="inline-flex items-center rounded-full border border-sky-200/80 bg-sky-100/70 px-3.5 py-1.5 text-xs font-medium text-sky-800 shadow-sm dark:border-sky-400/20 dark:bg-sky-500/10 dark:text-sky-200"
                 >
                   {item}
                 </span>
@@ -94,7 +94,7 @@ export default function FiorQuestionnairePage() {
             create legal action, representation, or financial claims.
           </section>
 
-          <details className="group rounded-2xl border border-slate-200/80 bg-white/75 p-5 shadow-sm dark:border-white/10 dark:bg-white/5">
+          <details className="group mt-3 rounded-2xl border border-slate-200/80 bg-white/75 p-5 shadow-sm dark:border-white/10 dark:bg-white/5">
             <summary className="cursor-pointer list-none text-base font-semibold text-slate-900 marker:content-none dark:text-slate-100">
               Why has this questionnaire been created?
               <span className="ml-2 text-slate-400 transition group-open:rotate-180 inline-block">⌄</span>
@@ -112,34 +112,54 @@ export default function FiorQuestionnairePage() {
             </div>
           </details>
 
-          <section className="mx-auto w-full max-w-4xl space-y-4 rounded-3xl border border-slate-200/80 bg-white/70 p-3 shadow-lg backdrop-blur dark:border-white/10 dark:bg-white/5 sm:p-5">
-            <div className="flex flex-wrap items-center justify-between gap-3 px-1 pt-1">
-              <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Questionnaire form</h2>
-              <a
-                href={formUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-slate-900/20 transition hover:-translate-y-0.5 hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100"
-              >
-                Open in new window
-              </a>
+          <section className="mx-auto w-full max-w-4xl space-y-4 rounded-3xl border border-slate-200/80 bg-gradient-to-b from-white/80 to-slate-50/70 p-4 shadow-lg backdrop-blur dark:border-white/10 dark:from-white/10 dark:to-white/5 sm:p-6">
+            <h2 className="px-1 text-lg font-semibold text-slate-900 dark:text-slate-100">Questionnaire form</h2>
+
+            <div className="block md:hidden">
+              <div className="rounded-2xl border border-sky-200/90 bg-white p-5 shadow-md dark:border-sky-300/20 dark:bg-slate-900/80">
+                <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Open the questionnaire</h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+                  Microsoft Forms may not load properly inside the website on some mobile devices. For the best
+                  experience, please open the questionnaire in a new window.
+                </p>
+                <a
+                  href={formUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-5 inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-slate-900 px-5 py-3 text-base font-semibold text-white shadow-lg shadow-slate-900/20 transition hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100"
+                >
+                  Open Questionnaire
+                </a>
+                <p className="mt-3 text-xs leading-relaxed text-slate-600 dark:text-slate-300">
+                  If the form still does not open, please copy the link and open it directly in your browser.
+                </p>
+              </div>
             </div>
 
-            <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white/80 shadow-sm dark:border-white/10 dark:bg-white/5">
-              <iframe
-                title="Fior additional payments questionnaire"
-                src="https://forms.office.com/r/GEk4AbGcjz?embed=true"
-                className="h-[760px] w-full md:h-[820px]"
-                frameBorder="0"
-                marginWidth={0}
-                marginHeight={0}
-                style={{ border: 'none', maxWidth: '100%' }}
-                allowFullScreen
-              />
+            <div className="hidden space-y-4 md:block">
+              <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white/85 shadow-sm dark:border-white/10 dark:bg-white/5">
+                <iframe
+                  title="Fior additional payments questionnaire"
+                  src="https://forms.office.com/r/GEk4AbGcjz?embed=true"
+                  className="h-[820px] w-full lg:h-[900px]"
+                  frameBorder="0"
+                  marginWidth={0}
+                  marginHeight={0}
+                  style={{ border: 'none', maxWidth: '100%' }}
+                  allowFullScreen
+                />
+              </div>
+              <div className="px-1">
+                <a
+                  href={formUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-100 dark:border-white/20 dark:bg-transparent dark:text-slate-100 dark:hover:bg-white/10"
+                >
+                  Open questionnaire in new window
+                </a>
+              </div>
             </div>
-            <p className="px-1 text-sm text-slate-600 dark:text-slate-300">
-              If the embedded form does not load on your device, please use “Open in new window”.
-            </p>
           </section>
 
           <section className="rounded-2xl border border-slate-200/80 bg-slate-50/80 p-4 text-sm leading-relaxed text-slate-700 shadow-sm dark:border-white/10 dark:bg-white/5 dark:text-slate-200">
@@ -148,7 +168,7 @@ export default function FiorQuestionnairePage() {
             further clarification is needed.
           </section>
 
-          <div className="pt-1">
+          <div className="pt-6 sm:pt-8">
             <Link
               href="/"
               className="inline-flex items-center text-sm font-medium text-slate-700 underline-offset-4 hover:underline dark:text-slate-300"
