@@ -230,11 +230,13 @@ function DualModeIcon({
   darkSrc,
   alt,
   size = 128,
+  className = 'h-20 w-20 object-contain sm:h-24 sm:w-24',
 }: {
   lightSrc: string;
   darkSrc: string;
   alt: string;
   size?: number;
+  className?: string;
 }) {
   return (
     <>
@@ -243,7 +245,7 @@ function DualModeIcon({
         alt={alt}
         width={size}
         height={size}
-        className="block dark:hidden h-20 w-20 object-contain sm:h-24 sm:w-24"
+        className={`block dark:hidden ${className}`}
         priority
       />
       <Image
@@ -251,7 +253,7 @@ function DualModeIcon({
         alt={alt}
         width={size}
         height={size}
-        className="hidden h-20 w-20 object-contain dark:block sm:h-24 sm:w-24"
+        className={`hidden dark:block ${className}`}
         priority
       />
     </>
@@ -268,6 +270,8 @@ function IconCard({
   darkIcon,
   blurb,
   iconAlt,
+  iconClassName,
+  ctaText,
   reduceMotion,
 }: {
   title: string;
@@ -276,6 +280,8 @@ function IconCard({
   darkIcon: string;
   blurb: string;
   iconAlt?: string;
+  iconClassName?: string;
+  ctaText?: string;
   reduceMotion: boolean;
 }) {
   return (
@@ -295,14 +301,19 @@ function IconCard({
           <span className="absolute -inset-1 bg-gradient-to-tr from-white/15 to-transparent" />
         </span>
 
-        <div className="shrink-0">
-          <DualModeIcon lightSrc={lightIcon} darkSrc={darkIcon} alt={iconAlt ?? title} />
+        <div className="shrink-0 self-center">
+          <DualModeIcon
+            lightSrc={lightIcon}
+            darkSrc={darkIcon}
+            alt={iconAlt ?? title}
+            className={iconClassName}
+          />
         </div>
         <div className="relative z-10">
           <h3 className="text-lg font-semibold">{title}</h3>
           <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">{blurb}</p>
           <span className="mt-3 inline-flex translate-x-0 items-center gap-1 rounded-full border border-neutral-900/10 bg-white/55 px-3 py-1 text-xs font-semibold text-neutral-900/70 transition-all group-hover:translate-x-1 group-hover:bg-white/80 group-hover:text-neutral-900 dark:border-white/10 dark:bg-white/10 dark:text-neutral-100/80 dark:group-hover:bg-white/15 dark:group-hover:text-neutral-100">
-            Open {title} <ArrowRight className="h-3.5 w-3.5" />
+            {ctaText ?? `Open ${title}`} <ArrowRight className="h-3.5 w-3.5" />
           </span>
         </div>
       </motion.div>
@@ -1096,6 +1107,19 @@ export default function HomePageClient() {
               lightIcon="/images/icons/info-icon-light.png"
               darkIcon="/images/icons/new-info-icon-dark.png"
               blurb="Access, bins & recycling, contacts and local picks (food, shops, coffee)."
+              reduceMotion={Boolean(reduceMotion)}
+            />
+          </motion.div>
+
+          <motion.div variants={cardRevealVariants(Boolean(reduceMotion))}>
+            <IconCard
+              title="Fior Additional Payments Survey"
+              href="/fior-questionnaire"
+              lightIcon="/images/icons/q&a-light.png"
+              darkIcon="/images/icons/q&a-dark.png"
+              blurb="Help gauge whether owners paid additional money to Fior for roof or maintenance works, or continued paying Fior after February 2026."
+              iconClassName="h-24 w-24 object-cover sm:h-28 sm:w-28"
+              ctaText="Open Questionnaire"
               reduceMotion={Boolean(reduceMotion)}
             />
           </motion.div>
