@@ -268,7 +268,6 @@ function IconCard({
   darkIcon,
   blurb,
   iconAlt,
-  audienceLabel,
   ctaText,
   reduceMotion,
 }: {
@@ -278,7 +277,6 @@ function IconCard({
   darkIcon: string;
   blurb: string;
   iconAlt?: string;
-  audienceLabel?: string;
   ctaText?: string;
   reduceMotion: boolean;
 }) {
@@ -304,11 +302,6 @@ function IconCard({
         </div>
         <div className="relative z-10">
           <h3 className="text-lg font-semibold">{title}</h3>
-          {audienceLabel ? (
-            <span className="mt-2 inline-flex items-center rounded-full border border-neutral-900/10 bg-white/55 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-neutral-700 dark:border-white/10 dark:bg-white/10 dark:text-neutral-200">
-              {audienceLabel}
-            </span>
-          ) : null}
           <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">{blurb}</p>
           <span className="mt-3 inline-flex translate-x-0 items-center gap-1 rounded-full border border-neutral-900/10 bg-white/55 px-3 py-1 text-xs font-semibold text-neutral-900/70 transition-all group-hover:translate-x-1 group-hover:bg-white/80 group-hover:text-neutral-900 dark:border-white/10 dark:bg-white/10 dark:text-neutral-100/80 dark:group-hover:bg-white/15 dark:group-hover:text-neutral-100">
             {ctaText ?? `Open ${title}`} <ArrowRight className="h-3.5 w-3.5" />
@@ -1115,8 +1108,7 @@ export default function HomePageClient() {
               href="/fior-questionnaire"
               lightIcon="/images/icons/q&a-light.png"
               darkIcon="/images/icons/q&a-dark.png"
-              blurb="Have you paid additional money towards roof or maintenance works during the Fior management period? Or continued paying Fior after February 2026. This short questionnaire helps gauge how many owners may have been affected and how much money Fior may require to give back to James Square."
-              audienceLabel="Owners"
+              blurb="Help gauge whether owners paid additional money to Fior for roof or maintenance works, or continued paying Fior after February 2026."
               ctaText="Open Questionnaire"
               reduceMotion={Boolean(reduceMotion)}
             />
