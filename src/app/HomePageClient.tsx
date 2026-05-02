@@ -230,11 +230,13 @@ function DualModeIcon({
   darkSrc,
   alt,
   size = 128,
+  className = 'h-20 w-20 object-contain sm:h-24 sm:w-24',
 }: {
   lightSrc: string;
   darkSrc: string;
   alt: string;
   size?: number;
+  className?: string;
 }) {
   return (
     <>
@@ -243,7 +245,7 @@ function DualModeIcon({
         alt={alt}
         width={size}
         height={size}
-        className="block dark:hidden h-20 w-20 object-contain sm:h-24 sm:w-24"
+        className={`block dark:hidden ${className}`}
         priority
       />
       <Image
@@ -251,7 +253,7 @@ function DualModeIcon({
         alt={alt}
         width={size}
         height={size}
-        className="hidden h-20 w-20 object-contain dark:block sm:h-24 sm:w-24"
+        className={`hidden dark:block ${className}`}
         priority
       />
     </>
@@ -268,6 +270,7 @@ function IconCard({
   darkIcon,
   blurb,
   iconAlt,
+  iconClassName,
   ctaText,
   reduceMotion,
 }: {
@@ -277,6 +280,7 @@ function IconCard({
   darkIcon: string;
   blurb: string;
   iconAlt?: string;
+  iconClassName?: string;
   ctaText?: string;
   reduceMotion: boolean;
 }) {
@@ -297,8 +301,13 @@ function IconCard({
           <span className="absolute -inset-1 bg-gradient-to-tr from-white/15 to-transparent" />
         </span>
 
-        <div className="shrink-0">
-          <DualModeIcon lightSrc={lightIcon} darkSrc={darkIcon} alt={iconAlt ?? title} />
+        <div className="shrink-0 self-center">
+          <DualModeIcon
+            lightSrc={lightIcon}
+            darkSrc={darkIcon}
+            alt={iconAlt ?? title}
+            className={iconClassName}
+          />
         </div>
         <div className="relative z-10">
           <h3 className="text-lg font-semibold">{title}</h3>
@@ -1109,6 +1118,7 @@ export default function HomePageClient() {
               lightIcon="/images/icons/q&a-light.png"
               darkIcon="/images/icons/q&a-dark.png"
               blurb="Help gauge whether owners paid additional money to Fior for roof or maintenance works, or continued paying Fior after February 2026."
+              iconClassName="h-24 w-24 object-cover sm:h-28 sm:w-28"
               ctaText="Open Questionnaire"
               reduceMotion={Boolean(reduceMotion)}
             />
