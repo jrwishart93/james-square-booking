@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
+import { Shield } from 'lucide-react';
 
 const pageTitle = 'Fior Additional Payments Questionnaire | James Square';
 const pageDescription =
@@ -162,10 +163,35 @@ export default function FiorQuestionnairePage() {
             </div>
           </section>
 
-          <section className="rounded-2xl border border-slate-200/80 bg-slate-50/80 p-4 text-sm leading-relaxed text-slate-700 shadow-sm dark:border-white/10 dark:bg-white/5 dark:text-slate-200">
-            Responses are intended to be reviewed by the James Square committee/admin team for the purpose of
-            understanding owner concerns. Information will not be published publicly. You may only be contacted if
-            further clarification is needed.
+          <section className="rounded-2xl border border-slate-200/80 bg-slate-50/80 px-4 py-5 text-sm leading-7 text-slate-700 shadow-sm dark:border-white/10 dark:bg-white/5 dark:text-slate-200 sm:px-5 sm:py-6 lg:mx-auto lg:max-w-4xl lg:px-6">
+            <div className="flex items-start gap-2.5">
+              <Shield className="mt-0.5 h-4 w-4 shrink-0 text-slate-500 dark:text-slate-400" aria-hidden />
+              <div className="space-y-3.5">
+                <p>
+                  Responses will be reviewed privately to help understand the scale of any additional payments made to
+                  Fior Asset & Property following the transfer to Myreside Management.
+                </p>
+                <p>
+                  The information gathered may be shared with the James Square committee to help determine whether
+                  there is sufficient collective interest to seek independent advice or explore potential joint action
+                  if appropriate.
+                </p>
+                <p>
+                  At this stage, the questionnaire is intended purely as an information gathering exercise. It remains
+                  hoped that any outstanding financial matters can be resolved voluntarily, without the need for formal
+                  legal action.
+                </p>
+                <p>
+                  Owners who believe they may have made additional payments are encouraged to contact Fior Asset &
+                  Property directly as a matter of urgency to request clarification and, where appropriate,
+                  reimbursement of any funds paid. This can be done by email or formal letter directly to Fior.
+                </p>
+                <p>
+                  Information submitted will not be published publicly. You may only be contacted if further
+                  clarification is required.
+                </p>
+              </div>
+            </div>
           </section>
 
           <div className="pt-6 sm:pt-8">
