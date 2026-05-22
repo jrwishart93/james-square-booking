@@ -5,16 +5,19 @@
  *   firebase deploy --only functions
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.summarizeMonthlyUsage = exports.setOwnerClaim = exports.sendBookingReminders = void 0;
+exports.updateVotingTotals = exports.summarizeMonthlyUsage = exports.syncAdminClaims = exports.setOwnerClaim = exports.sendBookingReminders = void 0;
 const app_1 = require("firebase-admin/app");
 const firestore_1 = require("firebase-admin/firestore");
 const firebase_functions_1 = require("firebase-functions");
+const firestore_2 = require("firebase-functions/v2/firestore");
 const scheduler_1 = require("firebase-functions/v2/scheduler");
 const luxon_1 = require("luxon");
 const resend_1 = require("resend");
 const claims_1 = require("./claims");
 Object.defineProperty(exports, "setOwnerClaim", { enumerable: true, get: function () { return claims_1.setOwnerClaim; } });
 const metrics_1 = require("./metrics");
+const syncAdminClaims_1 = require("./syncAdminClaims");
+Object.defineProperty(exports, "syncAdminClaims", { enumerable: true, get: function () { return syncAdminClaims_1.syncAdminClaims; } });
 if (!(0, app_1.getApps)().length) {
     (0, app_1.initializeApp)();
 }
@@ -106,4 +109,24 @@ exports.summarizeMonthlyUsage = (0, scheduler_1.onSchedule)({
         functions,
         summarizedAt: firestore_1.FieldValue.serverTimestamp(),
     }, { merge: true });
+});
+exports.updateVotingTotals = (0, firestore_2.onDocumentCreated)('voting_votes/{voteId}', async (event) => {
+    const vote = event.data?.data();
+    if (!vote?.questionId || !vote?.optionId) {
+        firebase_functions_1.logger.warn('Skipping vote totals update due to missing fields', vote);
+        return;
+    }
+    const db = (0, firestore_1.getFirestore)();
+    const questionRef = db.collection('voting_questions').doc(vote.questionId);
+    await db.runTransaction(async (tx) => {
+        const questionSnap = await tx.get(questionRef);
+        if (!questionSnap.exists) {
+            firebase_functions_1.logger.warn(`Question ${vote.questionId} missing when attempting to increment totals`);
+            return;
+        }
+        tx.update(questionRef, {
+            [`voteTotals.${vote.optionId}`]: firestore_1.FieldValue.increment(1),
+            lastVoteAt: firestore_1.FieldValue.serverTimestamp(),
+        });
+    });
 });
