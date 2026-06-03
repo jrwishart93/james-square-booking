@@ -114,21 +114,6 @@ const OwnersSecurePage = () => {
           </p>
         </motion.header>
 
-        <motion.div variants={itemVariants}>
-          <div className="rounded-2xl border border-cyan-500/30 bg-cyan-500/10 p-4 md:p-5 text-sm md:text-base text-slate-800 dark:text-slate-100">
-            <p>
-              Help the owners committee by sharing your views through our questionnaire.{' '}
-              <Link
-                href="/fior-questionnaire"
-                className="font-semibold text-cyan-700 underline decoration-cyan-400/70 underline-offset-2 transition-colors hover:text-cyan-600 dark:text-cyan-300 dark:hover:text-cyan-200"
-              >
-                Complete the questionnaire
-              </Link>
-              .
-            </p>
-          </div>
-        </motion.div>
-
         <motion.div variants={itemVariants} className="mt-8">
           <div
             className="flex items-start gap-4 p-6 rounded-2xl
@@ -172,15 +157,19 @@ const OwnersSecurePage = () => {
           </motion.div>
 
           <motion.div variants={itemVariants}>
+            <FiorQuestionnaireCallout />
+          </motion.div>
+
+          <motion.div variants={itemVariants}>
+            <FiorPaymentsFundsUpdateSection />
+          </motion.div>
+
+          <motion.div variants={itemVariants}>
             <AprilOwnersUpdateSection />
           </motion.div>
 
           <motion.div variants={itemVariants}>
             <CommitteeUpdateSection />
-          </motion.div>
-
-          <motion.div variants={itemVariants}>
-            <FiorPaymentsFundsUpdateSection />
           </motion.div>
 
           <motion.div variants={itemVariants}>
@@ -310,6 +299,24 @@ function Agm2026InformationSection() {
         </p>
       </article>
     </GlassCard>
+  );
+}
+
+function FiorQuestionnaireCallout() {
+  return (
+    <div className="rounded-2xl border border-cyan-500/30 bg-cyan-500/10 p-4 text-sm text-slate-800 dark:text-slate-100 md:p-5 md:text-base">
+      <p>
+        This questionnaire is for owners who may have made payments to Fior, paid Fior invoices covering periods after
+        the transfer to Myreside, or contributed to Fior-held roof/repair funds.{' '}
+        <Link
+          href="/fior-questionnaire"
+          className="font-semibold text-cyan-700 underline decoration-cyan-400/70 underline-offset-2 transition-colors hover:text-cyan-600 dark:text-cyan-300 dark:hover:text-cyan-200"
+        >
+          https://www.james-square.com/fior-questionnaire
+        </Link>
+        .
+      </p>
+    </div>
   );
 }
 
