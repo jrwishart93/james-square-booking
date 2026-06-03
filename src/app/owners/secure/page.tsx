@@ -171,7 +171,7 @@ export default OwnersSecurePage;
 
 const FIOR_PAYMENTS_FUNDS_STATS = [
   { value: '14', label: 'Owner questionnaire responses' },
-  { value: '£7,477+ estimated', label: 'Owner-reported payments to Fior after 1 February 2026' },
+  { value: '£7,477+ estimated', label: 'Owner-reported payments and invoices relating to Fior' },
   { value: '£1,280+ estimated', label: 'Owner-reported roof and repair fund contributions' },
 ];
 
@@ -219,8 +219,8 @@ function FiorPaymentsFundsUpdateSection() {
             >
               Fior questionnaire
             </Link>{' '}
-            about any payments they believe may have been made to Fior after that date and any roof or repair fund
-            contributions they wish to report.
+            about payments, invoices, and roof or repair fund contributions that owners wish to report following
+            the change in factor.
           </p>
           <p className="rounded-xl border border-amber-300/35 bg-amber-500/10 p-3 text-sm text-slate-800 dark:text-slate-100">
             Questionnaire responses are <strong>owner-reported</strong>, <strong>estimated</strong>, <strong>indicative only</strong>,
@@ -263,37 +263,89 @@ function FiorPaymentsFundsUpdateSection() {
                 transition={{ duration: 0.28 }}
               >
                 <SectionText heading="Background">
+                  <p>Myreside Management became the appointed factor for James Square on 1 February 2026.</p>
                   <p>
-                    Myreside became the appointed factor for James Square on 1 February 2026. Since then, the committee
-                    has been trying to understand whether any owners may have continued making payments to Fior, or may
-                    have reported roof and repair fund contributions connected with the previous factoring arrangements.
+                    Following the change in factor, a number of owners raised concerns regarding payments made to Fior
+                    Asset &amp; Property, invoices covering periods beyond the transfer date, and monies collected for roof
+                    repairs and other works which have not yet been carried out.
+                  </p>
+                  <p>
+                    In order to better understand the potential scale of these concerns, information was gathered from
+                    owners through a questionnaire circulated during May 2026.
                   </p>
                 </SectionText>
 
                 <SectionText heading="Questionnaire Results">
+                  <p>The questionnaire has received 14 owner responses to date.</p>
                   <p>
-                    The questionnaire has received 14 owner responses to date. Based only on those owner-reported
-                    responses, owners have indicated at least £7,477 in payments they believe were made to Fior after
-                    1 February 2026 and at least £1,280 in roof and repair fund contributions. These amounts are
-                    estimates from questionnaire entries and have not been independently verified by the committee.
+                    Based on the information voluntarily provided, owners have reported an estimated £7,477+ relating to
+                    payments made to Fior and an estimated £1,280+ in roof and repair fund contributions.
+                  </p>
+                  <p>
+                    These figures should be regarded as indicative estimates only and have not been independently
+                    verified.
+                  </p>
+                  <p>
+                    Importantly, these amounts do not solely relate to payments made after 1 February 2026. The responses
+                    include a mixture of:
+                  </p>
+                  <ul className="list-disc ms-5 space-y-1">
+                    <li>Payments which owners believe continued to be made to Fior after the transfer to Myreside Management;</li>
+                    <li>
+                      Payments made against Fior invoices which covered periods extending beyond February 2026 and, in
+                      some cases, through to May 2026;
+                    </li>
+                    <li>
+                      Contributions made towards roof repairs or other works which owners understand have not
+                      subsequently been carried out.
+                    </li>
+                  </ul>
+                  <p>
+                    The purpose of the questionnaire was to establish whether a wider issue existed and to provide an
+                    initial indication of its potential scale. The actual amount potentially affected may be higher, as
+                    not all owners completed the questionnaire and some owners may not yet be aware that payments were
+                    made covering periods after Fior ceased acting as factor.
                   </p>
                 </SectionText>
 
                 <SectionText heading="Correspondence with Fior">
                   <p>
-                    The committee has written to Fior to ask for clarification about the owner-reported payments and fund
-                    contributions. Fior has responded, and a follow-up email has also been sent. The correspondence is
-                    being recorded for transparency, but the placeholder document links below will only work once the PDF
-                    files have been added under <code className="rounded bg-white/60 px-1 py-0.5 dark:bg-white/10">public/docs/fior/</code>.
+                    Correspondence has been ongoing with Fior Asset &amp; Property regarding the concerns raised by owners
+                    and the reconciliation of monies understood to be held on behalf of the development.
+                  </p>
+                  <p>
+                    On 20 May 2026, concerns raised by owners were formally presented to Pedrom Aghabala, Director of
+                    Fior Asset &amp; Property, with a request for clarification regarding account reconciliation and the
+                    transfer of funds.
+                  </p>
+                  <p>
+                    On 21 May 2026, Fior confirmed that a final reconciliation process is underway and advised that roof
+                    funds and other monies held on behalf of James Square would be transferred to Myreside Management
+                    once that process is complete. Delays were attributed to payment reference discrepancies and the need
+                    for manual reconciliation of accounts.
+                  </p>
+                  <p>
+                    A further email was sent on 3 June 2026 requesting a clear timetable for completion of the
+                    reconciliation process and transfer of funds. A suggested target date of 1 July 2026 was proposed as
+                    a reasonable timeframe for conclusion of the matter.
+                  </p>
+                  <p>
+                    The correspondence is being recorded for transparency, but the placeholder document links below will
+                    only work once the PDF files have been added under{' '}
+                    <code className="rounded bg-white/60 px-1 py-0.5 dark:bg-white/10">public/docs/fior/</code>.
                   </p>
                 </SectionText>
 
                 <SectionText heading="What Happens Next">
                   <p>
-                    Owners who believe they made payments to Fior after 1 February 2026 should continue to check their
-                    own bank records and contact Fior directly where appropriate. The committee will continue to seek
-                    clarification, share updates when available, and avoid treating questionnaire values as confirmed
-                    unless they are supported by appropriate evidence.
+                    Owners who believe they may have made payments to Fior, paid invoices covering periods after the
+                    transfer date, or contributed towards roof and repair funds are encouraged to retain copies of
+                    invoices, bank statements and payment confirmations for their own records.
+                  </p>
+                  <p>
+                    Further updates will be published as additional information becomes available. Clarification is still
+                    being sought regarding the reconciliation process, the transfer of development funds, and the return
+                    or allocation of any monies identified as belonging to James Square owners.
                   </p>
                 </SectionText>
               </motion.div>
