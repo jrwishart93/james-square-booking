@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence, useReducedMotion, type Variants } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import { CalendarDays, ArrowRight, Building2, ChevronDown } from 'lucide-react';
+import { CalendarDays, ArrowRight, Building2, ChevronDown, MapPinned } from 'lucide-react';
 import MobileAppPoster from '@/components/home/MobileAppPoster';
 
 /** ------------------------------------------------
@@ -140,6 +140,13 @@ const carouselSlides = [
   },
 ];
 const carouselSlideDurationSeconds = 6.5;
+
+const telferSubwayNoticeEndsAt = new Date('2026-06-20T00:00:00+01:00');
+const telferDiversionMapHref = '/docs/survey/Caledonian%20Crescent%20Footpath%20Closure.pdf';
+
+function isTelferSubwayNoticeActive(now = new Date()) {
+  return now.getTime() < telferSubwayNoticeEndsAt.getTime();
+}
 
 function SectionHeader({
   children,
@@ -560,6 +567,114 @@ function PoolNotice() {
           aria-expanded={expanded}
         >
           {expanded ? 'Show less' : 'Read full update'}
+          <motion.span
+            animate={{ rotate: expanded ? 180 : 0 }}
+            transition={{ duration: 0.2 }}
+            className="inline-block"
+          >
+            <ChevronDown className="h-3.5 w-3.5" />
+          </motion.span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/** ------------------------------------------------
+ *  Telfer Subway Footpath Closure Notice
+ *  ------------------------------------------------ */
+function TelferSubwayClosureNotice() {
+  const [active, setActive] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+
+  useEffect(() => {
+    const refreshActiveState = () => setActive(isTelferSubwayNoticeActive());
+    refreshActiveState();
+
+    const millisecondsUntilExpiry = telferSubwayNoticeEndsAt.getTime() - Date.now();
+    const expiryTimer =
+      millisecondsUntilExpiry > 0 && millisecondsUntilExpiry <= 2_147_483_647
+        ? window.setTimeout(refreshActiveState, millisecondsUntilExpiry)
+        : undefined;
+
+    return () => {
+      if (expiryTimer) window.clearTimeout(expiryTimer);
+    };
+  }, []);
+
+  if (!active) return null;
+
+  return (
+    <div className="jqs-glass rounded-2xl border border-l-[3px] border-amber-400/30 border-l-amber-400 bg-gradient-to-br from-amber-500/10 via-orange-500/10 to-yellow-500/10 p-6 shadow-lg shadow-amber-900/10">
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/40 bg-amber-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-900 dark:text-amber-200">
+          <MapPinned className="h-3.5 w-3.5" />
+          Temporary footpath closure
+        </span>
+      </div>
+
+      <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+        Telfer Subway / Caledonian Crescent Closure
+      </h2>
+
+      <div className="mt-3 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
+        <p>
+          The Telfer Subway will be closed to pedestrians and cyclists from Monday 15 June to
+          Friday 19 June 2026 while works are carried out near the Caledonian Crescent entrance.
+          A signed diversion route will be in place during the closure.
+        </p>
+
+        <AnimatePresence initial={false}>
+          {expanded && (
+            <motion.div
+              key="telfer-subway-map"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+              className="overflow-hidden"
+            >
+              <div className="mt-4 space-y-4 border-t border-amber-400/30 pt-4">
+                <p>
+                  Edinburgh Council have advised that the Telfer Subway will be fully closed from
+                  Monday 15 June to Friday 19 June 2026. The closure is required due to safety and
+                  space constraints while contractors carry out works to construct a new raised
+                  table and footway close to the subway entrance at Caledonian Crescent.
+                </p>
+                <p>
+                  Pedestrian and cyclist access through the subway will not be available during
+                  this period. A fully signed diversion route will be in place, and residents
+                  should allow extra time for journeys while the works are ongoing.
+                </p>
+
+                <div className="overflow-hidden rounded-xl border border-amber-400/25 bg-white/60 dark:bg-neutral-950/25">
+                  <iframe
+                    src={`${telferDiversionMapHref}#toolbar=1&navpanes=0`}
+                    title="Telfer Subway diversion map for Caledonian Crescent footpath closure"
+                    className="h-[420px] w-full sm:h-[560px]"
+                  />
+                </div>
+
+                <a
+                  href={telferDiversionMapHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full border border-amber-400/40 bg-amber-500/10 px-4 py-1.5 text-xs font-semibold text-amber-700 transition-colors hover:bg-amber-500/20 dark:text-amber-300"
+                >
+                  Open diversion map PDF
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </a>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <button
+          onClick={() => setExpanded((v) => !v)}
+          className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-amber-400/40 bg-amber-500/10 px-4 py-1.5 text-xs font-semibold text-amber-700 dark:text-amber-300 hover:bg-amber-500/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/50"
+          aria-expanded={expanded}
+        >
+          {expanded ? 'Hide diversion map' : 'View diversion map'}
           <motion.span
             animate={{ rotate: expanded ? 180 : 0 }}
             transition={{ duration: 0.2 }}
@@ -1038,6 +1153,9 @@ export default function HomePageClient() {
         >
           <motion.div variants={cardRevealVariants(Boolean(reduceMotion))}>
             <PoolNotice />
+          </motion.div>
+          <motion.div variants={cardRevealVariants(Boolean(reduceMotion))}>
+            <TelferSubwayClosureNotice />
           </motion.div>
           <motion.div variants={cardRevealVariants(Boolean(reduceMotion))}>
             <AGMNotice />
