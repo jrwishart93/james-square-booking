@@ -153,15 +153,7 @@ const OwnersSecurePage = () => {
 
         <div className="space-y-6">
           <motion.div variants={itemVariants}>
-            <Agm2026InformationSection />
-          </motion.div>
-
-          <motion.div variants={itemVariants}>
-            <FiorQuestionnaireCallout />
-          </motion.div>
-
-          <motion.div variants={itemVariants}>
-            <FiorPaymentsFundsUpdateSection />
+            <CurrentAgm2026Section />
           </motion.div>
 
           <motion.div variants={itemVariants}>
@@ -194,6 +186,34 @@ const OwnersSecurePage = () => {
 };
 
 export default OwnersSecurePage;
+
+function CurrentAgm2026Section() {
+  return (
+    <section
+      aria-labelledby="current-agm-2026-heading"
+      className="rounded-3xl border border-cyan-400/30 bg-cyan-500/5 p-4 shadow-sm backdrop-blur sm:p-5 md:p-6 dark:border-cyan-300/20 dark:bg-cyan-300/5"
+    >
+      <header className="mb-5 space-y-2">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-700 dark:text-cyan-300">
+          Current owners business
+        </p>
+        <h2 id="current-agm-2026-heading" className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
+          AGM 2026
+        </h2>
+        <p className="max-w-3xl text-sm md:text-base text-slate-700 dark:text-slate-200">
+          Current AGM-related information, Fior owner questionnaire details, and funds/payment updates are grouped here
+          for easier review before the older and general owner updates below.
+        </p>
+      </header>
+
+      <div className="space-y-5">
+        <Agm2026InformationSection />
+        <FiorQuestionnaireCallout />
+        <FiorPaymentsFundsUpdateSection />
+      </div>
+    </section>
+  );
+}
 
 function Agm2026InformationSection() {
   const agmHeld = new Date() >= AGM_DATE_THRESHOLD;
