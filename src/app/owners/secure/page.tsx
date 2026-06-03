@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, type ReactNode } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { Calendar, ChevronDown, ClipboardCheck, FileText, Mail, X } from 'lucide-react';
+import { Calendar, ChevronDown, ClipboardCheck, ExternalLink, FileText, Mail, X } from 'lucide-react';
 
 import { GlassCard } from '@/components/GlassCard';
 import GradientBG from '@/components/GradientBG';
@@ -18,6 +18,39 @@ const SURVEY_DOCUMENTS = [
   { label: 'Roof report: Block 55',         href: '/docs/survey/21049_Report_55_Roof.pdf' },
   { label: 'Roof report: Block 61',         href: '/docs/survey/21049_Report_61_Roof.pdf' },
   { label: 'Roof report: Block 65',         href: '/docs/survey/21049_Report_65_Roof.pdf' },
+];
+
+const AGM_AGENDA_PATH = '/docs/survey/James Square-  AGM  Agenda - 2026.06.04.pdf';
+const AGM_FACTORS_REPORT_PATH = '/docs/survey/James Square-  AGM  - Factors Report - 2026.06.04.pdf';
+const AGM_AGENDA_HREF = encodeURI(AGM_AGENDA_PATH);
+const AGM_FACTORS_REPORT_HREF = encodeURI(AGM_FACTORS_REPORT_PATH);
+const AGM_DATE_THRESHOLD = new Date('2026-06-05T00:00:00');
+const AGENDA_SUMMARY_ITEMS = [
+  'Previous factor update',
+  'Development finances',
+  'Sinking fund balance',
+  'Outstanding debts',
+  'Committee members and block representatives',
+  'Swimming pool repairs and refurbishment',
+  'Building condition report',
+  'Building repair fund restart',
+  'Tree pruning',
+  'Caretaker salary',
+  'Council tax banding',
+];
+const FACTORS_REPORT_HIGHLIGHTS = [
+  'Myreside Management taking over management on 1 February 2026',
+  'Building insurance and claims process',
+  'Myreside owner portal',
+  'Electricity account transition and meter readings',
+  'Roof, gutter and downpipe works',
+  'Proposed updated external building condition survey',
+  'Pool closure, safety review and repair options',
+  'Confirmation that RAAC was not found in the pool structure',
+  'Communal repairs, cleaning and grounds maintenance',
+  'Fire safety inspections',
+  'Development debt position',
+  'Sinking fund position, including Trinity transferring £25,661.81 on 7 May 2026',
 ];
 const glassPanel =
   'rounded-2xl border border-white/40 bg-white/65 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5';
@@ -135,6 +168,10 @@ const OwnersSecurePage = () => {
 
         <div className="space-y-6">
           <motion.div variants={itemVariants}>
+            <Agm2026InformationSection />
+          </motion.div>
+
+          <motion.div variants={itemVariants}>
             <AprilOwnersUpdateSection />
           </motion.div>
 
@@ -168,6 +205,113 @@ const OwnersSecurePage = () => {
 };
 
 export default OwnersSecurePage;
+
+function Agm2026InformationSection() {
+  const agmHeld = new Date() >= AGM_DATE_THRESHOLD;
+
+  return (
+    <GlassCard titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100">
+      <article className="rounded-xl border border-cyan-400/25 bg-cyan-500/5 p-4 space-y-5 sm:p-6">
+        <header className="space-y-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">AGM 2026 Information</h2>
+            <span className="inline-flex items-center rounded-full border border-cyan-300/40 bg-cyan-500/10 px-2.5 py-0.5 text-xs font-semibold text-cyan-700 dark:text-cyan-300">
+              AGM documents available
+            </span>
+          </div>
+          <div className="space-y-3 text-sm md:text-base text-slate-700 dark:text-slate-200">
+            <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
+              {agmHeld ? 'AGM Held – 4 June 2026' : 'Upcoming AGM – 4 June 2026'}
+            </h3>
+            {agmHeld ? (
+              <>
+                <p>The James Square Annual General Meeting was held on Thursday 4 June 2026.</p>
+                <p>
+                  Owners can review the AGM page, agenda and factors report using the links below. A further update
+                  summarising the discussions, decisions and any agreed actions will be published once the official
+                  minutes have been prepared and circulated.
+                </p>
+              </>
+            ) : (
+              <>
+                <p>
+                  The James Square Annual General Meeting will take place on Thursday 4 June 2026 at 7:00pm via
+                  Microsoft Teams.
+                </p>
+                <p>
+                  Owners are encouraged to attend where possible. The AGM will include updates on the management of the
+                  development, finances, sinking fund, pool repairs, building condition report, committee appointments,
+                  and priorities for the year ahead.
+                </p>
+                <p>The AGM page, agenda and factors report are available using the links below.</p>
+              </>
+            )}
+          </div>
+        </header>
+
+        <div className="grid gap-3 sm:grid-cols-3">
+          <Link
+            href="/agm"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/40 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100"
+          >
+            Open AGM Page
+          </Link>
+          <a
+            href={AGM_AGENDA_HREF}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-white/95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/40 dark:border-white/15 dark:bg-white/20 dark:text-white dark:hover:bg-white/25"
+          >
+            <FileText className="h-4 w-4" aria-hidden="true" />
+            View AGM Agenda
+          </a>
+          <a
+            href={AGM_FACTORS_REPORT_HREF}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-white/95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/40 dark:border-white/15 dark:bg-white/20 dark:text-white dark:hover:bg-white/25"
+          >
+            <FileText className="h-4 w-4" aria-hidden="true" />
+            View Factors Report
+          </a>
+        </div>
+
+        <a
+          href="https://www.james-square.com/agm"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 text-sm font-semibold text-cyan-700 transition hover:text-cyan-600 dark:text-cyan-300 dark:hover:text-cyan-200"
+        >
+          Public AGM link: www.james-square.com/agm
+          <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+        </a>
+
+        <div className="space-y-3">
+          <InfoAccordion title="Agenda Summary" controlsId="owners-agm-2026-agenda-summary">
+            <p>{agmHeld ? 'Key items listed for discussion included:' : 'Key items due to be discussed include:'}</p>
+            <ul className="list-disc ms-5 space-y-1">
+              {AGENDA_SUMMARY_ITEMS.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </InfoAccordion>
+          <InfoAccordion title="Factors Report Highlights" controlsId="owners-agm-2026-factors-report-highlights">
+            <p>{agmHeld ? 'The factors report included updates on:' : 'The factors report includes updates on:'}</p>
+            <ul className="list-disc ms-5 space-y-1">
+              {FACTORS_REPORT_HIGHLIGHTS.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </InfoAccordion>
+        </div>
+
+        <p className="rounded-xl border border-amber-300/40 bg-amber-500/10 p-3 text-sm font-medium text-slate-800 dark:text-slate-100">
+          Meeting minutes will be added once available.
+        </p>
+      </article>
+    </GlassCard>
+  );
+}
 
 const FIOR_PAYMENTS_FUNDS_STATS = [
   { value: '14', label: 'Questionnaire responses received' },
@@ -1377,6 +1521,52 @@ function EmailAccordion({
             transition={{ duration: 0.28 }}
           >
             <pre className="whitespace-pre-wrap break-words border-t border-white/30 px-4 py-4 font-mono text-xs leading-relaxed text-slate-700 dark:border-white/10 dark:text-slate-200 sm:text-sm">{content}</pre>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function InfoAccordion({
+  title,
+  controlsId,
+  children,
+}: {
+  title: string;
+  controlsId: string;
+  children: ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className={`${glassPanel} p-0`}>
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        aria-expanded={open}
+        aria-controls={controlsId}
+        className="flex w-full items-center justify-between gap-3 rounded-2xl px-4 py-3 text-left text-sm font-semibold text-slate-900 transition hover:bg-white/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/40 dark:text-slate-100 dark:hover:bg-white/10"
+      >
+        <span>{title}</span>
+        <ChevronDown
+          className="h-4 w-4 shrink-0 text-slate-500 transition-transform duration-200 dark:text-slate-300"
+          style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}
+          aria-hidden="true"
+        />
+      </button>
+
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            id={controlsId}
+            className="overflow-hidden border-t border-white/30 px-4 py-4 text-sm leading-relaxed text-slate-700 dark:border-white/10 dark:text-slate-200 md:text-base"
+            initial={{ height: 0, opacity: 1 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.28 }}
+          >
+            <div className="space-y-3">{children}</div>
           </motion.div>
         )}
       </AnimatePresence>
