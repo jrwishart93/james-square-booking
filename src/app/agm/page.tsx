@@ -122,8 +122,8 @@ export default function AGMPage() {
                 June 2026 at 7:00pm via Microsoft Teams.
               </p>
               <p>
-                Use this page to review the meeting documents and check for
-                updates. Official minutes will be added once available.
+                Review the meeting documents and updates below. Official minutes will be
+                added once available.
               </p>
             </>
           ) : (
@@ -133,8 +133,8 @@ export default function AGMPage() {
                 Thursday 4 June 2026 at 7:00pm via Microsoft Teams.
               </p>
               <p>
-                Review the documents, join details and discussion topics from
-                one place without duplicate document links.
+                Review the meeting documents, joining details and key discussion
+                topics below.
               </p>
             </>
           )}
@@ -179,9 +179,8 @@ export default function AGMPage() {
           <div className="mt-4 space-y-3 text-sm leading-relaxed text-slate-700 sm:text-base dark:text-slate-200">
             {agmHeld ? (
               <p>
-                A further update summarising the discussions, decisions and any
-                agreed actions will be published once the official minutes have
-                been prepared and circulated.
+                A summary of discussions, decisions and agreed actions will be
+                published once the official minutes are prepared and circulated.
               </p>
             ) : (
               <p>
@@ -224,8 +223,7 @@ export default function AGMPage() {
             Documents
           </h2>
           <p className="mt-2 text-sm text-slate-700 dark:text-slate-200">
-            Open the two AGM documents below. These links are shown once here to
-            keep the page uncluttered.
+            Open the AGM agenda and factors report below.
           </p>
           <div className="mt-4 space-y-3">
             {documentLinks.map((doc) => (
@@ -295,8 +293,8 @@ export default function AGMPage() {
           Submit an agenda item
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
-          Owners are encouraged to submit any topics, questions, or concerns in
-          advance of the AGM.
+          Owners may submit topics, questions or concerns for consideration before
+          the AGM.
         </p>
 
         <a
