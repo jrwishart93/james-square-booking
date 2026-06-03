@@ -143,6 +143,10 @@ const OwnersSecurePage = () => {
           </motion.div>
 
           <motion.div variants={itemVariants}>
+            <FiorPaymentsFundsUpdateSection />
+          </motion.div>
+
+          <motion.div variants={itemVariants}>
             <SurveyDocumentsSection />
           </motion.div>
 
@@ -164,6 +168,195 @@ const OwnersSecurePage = () => {
 };
 
 export default OwnersSecurePage;
+
+const FIOR_PAYMENTS_FUNDS_STATS = [
+  { value: '14', label: 'Owner questionnaire responses' },
+  { value: '£7,477+ estimated', label: 'Owner-reported payments to Fior after 1 February 2026' },
+  { value: '£1,280+ estimated', label: 'Owner-reported roof and repair fund contributions' },
+];
+
+const FIOR_SUPPORTING_CORRESPONDENCE = [
+  {
+    title: 'Email to Fior dated 20 May 2026',
+    date: '20 May 2026',
+    description: 'Committee correspondence asking Fior about owner-reported payments and fund contributions after the factor handover.',
+    href: '/docs/fior/email-to-fior-20-may-2026.pdf',
+  },
+  {
+    title: 'Fior response dated 21 May 2026',
+    date: '21 May 2026',
+    description: 'Placeholder for Fior’s response to the committee’s request for clarification.',
+    href: '/docs/fior/fior-response-21-may-2026.pdf',
+  },
+  {
+    title: 'Follow-up email dated 3 June 2026',
+    date: '3 June 2026',
+    description: 'Committee follow-up correspondence seeking further clarification and supporting information.',
+    href: '/docs/fior/follow-up-email-3-june-2026.pdf',
+  },
+];
+
+function FiorPaymentsFundsUpdateSection() {
+  const [fullUpdateOpen, setFullUpdateOpen] = useState(false);
+  const [correspondenceOpen, setCorrespondenceOpen] = useState(false);
+
+  return (
+    <GlassCard titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100">
+      <article className="rounded-xl border border-cyan-300/25 bg-cyan-500/5 p-6 space-y-5">
+        <header className="space-y-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Fior Payments &amp; Funds Update</h2>
+            <span className="inline-flex items-center rounded-full border border-cyan-300/40 bg-cyan-500/10 px-2.5 py-0.5 text-xs font-semibold text-cyan-700 dark:text-cyan-300">
+              Owner questionnaire
+            </span>
+          </div>
+          <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+            Myreside Management took over responsibility for James Square on <strong>1 February 2026</strong>. Owners
+            have been invited to share information through the{' '}
+            <Link
+              href="/fior-questionnaire"
+              className="font-semibold text-cyan-700 underline decoration-cyan-400/70 underline-offset-2 transition-colors hover:text-cyan-600 dark:text-cyan-300 dark:hover:text-cyan-200"
+            >
+              Fior questionnaire
+            </Link>{' '}
+            about any payments they believe may have been made to Fior after that date and any roof or repair fund
+            contributions they wish to report.
+          </p>
+          <p className="rounded-xl border border-amber-300/35 bg-amber-500/10 p-3 text-sm text-slate-800 dark:text-slate-100">
+            Questionnaire responses are <strong>owner-reported</strong>, <strong>estimated</strong>, <strong>indicative only</strong>,
+            and <strong>not independently verified</strong>. The figures below should not be treated as confirmed
+            balances, evidenced payments, or verified liabilities.
+          </p>
+        </header>
+
+        <div className="grid gap-3 sm:grid-cols-3">
+          {FIOR_PAYMENTS_FUNDS_STATS.map((stat) => (
+            <div key={stat.label} className={`${glassPanel} flex min-h-32 flex-col justify-between gap-3`}>
+              <span className="inline-flex w-fit rounded-full border border-amber-300/40 bg-amber-500/10 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-amber-800 dark:text-amber-200">
+                Estimate
+              </span>
+              <div className="space-y-2">
+                <p className="text-2xl font-semibold text-slate-900 dark:text-white">{stat.value}</p>
+                <p className="text-sm text-slate-600 dark:text-slate-300">{stat.label}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="space-y-3">
+          <ExpandButton
+            open={fullUpdateOpen}
+            setOpen={setFullUpdateOpen}
+            labelWhenClosed="Read Full Update"
+            labelWhenOpen="Hide Full Update"
+            controlsId="fior-payments-funds-update-details"
+          />
+
+          <AnimatePresence initial={false}>
+            {fullUpdateOpen && (
+              <motion.div
+                id="fior-payments-funds-update-details"
+                className={`${glassPanel} space-y-4 overflow-hidden`}
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.28 }}
+              >
+                <SectionText heading="Background">
+                  <p>
+                    Myreside became the appointed factor for James Square on 1 February 2026. Since then, the committee
+                    has been trying to understand whether any owners may have continued making payments to Fior, or may
+                    have reported roof and repair fund contributions connected with the previous factoring arrangements.
+                  </p>
+                </SectionText>
+
+                <SectionText heading="Questionnaire Results">
+                  <p>
+                    The questionnaire has received 14 owner responses to date. Based only on those owner-reported
+                    responses, owners have indicated at least £7,477 in payments they believe were made to Fior after
+                    1 February 2026 and at least £1,280 in roof and repair fund contributions. These amounts are
+                    estimates from questionnaire entries and have not been independently verified by the committee.
+                  </p>
+                </SectionText>
+
+                <SectionText heading="Correspondence with Fior">
+                  <p>
+                    The committee has written to Fior to ask for clarification about the owner-reported payments and fund
+                    contributions. Fior has responded, and a follow-up email has also been sent. The correspondence is
+                    being recorded for transparency, but the placeholder document links below will only work once the PDF
+                    files have been added under <code className="rounded bg-white/60 px-1 py-0.5 dark:bg-white/10">public/docs/fior/</code>.
+                  </p>
+                </SectionText>
+
+                <SectionText heading="What Happens Next">
+                  <p>
+                    Owners who believe they made payments to Fior after 1 February 2026 should continue to check their
+                    own bank records and contact Fior directly where appropriate. The committee will continue to seek
+                    clarification, share updates when available, and avoid treating questionnaire values as confirmed
+                    unless they are supported by appropriate evidence.
+                  </p>
+                </SectionText>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        <div className="space-y-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">View Supporting Correspondence</h3>
+              <p className="text-sm text-slate-600 dark:text-slate-300">
+                Placeholder links for correspondence PDFs to be added later.
+              </p>
+            </div>
+            <ExpandButton
+              open={correspondenceOpen}
+              setOpen={setCorrespondenceOpen}
+              labelWhenClosed="View Supporting Correspondence"
+              labelWhenOpen="Hide Supporting Correspondence"
+              controlsId="fior-supporting-correspondence"
+            />
+          </div>
+
+          <AnimatePresence initial={false}>
+            {correspondenceOpen && (
+              <motion.div
+                id="fior-supporting-correspondence"
+                className="grid gap-3 overflow-hidden sm:grid-cols-3"
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.28 }}
+              >
+                {FIOR_SUPPORTING_CORRESPONDENCE.map((doc) => (
+                  <div key={doc.href} className={`${glassPanel} flex flex-col gap-3`}>
+                    <div className="space-y-2">
+                      <div className="flex items-start gap-2">
+                        <FileText className="mt-0.5 h-4 w-4 shrink-0 text-slate-400 dark:text-slate-300" aria-hidden="true" />
+                        <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100">{doc.title}</h4>
+                      </div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{doc.date}</p>
+                      <p className="text-sm text-slate-600 dark:text-slate-300">{doc.description}</p>
+                      <p className="text-xs text-amber-700 dark:text-amber-200">PDF placeholder — document to be added</p>
+                    </div>
+                    <a
+                      href={doc.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-auto inline-flex items-center justify-center gap-2 rounded-xl border border-black/10 bg-white/70 px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/40 dark:border-white/15 dark:bg-white/15 dark:text-slate-100 dark:hover:bg-white/20"
+                    >
+                      Open / Download
+                    </a>
+                  </div>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </article>
+    </GlassCard>
+  );
+}
 
 function SurveyDocumentsSection() {
   return (
