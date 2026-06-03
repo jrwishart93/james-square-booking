@@ -143,6 +143,10 @@ const OwnersSecurePage = () => {
           </motion.div>
 
           <motion.div variants={itemVariants}>
+            <FiorPaymentsFundsUpdateSection />
+          </motion.div>
+
+          <motion.div variants={itemVariants}>
             <SurveyDocumentsSection />
           </motion.div>
 
@@ -164,6 +168,277 @@ const OwnersSecurePage = () => {
 };
 
 export default OwnersSecurePage;
+
+const FIOR_PAYMENTS_FUNDS_STATS = [
+  { value: '14', label: 'Questionnaire responses received' },
+  { value: '£7,477+', label: 'Owner-reported payments/invoices relating to Fior' },
+  { value: '£1,280+', label: 'Owner-reported roof and repair fund contributions' },
+];
+
+const FIOR_EMAIL_CORRESPONDENCE = [
+  {
+    title: 'Initial email to Fior – 20 May 2026',
+    content: `From: Jamie Wishart
+Sent: Wednesday, May 20, 2026 21:21
+To: Pedrom aghabala <pedrom@fiorassetandproperty.com>
+Cc: James Square Committee <committee@james-square.com>; Ania <ania@myreside-management.co.uk>; Leigh Collins <leigh@myreside-management.co.uk>
+Subject: James Square Owner Funds / Request for Update
+
+Dear Pedrom,
+
+I just wanted to get in touch regarding a growing number of queries being raised by owners at James Square relating to outstanding balances and payments made to Fior around the transfer period to Myreside Management. These include annual factor payments paid in advance, roof repair contributions and additional payments made around January and February 2026.
+
+A number of owners have now contacted the committee looking for updates regarding refunds, reconciliations and monies potentially still earmarked for James Square. Several owners have also advised that they have attempted to contact Fior directly but remain unclear on the current position.
+
+I appreciate the transfer from Fior to Myreside happened fairly quickly and I understand that working through owner balances across the development may take some time. However, we are now approaching the end of May and owners are understandably beginning to ask for some indication of likely timescales.
+
+During the previous AGM, and within the minutes issued afterwards, there was reference to approximately £19,371 being held as a saving or surplus within the budget. I just wanted to ask whether these funds, along with any additional monies collected for roof works or other James Square matters, may now be capable of being transferred across to Myreside Management where appropriate.
+
+Ania at Myreside Management is now the property manager for James Square and I am sure she would be happy to liaise directly with yourself should any arrangements require to be made regarding transfer of funds or reconciliation information.
+
+At this stage, I am simply looking for some form of update that can be passed onto owners ahead of the upcoming AGM in a couple of weeks time, along with any rough indication of when reconciliations or repayments are likely to be completed.
+
+A significant number of owners have now contacted the committee regarding these concerns and I suspect there may potentially be further owners still trying to establish their positions. I am sure you have also received a number of emails directly from owners yourself and are currently working through responding to everyone.
+
+For transparency, I have BCC’d in the owners who have contacted the committee directly regarding these matters so they are aware this email has been sent. I have not shared owners’ personal email addresses directly, however some owners may wish to follow matters up further following this email.
+
+The information provided to the committee will also be passed onto Ania and Leigh at Myreside Management for awareness. I have not included owners’ names or payment details within this email, however should it assist with progressing matters or helping owners receive updates, further details can be discussed through Myreside Management where appropriate.
+
+Many thanks in advance and we look forward to hearing from you.
+
+Kind regards,
+Jamie Wishart
+On behalf of the James Square Committee`,
+  },
+  {
+    title: 'Response from Fior – 21 May 2026',
+    content: `From: Pedrom aghabala <pedrom@fiorassetandproperty.com>
+Sent: 21 May 2026 14:54
+To: Jamie Wishart
+Cc: James Square Committee <committee@james-square.com>; Ania <ania@myreside-management.co.uk>; Leigh Collins <leigh@myreside-management.co.uk>
+Subject: Re: James Square Owner Funds / Request for Update
+
+Good afternoon,
+
+I hope this finds you well, we have been discussing this with various owners who have contacted us.
+
+We are just completing the final reconciliation, roof payments and accounts for all owners. Im afraid one of the main issues was some letting agents and new owners used the wrong reference number when making payment, therefore we have had to spend many hours manually correcting hundreds of transactions.
+
+We will indeed handover all the roof funds with a full summary to Myreside for each block, along with various other documentation.
+
+I am afraid I have been off dealing with an unforeseen grievance, but I am back now and we are prioritising this transition.
+
+Kind regards,
+
+Pedrom Aghabala
+Director
+Fior Asset & Property
+
+Head Office: 0333 4440586
+Mobile: 07548910618
+Email: info@fiorassetandproperty.com
+Web: www.fiorassetandproperty.com`,
+  },
+  {
+    title: 'Follow-up email to Fior – 3 June 2026',
+    content: `Dear Pedrom,
+
+Thank you for your response.
+
+I appreciate that the reconciliation process has been complicated by payments being made with incorrect references and that this has required a significant amount of manual work. I also appreciate that you have confirmed that the roof funds and other monies held on behalf of James Square will be transferred to Myreside once the reconciliation is complete.
+
+However, I think it is important to highlight that there are now well over a dozen owners who have contacted either the Committee, Myreside, or Fior regarding monies that remain outstanding. Based on the information received to date, the total amount potentially owed to owners appears to be well into the thousands of pounds.
+
+Whilst I appreciate there may have been genuine administrative and accounting difficulties, these issues were first brought to owners' attention in January and we are now into June. I believe it is reasonable for owners to expect a clear indication as to when these matters will finally be resolved.
+
+The Committee's preference is that this is settled fairly, respectfully and cooperatively between all parties. We would much rather see funds returned to owners, or transferred to Myreside where appropriate, without the need for any formal action.
+
+With that in mind, can you please provide a clear timescale for completion of the reconciliation process and the transfer of funds?
+
+Given the length of time these matters have already been under discussion, I would suggest that 1 July 2026, approximately 28 days from now, would represent a reasonable target date for the transfer of outstanding funds and completion of the handover process.
+
+I hope we can reach a sensible and civilised resolution without the need for owners to seek legal representation. Court action would inevitably consume considerable time and resources for everyone involved and would likely result in additional costs. I do not believe that would be in anyone's interests. However, owners are increasingly seeking certainty and it is becoming difficult to provide reassurance without a clear commitment and timescale.
+
+I would therefore be grateful if you could confirm whether the proposed timeframe is achievable, or alternatively provide a realistic completion date for the transfer of funds and final reconciliation.
+
+Kind regards,
+Jamie`,
+  },
+];
+
+function FiorPaymentsFundsUpdateSection() {
+  const [fullUpdateOpen, setFullUpdateOpen] = useState(false);
+
+  return (
+    <GlassCard titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100">
+      <article className="rounded-xl border border-cyan-300/25 bg-cyan-500/5 p-6 space-y-5">
+        <header className="space-y-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Fior Payments &amp; Funds Update</h2>
+            <span className="inline-flex items-center rounded-full border border-cyan-300/40 bg-cyan-500/10 px-2.5 py-0.5 text-xs font-semibold text-cyan-700 dark:text-cyan-300">
+              Owner questionnaire
+            </span>
+          </div>
+          <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+            Myreside Management took over responsibility for James Square on <strong>1 February 2026</strong>. Since then,
+            owners have been invited to share information through the{' '}
+            <Link
+              href="/fior-questionnaire"
+              className="font-semibold text-cyan-700 underline decoration-cyan-400/70 underline-offset-2 transition-colors hover:text-cyan-600 dark:text-cyan-300 dark:hover:text-cyan-200"
+            >
+              Fior questionnaire
+            </Link>{' '}
+            about payments, invoices, and roof or repair fund contributions connected with the previous factoring
+            arrangements.
+          </p>
+          <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+            The figures below are based only on questionnaire responses received so far. They may include payments made
+            after the transfer date, invoices paid in advance which covered periods beyond 1 February 2026, and
+            contributions made towards roof or repair works which owners understand have not yet been carried out.
+          </p>
+          <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+            The total position may change as further information is received or verified.
+          </p>
+          <p className="rounded-xl border border-amber-300/35 bg-amber-500/10 p-3 text-sm text-slate-800 dark:text-slate-100">
+            The questionnaire figures are owner-reported and indicative only. They have not been independently verified
+            and should not be treated as confirmed balances, evidenced payments, or verified liabilities.
+          </p>
+        </header>
+
+        <div className="grid gap-3 sm:grid-cols-3">
+          {FIOR_PAYMENTS_FUNDS_STATS.map((stat) => (
+            <div key={stat.label} className={`${glassPanel} flex min-h-28 flex-col justify-center gap-2`}>
+              <p className="text-2xl font-semibold text-slate-900 dark:text-white">{stat.value}</p>
+              <p className="text-sm text-slate-600 dark:text-slate-300">{stat.label}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="space-y-3">
+          <ExpandButton
+            open={fullUpdateOpen}
+            setOpen={setFullUpdateOpen}
+            labelWhenClosed="Read Full Update"
+            labelWhenOpen="Hide Full Update"
+            controlsId="fior-payments-funds-update-details"
+          />
+
+          <AnimatePresence initial={false}>
+            {fullUpdateOpen && (
+              <motion.div
+                id="fior-payments-funds-update-details"
+                className={`${glassPanel} space-y-4 overflow-hidden`}
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.28 }}
+              >
+                <SectionText heading="Background">
+                  <p>Myreside Management became the appointed factor for James Square on 1 February 2026.</p>
+                  <p>
+                    Following the change in factor, a number of owners raised concerns regarding payments made to Fior
+                    Asset &amp; Property, invoices covering periods beyond the transfer date, and monies collected for roof
+                    repairs and other works which have not yet been carried out.
+                  </p>
+                  <p>
+                    In order to better understand the potential scale of these concerns, information was gathered from
+                    owners through a questionnaire circulated during May 2026.
+                  </p>
+                </SectionText>
+
+                <SectionText heading="Questionnaire Results">
+                  <p>The questionnaire has received 14 owner responses to date.</p>
+                  <p>
+                    Based on the information voluntarily provided, owners have reported £7,477+ relating to payments
+                    made to Fior and £1,280+ in roof and repair fund contributions.
+                  </p>
+                  <p>
+                    These figures should be regarded as indicative only and have not been independently verified.
+                  </p>
+                  <p>
+                    Importantly, these amounts do not solely relate to payments made after 1 February 2026. The responses
+                    include a mixture of:
+                  </p>
+                  <ul className="list-disc ms-5 space-y-1">
+                    <li>Payments which owners believe continued to be made to Fior after the transfer to Myreside Management;</li>
+                    <li>
+                      Payments made against Fior invoices which covered periods extending beyond February 2026 and, in
+                      some cases, through to May 2026;
+                    </li>
+                    <li>
+                      Contributions made towards roof repairs or other works which owners understand have not
+                      subsequently been carried out.
+                    </li>
+                  </ul>
+                  <p>
+                    The purpose of the questionnaire was to establish whether a wider issue existed and to provide an
+                    initial indication of its potential scale. The actual amount potentially affected may be higher, as
+                    not all owners completed the questionnaire and some owners may not yet be aware that payments were
+                    made covering periods after Fior ceased acting as factor.
+                  </p>
+                </SectionText>
+
+                <SectionText heading="Correspondence with Fior">
+                  <p>
+                    Correspondence has been ongoing with Fior Asset &amp; Property regarding the concerns raised by owners
+                    and the reconciliation of monies understood to be held on behalf of the development.
+                  </p>
+                  <p>
+                    On 20 May 2026, concerns raised by owners were formally presented to Pedrom Aghabala, Director of
+                    Fior Asset &amp; Property, with a request for clarification regarding account reconciliation and the
+                    transfer of funds.
+                  </p>
+                  <p>
+                    On 21 May 2026, Fior confirmed that a final reconciliation process is underway and advised that roof
+                    funds and other monies held on behalf of James Square would be transferred to Myreside Management
+                    once that process is complete. Delays were attributed to payment reference discrepancies and the need
+                    for manual reconciliation of accounts.
+                  </p>
+                  <p>
+                    A further email was sent on 3 June 2026 requesting a clear timetable for completion of the
+                    reconciliation process and transfer of funds. A suggested target date of 1 July 2026 was proposed as
+                    a reasonable timeframe for conclusion of the matter.
+                  </p>
+                </SectionText>
+
+                <SectionText heading="What Happens Next">
+                  <p>
+                    Owners who believe they may have made payments to Fior, paid invoices covering periods after the
+                    transfer date, or contributed towards roof and repair funds are encouraged to retain copies of
+                    invoices, bank statements and payment confirmations for their own records.
+                  </p>
+                  <p>
+                    Further updates will be published as additional information becomes available. Clarification is still
+                    being sought regarding the reconciliation process, the transfer of development funds, and the return
+                    or allocation of any monies identified as belonging to James Square owners.
+                  </p>
+                </SectionText>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        <div className="space-y-3">
+          <div>
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">View Email Correspondence</h3>
+            <p className="text-sm text-slate-600 dark:text-slate-300">Email text is shown below for transparency.</p>
+          </div>
+
+          <div className="space-y-3">
+            {FIOR_EMAIL_CORRESPONDENCE.map((email, index) => (
+              <EmailAccordion
+                key={email.title}
+                title={email.title}
+                content={email.content}
+                controlsId={`fior-email-correspondence-${index + 1}`}
+              />
+            ))}
+          </div>
+        </div>
+      </article>
+    </GlassCard>
+  );
+}
 
 function SurveyDocumentsSection() {
   return (
@@ -1060,6 +1335,52 @@ function AgmSection() {
         </Link>
       </div>
     </GlassCard>
+  );
+}
+
+function EmailAccordion({
+  title,
+  content,
+  controlsId,
+}: {
+  title: string;
+  content: string;
+  controlsId: string;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className={`${glassPanel} p-0`}>
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        aria-expanded={open}
+        aria-controls={controlsId}
+        className="flex w-full items-center justify-between gap-3 rounded-2xl px-4 py-3 text-left text-sm font-semibold text-slate-900 transition hover:bg-white/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/40 dark:text-slate-100 dark:hover:bg-white/10"
+      >
+        <span className="break-words">{title}</span>
+        <ChevronDown
+          className="h-4 w-4 shrink-0 text-slate-500 transition-transform duration-200 dark:text-slate-300"
+          style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}
+          aria-hidden="true"
+        />
+      </button>
+
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            id={controlsId}
+            className="overflow-hidden"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.28 }}
+          >
+            <pre className="whitespace-pre-wrap break-words border-t border-white/30 px-4 py-4 font-mono text-xs leading-relaxed text-slate-700 dark:border-white/10 dark:text-slate-200 sm:text-sm">{content}</pre>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
 
