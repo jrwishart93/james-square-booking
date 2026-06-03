@@ -492,13 +492,15 @@ function PoolNotice() {
       <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
         Pool &amp; Facilities Update
       </h2>
+      <p className="mt-1 text-xs font-medium uppercase tracking-wide text-sky-800/80 dark:text-sky-200/80">
+        Last Updated: June 2026
+      </p>
 
       <div className="mt-3 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
         <p>
-          The pool, gym and sauna facilities remain temporarily closed following the earlier plant
-          room leak which caused an electrical fault and dehumidifier failure. The dehumidifier
-          has now been repaired and is back up and running, however further damage caused by
-          elevated humidity levels within the pool area is currently being assessed.
+          The swimming pool, gym and sauna facilities remain temporarily closed while further
+          investigations and discussions are carried out regarding both the immediate repairs
+          required and the longer-term future of the pool area.
         </p>
 
         <AnimatePresence initial={false}>
@@ -516,46 +518,68 @@ function PoolNotice() {
                   Full Update – Pool &amp; Facilities
                 </h3>
                 <p>
-                  Following the earlier incident within the swimming pool plant room, a leak in the
-                  chlorine system caused water to come into contact with the electrical fuse box,
-                  resulting in an electrical fault.
+                  As previously reported, a leak within the pool plant room resulted in water coming
+                  into contact with electrical equipment, causing an electrical fault and failure of
+                  the dehumidifier system.
                 </p>
                 <p>
-                  This fault affected the dehumidifier system, with a key motherboard component
-                  requiring replacement. This has now been fitted, and the dehumidifier is back up
-                  and running.
+                  Although the dehumidifier has now been repaired and returned to service, the
+                  prolonged period of elevated humidity within the pool area caused damage to a
+                  number of internal finishes. This included sections of ceiling and decorative
+                  cornicing becoming unstable, with some areas partially detaching.
                 </p>
                 <p>
-                  During the period where the ventilation and dehumidifier system was not operating
-                  correctly, elevated humidity levels built up within the pool area. Unfortunately,
-                  this prolonged moisture caused damage to sections of the ceiling and cornice,
-                  with some areas becoming unstable and partially falling.
+                  Following these concerns, Myreside instructed F3 Building Surveyors to inspect the
+                  pool area and advise whether the facilities remained safe to use. Their
+                  recommendation was that the facilities should remain closed until further
+                  investigations and remedial works have been completed.
                 </p>
                 <p>
-                  As a result, the pool, gym and sauna facilities remain temporarily closed while the
-                  affected areas are properly assessed.
+                  During the inspection, concerns were also raised regarding the possibility of
+                  Reinforced Autoclaved Aerated Concrete (RAAC) being present within the structure
+                  due to the age of the building. Further investigations were carried out on 28 May
+                  2026 and owners will be pleased to know that RAAC was not found within the
+                  construction.
                 </p>
                 <p>
-                  F3 Surveyors have now attended the development to carry out an inspection of the
-                  pool area and surrounding structure. Pending their full report, they have advised
-                  that the facilities should remain closed as a precaution. Initial findings
-                  identified sections of cornicing requiring to be secured, along with some
-                  movement and slight sagging within the main ceiling above the pool area.
+                  The surveyor&apos;s report identified a number of items requiring attention before the
+                  pool can safely reopen. These include further inspection of the ceiling structure,
+                  repairs to damaged or sagging ceiling sections, replacement or repair of loose
+                  cornicing, replacement of deteriorated timber boxing around the pool perimeter,
+                  inspection of lighting, repairs to flooring around poolside vents, maintenance
+                  checks to pool mechanical and electrical systems, and repairs to balcony and tiled
+                  areas.
                 </p>
                 <p>
-                  Myreside Management are currently awaiting the full survey report and will then
-                  begin obtaining quotes for any necessary remedial works and repairs required
-                  before reopening can safely take place.
+                  Whilst some of these items could potentially be addressed through targeted repair
+                  works, the report has also highlighted wider concerns regarding the overall
+                  condition of parts of the pool area. This has prompted discussion about whether
+                  owners should simply undertake the minimum repairs required to reopen the facility,
+                  or whether a more comprehensive refurbishment project should be considered.
                 </p>
                 <p>
-                  Now that the dehumidifier system has been restored, environmental conditions
-                  within the pool area can begin to stabilise. Further repairs and next steps will
-                  follow based on the surveyor&apos;s findings.
+                  At present, no decision has been made. The committee had explored obtaining
+                  quotations for immediate make-safe works which could potentially allow the
+                  facilities to reopen sooner. However, following discussions with Myreside and in
+                  light of the wider issues identified, it was felt that the most sensible approach
+                  would be to discuss the matter with owners at the forthcoming AGM before progressing
+                  any significant works.
                 </p>
                 <p>
-                  The facilities will reopen once the area has been confirmed safe for residents to
-                  use. Further updates will follow once additional information becomes available.
+                  A number of options may ultimately be available, ranging from essential repairs only,
+                  through to a more substantial refurbishment of the pool, sauna and gym facilities. At
+                  this stage, owners are encouraged to keep an open mind until all information, reports
+                  and potential costs have been fully considered.
                 </p>
+                <p>
+                  The pool and associated facilities will remain closed until the necessary works have
+                  been completed and the area has been confirmed safe for use. Further updates will be
+                  provided following the AGM and as additional information becomes available.
+                </p>
+                <div className="rounded-xl border border-sky-400/30 bg-white/35 p-4 text-sm font-medium text-neutral-800 shadow-sm dark:bg-white/10 dark:text-neutral-100">
+                  Owners are encouraged to attend the AGM to discuss the future of the pool, gym and
+                  sauna facilities and help shape the long-term direction of the development.
+                </div>
               </div>
             </motion.div>
           )}
@@ -566,7 +590,7 @@ function PoolNotice() {
           className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-sky-400/40 bg-sky-500/10 px-4 py-1.5 text-xs font-semibold text-sky-700 dark:text-sky-300 hover:bg-sky-500/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/50"
           aria-expanded={expanded}
         >
-          {expanded ? 'Show less' : 'Read full update'}
+          {expanded ? 'Show less' : 'Read Full Update'}
           <motion.span
             animate={{ rotate: expanded ? 180 : 0 }}
             transition={{ duration: 0.2 }}
