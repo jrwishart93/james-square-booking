@@ -151,33 +151,54 @@ const OwnersSecurePage = () => {
           </div>
         </motion.div>
 
-        <div className="space-y-6">
+        <div className="space-y-10">
           <motion.div variants={itemVariants}>
-            <CurrentAgm2026Section />
+            <OwnerSectionGroup
+              id="current-agm-2026"
+              eyebrow="Current owners business"
+              title="Current / AGM 2026"
+              description="Current AGM-related information, Fior owner questionnaire details, and funds/payment updates are grouped here for easier review before the older and general owner updates below."
+            >
+              <Agm2026InformationSection />
+              <FiorQuestionnaireCallout />
+              <FiorPaymentsFundsUpdateSection />
+            </OwnerSectionGroup>
           </motion.div>
 
           <motion.div variants={itemVariants}>
-            <AprilOwnersUpdateSection />
+            <OwnerSectionGroup
+              id="latest-owner-updates"
+              eyebrow="Recent communications"
+              title="Latest owner updates"
+              description="Recent committee and owner updates are grouped together so current context is easier to find."
+            >
+              <CommitteeUpdateSection />
+              <AprilOwnersUpdateSection />
+            </OwnerSectionGroup>
           </motion.div>
 
           <motion.div variants={itemVariants}>
-            <CommitteeUpdateSection />
+            <OwnerSectionGroup
+              id="documents-and-reports"
+              eyebrow="Supporting documentation"
+              title="Documents and reports"
+              description="Reference documents and supporting reports for owners are grouped separately from meeting updates."
+            >
+              <SurveyDocumentsSection />
+            </OwnerSectionGroup>
           </motion.div>
 
           <motion.div variants={itemVariants}>
-            <SurveyDocumentsSection />
-          </motion.div>
-
-          <motion.div variants={itemVariants}>
-            <SgmSection />
-          </motion.div>
-
-          <motion.div variants={itemVariants}>
-            <FiorFactorUpdateSection />
-          </motion.div>
-
-          <motion.div variants={itemVariants}>
-            <AgmSection />
+            <OwnerSectionGroup
+              id="archive-previous-factor-meetings"
+              eyebrow="Archived context"
+              title="Archive / previous factor and meetings"
+              description="Previous factor updates and earlier meeting information remain available here for background and reference."
+            >
+              <SgmSection />
+              <FiorFactorUpdateSection />
+              <AgmSection />
+            </OwnerSectionGroup>
           </motion.div>
         </div>
       </motion.div>
@@ -187,30 +208,34 @@ const OwnersSecurePage = () => {
 
 export default OwnersSecurePage;
 
-function CurrentAgm2026Section() {
+function OwnerSectionGroup({
+  id,
+  eyebrow,
+  title,
+  description,
+  children,
+}: {
+  id: string;
+  eyebrow: string;
+  title: string;
+  description: string;
+  children: ReactNode;
+}) {
+  const headingId = `${id}-heading`;
+
   return (
-    <section
-      aria-labelledby="current-agm-2026-heading"
-      className="rounded-3xl border border-cyan-400/30 bg-cyan-500/5 p-4 shadow-sm backdrop-blur sm:p-5 md:p-6 dark:border-cyan-300/20 dark:bg-cyan-300/5"
-    >
-      <header className="mb-5 space-y-2">
+    <section aria-labelledby={headingId} className="space-y-4">
+      <header className="space-y-2">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-700 dark:text-cyan-300">
-          Current owners business
+          {eyebrow}
         </p>
-        <h2 id="current-agm-2026-heading" className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
-          AGM 2026
+        <h2 id={headingId} className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
+          {title}
         </h2>
-        <p className="max-w-3xl text-sm md:text-base text-slate-700 dark:text-slate-200">
-          Current AGM-related information, Fior owner questionnaire details, and funds/payment updates are grouped here
-          for easier review before the older and general owner updates below.
-        </p>
+        <p className="max-w-3xl text-sm md:text-base text-slate-700 dark:text-slate-200">{description}</p>
       </header>
 
-      <div className="space-y-5">
-        <Agm2026InformationSection />
-        <FiorQuestionnaireCallout />
-        <FiorPaymentsFundsUpdateSection />
-      </div>
+      <div className="space-y-5">{children}</div>
     </section>
   );
 }
