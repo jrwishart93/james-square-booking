@@ -498,9 +498,10 @@ function PoolNotice() {
 
       <div className="mt-3 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
         <p>
-          The swimming pool, gym and sauna facilities remain temporarily closed while further
-          investigations and discussions are carried out regarding both the immediate repairs
-          required and the longer-term future of the pool area.
+          The swimming pool, gym and sauna facilities remain closed due to safety concerns following
+          the pool plant room incident and deterioration identified within the pool area. The AGM was
+          held on Thursday 4 June 2026, where owners discussed the immediate repair needs and the
+          longer-term future of the facilities.
         </p>
 
         <AnimatePresence initial={false}>
@@ -538,8 +539,7 @@ function PoolNotice() {
                   During the inspection, concerns were also raised regarding the possibility of
                   Reinforced Autoclaved Aerated Concrete (RAAC) being present within the structure
                   due to the age of the building. Further investigations were carried out on 28 May
-                  2026 and owners will be pleased to know that RAAC was not found within the
-                  construction.
+                  2026, and RAAC has now been ruled out.
                 </p>
                 <p>
                   The surveyor&apos;s report identified a number of items requiring attention before the
@@ -558,27 +558,27 @@ function PoolNotice() {
                   or whether a more comprehensive refurbishment project should be considered.
                 </p>
                 <p>
-                  At present, no decision has been made. The committee had explored obtaining
-                  quotations for immediate make-safe works which could potentially allow the
-                  facilities to reopen sooner. However, following discussions with Myreside and in
-                  light of the wider issues identified, it was felt that the most sensible approach
-                  would be to discuss the matter with owners at the forthcoming AGM before progressing
-                  any significant works.
+                  The matter was discussed with owners at the AGM held on Thursday 4 June 2026. No
+                  decision has been taken yet. The committee had explored obtaining quotations for
+                  immediate make-safe works which could potentially allow the facilities to reopen
+                  sooner, but any major expenditure will be subject to further owner consultation
+                  before it proceeds.
                 </p>
                 <p>
-                  A number of options may ultimately be available, ranging from essential repairs only,
-                  through to a more substantial refurbishment of the pool, sauna and gym facilities. At
-                  this stage, owners are encouraged to keep an open mind until all information, reports
-                  and potential costs have been fully considered.
+                  Options discussed range from temporary repairs of approximately £2,000–£3,000
+                  through to a full refurbishment of the pool, sauna and gym facilities. At this
+                  stage, owners are encouraged to keep an open mind until all information, reports and
+                  potential costs have been fully considered.
                 </p>
                 <p>
                   The pool and associated facilities will remain closed until the necessary works have
-                  been completed and the area has been confirmed safe for use. Further updates will be
-                  provided following the AGM and as additional information becomes available.
+                  been completed and the area has been confirmed safe for use. Full minutes from the
+                  AGM will be made available and shared soon, with further updates provided as
+                  additional information becomes available.
                 </p>
                 <div className="rounded-xl border border-sky-400/30 bg-white/35 p-4 text-sm font-medium text-neutral-800 shadow-sm dark:bg-white/10 dark:text-neutral-100">
-                  Owners are encouraged to attend the AGM to discuss the future of the pool, gym and
-                  sauna facilities and help shape the long-term direction of the development.
+                  Owners will be consulted before any major expenditure is progressed, and no final
+                  decision has been taken on the future scope of pool, gym and sauna works.
                 </div>
               </div>
             </motion.div>
