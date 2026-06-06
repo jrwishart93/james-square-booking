@@ -713,7 +713,7 @@ function TelferSubwayClosureNotice() {
 }
 
 /** ------------------------------------------------
- *  AGM Announcement
+ *  AGM Summary
  *  ------------------------------------------------ */
 function AGMNotice() {
   const [expanded, setExpanded] = useState(false);
@@ -723,18 +723,18 @@ function AGMNotice() {
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <span className="inline-flex items-center gap-1.5 rounded-full border border-violet-500/40 bg-violet-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-violet-900 dark:text-violet-200">
           <CalendarDays className="h-3.5 w-3.5" />
-          Owners notice
+          AGM summary
         </span>
       </div>
 
       <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
-        AGM – Thursday 4 June 2026
+        AGM Summary – 4 June 2026
       </h2>
 
       <div className="mt-3 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
         <p>
-          The James Square AGM is approaching. Owners can review what&apos;s been happening and
-          vote on plans for improvements. Tenants, please make your owner aware.
+          The AGM reviewed recent estate matters, including the Fior handover and reconciliation,
+          recovery of Trinity sinking fund balances, and the ongoing pool, gym and sauna closure.
         </p>
 
         <AnimatePresence initial={false}>
@@ -749,22 +749,21 @@ function AGMNotice() {
             >
               <div className="mt-4 space-y-3 border-t border-violet-400/30 pt-4">
                 <p>
-                  The Annual General Meeting gives owners the opportunity to find out what has
-                  been happening at James Square and to vote on plans for improvements going
-                  forward. This will be our first AGM with Myreside Management as factors, taking
-                  place on Thursday 4th June 2026 via Microsoft Teams.
+                  Discussion covered options for the leisure facilities, the proposed update to
+                  the building survey, and the need to plan future repair funds carefully. Owners
+                  also considered committee growth, caretaker support and estate management
+                  arrangements.
                 </p>
                 <p>
-                  For more information, and to leave suggestions on what you would like discussed,
-                  please visit the AGM page, email Ania at Myreside Management, or leave a
-                  comment on the AGM page.
+                  Further consultation will follow before key decisions are taken. Full minutes of
+                  the AGM will be made available and shared soon.
                 </p>
                 <Link
                   href="/agm"
                   className="mt-2 inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white shadow hover:bg-violet-700 transition-colors"
                 >
                   <CalendarDays className="h-4 w-4" />
-                  View AGM page
+                  View AGM summary
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
