@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, type ReactNode } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { Calendar, ChevronDown, ClipboardCheck, ExternalLink, FileText, Mail, X } from 'lucide-react';
+import { ChevronDown, ClipboardCheck, ExternalLink, FileText, Mail, X } from 'lucide-react';
 
 import { GlassCard } from '@/components/GlassCard';
 import GradientBG from '@/components/GradientBG';
@@ -240,62 +240,98 @@ function OwnerSectionGroup({
   );
 }
 
+const ownerSectionActionClass =
+  'inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/40 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100';
+const ownerSectionSecondaryActionClass =
+  'inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-white/95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/40 dark:border-white/15 dark:bg-white/20 dark:text-white dark:hover:bg-white/25';
+
+function OwnerContentSection({
+  eyebrow,
+  title,
+  summary,
+  actions,
+  children,
+}: {
+  eyebrow: string;
+  title: string;
+  summary: ReactNode;
+  actions?: ReactNode;
+  children?: ReactNode;
+}) {
+  return (
+    <GlassCard titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100">
+      <article className="rounded-2xl border border-white/40 bg-white/65 p-5 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5 sm:p-6">
+        <div className="space-y-5">
+          <header className="space-y-3">
+            <span className="inline-flex items-center rounded-full border border-cyan-300/40 bg-cyan-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700 dark:text-cyan-300">
+              {eyebrow}
+            </span>
+            <div className="space-y-2">
+              <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 sm:text-2xl">{title}</h2>
+              <div className="space-y-3 text-sm leading-relaxed text-slate-700 dark:text-slate-200 md:text-base">
+                {summary}
+              </div>
+            </div>
+          </header>
+
+          {actions && <div className="flex flex-wrap gap-3">{actions}</div>}
+
+          {children && <div className="space-y-5">{children}</div>}
+        </div>
+      </article>
+    </GlassCard>
+  );
+}
+
+function OwnerActionGroup({ children, columns = 1 }: { children: ReactNode; columns?: 1 | 2 | 3 }) {
+  const columnsClass = columns === 3 ? 'sm:grid-cols-3' : columns === 2 ? 'sm:grid-cols-2' : '';
+
+  return <div className={`grid w-full gap-3 ${columnsClass}`}>{children}</div>;
+}
+
 function Agm2026InformationSection() {
   const agmHeld = new Date() >= AGM_DATE_THRESHOLD;
 
   return (
-    <GlassCard titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100">
-      <article className="rounded-xl border border-cyan-400/25 bg-cyan-500/5 p-4 space-y-5 sm:p-6">
-        <header className="space-y-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <h2 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">AGM 2026 Information</h2>
-            <span className="inline-flex items-center rounded-full border border-cyan-300/40 bg-cyan-500/10 px-2.5 py-0.5 text-xs font-semibold text-cyan-700 dark:text-cyan-300">
-              AGM documents available
-            </span>
-          </div>
-          <div className="space-y-3 text-sm md:text-base text-slate-700 dark:text-slate-200">
-            <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
-              {agmHeld ? 'AGM Held – 4 June 2026' : 'Upcoming AGM – 4 June 2026'}
-            </h3>
-            {agmHeld ? (
-              <>
-                <p>The James Square Annual General Meeting was held on Thursday 4 June 2026.</p>
-                <p>
-                  Owners can review the AGM page, agenda and factors report using the links below. A further update
-                  summarising the discussions, decisions and any agreed actions will be published once the official
-                  minutes have been prepared and circulated.
-                </p>
-              </>
-            ) : (
-              <>
-                <p>
-                  The James Square Annual General Meeting will take place on Thursday 4 June 2026 at 7:00pm via
-                  Microsoft Teams.
-                </p>
-                <p>
-                  Owners are encouraged to attend where possible. The AGM will include updates on the management of the
-                  development, finances, sinking fund, pool repairs, building condition report, committee appointments,
-                  and priorities for the year ahead.
-                </p>
-                <p>The AGM page, agenda and factors report are available using the links below.</p>
-              </>
-            )}
-          </div>
-        </header>
-
-        <div className="grid gap-3 sm:grid-cols-3">
-          <Link
-            href="/agm"
-            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/40 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100"
-          >
+    <OwnerContentSection
+      eyebrow="Current"
+      title="AGM 2026 Information"
+      summary={
+        <>
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 md:text-xl">
+            {agmHeld ? 'AGM Held – 4 June 2026' : 'Upcoming AGM – 4 June 2026'}
+          </h3>
+          {agmHeld ? (
+            <>
+              <p>The James Square Annual General Meeting was held on Thursday 4 June 2026.</p>
+              <p>
+                Owners can review the AGM page, agenda and factors report using the links below. A further update
+                summarising the discussions, decisions and any agreed actions will be published once the official
+                minutes have been prepared and circulated.
+              </p>
+            </>
+          ) : (
+            <>
+              <p>
+                The James Square Annual General Meeting will take place on Thursday 4 June 2026 at 7:00pm via Microsoft
+                Teams.
+              </p>
+              <p>
+                Owners are encouraged to attend where possible. The AGM will include updates on the management of the
+                development, finances, sinking fund, pool repairs, building condition report, committee appointments, and
+                priorities for the year ahead.
+              </p>
+              <p>The AGM page, agenda and factors report are available using the links below.</p>
+            </>
+          )}
+        </>
+      }
+      actions={
+        <OwnerActionGroup columns={3}>
+          <Link href="/agm" className={ownerSectionActionClass}>
             Open AGM Page
           </Link>
-          <a
-            href={AGM_AGENDA_HREF}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-white/95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/40 dark:border-white/15 dark:bg-white/20 dark:text-white dark:hover:bg-white/25"
-          >
+          <a href={AGM_AGENDA_HREF} target="_blank" rel="noopener noreferrer" className={ownerSectionSecondaryActionClass}>
             <FileText className="h-4 w-4" aria-hidden="true" />
             View AGM Agenda
           </a>
@@ -303,47 +339,47 @@ function Agm2026InformationSection() {
             href={AGM_FACTORS_REPORT_HREF}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-white/95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/40 dark:border-white/15 dark:bg-white/20 dark:text-white dark:hover:bg-white/25"
+            className={ownerSectionSecondaryActionClass}
           >
             <FileText className="h-4 w-4" aria-hidden="true" />
             View Factors Report
           </a>
-        </div>
+        </OwnerActionGroup>
+      }
+    >
+      <a
+        href="https://www.james-square.com/agm"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-2 text-sm font-semibold text-cyan-700 transition hover:text-cyan-600 dark:text-cyan-300 dark:hover:text-cyan-200"
+      >
+        Public AGM link: www.james-square.com/agm
+        <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+      </a>
 
-        <a
-          href="https://www.james-square.com/agm"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 text-sm font-semibold text-cyan-700 transition hover:text-cyan-600 dark:text-cyan-300 dark:hover:text-cyan-200"
-        >
-          Public AGM link: www.james-square.com/agm
-          <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
-        </a>
+      <div className="space-y-3">
+        <InfoAccordion title="Agenda Summary" controlsId="owners-agm-2026-agenda-summary">
+          <p>{agmHeld ? 'Key items listed for discussion included:' : 'Key items due to be discussed include:'}</p>
+          <ul className="list-disc ms-5 space-y-1">
+            {AGENDA_SUMMARY_ITEMS.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </InfoAccordion>
+        <InfoAccordion title="Factors Report Highlights" controlsId="owners-agm-2026-factors-report-highlights">
+          <p>{agmHeld ? 'The factors report included updates on:' : 'The factors report includes updates on:'}</p>
+          <ul className="list-disc ms-5 space-y-1">
+            {FACTORS_REPORT_HIGHLIGHTS.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </InfoAccordion>
+      </div>
 
-        <div className="space-y-3">
-          <InfoAccordion title="Agenda Summary" controlsId="owners-agm-2026-agenda-summary">
-            <p>{agmHeld ? 'Key items listed for discussion included:' : 'Key items due to be discussed include:'}</p>
-            <ul className="list-disc ms-5 space-y-1">
-              {AGENDA_SUMMARY_ITEMS.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </InfoAccordion>
-          <InfoAccordion title="Factors Report Highlights" controlsId="owners-agm-2026-factors-report-highlights">
-            <p>{agmHeld ? 'The factors report included updates on:' : 'The factors report includes updates on:'}</p>
-            <ul className="list-disc ms-5 space-y-1">
-              {FACTORS_REPORT_HIGHLIGHTS.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </InfoAccordion>
-        </div>
-
-        <p className="rounded-xl border border-amber-300/40 bg-amber-500/10 p-3 text-sm font-medium text-slate-800 dark:text-slate-100">
-          Meeting minutes will be added once available.
-        </p>
-      </article>
-    </GlassCard>
+      <p className="rounded-xl border border-amber-300/40 bg-amber-500/10 p-3 text-sm font-medium text-slate-800 dark:text-slate-100">
+        Meeting minutes will be added once available.
+      </p>
+    </OwnerContentSection>
   );
 }
 
@@ -466,16 +502,12 @@ function FiorPaymentsFundsUpdateSection() {
   const [fullUpdateOpen, setFullUpdateOpen] = useState(false);
 
   return (
-    <GlassCard titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100">
-      <article className="rounded-xl border border-cyan-300/25 bg-cyan-500/5 p-6 space-y-5">
-        <header className="space-y-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Fior Payments &amp; Funds Update</h2>
-            <span className="inline-flex items-center rounded-full border border-cyan-300/40 bg-cyan-500/10 px-2.5 py-0.5 text-xs font-semibold text-cyan-700 dark:text-cyan-300">
-              Owner questionnaire
-            </span>
-          </div>
-          <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+    <OwnerContentSection
+      eyebrow="Current"
+      title="Fior Payments &amp; Funds Update"
+      summary={
+        <>
+          <p>
             Myreside Management took over responsibility for James Square on <strong>1 February 2026</strong>. Since then,
             owners have been invited to share information through the{' '}
             <Link
@@ -487,21 +519,20 @@ function FiorPaymentsFundsUpdateSection() {
             about payments, invoices, and roof or repair fund contributions connected with the previous factoring
             arrangements.
           </p>
-          <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
+          <p>
             The figures below are based only on questionnaire responses received so far. They may include payments made
             after the transfer date, invoices paid in advance which covered periods beyond 1 February 2026, and
             contributions made towards roof or repair works which owners understand have not yet been carried out.
           </p>
-          <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
-            The total position may change as further information is received or verified.
-          </p>
+          <p>The total position may change as further information is received or verified.</p>
           <p className="rounded-xl border border-amber-300/35 bg-amber-500/10 p-3 text-sm text-slate-800 dark:text-slate-100">
             The questionnaire figures are owner-reported and indicative only. They have not been independently verified
             and should not be treated as confirmed balances, evidenced payments, or verified liabilities.
           </p>
-        </header>
-
-        <div className="grid gap-3 sm:grid-cols-3">
+        </>
+      }
+    >
+      <div className="grid gap-3 sm:grid-cols-3">
           {FIOR_PAYMENTS_FUNDS_STATS.map((stat) => (
             <div key={stat.label} className={`${glassPanel} flex min-h-28 flex-col justify-center gap-2`}>
               <p className="text-2xl font-semibold text-slate-900 dark:text-white">{stat.value}</p>
@@ -631,30 +662,30 @@ function FiorPaymentsFundsUpdateSection() {
             ))}
           </div>
         </div>
-      </article>
-    </GlassCard>
+    </OwnerContentSection>
   );
 }
 
 function SurveyDocumentsSection() {
   return (
-    <GlassCard
+    <OwnerContentSection
+      eyebrow="Documents"
       title="Building survey reports"
-      titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100"
-    >
-      <div className="space-y-4">
-        <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
-          These PDF reports are from a building survey of James Square. They cover the condition of elevations and
-          roofs across all blocks.
+      summary={
+        <p>
+          These PDF reports are from a building survey of James Square. They cover the condition of elevations and roofs
+          across all blocks.
         </p>
-        <div className="grid gap-3 sm:grid-cols-2">
+      }
+      actions={
+        <OwnerActionGroup columns={2}>
           {SURVEY_DOCUMENTS.map((doc) => (
             <a
               key={doc.href}
               href={doc.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex min-h-14 items-center justify-between gap-3 rounded-xl border border-black/10 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-150 ease-out hover:-translate-y-0.5 hover:bg-white/95 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/40 dark:border-white/15 dark:bg-white/20 dark:text-white dark:hover:bg-white/25"
+              className={ownerSectionSecondaryActionClass}
             >
               <span className="flex items-center gap-2">
                 <FileText className="h-4 w-4 shrink-0 text-slate-400 dark:text-slate-300" aria-hidden="true" />
@@ -663,9 +694,9 @@ function SurveyDocumentsSection() {
               <span aria-hidden="true" className="text-slate-400 dark:text-slate-400">↗</span>
             </a>
           ))}
-        </div>
-      </div>
-    </GlassCard>
+        </OwnerActionGroup>
+      }
+    />
   );
 }
 
@@ -673,37 +704,28 @@ function AprilOwnersUpdateSection() {
   const [open, setOpen] = useState(false);
 
   return (
-    <GlassCard titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100">
-      <article className="rounded-xl border border-emerald-400/20 bg-emerald-500/5 p-6 space-y-4">
-        <header className="space-y-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Owners Update – James Square</h2>
-            <span className="inline-flex items-center rounded-full border border-emerald-400/40 bg-emerald-500/15 px-2.5 py-0.5 text-xs font-semibold text-emerald-800 dark:text-emerald-300">
-              April 2026
-            </span>
-            <span className="inline-flex items-center rounded-full border border-cyan-300/40 bg-cyan-500/10 px-2.5 py-0.5 text-xs font-semibold text-cyan-700 dark:text-cyan-300">
-              Latest update
-            </span>
-          </div>
-        </header>
-
-        <div className="space-y-3 text-sm md:text-base text-slate-700 dark:text-slate-200">
+    <OwnerContentSection
+      eyebrow="April 2026"
+      title="Owners Update – James Square"
+      summary={
+        <>
           <p>
             Since Myreside Management took over earlier this year, a number of issues across James Square have been
             identified and are now being actively worked through. There has been steady progress behind the scenes,
             with the committee meeting regularly with the Myreside team to move matters forward.
           </p>
           <p>
-            While there is still work to be done, things are moving in the right direction. Owners are asked to
-            continue supporting this process and ensure all payments and contact details are now updated with Myreside
-            Management. Please also remember to save the date for this year&apos;s AGM and visit the{' '}
+            While there is still work to be done, things are moving in the right direction. Owners are asked to continue
+            supporting this process and ensure all payments and contact details are now updated with Myreside Management.
+            Please also remember to save the date for this year&apos;s AGM and visit the{' '}
             <Link href="/agm" className="font-semibold text-cyan-700 transition-colors hover:text-cyan-600 dark:text-cyan-300 dark:hover:text-cyan-200">
               AGM page
-            </Link>
-            {' '}for full details and access to the meeting link.
+            </Link>{' '}
+            for full details and access to the meeting link.
           </p>
-        </div>
-
+        </>
+      }
+      actions={
         <ExpandButton
           open={open}
           setOpen={setOpen}
@@ -711,8 +733,9 @@ function AprilOwnersUpdateSection() {
           labelWhenOpen="Hide full update"
           controlsId="april-update-details"
         />
-
-        <AnimatePresence initial={false}>
+      }
+    >
+      <AnimatePresence initial={false}>
           {open && (
             <motion.div
               id="april-update-details"
@@ -815,9 +838,8 @@ function AprilOwnersUpdateSection() {
               </p>
             </motion.div>
           )}
-        </AnimatePresence>
-      </article>
-    </GlassCard>
+      </AnimatePresence>
+    </OwnerContentSection>
   );
 }
 
@@ -825,24 +847,20 @@ function CommitteeUpdateSection() {
   const [open, setOpen] = useState(false);
 
   return (
-    <GlassCard titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100">
-      <article className="rounded-xl border border-white/15 bg-white/5 p-6 space-y-4">
-        <header className="space-y-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Committee Update – James Square</h2>
-            <span className="inline-flex items-center rounded-full border border-cyan-300/40 bg-cyan-500/10 px-2.5 py-0.5 text-xs font-semibold text-cyan-700 dark:text-cyan-300">
-              Committee Update
-            </span>
-          </div>
+    <OwnerContentSection
+      eyebrow="Committee Update"
+      title="Committee Update – James Square"
+      summary={
+        <>
           <p className="text-sm text-slate-600 dark:text-slate-300">12 March 2026</p>
-        </header>
-
-        <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
-          The committee met with representatives from Myreside Property Management on Wednesday 11 March 2026 to
-          discuss ongoing matters at James Square, including active leaks, pool plant faults, and maintenance priorities.
-          A full update is available below with next steps and contact details.
-        </p>
-
+          <p>
+            The committee met with representatives from Myreside Property Management on Wednesday 11 March 2026 to
+            discuss ongoing matters at James Square, including active leaks, pool plant faults, and maintenance priorities.
+            A full update is available below with next steps and contact details.
+          </p>
+        </>
+      }
+      actions={
         <ExpandButton
           open={open}
           setOpen={setOpen}
@@ -850,8 +868,9 @@ function CommitteeUpdateSection() {
           labelWhenOpen="Hide full update"
           controlsId="committee-update-details"
         />
-
-        <AnimatePresence initial={false}>
+      }
+    >
+      <AnimatePresence initial={false}>
           {open && (
             <motion.div
               id="committee-update-details"
@@ -931,9 +950,8 @@ function CommitteeUpdateSection() {
               </div>
             </motion.div>
           )}
-        </AnimatePresence>
-      </article>
-    </GlassCard>
+      </AnimatePresence>
+    </OwnerContentSection>
   );
 }
 
@@ -941,35 +959,28 @@ function SgmSection() {
   const [open, setOpen] = useState(false);
 
   return (
-    <GlassCard
-      title={
-        <span className="inline-flex items-center gap-2">
-          <Calendar className="h-5 w-5 text-slate-500 dark:text-slate-300" aria-hidden="true" />
-          <span>Extraordinary General Meeting (EGM) – Outcome</span>
-        </span>
+    <OwnerContentSection
+      eyebrow="Archive"
+      title="Extraordinary General Meeting (EGM) – Outcome"
+      summary={
+        <>
+          <p>
+            The Extraordinary General Meeting took place on Wednesday 21 January 2026, followed by an owner vote that
+            selected Myreside Management as James Square’s new factor.
+          </p>
+          <p>Open the full update for transition details, formal notice information, and direct contact options.</p>
+        </>
       }
-      subtitle="Factor decision update"
-      titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100"
-      className="bg-white/70 border-slate-200/70 shadow-[0_12px_34px_rgba(15,23,42,0.08)] dark:bg-white/5 dark:border-white/10"
+      actions={
+        <ExpandButton
+          open={open}
+          setOpen={setOpen}
+          labelWhenClosed="Read full EGM outcome"
+          labelWhenOpen="Hide EGM outcome"
+          controlsId="sgm-details"
+        />
+      }
     >
-      <div className="space-y-3 text-sm md:text-base text-slate-700 dark:text-slate-200">
-        <p>
-          The Extraordinary General Meeting took place on Wednesday 21 January 2026, followed by an owner vote that
-          selected Myreside Management as James Square’s new factor.
-        </p>
-        <p>
-          Open the full update for transition details, formal notice information, and direct contact options.
-        </p>
-      </div>
-
-      <ExpandButton
-        open={open}
-        setOpen={setOpen}
-        labelWhenClosed="Read full EGM outcome"
-        labelWhenOpen="Hide EGM outcome"
-        controlsId="sgm-details"
-      />
-
       <AnimatePresence initial={false}>
         {open && (
           <motion.div
@@ -1065,7 +1076,7 @@ function SgmSection() {
           </motion.div>
         )}
       </AnimatePresence>
-    </GlassCard>
+    </OwnerContentSection>
   );
 }
 
@@ -1089,25 +1100,28 @@ function FiorFactorUpdateSection() {
   }, [showEmail]);
 
   return (
-    <GlassCard title="Fior Factor Update" titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100">
-      <div className="space-y-3 text-sm md:text-base text-slate-700 dark:text-slate-200">
-        <p>
-          Fior Asset &amp; Property confirmed in correspondence dated 19 December 2025 that they intended to step down
-          as factor for James Square and proposed a managed departure period.
-        </p>
-        <p>
-          Expand this section to view the full summary and the original email shared with the committee.
-        </p>
-      </div>
-
-      <ExpandButton
-        open={open}
-        setOpen={setOpen}
-        labelWhenClosed="Read full Fior update"
-        labelWhenOpen="Hide Fior update"
-        controlsId="fior-update-details"
-      />
-
+    <OwnerContentSection
+      eyebrow="Archive"
+      title="Fior Factor Update"
+      summary={
+        <>
+          <p>
+            Fior Asset &amp; Property confirmed in correspondence dated 19 December 2025 that they intended to step down
+            as factor for James Square and proposed a managed departure period.
+          </p>
+          <p>Expand this section to view the full summary and the original email shared with the committee.</p>
+        </>
+      }
+      actions={
+        <ExpandButton
+          open={open}
+          setOpen={setOpen}
+          labelWhenClosed="Read full Fior update"
+          labelWhenOpen="Hide Fior update"
+          controlsId="fior-update-details"
+        />
+      }
+    >
       <AnimatePresence initial={false}>
         {open && (
           <motion.div
@@ -1258,7 +1272,7 @@ function FiorFactorUpdateSection() {
           </motion.div>
         )}
       </AnimatePresence>
-    </GlassCard>
+    </OwnerContentSection>
   );
 }
 
@@ -1267,18 +1281,21 @@ function AgmSection() {
   const [recapOpen, setRecapOpen] = useState(false);
 
   return (
-    <GlassCard
+    <OwnerContentSection
+      eyebrow="Archive"
       title="Annual General Meeting (AGM)"
-      subtitle="James Square Proprietors Association AGM 2025"
-      titleClassName="text-2xl font-semibold text-slate-900 dark:text-slate-100"
+      summary={
+        <>
+          <p className="text-sm text-slate-600 dark:text-slate-300">
+            Held at 8:00 pm on Monday 8 September 2025 (via Zoom)
+          </p>
+          <p>
+            The 2025 AGM brought owners together to review the past year, discuss building matters, and agree priorities
+            for the year ahead. Use the buttons below to read a summary of what was discussed.
+          </p>
+        </>
+      }
     >
-      <p className="text-sm text-slate-600 dark:text-slate-300">Held at 8:00 pm on Monday 8 September 2025 (via Zoom)</p>
-
-      <p className="text-sm md:text-base text-slate-700 dark:text-slate-200">
-        The 2025 AGM brought owners together to review the past year, discuss building matters, and agree priorities
-        for the year ahead. Use the buttons below to read a summary of what was discussed.
-      </p>
-
       <div className="space-y-4">
         <div>
           <ExpandButton
@@ -1530,7 +1547,7 @@ function AgmSection() {
           <span aria-hidden>→</span>
         </Link>
       </div>
-    </GlassCard>
+    </OwnerContentSection>
   );
 }
 
