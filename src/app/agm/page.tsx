@@ -48,6 +48,48 @@ const agendaSummaryItems = [
   "Caretaker salary",
   "Council tax banding",
 ];
+
+const agmSummaryItems = [
+  {
+    title: "Fior Update",
+    detail:
+      "Incomplete handover, around £7,000 additional owner payments identified, ongoing reconciliation and return of outstanding funds.",
+  },
+  {
+    title: "Trinity Sinking Fund",
+    detail:
+      "Myreside recovered £25,661 from Trinity Factors, held on behalf of James Square owners.",
+  },
+  {
+    title: "Pool, Gym & Sauna",
+    detail:
+      "Facilities remain closed, RAAC ruled out, repair/refurbishment options discussed, no decision made.",
+  },
+  {
+    title: "Building Survey",
+    detail:
+      "Myreside proposed updating the development-wide condition survey.",
+  },
+  {
+    title: "Future Repair Funds",
+    detail: "Block-specific repair funds discussed.",
+  },
+  {
+    title: "Committee Growth",
+    detail: "Owners volunteered for committee/block representative roles.",
+  },
+  {
+    title: "Caretaker & Estate Management",
+    detail:
+      "Support for recognising Jimmy’s contribution, with cleaning/grounds/communal-area concerns to be reviewed.",
+  },
+  {
+    title: "Future Consultation",
+    detail:
+      "No major expenditure decisions were made; owners will be consulted and asked to vote once further information is available.",
+  },
+];
+
 const factorsReportHighlights = [
   "Myreside Management taking over management on 1 February 2026",
   "Building insurance and claims process",
@@ -255,6 +297,40 @@ export default function AGMPage() {
           </div>
         </div>
       </section>
+
+      {agmHeld ? (
+        <section className="mt-6 rounded-2xl border border-cyan-300/50 bg-cyan-50 px-4 py-5 shadow-sm sm:px-6 sm:py-6 dark:border-cyan-500/30 dark:bg-cyan-950/20">
+          <div className="max-w-3xl">
+            <p className="text-xs font-semibold uppercase tracking-wide text-cyan-700 dark:text-cyan-200">
+              Meeting summary
+            </p>
+            <h2 className="mt-2 text-2xl font-semibold text-slate-900 dark:text-white">
+              AGM Summary – 4 June 2026
+            </h2>
+            <p className="mt-3 text-sm leading-relaxed text-slate-700 sm:text-base dark:text-slate-200">
+              The main discussion points from the AGM are summarised below.
+            </p>
+          </div>
+          <dl className="mt-5 grid gap-3 sm:grid-cols-2">
+            {agmSummaryItems.map((item) => (
+              <div
+                key={item.title}
+                className="rounded-xl border border-cyan-200/70 bg-white/80 p-4 dark:border-cyan-500/20 dark:bg-slate-900/70"
+              >
+                <dt className="text-sm font-semibold text-slate-900 dark:text-white">
+                  {item.title}
+                </dt>
+                <dd className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+                  {item.detail}
+                </dd>
+              </div>
+            ))}
+          </dl>
+          <p className="mt-5 text-sm font-medium leading-relaxed text-slate-800 sm:text-base dark:text-slate-100">
+            Full minutes will be made available and shared soon.
+          </p>
+        </section>
+      ) : null}
 
       <section className="mt-6 space-y-3">
         <AgmAccordion title="Agenda Summary">
