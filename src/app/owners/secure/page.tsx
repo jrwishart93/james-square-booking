@@ -696,11 +696,12 @@ function AprilOwnersUpdateSection() {
           <p>
             While there is still work to be done, things are moving in the right direction. Owners are asked to
             continue supporting this process and ensure all payments and contact details are now updated with Myreside
-            Management. Please also remember to save the date for this year&apos;s AGM and visit the{' '}
+            Management. The AGM was held on Thursday 4 June 2026; please visit the{' '}
             <Link href="/agm" className="font-semibold text-cyan-700 transition-colors hover:text-cyan-600 dark:text-cyan-300 dark:hover:text-cyan-200">
               AGM page
             </Link>
-            {' '}for full details and access to the meeting link.
+            {' '}for the meeting summary, agenda, factors report, and forthcoming minutes. Full minutes will be made
+            available and shared soon.
           </p>
         </div>
 
@@ -799,14 +800,14 @@ function AprilOwnersUpdateSection() {
               </div>
 
               <div className="rounded-xl border border-cyan-300/30 bg-cyan-500/10 p-4 space-y-2 text-sm md:text-base text-slate-800 dark:text-slate-100">
-                <h3 className="text-base font-semibold">AGM – Thursday 4 June 2026</h3>
+                <h3 className="text-base font-semibold">AGM – held Thursday 4 June 2026</h3>
                 <p>
-                  Please save the date for this year&apos;s AGM. Visit the{' '}
+                  The AGM was held on Thursday 4 June 2026. Visit the{' '}
                   <Link href="/agm" className="font-semibold text-cyan-700 transition-colors hover:text-cyan-600 dark:text-cyan-300 dark:hover:text-cyan-200">
                     AGM page
                   </Link>
-                  {' '}for further information, to submit any points you would like raised, and to access the Teams
-                  meeting link.
+                  {' '}for the meeting summary, agenda, factors report, and forthcoming minutes. Full minutes will be
+                  made available and shared soon.
                 </p>
               </div>
 
@@ -1518,7 +1519,7 @@ function AgmSection() {
       <div className={`${glassPanel} mt-2 space-y-2`}>
         <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Share Your Views</h3>
         <p className="text-sm text-slate-700 dark:text-slate-200">
-          If you cannot attend the AGM, you can still contribute by sharing your views or suggesting ideas.
+          Owners are welcome to continue sharing feedback and suggesting ideas for future consultation topics.
         </p>
 
         <Link
