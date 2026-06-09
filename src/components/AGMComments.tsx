@@ -138,7 +138,7 @@ function CommentRow({
   );
 }
 
-export default function AGMComments() {
+export default function AGMComments({ agmHeld = false }: { agmHeld?: boolean }) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [comments, setComments] = useState<AGMComment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -198,6 +198,15 @@ export default function AGMComments() {
     return grouped;
   }, [comments]);
 
+  const sectionHeading = agmHeld ? 'AGM Follow-up Comments' : 'AGM Agenda Comments';
+  const introCopy = agmHeld
+    ? 'Owners can share follow-up comments or questions after the 4 June 2026 AGM. All comments are visible to the community.'
+    : 'Owners can suggest topics or raise questions ahead of the AGM in June 2026. All comments are visible to the community.';
+  const emptyStateCopy = agmHeld
+    ? 'No follow-up comments yet. Be the first to share a comment or question.'
+    : 'No comments yet. Be the first to share an agenda comment or question.';
+  const inputPlaceholder = agmHeld ? 'Share a follow-up comment or question...' : 'Share your agenda item or question...';
+
   const postMessage = async (text: string, parentId: string | null) => {
     if (!currentUser || !text.trim()) return;
 
@@ -225,17 +234,14 @@ export default function AGMComments() {
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white/90 px-4 py-5 shadow-sm sm:px-6 sm:py-6 dark:border-slate-800 dark:bg-slate-900/80">
-      <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">AGM Agenda Comments</h2>
-      <p className="mt-2 text-sm text-slate-700 dark:text-slate-200">
-        Owners can suggest topics or raise questions ahead of the AGM in June 2026. All comments are visible to the
-        community.
-      </p>
+      <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">{sectionHeading}</h2>
+      <p className="mt-2 text-sm text-slate-700 dark:text-slate-200">{introCopy}</p>
 
       <div className="mt-6 space-y-4">
         {loading ? (
           <p className="text-sm text-slate-600 dark:text-slate-300">Loading comments...</p>
         ) : topLevelComments.length === 0 ? (
-          <p className="text-sm text-slate-600 dark:text-slate-300">No comments yet. Be the first to suggest an agenda item.</p>
+          <p className="text-sm text-slate-600 dark:text-slate-300">{emptyStateCopy}</p>
         ) : (
           topLevelComments.map((comment) => (
             <CommentRow
@@ -263,7 +269,7 @@ export default function AGMComments() {
           rows={4}
           maxLength={MAX_MESSAGE_LENGTH}
           className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-cyan-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900/60 dark:text-white"
-          placeholder={currentUser ? 'Share your agenda item or question...' : 'Please log in to add a comment'}
+          placeholder={currentUser ? inputPlaceholder : 'Please log in to add a comment'}
           disabled={!currentUser || postingId === 'root'}
         />
         {!currentUser && <p className="text-sm text-amber-700 dark:text-amber-200">Please log in to add a comment</p>}
