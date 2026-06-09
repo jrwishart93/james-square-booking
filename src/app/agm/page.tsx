@@ -377,16 +377,22 @@ export default function AGMPage() {
       </section>
 
       {agmHeld ? (
-        <section className="mt-6 rounded-2xl border border-slate-200 bg-white/90 px-4 py-5 shadow-sm sm:px-6 sm:py-6 dark:border-slate-800 dark:bg-slate-900/80">
-          <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">
-            Future consultation
-          </h2>
-          <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
-            Owners will be consulted on pool facilities, the updated building
-            survey, repair funds and significant projects once further
-            information is available.
-          </p>
-        </section>
+        <>
+          <section className="mt-6 rounded-2xl border border-slate-200 bg-white/90 px-4 py-5 shadow-sm sm:px-6 sm:py-6 dark:border-slate-800 dark:bg-slate-900/80">
+            <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">
+              Future consultation
+            </h2>
+            <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+              Owners will be consulted on pool facilities, the updated building
+              survey, repair funds and significant projects once further
+              information is available.
+            </p>
+          </section>
+
+          <div className="mt-6">
+            <AGMComments agmHeld={agmHeld} />
+          </div>
+        </>
       ) : (
         <>
           <section className="mt-6 rounded-2xl border border-slate-200 bg-white/90 px-4 py-5 shadow-sm sm:px-6 sm:py-6 dark:border-slate-800 dark:bg-slate-900/80">
@@ -412,7 +418,7 @@ export default function AGMPage() {
           </section>
 
           <div className="mt-6">
-            <AGMComments />
+            <AGMComments agmHeld={agmHeld} />
           </div>
         </>
       )}
