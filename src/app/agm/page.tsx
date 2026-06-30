@@ -90,6 +90,46 @@ const agmSummaryItems = [
   },
 ];
 
+const votingSummaryItems = [
+  {
+    title: "Committee Constitution",
+    emoji: "👥",
+    overview:
+      "Owners are being asked to vote on whether to adopt the proposed Committee Constitution for James Square.",
+    details: [
+      "The proposed constitution would create a formal framework for the James Square Proprietors' Association Committee.",
+      "Its aims include improving owner communication, working alongside the factor, improving transparency, encouraging long-term planning, and strengthening owner representation.",
+      "The committee would not replace the Deed of Conditions or remove individual owners' rights.",
+    ],
+  },
+  {
+    title: "Building Survey & Planned Preventative Maintenance",
+    emoji: "🏢",
+    overview:
+      "Owners are being asked to vote on commissioning an updated Building Survey and Planned Preventative Maintenance report.",
+    details: [
+      "The purpose is to establish the current condition of the development and plan future maintenance in a structured way.",
+      "Total survey cost: £80.38 per property",
+      "Proposed sinking fund contribution: 50%",
+      "Estimated owner contribution: £40.19",
+      "This would allow Myreside to prepare a prioritised future maintenance programme.",
+    ],
+  },
+  {
+    title: "Swimming Pool & Gym",
+    emoji: "🏊",
+    overview:
+      "Myreside intends to commission an independent safety inspection and operational risk assessment for the pool and gym facilities.",
+    details: [
+      "Myreside intends to commission an independent RLSS UK safety inspection and operational risk assessment.",
+      "The findings would be reviewed alongside F3 Surveyors' recommendations.",
+      "Localised repairs may be undertaken where appropriate, and larger repair works may progress if recommended.",
+      "The current proposal is to help determine the safest and most practical route to reopening the pool.",
+      "Owners are not currently voting on a full refurbishment of the swimming pool and gym. Any longer-term refurbishment proposals would be presented separately if progressed.",
+    ],
+  },
+];
+
 const factorsReportHighlights = [
   "Myreside Management taking over management on 1 February 2026",
   "Building insurance and claims process",
@@ -190,6 +230,126 @@ export default function AGMPage() {
           https://www.james-square.com/agm
           <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
         </a>
+      </section>
+
+      <section className="mt-6 rounded-2xl border border-cyan-300/50 bg-white/90 px-4 py-5 shadow-sm sm:px-6 sm:py-7 dark:border-cyan-500/30 dark:bg-slate-900/80">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+          <div className="max-w-3xl">
+            <p className="inline-flex rounded-full border border-cyan-300/50 bg-cyan-50 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-cyan-700 dark:border-cyan-500/30 dark:bg-cyan-950/30 dark:text-cyan-200">
+              Owner notice
+            </p>
+            <h2 className="mt-3 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl dark:text-white">
+              🗳️ AGM 2026 Owner Voting Now Open
+            </h2>
+            <div className="mt-3 space-y-3 text-sm leading-relaxed text-slate-700 sm:text-base dark:text-slate-200">
+              <p>
+                Myreside Management has emailed proprietors the AGM voting
+                documentation following the 2026 AGM. Owners should read the
+                documents in full before voting.
+              </p>
+              <p>
+                Completed voting forms should be returned directly to{" "}
+                <strong className="font-semibold text-slate-900 dark:text-white">
+                  Ania Jennings at Myreside Management
+                </strong>{" "}
+                according to the instructions in the email.
+              </p>
+            </div>
+          </div>
+          <div className="rounded-2xl border border-amber-300/60 bg-amber-50 px-5 py-4 text-center shadow-sm dark:border-amber-500/30 dark:bg-amber-950/20">
+            <p className="text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-200">
+              Voting Deadline
+            </p>
+            <p className="mt-2 text-lg font-bold text-slate-900 dark:text-white">
+              Monday 13 July 2026
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="mt-6">
+        <div className="max-w-3xl">
+          <p className="text-xs font-semibold uppercase tracking-wide text-cyan-700 dark:text-cyan-200">
+            Voting summary
+          </p>
+          <h2 className="mt-2 text-2xl font-semibold text-slate-900 dark:text-white">
+            Proposals currently open for owner voting
+          </h2>
+          <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+            The cards below provide a plain-English summary only. Please use the
+            official Myreside email for the complete proposal documents and
+            voting instructions.
+          </p>
+        </div>
+        <div className="mt-5 grid gap-4 lg:grid-cols-3">
+          {votingSummaryItems.map((item) => (
+            <article
+              key={item.title}
+              className="rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900/80"
+            >
+              <div className="flex items-start gap-3">
+                <span
+                  className="rounded-full border border-cyan-300/50 bg-cyan-50 px-2.5 py-1 text-lg dark:border-cyan-500/30 dark:bg-cyan-950/30"
+                  role="img"
+                  aria-label={item.title}
+                >
+                  {item.emoji}
+                </span>
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                    {item.title}
+                  </h3>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+                    {item.overview}
+                  </p>
+                </div>
+              </div>
+              <details className="group mt-4 rounded-xl border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/70">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-slate-900 marker:hidden dark:text-white">
+                  <span>Read More</span>
+                  <ChevronDown
+                    className="h-4 w-4 shrink-0 text-slate-400 transition group-open:rotate-180"
+                    aria-hidden="true"
+                  />
+                </summary>
+                <div className="border-t border-slate-200 px-4 py-3 dark:border-slate-700">
+                  <ul className="list-disc space-y-2 ps-5 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+                    {item.details.map((detail) => (
+                      <li key={detail}>{detail}</li>
+                    ))}
+                  </ul>
+                </div>
+              </details>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-6 rounded-2xl border border-amber-300/50 bg-amber-50 px-4 py-5 shadow-sm sm:px-6 sm:py-6 dark:border-amber-500/30 dark:bg-amber-950/20">
+        <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">
+          Please Check Your Email
+        </h2>
+        <div className="mt-3 space-y-3 text-sm leading-relaxed text-slate-800 sm:text-base dark:text-slate-100">
+          <p>
+            Official voting documents, voting forms and full proposal details
+            have been emailed directly to proprietors by{" "}
+            <strong className="font-semibold text-slate-900 dark:text-white">
+              Myreside Management
+            </strong>
+            . This website provides a summary only.
+          </p>
+          <p>
+            Owners should refer to the Myreside email for the complete
+            documentation and voting instructions.
+          </p>
+          <ul className="list-disc space-y-1 ps-5">
+            <li>Check your junk/spam folder.</li>
+            <li>
+              Contact Myreside Management if you believe you should have
+              received the email.
+            </li>
+          </ul>
+        </div>
       </section>
 
       <section className="mt-6 grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,0.85fr)]">
@@ -374,6 +534,33 @@ export default function AGMPage() {
 
       <section className="mt-6 rounded-2xl border border-amber-300/50 bg-amber-50 px-4 py-4 text-sm font-medium text-slate-800 shadow-sm sm:px-6 dark:border-amber-500/30 dark:bg-amber-950/20 dark:text-slate-100">
         Meeting minutes will be published once available.
+      </section>
+
+      <section className="mt-6 rounded-2xl border border-cyan-300/50 bg-cyan-50 px-4 py-5 shadow-sm sm:px-6 sm:py-6 dark:border-cyan-500/30 dark:bg-cyan-950/20">
+        <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">
+          Voting closes on Monday 13 July 2026.
+        </h2>
+        <p className="mt-3 text-sm leading-relaxed text-slate-700 sm:text-base dark:text-slate-200">
+          Owners should ensure completed voting forms are returned directly to{" "}
+          <strong className="font-semibold text-slate-900 dark:text-white">
+            Ania Jennings at Myreside Management
+          </strong>{" "}
+          before the deadline.
+        </p>
+      </section>
+
+      <section className="mt-6 rounded-2xl border border-slate-200 bg-white/90 px-4 py-5 shadow-sm sm:px-6 sm:py-6 dark:border-slate-800 dark:bg-slate-900/80">
+        <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">
+          Questions?
+        </h2>
+        <p className="mt-3 text-sm leading-relaxed text-slate-700 sm:text-base dark:text-slate-200">
+          Owners should contact{" "}
+          <strong className="font-semibold text-slate-900 dark:text-white">
+            Ania Jennings at Myreside Management
+          </strong>{" "}
+          for questions about AGM voting documents or if they have not received
+          the email.
+        </p>
       </section>
 
       {agmHeld ? (

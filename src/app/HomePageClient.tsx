@@ -712,6 +712,51 @@ function TelferSubwayClosureNotice() {
   );
 }
 
+
+/** ------------------------------------------------
+ *  AGM Owner Voting Notice
+ *  ------------------------------------------------ */
+function AGMOwnerVotingNotice() {
+  return (
+    <div className="jqs-glass rounded-2xl border border-l-[3px] border-cyan-400/30 border-l-cyan-400 bg-gradient-to-br from-cyan-500/10 via-sky-500/10 to-amber-500/10 p-6 shadow-lg shadow-cyan-900/10">
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-500/40 bg-cyan-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-cyan-900 dark:text-cyan-200">
+          <CalendarDays className="h-3.5 w-3.5" />
+          Owners&apos; notice
+        </span>
+        <span className="inline-flex items-center rounded-full border border-amber-500/40 bg-amber-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-900 dark:text-amber-200">
+          Voting closes Monday 13 July 2026
+        </span>
+      </div>
+
+      <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+        AGM 2026 Owner Voting Now Open
+      </h2>
+
+      <div className="mt-3 space-y-3 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
+        <p>
+          Myreside Management has emailed proprietors the AGM voting documentation following the
+          2026 AGM. Owners should read the official documents before voting and return completed
+          forms directly to Ania Jennings at Myreside Management according to the email
+          instructions.
+        </p>
+        <p>
+          The AGM page now includes a plain-English summary of the Committee Constitution,
+          Building Survey &amp; Planned Preventative Maintenance, and Swimming Pool &amp; Gym items.
+        </p>
+      </div>
+
+      <Link
+        href="/agm"
+        className="mt-4 inline-flex items-center gap-2 rounded-xl bg-cyan-600 px-4 py-2.5 text-sm font-semibold text-white shadow transition-colors hover:bg-cyan-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/60"
+      >
+        View AGM voting summary
+        <ArrowRight className="h-4 w-4" />
+      </Link>
+    </div>
+  );
+}
+
 /** ------------------------------------------------
  *  AGM Summary
  *  ------------------------------------------------ */
@@ -1174,6 +1219,9 @@ export default function HomePageClient() {
           variants={staggerContainerVariants(Boolean(reduceMotion), 0.08)}
           className="space-y-4"
         >
+          <motion.div variants={cardRevealVariants(Boolean(reduceMotion))}>
+            <AGMOwnerVotingNotice />
+          </motion.div>
           <motion.div variants={cardRevealVariants(Boolean(reduceMotion))}>
             <PoolNotice />
           </motion.div>
