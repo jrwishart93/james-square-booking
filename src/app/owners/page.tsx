@@ -127,17 +127,17 @@ const OwnersPage = () => {
 
           <Link href="/pool3d" className="block group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent rounded-3xl">
             <GlassCard
-              title="View the pool area in 3D"
+              title="Pool 3D models for owners"
               titleClassName="text-slate-800/80 dark:text-slate-100/90"
               className="bg-white/80 border-white/80 shadow-[0_18px_45px_rgba(15,23,42,0.08)] transition-all duration-200 group-hover:-translate-y-0.5 group-hover:shadow-[0_22px_55px_rgba(15,23,42,0.12)] dark:bg-slate-900/30"
             >
               <div className="grid gap-5 md:grid-cols-[minmax(0,1.15fr)_minmax(220px,0.85fr)] md:items-center">
                 <div className="space-y-3">
                   <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-200">
-                    Explore a 3D model of the James Square pool area to view the layout and surrounding features.
+                    Owners can view the current pool area scan alongside a draft digital model for future improvement planning.
                   </p>
                   <span className="inline-flex items-center justify-center rounded-full px-5 py-2.5 text-sm font-semibold text-slate-900 bg-white/90 backdrop-blur-lg shadow-[0_6px_18px_rgba(0,0,0,0.08)] border border-black/5 transition-all duration-200 group-hover:scale-[1.01] group-hover:shadow-[0_10px_28px_rgba(0,0,0,0.12)] dark:bg-white/85 dark:text-slate-900 dark:border-white/20">
-                    Open 3D pool model
+                    Open pool 3D models
                   </span>
                 </div>
                 <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-white/70 bg-slate-200/60 shadow-sm dark:border-white/10 dark:bg-slate-800/50">
