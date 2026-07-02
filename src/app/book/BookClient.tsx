@@ -53,6 +53,36 @@ const OPENING_TIMES = [
   { label: 'Booking required', time: '05:30–09:30 and 17:00–23:00', note: 'Secure a slot for early morning and evening peaks.' },
 ];
 
+function Pool3DCallout({ className = '' }: { className?: string }) {
+  return (
+    <article
+      className={`overflow-hidden rounded-2xl border border-sky-200/70 bg-gradient-to-br from-sky-50 via-white to-blue-50 shadow-sm dark:border-sky-300/20 dark:from-sky-950/40 dark:via-gray-800 dark:to-blue-950/30 ${className}`}
+    >
+      <div className="relative aspect-[16/9] w-full overflow-hidden bg-slate-100 dark:bg-slate-800">
+        <Image
+          src="/images/buildingimages/pool-3D-facing-south.jpg"
+          alt="3D scan preview of the pool area facing south"
+          fill
+          sizes="(min-width: 768px) 50vw, 100vw"
+          className="object-cover"
+        />
+      </div>
+      <div className="space-y-3 px-5 py-4 text-left">
+        <div className="space-y-1">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-700 dark:text-sky-300">Pool preview</p>
+          <h2 className="text-lg font-semibold text-slate-950 dark:text-white">Explore the pool area in 3D</h2>
+          <p className="text-sm text-slate-600 dark:text-slate-300">
+            Take a quick virtual look around the pool, showers, and access route before you book.
+          </p>
+        </div>
+        <Button variant="secondary" href="/pool3d" className="w-full justify-center text-sm sm:w-auto">
+          View 3D pool area scan
+        </Button>
+      </div>
+    </article>
+  );
+}
+
 export default function BookClient() {
   return (
     <main className="max-w-4xl mx-auto py-16 px-6 font-sans bg-white dark:bg-gray-900">
@@ -66,10 +96,13 @@ export default function BookClient() {
           <Button variant="secondary" href="/dashboard" className="w-full text-sm sm:text-base md:w-auto">
             My dashboard
           </Button>
+          <Button variant="secondary" href="/pool3d" className="w-full text-sm sm:text-base md:w-auto">
+            View 3D pool area scan
+          </Button>
         </div>
       </div>
 
-      <section className="mt-12 md:hidden">
+      <section className="mt-12 space-y-5 md:hidden">
         <FacilitySelectorMobile
           options={FACILITIES.map((facility) => ({
             key: facility.key,
@@ -78,12 +111,14 @@ export default function BookClient() {
             href: facility.href,
           }))}
         />
+        <Pool3DCallout />
       </section>
 
       <div className="mt-12 hidden grid-cols-1 gap-5 sm:gap-6 md:grid md:grid-cols-2 xl:grid-cols-3">
         {FACILITIES.map(({ key, ...facility }) => (
           <FacilityCard key={key} {...facility} />
         ))}
+        <Pool3DCallout className="md:col-span-2 xl:col-span-3" />
       </div>
       <div className="mt-14 md:mt-16">
         <GlassCard

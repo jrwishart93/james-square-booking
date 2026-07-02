@@ -1,10 +1,14 @@
 'use client';
 
-import '@google/model-viewer';
+import { useEffect } from 'react';
 
 const modelHref = '/docs/survey/pool-area-scan-polycam.glb';
 
 export default function PoolModelViewer() {
+  useEffect(() => {
+    void import('@google/model-viewer');
+  }, []);
+
   return (
     <div className="overflow-hidden rounded-3xl border border-sky-100 bg-slate-950 shadow-2xl shadow-sky-950/20">
       <model-viewer
