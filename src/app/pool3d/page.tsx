@@ -7,29 +7,25 @@ const poolModels = [
   {
     heading: 'Current scanned pool area',
     description:
-      'This scan captures the current pool area so residents can rotate, pan, and zoom around the existing space.',
+      'View the latest scan of the existing pool area. This viewer is intended for on-page inspection only, so residents can rotate, pan, and zoom without needing to download the scan file.',
     src: '/docs/survey/pool-area-scan-polycam.glb',
     poster: '/images/buildingimages/pool-3D-facing-south.jpg',
     ariaLabel: 'Interactive 3D scan of the current James Square pool area',
-    fallbackLabel: 'Open the current pool area scan',
-    linkLabel: 'Download/open current scan GLB',
   },
   {
     heading: 'Draft digital pool improvement model',
     description:
-      'This draft digital version is an early planning model for considering future pool-area improvements. It is shared with owners and interested James Square residents to support discussion and feedback.',
+      'Compare the current scan with an early digital planning model for possible pool-area improvements. More renovation mock-ups will be added as the design work develops.',
     src: '/docs/survey/pool-3D-modelglb.glb',
     poster: '/images/buildingimages/pool-3D-facing-north.PNG',
     ariaLabel: 'Interactive draft digital model of possible James Square pool area improvements',
-    fallbackLabel: 'Open the draft pool improvement model',
-    linkLabel: 'Download/open draft improvement GLB',
   },
 ];
 
 export const metadata: Metadata = {
   title: 'Pool 3D Scan | James Square',
   description:
-    'Explore the James Square pool area with interactive 3D models and reference photos.',
+    'View the James Square pool area with interactive 3D scans, planning models, and reference photos.',
 };
 
 const poolImages = [
@@ -57,49 +53,51 @@ export default function Pool3DPage() {
             Explore the pool area in 3D
           </h1>
           <p className="mt-5 text-lg leading-8 text-slate-700">
-            Use the interactive models below to rotate, pan, and zoom around the James Square pool area.
-            The current scan is presented alongside an early draft improvement model and two reference photos
-            so residents can compare the existing space with planning ideas.
+            Use the interactive viewers below to rotate, pan, and zoom around the James Square pool area.
+            The current scan is presented alongside an early draft digital model and reference photos so
+            residents can compare the existing space with future renovation ideas.
           </p>
+          <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm leading-6 text-amber-900">
+            <strong className="font-semibold">Work in progress:</strong> this page is still being edited and
+            will be updated soon with potential mock-ups showing what the pool area could look like after renovation.
+          </div>
         </div>
       </section>
 
       <section aria-labelledby="pool-models-heading" className="space-y-8">
-        <div>
+        <div className="rounded-3xl bg-white p-5 shadow-lg shadow-slate-950/5 ring-1 ring-slate-200 sm:p-6">
           <h2 id="pool-models-heading" className="text-2xl font-bold text-slate-950">
-            Interactive pool models
+            Interactive pool viewers
           </h2>
           <p className="mt-2 text-slate-600">
-            Drag to rotate, scroll or pinch to zoom, and use touch gestures to inspect each 3D model.
+            Drag to rotate, scroll or pinch to zoom, and use touch gestures to inspect each model directly on this page.
+            Download/open links have been removed from the viewer area so the scans stay out of the way on mobile.
           </p>
         </div>
 
         {poolModels.map((model) => (
-          <article key={model.src} className="space-y-4">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <h3 className="text-xl font-bold text-slate-950">{model.heading}</h3>
-                <p className="mt-2 max-w-3xl text-slate-600">{model.description}</p>
-              </div>
-              <a
-                href={model.src}
-                className="inline-flex items-center justify-center rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-950/10 transition hover:bg-slate-800"
-              >
-                {model.linkLabel}
-              </a>
+          <article
+            key={model.src}
+            className="overflow-hidden rounded-[2rem] bg-white p-4 shadow-xl shadow-slate-950/5 ring-1 ring-slate-200 sm:p-6"
+          >
+            <div className="mb-5 max-w-3xl">
+              <h3 className="text-xl font-bold text-slate-950">{model.heading}</h3>
+              <p className="mt-2 text-slate-600">{model.description}</p>
             </div>
             <PoolModelViewer
               src={model.src}
               poster={model.poster}
               ariaLabel={model.ariaLabel}
-              fallbackLabel={model.fallbackLabel}
             />
           </article>
         ))}
 
-        <p className="text-sm text-slate-500">
-          If a 3D viewer does not load in your browser, use the download/open link above that model to access its GLB file directly.
-        </p>
+        <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5 text-sm leading-6 text-slate-600">
+          <p>
+            This is a view-only page for reviewing the pool scan and digital version. A separate download option will be
+            placed at the bottom of the page when the shared files are ready.
+          </p>
+        </div>
       </section>
 
       <section aria-labelledby="pool-photos-heading" className="space-y-5">
