@@ -20,10 +20,6 @@ export default function Footer() {
     <footer className="mt-12">
       <div className="jqs-glass rounded-t-3xl rounded-b-none border border-slate-200/60 dark:border-slate-800/60">
         <div className="max-w-6xl mx-auto px-3 sm:px-6 py-4 md:py-8">
-          <div className="flex justify-center md:hidden mb-3">
-            <LogoMark />
-          </div>
-
           <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-3 sm:gap-4 md:gap-10 text-[10px] sm:text-[11px] md:text-sm text-slate-600 dark:text-slate-300">
             <section className="min-w-0 flex flex-col gap-2 md:gap-3">
               <div className="hidden md:flex items-center gap-3">
@@ -84,7 +80,7 @@ export default function Footer() {
           </div>
 
           <div className="mt-4 border-t border-slate-200/70 dark:border-slate-700/60 pt-2 text-[10px] text-slate-500 dark:text-slate-400">
-            © 2025 James Square. All rights reserved.
+            © {new Date().getFullYear()} James Square. All rights reserved.
           </div>
         </div>
       </div>

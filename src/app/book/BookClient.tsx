@@ -72,7 +72,7 @@ function Pool3DCallout({ className = '' }: { className?: string }) {
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-700 dark:text-sky-300">Pool preview</p>
           <h2 className="text-lg font-semibold text-slate-950 dark:text-white">Explore the pool area in 3D</h2>
           <p className="text-sm text-slate-600 dark:text-slate-300">
-            View the current pool area scan and the draft improvement model before you book.
+            View the current pool area scan before you book.
           </p>
         </div>
         <Button variant="secondary" href="/pool3d" className="w-full justify-center text-sm sm:w-auto">

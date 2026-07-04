@@ -134,7 +134,7 @@ const OwnersPage = () => {
               <div className="grid gap-5 md:grid-cols-[minmax(0,1.15fr)_minmax(220px,0.85fr)] md:items-center">
                 <div className="space-y-3">
                   <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-200">
-                    Owners can view the current pool area scan alongside a draft digital model for future improvement planning.
+                    Owners can view the current pool area scan for maintenance and renovation planning.
                   </p>
                   <span className="inline-flex items-center justify-center rounded-full px-5 py-2.5 text-sm font-semibold text-slate-900 bg-white/90 backdrop-blur-lg shadow-[0_6px_18px_rgba(0,0,0,0.08)] border border-black/5 transition-all duration-200 group-hover:scale-[1.01] group-hover:shadow-[0_10px_28px_rgba(0,0,0,0.12)] dark:bg-white/85 dark:text-slate-900 dark:border-white/20">
                     Open pool 3D models
