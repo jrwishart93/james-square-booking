@@ -115,8 +115,6 @@ export default function PoolModelViewer({
               min-field-of-view={insideView ? '50deg' : '25deg'}
               max-field-of-view={insideView ? '60deg' : '75deg'}
               interaction-prompt={insideView ? 'none' : 'auto'}
-              loading="lazy"
-              reveal="interaction"
               aria-label={`${ariaLabel}${insideView ? ' in inside view mode' : ''}`}
               className="block h-full w-full bg-slate-950"
             />
