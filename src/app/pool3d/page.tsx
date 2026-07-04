@@ -7,25 +7,38 @@ const poolModels = [
   {
     heading: 'Current scanned pool area',
     description:
-      'View the latest scan of the existing pool area. This viewer is intended for on-page inspection only, so residents can rotate, pan, and zoom without needing to download the scan file.',
+      'View the latest captured scan of the existing pool hall for maintenance and renovation planning.',
     src: '/docs/survey/pool-area-scan-polycam.glb',
     poster: '/images/buildingimages/pool-3D-facing-south.jpg',
     ariaLabel: 'Interactive 3D scan of the current James Square pool area',
   },
   {
-    heading: 'Draft digital pool improvement model',
+    heading: 'Additional current pool scan',
     description:
-      'Compare the current scan with an early digital planning model for possible pool-area improvements. More renovation mock-ups will be added as the design work develops.',
+      'Use this second scan to inspect another captured view of the existing pool hall as maintenance and renovation planning continues.',
     src: '/docs/survey/pool-3D-modelglb.glb',
     poster: '/images/buildingimages/pool-3D-facing-north.PNG',
-    ariaLabel: 'Interactive draft digital model of possible James Square pool area improvements',
+    ariaLabel: 'Interactive 3D scan of another current James Square pool area capture',
   },
 ];
 
 export const metadata: Metadata = {
-  title: 'Pool 3D Scan | James Square',
+  title: 'Pool 3D Scan – James Square',
   description:
-    'View the James Square pool area with interactive 3D scans, planning models, and reference photos.',
+    'Explore an interactive 3D scan of the current James Square pool hall, captured to support upcoming maintenance and renovation planning.',
+  openGraph: {
+    title: 'Pool 3D Scan – James Square',
+    description:
+      'Explore an interactive 3D scan of the current James Square pool hall, captured to support upcoming maintenance and renovation planning.',
+    images: [
+      {
+        url: '/images/buildingimages/pool-3D-facing-south.jpg',
+        width: 1301,
+        height: 771,
+        alt: 'James Square pool hall 3D scan preview',
+      },
+    ],
+  },
 };
 
 const poolImages = [
@@ -53,13 +66,11 @@ export default function Pool3DPage() {
             Explore the pool area in 3D
           </h1>
           <p className="mt-5 text-lg leading-8 text-slate-700">
-            Use the interactive viewers below to rotate, pan, and zoom around the James Square pool area.
-            The current scan is presented alongside an early draft digital model and reference photos so
-            residents can compare the existing space with future renovation ideas.
+            This page provides an interactive 3D scan of the pool hall as it currently is, captured to support upcoming maintenance and renovation planning.
+            Reference photos are included below to help orient the scan.
           </p>
           <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm leading-6 text-amber-900">
-            <strong className="font-semibold">Work in progress:</strong> this page is still being edited and
-            will be updated soon with potential mock-ups showing what the pool area could look like after renovation.
+            The scan will be refined as more capture data is added.
           </div>
         </div>
       </section>
@@ -70,8 +81,7 @@ export default function Pool3DPage() {
             Interactive pool viewers
           </h2>
           <p className="mt-2 text-slate-600">
-            Drag to rotate, scroll or pinch to zoom, and use touch gestures to inspect each model directly on this page.
-            Download/open links have been removed from the viewer area so the scans stay out of the way on mobile.
+            Drag to rotate, scroll or pinch to zoom, and use touch gestures to inspect the scan directly on this page.
           </p>
         </div>
 
@@ -91,13 +101,6 @@ export default function Pool3DPage() {
             />
           </article>
         ))}
-
-        <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5 text-sm leading-6 text-slate-600">
-          <p>
-            This is a view-only page for reviewing the pool scan and digital version. A separate download option will be
-            placed at the bottom of the page when the shared files are ready.
-          </p>
-        </div>
       </section>
 
       <section aria-labelledby="pool-photos-heading" className="space-y-5">
@@ -120,7 +123,9 @@ export default function Pool3DPage() {
                   src={image.src}
                   alt={image.alt}
                   fill
-                  sizes="(min-width: 768px) 50vw, 100vw"
+                  sizes="(min-width: 768px) 640px, 100vw"
+                  loading="lazy"
+                  unoptimized
                   className="object-cover"
                 />
               </div>

@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 
 type PoolModelViewerProps = {
@@ -21,15 +22,20 @@ export default function PoolModelViewer({
 }: PoolModelViewerProps) {
   const viewerRef = useRef<HTMLElement | null>(null);
   const [insideView, setInsideView] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
+    if (!isLoaded) {
+      return;
+    }
+
     void import('@google/model-viewer');
-  }, []);
+  }, [isLoaded]);
 
   useEffect(() => {
     const viewer = viewerRef.current;
 
-    if (!viewer) {
+    if (!viewer || !isLoaded) {
       return;
     }
 
@@ -56,39 +62,66 @@ export default function PoolModelViewer({
       window.cancelAnimationFrame(frameId);
       viewer.setAttribute('orientation', '0deg 0deg 0deg');
     };
-  }, [insideView]);
+  }, [insideView, isLoaded]);
 
   return (
     <div className="overflow-hidden rounded-3xl border border-sky-100 bg-slate-950 shadow-2xl shadow-sky-950/20">
-      <div className="relative">
-        <button
-          type="button"
-          aria-pressed={insideView}
-          onClick={() => setInsideView((enabled) => !enabled)}
-          className="absolute right-3 top-3 z-10 rounded-full border border-white/30 bg-white/90 px-4 py-2 text-sm font-semibold text-slate-950 shadow-lg shadow-slate-950/20 transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:ring-offset-2 focus:ring-offset-slate-950 sm:right-4 sm:top-4"
-        >
-          Inside View
-        </button>
-        <model-viewer
-          ref={viewerRef}
-          src={src}
-          poster={poster}
-          camera-controls
-          {...(!insideView ? { 'auto-rotate': true } : {})}
-          touch-action="pan-y"
-          shadow-intensity="0.65"
-          exposure="0.95"
-          camera-orbit={insideView ? INSIDE_CAMERA_ORBIT : EXTERNAL_CAMERA_ORBIT}
-          camera-target={insideView ? INSIDE_CAMERA_TARGET : EXTERNAL_CAMERA_TARGET}
-          min-camera-orbit={insideView ? '170deg 82deg 1.6m' : 'auto auto 3m'}
-          max-camera-orbit={insideView ? '190deg 96deg 2.7m' : 'auto auto 14m'}
-          field-of-view={insideView ? '55deg' : '45deg'}
-          min-field-of-view={insideView ? '50deg' : '25deg'}
-          max-field-of-view={insideView ? '60deg' : '75deg'}
-          interaction-prompt={insideView ? 'none' : 'auto'}
-          aria-label={`${ariaLabel}${insideView ? ' in inside view mode' : ''}`}
-          className="block h-[420px] w-full bg-slate-950 sm:h-[560px] lg:h-[680px]"
-        />
+      <div className="relative h-[420px] sm:h-[560px] lg:h-[680px]">
+        {!isLoaded ? (
+          <>
+            <Image
+              src={poster}
+              alt="Pool 3D viewer preview"
+              fill
+              sizes="(min-width: 1024px) 1024px, 100vw"
+              className="object-cover opacity-80"
+              loading="lazy"
+              unoptimized
+            />
+            <div className="absolute inset-0 flex items-center justify-center bg-slate-950/35 p-6">
+              <button
+                type="button"
+                onClick={() => setIsLoaded(true)}
+                className="rounded-full border border-white/40 bg-white px-6 py-3 text-sm font-semibold text-slate-950 shadow-xl shadow-slate-950/30 transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:ring-offset-2 focus:ring-offset-slate-950"
+              >
+                Load 3D viewer
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <button
+              type="button"
+              aria-pressed={insideView}
+              onClick={() => setInsideView((enabled) => !enabled)}
+              className="absolute right-3 top-3 z-10 rounded-full border border-white/30 bg-white/90 px-4 py-2 text-sm font-semibold text-slate-950 shadow-lg shadow-slate-950/20 transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:ring-offset-2 focus:ring-offset-slate-950 sm:right-4 sm:top-4"
+            >
+              Inside View
+            </button>
+            <model-viewer
+              ref={viewerRef}
+              src={src}
+              poster={poster}
+              camera-controls
+              {...(!insideView ? { 'auto-rotate': true } : {})}
+              touch-action="pan-y"
+              shadow-intensity="0.65"
+              exposure="0.95"
+              camera-orbit={insideView ? INSIDE_CAMERA_ORBIT : EXTERNAL_CAMERA_ORBIT}
+              camera-target={insideView ? INSIDE_CAMERA_TARGET : EXTERNAL_CAMERA_TARGET}
+              min-camera-orbit={insideView ? '170deg 82deg 1.6m' : 'auto auto 3m'}
+              max-camera-orbit={insideView ? '190deg 96deg 2.7m' : 'auto auto 14m'}
+              field-of-view={insideView ? '55deg' : '45deg'}
+              min-field-of-view={insideView ? '50deg' : '25deg'}
+              max-field-of-view={insideView ? '60deg' : '75deg'}
+              interaction-prompt={insideView ? 'none' : 'auto'}
+              loading="lazy"
+              reveal="interaction"
+              aria-label={`${ariaLabel}${insideView ? ' in inside view mode' : ''}`}
+              className="block h-full w-full bg-slate-950"
+            />
+          </>
+        )}
       </div>
     </div>
   );
