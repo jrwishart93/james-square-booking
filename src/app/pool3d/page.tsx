@@ -5,28 +5,16 @@ import PoolModelViewer from '@/components/PoolModelViewer';
 
 const poolWalkthroughVideo = '/docs/survey/pool-walkthrough-website.mp4';
 
-const poolModels = [
-  {
-    heading: 'Current scanned pool area',
-    description:
-      'View the latest captured scan of the existing pool hall for maintenance and renovation planning.',
-    src: '/docs/survey/pool-area-scan-polycam.glb',
-    poster: '/images/buildingimages/pool-3D-facing-south.jpg',
-    ariaLabel: 'Interactive 3D scan of the current James Square pool area',
-  },
-  {
-    heading: 'Additional current pool scan',
-    description:
-      'Use this second scan to inspect another captured view of the existing pool hall as maintenance and renovation planning continues.',
-    src: '/docs/survey/pool-3D-modelglb.glb',
-    poster: '/images/buildingimages/pool-3D-facing-north.PNG',
-    ariaLabel: 'Interactive 3D scan of another current James Square pool area capture',
-  },
-];
+const poolModel = {
+  heading: 'Interactive pool model',
+  description:
+    'Use the new PlayCanvas viewer to inspect the latest Blender GLB model of the pool area from any angle.',
+  ariaLabel: 'Interactive PlayCanvas 3D model of the James Square pool area',
+};
 
 const surveyHighlights = [
   'Watch the 10-second walkthrough first for a quick sense of the model layout.',
-  'Load either interactive viewer when you want to inspect details from your own angle.',
+  'Use the PlayCanvas viewer when you want to inspect details from your own angle.',
   'Use the reference photos at the bottom of the page to match the scan to the real pool area.',
 ];
 
@@ -75,7 +63,7 @@ export default function Pool3DPage() {
               Explore the pool area in 3D
             </h1>
             <p className="mt-5 text-lg leading-8 text-slate-700">
-              This page brings together the short walkthrough video, interactive 3D scans, and reference photos for the current pool hall so owners and contractors can quickly understand the space before inspecting the model in detail.
+              This page brings together the short walkthrough video, the interactive 3D model, and reference photos for the current pool hall so owners and contractors can quickly understand the space before inspecting the model in detail.
             </p>
             <div className="mt-6 grid gap-3 sm:grid-cols-3">
               <div className="rounded-2xl border border-sky-100 bg-white/80 px-4 py-3 shadow-sm">
@@ -83,8 +71,8 @@ export default function Pool3DPage() {
                 <p className="text-sm text-slate-600">quick video preview</p>
               </div>
               <div className="rounded-2xl border border-sky-100 bg-white/80 px-4 py-3 shadow-sm">
-                <p className="text-2xl font-bold text-slate-950">2</p>
-                <p className="text-sm text-slate-600">interactive scans</p>
+                <p className="text-2xl font-bold text-slate-950">1</p>
+                <p className="text-sm text-slate-600">PlayCanvas model</p>
               </div>
               <div className="rounded-2xl border border-sky-100 bg-white/80 px-4 py-3 shadow-sm">
                 <p className="text-2xl font-bold text-slate-950">2</p>
@@ -106,7 +94,7 @@ export default function Pool3DPage() {
             />
             <div className="px-2 pb-1 pt-3 text-sm leading-6 text-slate-200">
               <p className="font-semibold text-white">Quick model walkthrough</p>
-              <p className="text-slate-300">A short video preview helps orient the interactive scans below.</p>
+              <p className="text-slate-300">A short video preview helps orient the interactive model below.</p>
             </div>
           </div>
         </div>
@@ -134,29 +122,20 @@ export default function Pool3DPage() {
       <section aria-labelledby="pool-models-heading" className="space-y-8">
         <div className="rounded-3xl bg-white p-5 shadow-lg shadow-slate-950/5 ring-1 ring-slate-200 sm:p-6">
           <h2 id="pool-models-heading" className="text-2xl font-bold text-slate-950">
-            Interactive pool viewers
+            Interactive pool viewer
           </h2>
           <p className="mt-2 text-slate-600">
-            Drag to rotate, scroll or pinch to zoom, and use touch gestures to inspect the scan directly on this page. Select <span className="font-semibold text-slate-800">Inside View</span> after loading a model for a closer walkthrough-style inspection.
+            Drag to rotate, scroll or pinch to zoom, and pan with Shift-drag, middle-drag, or right-drag to inspect the latest Blender GLB model directly on this page.
           </p>
         </div>
 
-        {poolModels.map((model) => (
-          <article
-            key={model.src}
-            className="overflow-hidden rounded-[2rem] bg-white p-4 shadow-xl shadow-slate-950/5 ring-1 ring-slate-200 sm:p-6"
-          >
-            <div className="mb-5 max-w-3xl">
-              <h3 className="text-xl font-bold text-slate-950">{model.heading}</h3>
-              <p className="mt-2 text-slate-600">{model.description}</p>
-            </div>
-            <PoolModelViewer
-              src={model.src}
-              poster={model.poster}
-              ariaLabel={model.ariaLabel}
-            />
-          </article>
-        ))}
+        <article className="overflow-hidden rounded-[2rem] bg-white p-4 shadow-xl shadow-slate-950/5 ring-1 ring-slate-200 sm:p-6">
+          <div className="mb-5 max-w-3xl">
+            <h3 className="text-xl font-bold text-slate-950">{poolModel.heading}</h3>
+            <p className="mt-2 text-slate-600">{poolModel.description}</p>
+          </div>
+          <PoolModelViewer ariaLabel={poolModel.ariaLabel} />
+        </article>
       </section>
 
       <section aria-labelledby="pool-photos-heading" className="space-y-5">
