@@ -1,5 +1,6 @@
 'use client';
 
+import { ArrowRight, Box } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
@@ -11,38 +12,38 @@ type LazyPoolModelCardProps = {
   ariaLabel: string;
   autoSpin?: boolean;
   autoSpinSpeed?: number;
-  badgeLabel: string;
   description: string;
+  footer?: string;
   isActive: boolean;
   loadingLabel: string;
   modelName: string;
   modelSrc: string;
   onActivate: () => void;
+  priority?: boolean;
   size: PoolModelViewerSize;
+  subtitle: string;
   thumbnailAlt: string;
+  thumbnailPosition?: string;
   thumbnailSrc: string;
   title: string;
-};
-
-const previewHeightClasses: Record<PoolModelViewerSize, string> = {
-  hero: 'h-[360px] sm:h-[520px] lg:h-[680px]',
-  standard: 'h-[320px] sm:h-[440px] lg:h-[560px]',
-  compact: 'h-[280px] sm:h-[380px] lg:h-[480px]',
 };
 
 export default function LazyPoolModelCard({
   ariaLabel,
   autoSpin = false,
   autoSpinSpeed = 2,
-  badgeLabel,
   description,
+  footer,
   isActive,
   loadingLabel,
   modelName,
   modelSrc,
   onActivate,
+  priority = false,
   size,
+  subtitle,
   thumbnailAlt,
+  thumbnailPosition = 'object-center',
   thumbnailSrc,
   title,
 }: LazyPoolModelCardProps) {
@@ -60,19 +61,7 @@ export default function LazyPoolModelCard({
   };
 
   return (
-    <>
-      <div className="mb-4 flex flex-col gap-2 px-2 pt-2 sm:px-3">
-        <span className="w-fit rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-sky-800 dark:border-sky-300/30 dark:bg-sky-300/10 dark:text-sky-100">
-          {badgeLabel}
-        </span>
-        <h3 className="text-2xl font-bold text-slate-950 dark:text-white sm:text-3xl">
-          {title}
-        </h3>
-        <p className="text-sm leading-6 text-slate-600 dark:text-slate-300 sm:text-base sm:leading-7">
-          {description}
-        </p>
-      </div>
-
+    <article className="flex flex-col rounded-[2rem] border border-slate-200 bg-white/90 p-3 shadow-2xl shadow-sky-950/10 dark:border-white/10 dark:bg-slate-900/90 sm:p-4">
       {isActive ? (
         <PoolModelViewer
           modelSrc={modelSrc}
@@ -87,39 +76,55 @@ export default function LazyPoolModelCard({
         <button
           type="button"
           onClick={handleActivate}
-          aria-label={`${ariaLabel}. Click to view and interact with 3D scan.`}
-          className="group relative block w-full overflow-hidden rounded-3xl border border-slate-200 bg-slate-950 text-left shadow-2xl shadow-sky-950/20 outline-none transition duration-300 hover:-translate-y-0.5 hover:scale-[1.01] focus-visible:ring-4 focus-visible:ring-sky-400/70 dark:border-white/10"
+          aria-label={`${ariaLabel}. Tap to view in 3D.`}
+          className="group relative block aspect-[4/3] w-full overflow-hidden rounded-3xl border border-white/10 bg-slate-950 text-left shadow-xl shadow-sky-950/20 outline-none transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-2xl hover:shadow-cyan-950/30 active:scale-[0.97] active:duration-150 focus-visible:ring-4 focus-visible:ring-sky-400/70"
         >
-          <span className={`relative block w-full ${previewHeightClasses[size]}`}>
-            <Image
-              src={thumbnailSrc}
-              alt={thumbnailAlt}
-              fill
-              sizes={size === 'hero' ? '100vw' : '(min-width: 1024px) 50vw, 100vw'}
-              className="object-cover opacity-80 transition duration-500 group-hover:scale-105 group-hover:opacity-95"
-              priority={size === 'hero'}
-              unoptimized
-            />
-            <span className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/35 to-cyan-950/20" />
-            <span className="absolute inset-4 rounded-[1.35rem] border border-white/25 ring-2 ring-sky-300/30 transition duration-300 group-hover:ring-4 group-hover:ring-cyan-300/50 sm:inset-6" />
-            <span className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-4 text-center text-white">
-              <span className="relative flex h-20 w-20 items-center justify-center rounded-full bg-white/15 backdrop-blur-md">
-                <span className="absolute inset-0 rounded-full border border-cyan-200/70 animate-ping" />
-                <span className="absolute inset-2 rounded-full border border-white/60 animate-pulse" />
-                <span className="ml-1 h-0 w-0 border-y-[14px] border-l-[22px] border-y-transparent border-l-white drop-shadow-lg" />
-              </span>
-              <span className="max-w-xs rounded-2xl border border-white/20 bg-slate-950/70 px-5 py-3 text-sm font-bold uppercase tracking-[0.16em] shadow-xl backdrop-blur-md animate-pulse sm:text-base">
-                Click to view and interact with 3D scan
-              </span>
-              {hasBeenActivated ? (
-                <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] text-slate-900">
-                  Switch back to this model
-                </span>
-              ) : null}
+          <Image
+            src={thumbnailSrc}
+            alt={thumbnailAlt}
+            fill
+            sizes="(min-width: 768px) 33vw, 100vw"
+            className={`object-cover ${thumbnailPosition} transition-transform duration-500 ease-out group-hover:scale-105`}
+            priority={priority}
+            unoptimized
+          />
+
+          <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/30 to-transparent" />
+
+          <span className="pointer-events-none absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-slate-950/60 text-cyan-100 shadow-lg ring-1 ring-white/25 backdrop-blur-md transition-transform duration-300 group-hover:scale-110">
+            <span className="absolute inset-0 rounded-full ring-2 ring-cyan-300/40 animate-ping" />
+            <Box className="relative h-4 w-4" strokeWidth={2} />
+          </span>
+
+          <span className="absolute inset-x-0 bottom-0 flex flex-col gap-1 p-4 sm:p-5">
+            <span className="text-lg font-bold leading-tight text-white drop-shadow-sm sm:text-xl">
+              {title}
             </span>
+            <span className="text-xs text-slate-200 drop-shadow-sm sm:text-sm">{subtitle}</span>
+            <span className="mt-2 inline-flex w-fit items-center gap-1.5 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-white backdrop-blur-md transition-colors duration-300 group-hover:border-cyan-200/70 group-hover:bg-white/20 sm:text-xs">
+              Tap to view in 3D
+              <ArrowRight
+                className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1"
+                strokeWidth={2.5}
+              />
+            </span>
+            {hasBeenActivated ? (
+              <span className="mt-1 w-fit rounded-full bg-white/90 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-900">
+                Tap to reopen this view
+              </span>
+            ) : null}
           </span>
         </button>
       )}
-    </>
+
+      <div className="mt-4 px-1 sm:px-2">
+        <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">{description}</p>
+        {footer ? (
+          <p className="mt-3 border-t border-slate-200 pt-3 text-xs leading-5 text-slate-500 dark:border-white/10 dark:text-slate-400">
+            {footer}
+          </p>
+        ) : null}
+      </div>
+    </article>
   );
 }
