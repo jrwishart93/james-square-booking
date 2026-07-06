@@ -30,11 +30,11 @@ const infoCards = [
 export const metadata: Metadata = {
   title: 'James Square Pool 3D Models',
   description:
-    'Interactive 3D model and phone scan of the James Square heated indoor pool, created to support repair and refurbishment discussions.',
+    'Interactive 3D model and photo scan of the James Square heated indoor pool, created to support repair and refurbishment discussions.',
   openGraph: {
     title: 'James Square Pool 3D Models',
     description:
-      'Interactive 3D model and phone scan of the James Square heated indoor pool, created to support repair and refurbishment discussions.',
+      'Interactive 3D model and photo scan of the James Square heated indoor pool, created to support repair and refurbishment discussions.',
     images: [
       {
         url: '/images/pool/Pool-facing-south.png',
@@ -91,7 +91,7 @@ export default function Pool3DPage() {
             James Square Pool 3D Models
           </h1>
           <p className="mt-5 max-w-3xl text-base leading-7 text-slate-700 dark:text-slate-200 sm:text-lg">
-            Interactive 3D references for the James Square heated indoor pool: a cleaned 3D model of the space, with the original phone scan shown underneath for comparison.
+            Interactive 3D references for the James Square heated indoor pool: a cleaned 3D model of the space, with the pool photo scan shown underneath for comparison.
           </p>
           <div className="mt-6 inline-flex rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900 shadow-sm dark:border-amber-300/30 dark:bg-amber-300/10 dark:text-amber-100">
             Pool currently closed pending repairs and further assessment.
@@ -125,21 +125,21 @@ export default function Pool3DPage() {
         <div className="rounded-[2rem] border border-slate-200 bg-white/90 p-3 shadow-2xl shadow-sky-950/10 dark:border-white/10 dark:bg-slate-900/90 sm:p-4">
           <div className="mb-4 flex flex-col gap-2 px-2 pt-2 sm:px-3">
             <h2 id="pool-scan-heading" className="text-2xl font-bold text-slate-950 dark:text-white">
-              Original phone scan
+              Pool photo scan
             </h2>
             <p className="text-sm text-slate-600 dark:text-slate-300">
-              The raw scan captured on phone is shown underneath the modelled version so the two references can be compared directly.
+              The pool photo scan asset is shown underneath the modelled version so the two references can be compared directly.
             </p>
           </div>
           <PoolModelViewer
-            modelSrc="/images/pool/pool-area-scan.glb"
-            modelName="James Square pool area phone scan"
-            loadingLabel="Loading the original phone scan…"
-            ariaLabel="Interactive 3D phone scan of the James Square heated indoor pool layout"
+            modelSrc="/images/pool/pool-3D-photo-scan.glb"
+            modelName="James Square pool photo scan"
+            loadingLabel="Loading the pool photo scan…"
+            ariaLabel="Interactive 3D photo scan of the James Square heated indoor pool area"
           />
         </div>
         <p className="px-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-          The scan is the original capture source, while the model above is a cleaned 3D interpretation based on that scan.
+          The photo scan is the original capture source, while the model above is a cleaned 3D interpretation based on that scan.
         </p>
       </section>
 
