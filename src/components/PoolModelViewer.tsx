@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-const MODEL_SRC = '/docs/survey/pool-3D-model-website.glb';
+const MODEL_SRC = '/images/pool/02-edit-floor-plan-pool.glb';
 const MIN_DISTANCE = 3.5;
 const MAX_DISTANCE = 28;
 const START_DISTANCE = 13;
@@ -63,8 +63,8 @@ export default function PoolModelViewer({
 
         app.setCanvasFillMode(pc.FILLMODE_FILL_WINDOW);
         app.setCanvasResolution(pc.RESOLUTION_AUTO);
-        app.scene.ambientLight = new pc.Color(0.35, 0.38, 0.42);
-        app.scene.exposure = 1.15;
+        app.scene.ambientLight = new pc.Color(0.55, 0.62, 0.68);
+        app.scene.exposure = 1.28;
         (app.scene as unknown as { toneMapping: number }).toneMapping = pc.TONEMAP_ACES;
         app.start();
 
@@ -81,7 +81,7 @@ export default function PoolModelViewer({
         keyLight.addComponent('light', {
           type: 'directional',
           color: new pc.Color(1, 0.96, 0.88),
-          intensity: 2.8,
+          intensity: 3.2,
           castShadows: true,
           shadowDistance: 35,
         });
@@ -92,7 +92,7 @@ export default function PoolModelViewer({
         fillLight.addComponent('light', {
           type: 'directional',
           color: new pc.Color(0.55, 0.7, 1),
-          intensity: 1.1,
+          intensity: 1.35,
         });
         fillLight.setEulerAngles(20, -135, 0);
         app.root.addChild(fillLight);
@@ -228,11 +228,27 @@ export default function PoolModelViewer({
           model.name = 'James Square pool model';
           app.root.addChild(model);
 
+          const poolWaterMaterial = new pc.StandardMaterial();
+          poolWaterMaterial.name = 'Pool water blue reference material';
+          poolWaterMaterial.diffuse = new pc.Color(0.02, 0.48, 0.78);
+          poolWaterMaterial.emissive = new pc.Color(0, 0.06, 0.09);
+          poolWaterMaterial.opacity = 0.78;
+          poolWaterMaterial.blendType = pc.BLEND_NORMAL;
+          poolWaterMaterial.useMetalness = true;
+          poolWaterMaterial.metalness = 0;
+          poolWaterMaterial.gloss = 0.85;
+          poolWaterMaterial.update();
+
           const bounds = new pc.BoundingBox();
           let hasBounds = false;
           const renders = model.findComponents('render') as PlayCanvasRenderComponent[];
           renders.forEach((render: PlayCanvasRenderComponent) => {
             render.meshInstances.forEach((meshInstance: PlayCanvasMeshInstance) => {
+              const meshName = `${meshInstance.node?.name ?? ''} ${meshInstance.material?.name ?? ''}`.toLowerCase();
+              if (meshName.includes('waterbody') || meshName.includes('watervolume')) {
+                meshInstance.material = poolWaterMaterial;
+              }
+
               if (!hasBounds) {
                 bounds.copy(meshInstance.aabb);
                 hasBounds = true;
@@ -280,7 +296,7 @@ export default function PoolModelViewer({
 
   return (
     <div className="overflow-hidden rounded-3xl border border-slate-700 bg-slate-950 shadow-2xl shadow-sky-950/20">
-      <div className="relative h-[420px] w-full sm:h-[560px] lg:h-[680px]">
+      <div className="relative h-[520px] w-full sm:h-[640px] lg:h-[760px]">
         <canvas
           ref={canvasRef}
           aria-label={ariaLabel}
