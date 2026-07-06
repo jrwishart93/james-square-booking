@@ -18,6 +18,37 @@ type GlbContainerResource = {
 
 type PoolModelViewerSize = 'hero' | 'standard' | 'compact';
 
+const SUPPORTED_MODEL_EXTENSIONS = new Set(['glb', 'gltf']);
+const isDevelopment = process.env.NODE_ENV === 'development';
+
+const getModelExtension = (modelSrc: string) => modelSrc.split('?')[0]?.split('#')[0]?.split('.').pop()?.toLowerCase() ?? '';
+
+const checkModelUrl = async (modelSrc: string) => {
+  const headResponse = await fetch(modelSrc, { method: 'HEAD', cache: 'no-store' });
+
+  if (headResponse.ok) {
+    return;
+  }
+
+  if (headResponse.status === 405 || headResponse.status === 501) {
+    const getResponse = await fetch(modelSrc, {
+      method: 'GET',
+      cache: 'no-store',
+      headers: { Range: 'bytes=0-0' },
+    });
+
+    if (getResponse.ok) {
+      return;
+    }
+
+    console.error('Pool model URL check failed:', { url: modelSrc, status: getResponse.status });
+    throw new Error(`Model URL check failed for ${modelSrc} with status ${getResponse.status}`);
+  }
+
+  console.error('Pool model URL check failed:', { url: modelSrc, status: headResponse.status });
+  throw new Error(`Model URL check failed for ${modelSrc} with status ${headResponse.status}`);
+};
+
 const viewerHeightClasses: Record<PoolModelViewerSize, string> = {
   hero: 'h-[360px] sm:h-[520px] lg:h-[680px]',
   standard: 'h-[320px] sm:h-[440px] lg:h-[560px]',
@@ -49,6 +80,7 @@ export default function PoolModelViewer({
 }: PoolModelViewerProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>('loading');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -60,9 +92,18 @@ export default function PoolModelViewer({
     let cleanup: (() => void) | undefined;
 
     setLoadState('loading');
+    setErrorMessage(null);
 
     const setup = async () => {
       try {
+        const modelExtension = getModelExtension(modelSrc);
+
+        if (!SUPPORTED_MODEL_EXTENSIONS.has(modelExtension)) {
+          throw new Error(`Unsupported 3D model file extension for ${modelSrc}. Expected .glb or .gltf.`);
+        }
+
+        await checkModelUrl(modelSrc);
+
         const pc: PlayCanvasModule = await import('playcanvas');
 
         if (isDisposed) {
@@ -325,14 +366,22 @@ export default function PoolModelViewer({
         });
 
         asset.on('error', (error: unknown) => {
-          console.error('Failed to load pool model:', error);
+          console.error('Failed to load pool model:', { url: modelSrc, error });
+          setErrorMessage(isDevelopment
+            ? `The 3D model could not be loaded from ${modelSrc}. Check that the URL exists and that any referenced .bin or texture files are also available.`
+            : 'The 3D model could not be loaded. Please try refreshing the page.'
+          );
           setLoadState('error');
         });
 
         app.assets.load(asset);
         updateCamera();
       } catch (error) {
-        console.error('Failed to initialise PlayCanvas:', error);
+        console.error('Failed to initialise PlayCanvas:', { url: modelSrc, error });
+        setErrorMessage(isDevelopment
+          ? `The 3D model could not be loaded from ${modelSrc}. ${error instanceof Error ? error.message : 'Check the browser console for details.'}`
+          : 'The 3D model could not be loaded. Please try refreshing the page.'
+        );
         setLoadState('error');
       }
     };
@@ -356,9 +405,7 @@ export default function PoolModelViewer({
         />
         {loadState !== 'ready' ? (
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-slate-950/55 p-6 text-center text-sm font-semibold text-white">
-            {loadState === 'error'
-              ? 'The 3D model could not be loaded. Please try refreshing the page.'
-              : loadingLabel}
+            {loadState === 'error' ? errorMessage : loadingLabel}
           </div>
         ) : null}
         <div className="pointer-events-none absolute bottom-3 left-3 right-3 rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-xs leading-5 text-slate-200 backdrop-blur sm:bottom-4 sm:left-4 sm:right-auto sm:max-w-md">
