@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-const MODEL_SRC = '/images/pool/02-edit-floor-plan-pool.glb';
 const MIN_DISTANCE = 3.5;
 const MAX_DISTANCE = 28;
 const START_DISTANCE = 13;
@@ -19,12 +18,18 @@ type GlbContainerResource = {
 
 type PoolModelViewerProps = {
   ariaLabel?: string;
+  loadingLabel?: string;
+  modelName?: string;
+  modelSrc: string;
 };
 
 const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
 
 export default function PoolModelViewer({
   ariaLabel = 'Interactive PlayCanvas 3D model of the James Square pool area',
+  loadingLabel = 'Loading PlayCanvas pool model…',
+  modelName = 'James Square pool model',
+  modelSrc,
 }: PoolModelViewerProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>('loading');
@@ -37,6 +42,8 @@ export default function PoolModelViewer({
 
     let isDisposed = false;
     let cleanup: (() => void) | undefined;
+
+    setLoadState('loading');
 
     const setup = async () => {
       try {
@@ -97,7 +104,7 @@ export default function PoolModelViewer({
         fillLight.setEulerAngles(20, -135, 0);
         app.root.addChild(fillLight);
 
-        const asset = new pc.Asset('James Square pool GLB', 'container', { url: MODEL_SRC });
+        const asset = new pc.Asset(modelName, 'container', { url: modelSrc });
         app.assets.add(asset);
 
         const state = {
@@ -225,7 +232,7 @@ export default function PoolModelViewer({
 
           const container = asset.resource as GlbContainerResource;
           const model = container.instantiateRenderEntity({ castShadows: true });
-          model.name = 'James Square pool model';
+          model.name = modelName;
           app.root.addChild(model);
 
           const poolWaterMaterial = new pc.StandardMaterial();
@@ -292,7 +299,7 @@ export default function PoolModelViewer({
       isDisposed = true;
       cleanup?.();
     };
-  }, []);
+  }, [modelName, modelSrc]);
 
   return (
     <div className="overflow-hidden rounded-3xl border border-slate-700 bg-slate-950 shadow-2xl shadow-sky-950/20">
@@ -307,7 +314,7 @@ export default function PoolModelViewer({
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-slate-950/55 p-6 text-center text-sm font-semibold text-white">
             {loadState === 'error'
               ? 'The 3D model could not be loaded. Please try refreshing the page.'
-              : 'Loading PlayCanvas pool model…'}
+              : loadingLabel}
           </div>
         ) : null}
         <div className="pointer-events-none absolute bottom-3 left-3 right-3 rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-xs leading-5 text-slate-200 backdrop-blur sm:bottom-4 sm:left-4 sm:right-auto sm:max-w-md">
