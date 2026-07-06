@@ -91,22 +91,49 @@ export default function Pool3DPage() {
             James Square Pool 3D Models
           </h1>
           <p className="mt-5 max-w-3xl text-base leading-7 text-slate-700 dark:text-slate-200 sm:text-lg">
-            Interactive 3D references for the James Square heated indoor pool: a cleaned 3D model of the space, with the pool photo scan shown underneath for comparison.
+            This page brings together three interactive 3D references for the James Square heated indoor pool: a cleaned model for design discussions, a pool photo scan for source context, and a plant room scan for services and access review.
           </p>
+          <div className="mt-6 flex flex-wrap gap-2">
+            {['Clean model', 'Photo scan', 'Plant room'].map((label) => (
+              <span key={label} className="rounded-full border border-sky-200 bg-white/80 px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-sky-800 shadow-sm dark:border-sky-300/30 dark:bg-white/10 dark:text-sky-100">
+                {label}
+              </span>
+            ))}
+          </div>
           <div className="mt-6 inline-flex rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900 shadow-sm dark:border-amber-300/30 dark:bg-amber-300/10 dark:text-amber-100">
             Pool currently closed pending repairs and further assessment.
           </div>
         </div>
       </section>
 
-      <section aria-labelledby="pool-model-heading" className="space-y-4">
-        <div className="rounded-[2rem] border border-slate-200 bg-white/90 p-3 shadow-2xl shadow-sky-950/10 dark:border-white/10 dark:bg-slate-900/90 sm:p-4">
-          <div className="mb-4 flex flex-col gap-2 px-2 pt-2 sm:px-3">
-            <h2 id="pool-model-heading" className="text-2xl font-bold text-slate-950 dark:text-white">
-              Interactive 3D pool model
-            </h2>
-            <p className="text-sm text-slate-600 dark:text-slate-300">
-              Rotate, zoom and pan the modelled version of the pool area directly in the viewer.
+      <section aria-labelledby="pool-models-heading" className="space-y-6">
+        <div className="max-w-4xl space-y-3 px-1">
+          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-sky-700 dark:text-sky-300">
+            Interactive sequence
+          </p>
+          <h2 id="pool-models-heading" className="text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-4xl">
+            Start with the cleaned model, then compare the supporting scans.
+          </h2>
+          <p className="text-sm leading-6 text-slate-600 dark:text-slate-300 sm:text-base sm:leading-7">
+            The main model is the clearest reference for layout conversations. The two scans below provide useful context on the original capture, finishes, plant room, office and service areas.
+          </p>
+        </div>
+
+        <article className="rounded-[2rem] border border-slate-200 bg-white/90 p-3 shadow-2xl shadow-sky-950/10 dark:border-white/10 dark:bg-slate-900/90 sm:p-4">
+          <div className="mb-4 flex flex-col gap-3 px-2 pt-2 sm:px-3 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-3xl">
+              <span className="inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-emerald-800 dark:border-emerald-300/30 dark:bg-emerald-300/10 dark:text-emerald-100">
+                Clean model
+              </span>
+              <h3 className="mt-3 text-2xl font-bold text-slate-950 dark:text-white sm:text-3xl">
+                Featured pool area model
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300 sm:text-base sm:leading-7">
+                Use this cleaned GLB model as the primary coordination reference for layout, circulation, repair scope conversations and early refurbishment discussions.
+              </p>
+            </div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+              /images/pool/pool-area-3D-model.glb
             </p>
           </div>
           <PoolModelViewer
@@ -118,56 +145,57 @@ export default function Pool3DPage() {
             autoSpinSpeed={1.4}
             size="hero"
           />
-        </div>
-        <p className="px-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-          This model is a working visual reference created from the scan and may be refined as further photos, measurements and survey information become available.
-        </p>
-      </section>
+          <p className="px-2 pt-4 text-sm leading-6 text-slate-600 dark:text-slate-300 sm:px-3">
+            This model is a working visual reference created from the scan and may be refined as further photos, measurements and survey information become available.
+          </p>
+        </article>
 
-      <section aria-labelledby="pool-scan-heading" className="space-y-4">
-        <div className="rounded-[2rem] border border-slate-200 bg-white/90 p-3 shadow-2xl shadow-sky-950/10 dark:border-white/10 dark:bg-slate-900/90 sm:p-4">
-          <div className="mb-4 flex flex-col gap-2 px-2 pt-2 sm:px-3">
-            <h2 id="pool-scan-heading" className="text-2xl font-bold text-slate-950 dark:text-white">
-              Pool photo scan
-            </h2>
-            <p className="text-sm text-slate-600 dark:text-slate-300">
-              The pool photo scan asset is shown underneath the modelled version so the two references can be compared directly.
-            </p>
-          </div>
-          <PoolModelViewer
-            modelSrc="/images/pool/pool-3D-photo-scan.glb"
-            modelName="James Square pool photo scan"
-            loadingLabel="Loading the pool photo scan…"
-            ariaLabel="Interactive 3D photo scan of the James Square heated indoor pool area"
-            autoSpin
-            autoSpinSpeed={1.1}
-            size="standard"
-          />
-        </div>
-        <p className="px-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-          The photo scan is the original capture source, while the model above is a cleaned 3D interpretation based on that scan.
-        </p>
-      </section>
+        <div className="grid gap-5 lg:grid-cols-2">
+          <article className="rounded-[2rem] border border-slate-200 bg-white/90 p-3 shadow-2xl shadow-sky-950/10 dark:border-white/10 dark:bg-slate-900/90 sm:p-4">
+            <div className="mb-4 flex flex-col gap-2 px-2 pt-2 sm:px-3">
+              <span className="w-fit rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-sky-800 dark:border-sky-300/30 dark:bg-sky-300/10 dark:text-sky-100">
+                Photo scan
+              </span>
+              <h3 className="text-2xl font-bold text-slate-950 dark:text-white">
+                Pool capture reference
+              </h3>
+              <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">
+                Compare the cleaned model against the original photo scan to understand captured geometry, finishes and areas that may need survey confirmation.
+              </p>
+            </div>
+            <PoolModelViewer
+              modelSrc="/images/pool/pool-3D-photo-scan.glb"
+              modelName="James Square pool photo scan"
+              loadingLabel="Loading the pool photo scan…"
+              ariaLabel="Interactive 3D photo scan of the James Square heated indoor pool area"
+              autoSpin
+              autoSpinSpeed={1.1}
+              size="compact"
+            />
+          </article>
 
-      <section aria-labelledby="plant-room-scan-heading" className="space-y-4">
-        <div className="rounded-[2rem] border border-slate-200 bg-white/90 p-3 shadow-2xl shadow-sky-950/10 dark:border-white/10 dark:bg-slate-900/90 sm:p-4">
-          <div className="mb-4 flex flex-col gap-2 px-2 pt-2 sm:px-3">
-            <h2 id="plant-room-scan-heading" className="text-2xl font-bold text-slate-950 dark:text-white">
-              Plant room and office scan
-            </h2>
-            <p className="text-sm text-slate-600 dark:text-slate-300">
-              A separate 3D scan showing the pool plant room and office areas.
-            </p>
-          </div>
-          <PoolModelViewer
-            modelSrc="/images/pool/plant-room-and-office.glb"
-            modelName="James Square plant room and office scan"
-            loadingLabel="Loading the plant room and office scan…"
-            ariaLabel="Interactive 3D scan of the James Square pool plant room and office"
-            autoSpin
-            autoSpinSpeed={1.1}
-            size="compact"
-          />
+          <article className="rounded-[2rem] border border-slate-200 bg-white/90 p-3 shadow-2xl shadow-sky-950/10 dark:border-white/10 dark:bg-slate-900/90 sm:p-4">
+            <div className="mb-4 flex flex-col gap-2 px-2 pt-2 sm:px-3">
+              <span className="w-fit rounded-full border border-violet-200 bg-violet-50 px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-violet-800 dark:border-violet-300/30 dark:bg-violet-300/10 dark:text-violet-100">
+                Plant room
+              </span>
+              <h3 className="text-2xl font-bold text-slate-950 dark:text-white">
+                Plant room and office scan
+              </h3>
+              <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">
+                Review this separate scan for plant, office and back-of-house context that supports contractor access planning and services discussions.
+              </p>
+            </div>
+            <PoolModelViewer
+              modelSrc="/images/pool/plant-room-and-office.glb"
+              modelName="James Square plant room and office scan"
+              loadingLabel="Loading the plant room and office scan…"
+              ariaLabel="Interactive 3D scan of the James Square pool plant room and office"
+              autoSpin
+              autoSpinSpeed={1.1}
+              size="compact"
+            />
+          </article>
         </div>
       </section>
 
