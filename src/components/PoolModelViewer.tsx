@@ -18,6 +18,9 @@ type GlbContainerResource = {
 
 type PoolModelViewerProps = {
   ariaLabel?: string;
+  autoSpin?: boolean;
+  autoSpinSpeed?: number;
+  introMotion?: boolean;
   loadingLabel?: string;
   modelName?: string;
   modelSrc: string;
@@ -27,6 +30,9 @@ const clamp = (value: number, min: number, max: number) => Math.min(Math.max(val
 
 export default function PoolModelViewer({
   ariaLabel = 'Interactive PlayCanvas 3D model of the James Square pool area',
+  autoSpin = false,
+  autoSpinSpeed = 2,
+  introMotion = true,
   loadingLabel = 'Loading PlayCanvas pool model…',
   modelName = 'James Square pool model',
   modelSrc,
@@ -107,6 +113,9 @@ export default function PoolModelViewer({
         const asset = new pc.Asset(modelName, 'container', { url: modelSrc });
         app.assets.add(asset);
 
+        let isReady = false;
+        let autoMotionEnabled = autoSpin && introMotion;
+
         const state = {
           distance: START_DISTANCE,
           yaw: START_YAW,
@@ -146,13 +155,19 @@ export default function PoolModelViewer({
           updateCamera();
         };
 
+        const stopAutoMotion = () => {
+          autoMotionEnabled = false;
+        };
+
         const onWheel = (event: WheelEvent) => {
+          stopAutoMotion();
           event.preventDefault();
           state.distance *= 1 + Math.sign(event.deltaY) * 0.1;
           updateCamera();
         };
 
         const onPointerDown = (event: PointerEvent) => {
+          stopAutoMotion();
           canvas.setPointerCapture(event.pointerId);
           state.pointerId = event.pointerId;
           state.pointerMode = event.button === 1 || event.button === 2 || event.shiftKey ? 'pan' : 'rotate';
@@ -187,8 +202,23 @@ export default function PoolModelViewer({
         };
 
         const onContextMenu = (event: MouseEvent) => event.preventDefault();
+        const onKeyDown = () => {
+          stopAutoMotion();
+        };
+
+        const onUpdate = (deltaTime: number) => {
+          if (!isReady || !autoMotionEnabled) {
+            return;
+          }
+
+          state.yaw += autoSpinSpeed * deltaTime;
+          updateCamera();
+        };
+
+        app.on('update', onUpdate);
 
         const onTouchMove = (event: TouchEvent) => {
+          stopAutoMotion();
           if (event.touches.length !== 2) {
             state.pinchDistance = 0;
             return;
@@ -213,6 +243,7 @@ export default function PoolModelViewer({
         canvas.addEventListener('pointercancel', onPointerUp);
         canvas.addEventListener('contextmenu', onContextMenu);
         canvas.addEventListener('touchmove', onTouchMove, { passive: false });
+        window.addEventListener('keydown', onKeyDown);
 
         cleanup = () => {
           canvas.removeEventListener('wheel', onWheel);
@@ -222,6 +253,8 @@ export default function PoolModelViewer({
           canvas.removeEventListener('pointercancel', onPointerUp);
           canvas.removeEventListener('contextmenu', onContextMenu);
           canvas.removeEventListener('touchmove', onTouchMove);
+          window.removeEventListener('keydown', onKeyDown);
+          app.off('update', onUpdate);
           app.destroy();
         };
 
@@ -277,6 +310,7 @@ export default function PoolModelViewer({
           }
 
           updateCamera();
+          isReady = true;
           setLoadState('ready');
         });
 
@@ -299,7 +333,7 @@ export default function PoolModelViewer({
       isDisposed = true;
       cleanup?.();
     };
-  }, [modelName, modelSrc]);
+  }, [autoSpin, autoSpinSpeed, introMotion, modelName, modelSrc]);
 
   return (
     <div className="overflow-hidden rounded-3xl border border-slate-700 bg-slate-950 shadow-2xl shadow-sky-950/20">
