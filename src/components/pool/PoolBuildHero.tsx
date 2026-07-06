@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 const VIDEO_SRC = '/images/pool/3D model.mp4';
-const SCROLL_EPSILON_SECONDS = 0.035;
+const SCROLL_EPSILON_SECONDS = 0.02;
 
 function clamp(value: number, min = 0, max = 1) {
   return Math.min(Math.max(value, min), max);
@@ -25,7 +25,7 @@ export default function PoolBuildHero() {
   const [isReady, setIsReady] = useState(false);
   const [hasEntered, setHasEntered] = useState(false);
 
-  const completeProgress = reducedMotion ? 1 : progress;
+  const completeProgress = reducedMotion || isMobile ? 1 : progress;
   const easedProgress = easeOutCubic(completeProgress);
   const textOpacity = clamp((completeProgress - 0.58) / 0.28);
   const finalOpacity = clamp((completeProgress - 0.82) / 0.16);
@@ -159,8 +159,8 @@ export default function PoolBuildHero() {
   }, [duration, hasEntered, isMobile, reducedMotion]);
 
   return (
-    <section ref={sectionRef} className="relative -mx-3 h-[200vh] overflow-clip bg-slate-950 text-white sm:-mx-5 lg:-mx-[calc((100vw-80rem)/2)]" aria-labelledby="pool-build-hero-title">
-      <div className="sticky top-0 flex h-screen items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_50%_38%,rgba(56,189,248,0.20),transparent_34%),radial-gradient(circle_at_50%_115%,rgba(14,165,233,0.16),transparent_45%),linear-gradient(180deg,#020617_0%,#06111f_52%,#020617_100%)] px-5 py-8 sm:px-8">
+    <section ref={sectionRef} className="relative -mx-3 h-auto overflow-clip bg-slate-950 text-white sm:-mx-5 md:h-[160vh] lg:-mx-[calc((100vw-80rem)/2)]" aria-labelledby="pool-build-hero-title">
+      <div className="relative flex flex-col items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_50%_38%,rgba(56,189,248,0.20),transparent_34%),radial-gradient(circle_at_50%_115%,rgba(14,165,233,0.16),transparent_45%),linear-gradient(180deg,#020617_0%,#06111f_52%,#020617_100%)] px-5 py-10 sm:px-8 md:sticky md:top-0 md:h-screen md:py-8">
         <div className="pointer-events-none absolute left-1/2 top-1/2 h-[42rem] w-[42rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-300/10 blur-3xl" />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_42%,rgba(2,6,23,0.72)_100%)]" />
 
@@ -175,14 +175,15 @@ export default function PoolBuildHero() {
 
           <div className="relative w-full max-w-5xl transition-transform duration-200 will-change-transform" style={{ transform: `translate3d(0, ${videoTranslate}px, 0) scale(${videoScale})` }}>
             <div className="absolute -inset-8 rounded-[3rem] bg-cyan-200/10 blur-3xl" />
-            <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-black/40 shadow-[0_2rem_5rem_rgba(0,0,0,0.55)]">
+            <div className="relative h-[300px] overflow-hidden rounded-[2rem] border border-white/10 shadow-[0_2rem_5rem_rgba(0,0,0,0.55)] sm:h-[420px] md:h-[480px] lg:h-[600px]">
               <video
                 ref={videoRef}
-                className="aspect-video w-full bg-slate-950 object-contain"
+                className="h-full w-full object-cover"
                 src={VIDEO_SRC}
                 muted
                 playsInline
-                preload="metadata"
+                loop={isMobile}
+                preload={isMobile ? 'metadata' : 'auto'}
                 onEnded={() => {
                   const video = videoRef.current;
                   if (!video) return;
@@ -191,7 +192,8 @@ export default function PoolBuildHero() {
                 }}
                 aria-label="Scroll controlled animation showing the James Square swimming pool 3D model being constructed"
               />
-              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_58%,rgba(2,6,23,0.62)_100%)]" />
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-slate-950/10" />
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_58%,rgba(2,6,23,0.45)_100%)]" />
             </div>
           </div>
 
