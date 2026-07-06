@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 
 import PoolModelSequence from '@/components/PoolModelSequence';
+import PoolBuildHero from '@/components/pool/PoolBuildHero';
 
 const infoCards = [
   {
@@ -81,7 +82,9 @@ const poolImages = [
 
 export default function Pool3DPage() {
   return (
-    <main className="mx-auto max-w-7xl space-y-8 px-3 py-6 sm:px-5 lg:py-10">
+    <main className="mx-auto max-w-7xl space-y-8 px-3 pb-6 sm:px-5 lg:pb-10">
+      <PoolBuildHero />
+
       <section className="overflow-hidden rounded-[2rem] border border-sky-100 bg-gradient-to-br from-sky-50 via-white to-cyan-50 p-6 shadow-xl shadow-sky-950/5 dark:border-white/10 dark:from-slate-950 dark:via-slate-900 dark:to-cyan-950/40 sm:p-8 lg:p-10">
         <div className="max-w-4xl">
           <p className="mb-3 text-sm font-semibold uppercase tracking-[0.28em] text-sky-700 dark:text-sky-300">
@@ -106,7 +109,7 @@ export default function Pool3DPage() {
         </div>
       </section>
 
-      <section aria-labelledby="pool-models-heading" className="space-y-6">
+      <section id="pool-interactive-model" aria-labelledby="pool-models-heading" className="scroll-mt-6 space-y-6">
         <div className="max-w-4xl space-y-3 px-1">
           <p className="text-sm font-semibold uppercase tracking-[0.22em] text-sky-700 dark:text-sky-300">
             Interactive sequence
