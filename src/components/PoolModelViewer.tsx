@@ -16,7 +16,7 @@ type GlbContainerResource = {
   instantiateRenderEntity: (options?: { castShadows?: boolean }) => PlayCanvasEntity;
 };
 
-type PoolModelViewerSize = 'hero' | 'standard' | 'compact';
+type PoolModelViewerSize = 'hero' | 'standard' | 'compact' | 'fullscreen';
 
 const SUPPORTED_MODEL_EXTENSIONS = new Set(['glb', 'gltf']);
 const isDevelopment = process.env.NODE_ENV === 'development';
@@ -51,8 +51,9 @@ const checkModelUrl = async (modelSrc: string) => {
 
 const viewerHeightClasses: Record<PoolModelViewerSize, string> = {
   hero: 'h-[360px] sm:h-[520px] lg:h-[680px]',
-  standard: 'h-[320px] sm:h-[440px] lg:h-[560px]',
+  standard: 'h-[340px] sm:h-[460px] lg:h-[600px] xl:h-[460px] 2xl:h-[520px]',
   compact: 'h-[280px] sm:h-[380px] lg:h-[480px]',
+  fullscreen: 'h-full',
 };
 
 type PoolModelViewerProps = {
@@ -149,25 +150,34 @@ export default function PoolModelViewer({
           app.destroy();
         };
 
-        app.scene.ambientLight = new pc.Color(0.55, 0.62, 0.68);
-        app.scene.exposure = 1.28;
-        (app.scene as unknown as { toneMapping: number }).toneMapping = pc.TONEMAP_ACES;
+        // Neutral daylight setup with desaturated lights, a soft pale clear
+        // color and the Khronos "neutral" tonemapper for realistic exposure.
+        app.scene.ambientLight = new pc.Color(0.64, 0.65, 0.66);
+        app.scene.exposure = 1.05;
         app.start();
 
         const camera = new pc.Entity('Pool camera');
         camera.addComponent('camera', {
-          clearColor: new pc.Color(0.05, 0.06, 0.08),
+          clearColor: new pc.Color(0.78, 0.8, 0.82),
           farClip: 1000,
           fov: 42,
           nearClip: 0.08,
+          toneMapping: pc.TONEMAP_NEUTRAL,
         });
         app.root.addChild(camera);
+
+        // The window glass materials use the glTF KHR_materials_transmission
+        // extension (real refraction). Without a scene color grab pass, that
+        // shader has no background texture to sample and renders the glass
+        // as a flat, incorrect tint (seen here as a purple cast through the
+        // windows), so the scene color map must be requested explicitly.
+        camera.camera!.requestSceneColorMap(true);
 
         const keyLight = new pc.Entity('Main soft light');
         keyLight.addComponent('light', {
           type: 'directional',
-          color: new pc.Color(1, 0.96, 0.88),
-          intensity: 3.2,
+          color: new pc.Color(1, 0.98, 0.94),
+          intensity: 2.6,
           castShadows: true,
           shadowDistance: 35,
         });
@@ -177,8 +187,8 @@ export default function PoolModelViewer({
         const fillLight = new pc.Entity('Fill light');
         fillLight.addComponent('light', {
           type: 'directional',
-          color: new pc.Color(0.55, 0.7, 1),
-          intensity: 1.35,
+          color: new pc.Color(0.92, 0.94, 0.96),
+          intensity: 0.9,
         });
         fillLight.setEulerAngles(20, -135, 0);
         app.root.addChild(fillLight);
@@ -418,7 +428,7 @@ export default function PoolModelViewer({
   }, [autoSpin, autoSpinSpeed, introMotion, modelName, modelSrc]);
 
   return (
-    <div className="overflow-hidden rounded-3xl border border-slate-700 bg-slate-950 shadow-2xl shadow-sky-950/20">
+    <div className={`overflow-hidden rounded-3xl border border-slate-700 bg-slate-950 shadow-2xl shadow-sky-950/20 ${size === 'fullscreen' ? 'h-full' : ''}`}>
       <div className={`relative w-full ${viewerHeightClasses[size]}`}>
         <canvas
           ref={canvasRef}
@@ -427,7 +437,10 @@ export default function PoolModelViewer({
           className="h-full w-full touch-none bg-slate-950 outline-none"
         />
         {loadState !== 'ready' ? (
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-slate-950/55 p-6 text-center text-sm font-semibold text-white">
+          <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-3 bg-slate-950/55 p-6 text-center text-sm font-semibold text-white">
+            {loadState === 'loading' ? (
+              <span className="h-8 w-8 animate-spin rounded-full border-2 border-white/25 border-t-cyan-300" aria-hidden="true" />
+            ) : null}
             {loadState === 'error' ? errorMessage : loadingLabel}
           </div>
         ) : null}

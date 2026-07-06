@@ -109,8 +109,8 @@ export default function Pool3DPage() {
         </div>
       </section>
 
-      <section id="pool-interactive-model" aria-labelledby="pool-models-heading" className="scroll-mt-6 space-y-6">
-        <div className="max-w-4xl space-y-3 px-1">
+      <section id="pool-interactive-model" aria-labelledby="pool-models-heading" className="scroll-mt-28 space-y-6 xl:-mx-16 2xl:-mx-28">
+        <div className="max-w-4xl space-y-3 px-1 xl:px-16 2xl:px-28">
           <p className="text-sm font-semibold uppercase tracking-[0.22em] text-sky-700 dark:text-sky-300">
             Interactive sequence
           </p>

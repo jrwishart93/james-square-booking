@@ -65,7 +65,7 @@ export default function PoolModelSequence() {
   const [activeModelId, setActiveModelId] = useState<string | null>(null);
 
   return (
-    <div className="grid gap-6 md:grid-cols-3">
+    <div className="grid gap-6 xl:grid-cols-3">
       {poolModels.map((model) => (
         <LazyPoolModelCard
           key={model.id}
