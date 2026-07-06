@@ -114,6 +114,8 @@ export default function Pool3DPage() {
             modelName="James Square pool area 3D model"
             loadingLabel="Loading the modelled pool area…"
             ariaLabel="Interactive 3D model of the James Square heated indoor pool layout"
+            autoSpin
+            autoSpinSpeed={1.4}
           />
         </div>
         <p className="px-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
@@ -136,6 +138,8 @@ export default function Pool3DPage() {
             modelName="James Square pool photo scan"
             loadingLabel="Loading the pool photo scan…"
             ariaLabel="Interactive 3D photo scan of the James Square heated indoor pool area"
+            autoSpin
+            autoSpinSpeed={1.1}
           />
         </div>
         <p className="px-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
@@ -158,6 +162,8 @@ export default function Pool3DPage() {
             modelName="James Square plant room and office scan"
             loadingLabel="Loading the plant room and office scan…"
             ariaLabel="Interactive 3D scan of the James Square pool plant room and office"
+            autoSpin
+            autoSpinSpeed={1.1}
           />
         </div>
       </section>
