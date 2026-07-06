@@ -3,8 +3,6 @@ import Image from 'next/image';
 
 import PoolModelViewer from '@/components/PoolModelViewer';
 
-const poolWalkthroughVideo = '/docs/survey/pool-walkthrough-website.mp4';
-
 const infoCards = [
   {
     title: 'About the pool area',
@@ -30,13 +28,13 @@ const infoCards = [
 ];
 
 export const metadata: Metadata = {
-  title: 'James Square Pool 3D Model',
+  title: 'James Square Pool 3D Models',
   description:
-    'Interactive digital model of the James Square heated indoor pool, created to support repair and refurbishment discussions.',
+    'Interactive 3D model and phone scan of the James Square heated indoor pool, created to support repair and refurbishment discussions.',
   openGraph: {
-    title: 'James Square Pool 3D Model',
+    title: 'James Square Pool 3D Models',
     description:
-      'Interactive digital model of the James Square heated indoor pool, created to support repair and refurbishment discussions.',
+      'Interactive 3D model and phone scan of the James Square heated indoor pool, created to support repair and refurbishment discussions.',
     images: [
       {
         url: '/images/pool/Pool-facing-south.png',
@@ -90,10 +88,10 @@ export default function Pool3DPage() {
             Pool project reference
           </p>
           <h1 className="text-4xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-5xl lg:text-6xl">
-            James Square Pool 3D Model
+            James Square Pool 3D Models
           </h1>
           <p className="mt-5 max-w-3xl text-base leading-7 text-slate-700 dark:text-slate-200 sm:text-lg">
-            An interactive digital model of the James Square heated indoor pool, created to help visualise the layout and support future repair and refurbishment discussions.
+            Interactive 3D references for the James Square heated indoor pool: a cleaned 3D model of the space, with the original phone scan shown underneath for comparison.
           </p>
           <div className="mt-6 inline-flex rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900 shadow-sm dark:border-amber-300/30 dark:bg-amber-300/10 dark:text-amber-100">
             Pool currently closed pending repairs and further assessment.
@@ -108,37 +106,41 @@ export default function Pool3DPage() {
               Interactive 3D pool model
             </h2>
             <p className="text-sm text-slate-600 dark:text-slate-300">
-              Rotate, zoom and pan the latest pool model directly in the viewer.
+              Rotate, zoom and pan the modelled version of the pool area directly in the viewer.
             </p>
           </div>
-          <PoolModelViewer ariaLabel="Interactive 3D model of the James Square heated indoor pool layout" />
+          <PoolModelViewer
+            modelSrc="/images/pool/pool-area-3D-model.glb"
+            modelName="James Square pool area 3D model"
+            loadingLabel="Loading the modelled pool area…"
+            ariaLabel="Interactive 3D model of the James Square heated indoor pool layout"
+          />
         </div>
         <p className="px-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-          This model is a working visual reference and may be refined as further photos, measurements and survey information become available.
+          This model is a working visual reference created from the scan and may be refined as further photos, measurements and survey information become available.
         </p>
       </section>
 
-      <section aria-labelledby="pool-scan-heading" className="rounded-3xl border border-slate-200 bg-white/85 p-4 shadow-lg shadow-slate-950/5 dark:border-white/10 dark:bg-slate-900/80 sm:p-5">
-        <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_340px] md:items-center">
-          <div>
-            <h2 id="pool-scan-heading" className="text-xl font-bold text-slate-950 dark:text-white">
-              3D scan preview
+      <section aria-labelledby="pool-scan-heading" className="space-y-4">
+        <div className="rounded-[2rem] border border-slate-200 bg-white/90 p-3 shadow-2xl shadow-sky-950/10 dark:border-white/10 dark:bg-slate-900/90 sm:p-4">
+          <div className="mb-4 flex flex-col gap-2 px-2 pt-2 sm:px-3">
+            <h2 id="pool-scan-heading" className="text-2xl font-bold text-slate-950 dark:text-white">
+              Original phone scan
             </h2>
-            <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-              A short scan walkthrough is available as a secondary reference alongside the interactive model.
+            <p className="text-sm text-slate-600 dark:text-slate-300">
+              The raw scan captured on phone is shown underneath the modelled version so the two references can be compared directly.
             </p>
           </div>
-          <video
-            className="aspect-video w-full rounded-2xl bg-slate-950 object-cover shadow-lg"
-            src={poolWalkthroughVideo}
-            controls
-            muted
-            playsInline
-            preload="metadata"
-            poster="/images/pool/Pool-facing-south.png"
-            aria-label="Walkthrough video scan of the James Square pool 3D model"
+          <PoolModelViewer
+            modelSrc="/images/pool/pool-area-scan.glb"
+            modelName="James Square pool area phone scan"
+            loadingLabel="Loading the original phone scan…"
+            ariaLabel="Interactive 3D phone scan of the James Square heated indoor pool layout"
           />
         </div>
+        <p className="px-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+          The scan is the original capture source, while the model above is a cleaned 3D interpretation based on that scan.
+        </p>
       </section>
 
       <section aria-labelledby="pool-details-heading" className="space-y-4">
