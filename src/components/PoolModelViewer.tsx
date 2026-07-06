@@ -16,6 +16,14 @@ type GlbContainerResource = {
   instantiateRenderEntity: (options?: { castShadows?: boolean }) => PlayCanvasEntity;
 };
 
+type PoolModelViewerSize = 'hero' | 'standard' | 'compact';
+
+const viewerHeightClasses: Record<PoolModelViewerSize, string> = {
+  hero: 'h-[360px] sm:h-[520px] lg:h-[680px]',
+  standard: 'h-[320px] sm:h-[440px] lg:h-[560px]',
+  compact: 'h-[280px] sm:h-[380px] lg:h-[480px]',
+};
+
 type PoolModelViewerProps = {
   ariaLabel?: string;
   autoSpin?: boolean;
@@ -24,6 +32,7 @@ type PoolModelViewerProps = {
   loadingLabel?: string;
   modelName?: string;
   modelSrc: string;
+  size?: PoolModelViewerSize;
 };
 
 const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
@@ -36,6 +45,7 @@ export default function PoolModelViewer({
   loadingLabel = 'Loading PlayCanvas pool model…',
   modelName = 'James Square pool model',
   modelSrc,
+  size = 'hero',
 }: PoolModelViewerProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>('loading');
@@ -337,7 +347,7 @@ export default function PoolModelViewer({
 
   return (
     <div className="overflow-hidden rounded-3xl border border-slate-700 bg-slate-950 shadow-2xl shadow-sky-950/20">
-      <div className="relative h-[520px] w-full sm:h-[640px] lg:h-[760px]">
+      <div className={`relative w-full ${viewerHeightClasses[size]}`}>
         <canvas
           ref={canvasRef}
           aria-label={ariaLabel}
