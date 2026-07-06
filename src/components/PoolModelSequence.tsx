@@ -33,7 +33,7 @@ const poolModels = [
     title: 'Pool capture reference',
     description:
       'Compare the cleaned model against the original photo scan to understand captured geometry, finishes and areas that may need survey confirmation.',
-    modelSrc: '/images/pool/pool-3D-photo-scan.glb',
+    modelSrc: '/images/pool/pool-photo-scan.glb',
     modelName: 'James Square pool photo scan',
     loadingLabel: 'Loading the pool photo scan…',
     ariaLabel: 'Interactive 3D photo scan of the James Square heated indoor pool area',
@@ -51,7 +51,7 @@ const poolModels = [
     title: 'Plant room and office scan',
     description:
       'Review this separate scan for plant, office and back-of-house context that supports contractor access planning and services discussions.',
-    modelSrc: '/images/pool/plant-room-and-office.glb',
+    modelSrc: '/images/pool/plant-room-office-scan.glb',
     modelName: 'James Square plant room and office scan',
     loadingLabel: 'Loading the plant room and office scan…',
     ariaLabel: 'Interactive 3D scan of the James Square pool plant room and office',
