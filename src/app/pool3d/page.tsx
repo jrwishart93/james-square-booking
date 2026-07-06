@@ -8,23 +8,23 @@ const infoCards = [
   {
     title: 'About the pool area',
     summary:
-      'James Square has a heated indoor residents’ pool area with associated gym, sauna, changing and shower facilities.',
+      'James Square has a heated indoor residents’ pool area with an associated gym, sauna, changing and shower facilities.',
     details:
-      'The pool area forms part of the original James Square leisure facilities. It includes the heated indoor swimming pool, gym, sauna, changing rooms, showers, seating and plant room. This digital model is intended to help explain the general layout of the space.',
+      'The pool area includes the heated indoor swimming pool, gym, sauna, changing rooms, showers, seating and plant room. This digital model is intended to help explain the general layout of the space.',
   },
   {
     title: 'Current repair position',
     summary:
-      'The pool is temporarily closed following issues linked to the electrical fault and issues with ventilation/dehumidification system and resulting high humidity.',
+      'The pool is temporarily closed following an electrical fault and issues with the ventilation/dehumidification system.',
     details:
-      'The pool area has recently been affected by high humidity levels following an electrical fault and knock-on issues with the ventilation/dehumidification system. The elevated moisture levels caused damage to parts of the pool area, including ceiling finishes that now require repair. Further surveys, assessments and repair works are being considered so the facilities can be reopened safely.',
+      'High humidity following the fault caused damage to parts of the pool area, including ceiling finishes that now require repair. Further surveys, assessments and repair works are being considered so the facilities can be reopened safely.',
   },
   {
     title: 'Purpose of this page',
     summary:
-      'This page can be shared with contractors, designers, surveyors and others involved in reviewing the pool area.',
+      'A shared visual reference for contractors, designers, surveyors and others involved in the pool project.',
     details:
-      'This page is intended to provide a useful visual reference for anyone involved in the pool repair and refurbishment process. It may assist contractors, designers, architects, surveyors, RLSS UK, committee members and residents by giving them a better understanding of the layout before visiting or reviewing the space. The page is still in its early stages and more information, images and updates may be added in due course.',
+      'This page gives contractors, designers, architects, surveyors and committee members a better understanding of the layout before visiting or reviewing the space in person. It is still in its early stages, so expect more information, images and updates over time.',
   },
 ];
 
@@ -94,7 +94,7 @@ export default function Pool3DPage() {
             James Square Pool 3D Models
           </h1>
           <p className="mt-5 max-w-3xl text-base leading-7 text-slate-700 dark:text-slate-200 sm:text-lg">
-            This page brings together three interactive 3D references for the James Square heated indoor pool: a cleaned model for design discussions, a pool photo scan for source context, and a plant room scan for services and access review.
+            Three interactive 3D references for the James Square heated indoor pool: a cleaned model for design discussions, a photo scan for source context, and a plant room scan for services and access review.
           </p>
           <div className="mt-6 flex flex-wrap gap-2">
             {['Clean model', 'Photo scan', 'Plant room'].map((label) => (
@@ -118,7 +118,7 @@ export default function Pool3DPage() {
             Start with the cleaned model, then compare the supporting scans.
           </h2>
           <p className="text-sm leading-6 text-slate-600 dark:text-slate-300 sm:text-base sm:leading-7">
-            The main model is the clearest reference for layout conversations. The two scans below provide useful context on the original capture, finishes, plant room, office and service areas.
+            The two scans below add context on the original capture, finishes, plant room, office and service areas.
           </p>
         </div>
 
@@ -172,6 +172,24 @@ export default function Pool3DPage() {
               </figure>
             </a>
           ))}
+        </div>
+      </section>
+
+      <section aria-labelledby="pool-download-heading" className="border-t border-slate-200 pt-6 dark:border-white/10">
+        <h2 id="pool-download-heading" className="sr-only">
+          Download the 3D model
+        </h2>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <a
+            href="/images/pool/pool-area-3D-model.glb"
+            download="james-square-pool-area-3d-model.glb"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-sky-700 underline underline-offset-4 hover:text-sky-900 dark:text-sky-300 dark:hover:text-sky-100"
+          >
+            Download 3D model (.glb)
+          </a>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Provided for designers, contractors and other interested parties to use in their own work. This model is still a work in progress — further improvements and updates will be added in due course.
+          </p>
         </div>
       </section>
     </main>
