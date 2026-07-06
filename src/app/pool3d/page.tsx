@@ -143,6 +143,25 @@ export default function Pool3DPage() {
         </p>
       </section>
 
+      <section aria-labelledby="plant-room-scan-heading" className="space-y-4">
+        <div className="rounded-[2rem] border border-slate-200 bg-white/90 p-3 shadow-2xl shadow-sky-950/10 dark:border-white/10 dark:bg-slate-900/90 sm:p-4">
+          <div className="mb-4 flex flex-col gap-2 px-2 pt-2 sm:px-3">
+            <h2 id="plant-room-scan-heading" className="text-2xl font-bold text-slate-950 dark:text-white">
+              Plant room and office scan
+            </h2>
+            <p className="text-sm text-slate-600 dark:text-slate-300">
+              A separate 3D scan showing the pool plant room and office areas.
+            </p>
+          </div>
+          <PoolModelViewer
+            modelSrc="/images/pool/plant-room-and-office.glb"
+            modelName="James Square plant room and office scan"
+            loadingLabel="Loading the plant room and office scan…"
+            ariaLabel="Interactive 3D scan of the James Square pool plant room and office"
+          />
+        </div>
+      </section>
+
       <section aria-labelledby="pool-details-heading" className="space-y-4">
         <h2 id="pool-details-heading" className="text-2xl font-bold text-slate-950 dark:text-white">
           Project information
