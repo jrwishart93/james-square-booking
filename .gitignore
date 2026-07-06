@@ -17,6 +17,10 @@
 /.next/
 /out/
 
+# next-pwa generated service worker
+/public/sw.js
+/public/workbox-*.js
+
 # production
 /build
 
