@@ -125,8 +125,30 @@ export default function PoolModelViewer({
           app.destroy();
         };
 
-        app.setCanvasFillMode(pc.FILLMODE_FILL_WINDOW);
-        app.setCanvasResolution(pc.RESOLUTION_AUTO);
+        // Keep the canvas sized to its own container (set via CSS classes) rather than
+        // the browser window: FILLMODE_FILL_WINDOW forces canvas.style dimensions to
+        // window.innerWidth/innerHeight, which mismatches the card's fixed-height wrapper
+        // and distorts the camera's aspect ratio, especially on mobile.
+        app.setCanvasFillMode(pc.FILLMODE_NONE);
+
+        const resizeToContainer = () => {
+          const width = canvas.clientWidth;
+          const height = canvas.clientHeight;
+          if (width > 0 && height > 0) {
+            app.graphicsDevice.resizeCanvas(width, height);
+          }
+        };
+
+        resizeToContainer();
+
+        const resizeObserver = new ResizeObserver(resizeToContainer);
+        resizeObserver.observe(canvas);
+
+        cleanup = () => {
+          resizeObserver.disconnect();
+          app.destroy();
+        };
+
         app.scene.ambientLight = new pc.Color(0.55, 0.62, 0.68);
         app.scene.exposure = 1.28;
         (app.scene as unknown as { toneMapping: number }).toneMapping = pc.TONEMAP_ACES;
@@ -305,6 +327,7 @@ export default function PoolModelViewer({
           canvas.removeEventListener('contextmenu', onContextMenu);
           canvas.removeEventListener('touchmove', onTouchMove);
           window.removeEventListener('keydown', onKeyDown);
+          resizeObserver.disconnect();
           app.off('update', onUpdate);
           app.destroy();
         };
