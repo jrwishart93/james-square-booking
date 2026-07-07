@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
+import Link from 'next/link';
 
 import PoolModelSequence from '@/components/PoolModelSequence';
 import PoolBuildHero from '@/components/pool/PoolBuildHero';
@@ -105,6 +106,14 @@ export default function Pool3DPage() {
           </div>
           <div className="mt-6 inline-flex rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900 shadow-sm dark:border-amber-300/30 dark:bg-amber-300/10 dark:text-amber-100">
             Pool currently closed pending repairs and further assessment.
+          </div>
+          <div className="mt-4">
+            <Link
+              href="/pool-safety"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-sky-700 underline underline-offset-4 hover:text-sky-900 dark:text-sky-300 dark:hover:text-sky-100"
+            >
+              How the pool operates &amp; staying safe →
+            </Link>
           </div>
         </div>
       </section>

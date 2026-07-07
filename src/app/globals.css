@@ -494,3 +494,21 @@ body::before {
   transform: scale(0.96);
   opacity: 0.88;
 }
+
+/* Hide site chrome when a page is printed / exported to PDF (e.g. the RLSS
+   safety report), so the export contains only the report content. */
+@media print {
+  .header-safe-wrapper,
+  footer {
+    display: none !important;
+  }
+  body {
+    background: #ffffff !important;
+    background-image: none !important;
+  }
+  main.site-content {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}
