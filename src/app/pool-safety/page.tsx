@@ -55,6 +55,17 @@ const facilityPhotos = [
     alt: 'One of the changing rooms',
     caption: 'Changing rooms',
   },
+  {
+    src: '/images/pool/32-air-source-heatpump-to-heat-pool.jpeg',
+    alt: 'The air source heat pump used to heat the pool',
+    caption: 'Air source heat pump',
+  },
+];
+
+const openingHours = [
+  { area: 'Pool', hours: '5.30am – 11.00pm', note: 'closed 9.30–11.00am daily for cleaning · no booking required' },
+  { area: 'Gym', hours: '11.00am – 5.00pm', note: 'booking recommended' },
+  { area: 'Sauna', hours: '5.00pm – 11.00pm', note: 'booking recommended' },
 ];
 
 const waterQualityRanges = [
@@ -77,83 +88,104 @@ const emergencyEquipment = [
 const signagePhotos = [
   {
     src: '/images/pool/01-entrance-hallway.jpeg',
-    alt: 'Entrance signage: no eating or drinking, CCTV in operation, no outdoor footwear, hygiene notice and the resident booking QR code',
-    caption: 'Entrance notices: no eating/drinking, CCTV in operation, no outdoor footwear, hygiene reminder and the booking QR code',
+    alt: 'Entrance signage: no eating or drinking, CCTV in operation, no outdoor footwear and hygiene notices',
+    caption: 'Entrance notices: no eating/drinking, CCTV in operation, no outdoor footwear and hygiene reminder',
+  },
+  {
+    src: '/images/pool/05-remove-outer-footwear-sign.jpeg',
+    alt: 'No outdoor footwear sign',
+    caption: 'No outdoor footwear',
+  },
+  {
+    src: '/images/pool/10-covid-sign.jpeg',
+    alt: 'Visitor hygiene notice asking people to wash hands regularly',
+    caption: 'Visitor hygiene notice',
+  },
+  {
+    src: '/images/pool/29-shower-notice-sign.jpeg',
+    alt: 'Please shower before entering the pool and after using the sauna',
+    caption: 'Please shower before entering the pool',
+  },
+  {
+    src: '/images/pool/09-internal-door-11pm-alarm-sign.jpeg',
+    alt: 'Pool opening times and the 11pm vacate / alarm reminder notice',
+    caption: 'Pool opening times and 11pm vacate reminder',
+  },
+  {
+    src: '/images/pool/24-no-diving-signage.jpeg',
+    alt: 'No diving sign displayed poolside, next to a lifebuoy',
+    caption: 'No diving',
+  },
+  {
+    src: '/images/pool/16-deep-end-sign-no-running-sign.jpeg',
+    alt: 'Deep end depth marker (1.70m) and no running sign',
+    caption: 'Deep end depth marker & no running',
+  },
+  {
+    src: '/images/pool/28-shallow-end-sign-no-running-and-clock.jpeg',
+    alt: 'Shallow end depth marker (0.80m) and no running sign',
+    caption: 'Shallow end depth marker & no running',
+  },
+  {
+    src: '/images/pool/30-contamination-sign.jpeg',
+    alt: 'Warning: risk of cross contamination — all surfaces must be cleaned before and after use',
+    caption: 'Cross contamination warning',
+  },
+  {
+    src: '/images/pool/26-lifebuoy-number2.jpeg',
+    alt: 'Lifebuoy for emergency use only',
+    caption: 'Lifebuoy for emergency use only',
+  },
+  {
+    src: '/images/pool/20-fire-door.jpeg',
+    alt: 'Fire door keep closed sign and emergency exit break-glass notice',
+    caption: 'Fire door & emergency exit signage',
   },
   {
     src: '/images/pool/Pool-entrance.png',
-    alt: 'Lifebuoy for emergency use only, next to a fire alarm call point at the pool hall exit',
-    caption: 'Lifebuoy (“for emergency use only”) and fire alarm call point at the pool hall exit',
-  },
-  {
-    src: '/images/pool/Pool-facing-south.png',
-    alt: 'No diving sign displayed poolside',
-    caption: 'No diving sign, displayed poolside',
-  },
-  {
-    src: '/images/pool/05-sauna-entrance-door.jpeg',
-    alt: 'Hygiene notice and single-household changing room notice',
-    caption: 'Hygiene reminder and single-household changing room notice',
-  },
-  {
-    src: '/images/pool/03-gym-facing-south.jpeg',
-    alt: 'Hygiene and cross-contamination warning signage in the gym',
-    caption: 'Hygiene and cross-contamination warning notices',
+    alt: 'Fire alarm call point at the pool hall exit',
+    caption: 'Fire alarm call point',
   },
 ];
 
 const fullSignageList = [
-  { label: 'No outdoor footwear', photographed: true },
-  { label: 'CCTV in operation', photographed: true },
-  { label: 'No eating or drinking', photographed: true },
-  { label: 'Shower before entering the pool', photographed: false },
-  { label: 'Hand sanitising notice', photographed: true },
-  { label: 'Fire action notices', photographed: false },
-  { label: 'Pool opening hours', photographed: false },
-  { label: 'Building alarm reminder', photographed: false },
-  { label: 'Deep end depth marker (1.70m)', photographed: false },
-  { label: 'Shallow end depth marker (0.80m)', photographed: false },
-  { label: 'No running', photographed: false },
-  { label: 'Lifebuoy for emergency use only', photographed: true },
-  { label: 'Cross contamination warning', photographed: true },
-  { label: 'Fire door signage', photographed: false },
-  { label: 'Emergency exit signage', photographed: false },
+  'No outdoor footwear',
+  'CCTV in operation',
+  'No eating or drinking',
+  'Shower before entering the pool',
+  'Hand sanitising / visitor hygiene notice',
+  'Fire action notices',
+  'Pool opening hours',
+  'Building alarm reminder',
+  'Deep end depth marker (1.70m)',
+  'Shallow end depth marker (0.80m)',
+  'No running',
+  'Lifebuoy for emergency use only',
+  'Cross contamination warning',
+  'Fire door signage',
+  'Emergency exit signage',
 ];
 
-const poolRuleGroups = [
-  {
-    title: 'Supervision & who can use the pool',
-    items: [
-      'For the use of James Square residents and their invited guests only.',
-      'Children under 16 must be accompanied by a responsible adult at all times.',
-    ],
-  },
-  {
-    title: 'Hygiene',
-    items: [
-      'Please shower before entering the pool.',
-      'Please use hand sanitiser on entry.',
-      'No outdoor footwear beyond the entrance.',
-    ],
-  },
-  {
-    title: 'Safe use',
-    items: [
-      'No diving.',
-      'No running around the pool or wet areas.',
-      'No eating or drinking in the pool hall.',
-      'Take care using the sauna and follow the posted guidance for safe use.',
-    ],
-  },
-  {
-    title: 'Conduct & shared use',
-    items: [
-      'No alcohol and no smoking anywhere in the facility.',
-      'Please leave the pool area by 11pm.',
-      'Please do not obstruct or misuse lifebuoys, reach poles or other emergency equipment.',
-      'Please be considerate of other residents sharing the space.',
-    ],
-  },
+const poolRules = [
+  'All users must shower before entering the pool or sauna (this cuts down on chemical usage and is better for the environment).',
+  'No more than six people from any one flat may use the recreation facilities at any one time, and should be accompanied by the person responsible for anyone gaining entry with them.',
+  'The taking of glass or other breakable vessels into the recreation area is dangerous and strictly prohibited.',
+  'No alcohol to be consumed in the recreation area.',
+  'Smoking is strictly prohibited in the recreation area.',
+  'No unaccompanied children under 16 are permitted to use the recreation area.',
+  'Outdoor footwear must be removed before entering the area. Shoe covers are provided.',
+  'Swimming/sports attire must be worn at all times.',
+  'No ball games, and no items such as airbeds etc, to be taken into the pool or leisure area.',
+  'No animals are allowed.',
+  'Lifebelts are for emergency use only.',
+  'The emergency exit is only for use in a genuine emergency — on no account should it be used for access or exit at any other time.',
+  'Only fresh water, in very small quantities, is to be sprinkled on the coals in the sauna; pool water must not be used, as it will create toxic vapour.',
+  'Please switch off the sauna and showers after use.',
+  'Excessive noise is as unacceptable in these areas as anywhere else in the development.',
+  'Owners will at all times be held responsible for the health and safety of anyone they bring into the facility.',
+  'Any person causing damage will be required to pay the cost involved in repair or replacement.',
+  'No running.',
+  'No jumping into the pool.',
 ];
 
 export default function PoolSafetyPage() {
@@ -237,7 +269,27 @@ export default function PoolSafetyPage() {
             gym, changing rooms, showers and toilets
           </li>
         </ul>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-white/10">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-sky-50 text-xs font-semibold uppercase tracking-wide text-sky-800 dark:bg-sky-300/10 dark:text-sky-100">
+              <tr>
+                <th className="px-4 py-2.5">Area</th>
+                <th className="px-4 py-2.5">Opening hours</th>
+                <th className="px-4 py-2.5">Note</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-200 dark:divide-white/10">
+              {openingHours.map((row) => (
+                <tr key={row.area} className="bg-white dark:bg-slate-900/60">
+                  <td className="px-4 py-2.5 font-medium text-slate-900 dark:text-white">{row.area}</td>
+                  <td className="px-4 py-2.5 text-slate-700 dark:text-slate-200">{row.hours}</td>
+                  <td className="px-4 py-2.5 text-xs text-slate-500 dark:text-slate-400">{row.note}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
           {facilityPhotos.map((photo) => (
             <figure
               key={photo.src}
@@ -284,8 +336,8 @@ export default function PoolSafetyPage() {
           <figure className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-slate-900">
             <div className="relative aspect-[4/3] w-full bg-slate-100 dark:bg-slate-800">
               <Image
-                src="/images/pool/01-entrance-hallway.jpeg"
-                alt="Booking information and QR code displayed at the pool entrance"
+                src="/images/pool/06-qr-booking-link-sign.jpeg"
+                alt="James Square pool, gym and sauna opening hours and booking QR code displayed at the entrance"
                 fill
                 loading="lazy"
                 sizes="(min-width: 640px) 40vw, 90vw"
@@ -293,7 +345,7 @@ export default function PoolSafetyPage() {
               />
             </div>
             <figcaption className="px-3 py-2 text-xs leading-tight text-slate-600 dark:text-slate-300">
-              Booking information and QR code, displayed at the entrance
+              Opening hours and booking QR code, displayed at the entrance
             </figcaption>
           </figure>
         </div>
@@ -336,8 +388,8 @@ export default function PoolSafetyPage() {
           <figure className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-slate-900">
             <div className="relative aspect-[4/3] w-full bg-slate-100 dark:bg-slate-800">
               <Image
-                src="/images/pool/IMG_4149.jpeg"
-                alt="Pool water filtration and dosing plant"
+                src="/images/pool/31-chlorine-and-pH-monitor.jpeg"
+                alt="Wallace and Tiernan Ezetrol touch automated chlorine and pH dosing and monitoring controller"
                 fill
                 loading="lazy"
                 sizes="(min-width: 640px) 40vw, 90vw"
@@ -345,7 +397,7 @@ export default function PoolSafetyPage() {
               />
             </div>
             <figcaption className="px-3 py-2 text-xs leading-tight text-slate-600 dark:text-slate-300">
-              Pool water filtration and dosing plant
+              Wallace &amp; Tiernan automated dosing and monitoring controller
             </figcaption>
           </figure>
         </div>
@@ -454,19 +506,10 @@ export default function PoolSafetyPage() {
         </div>
         <div className="rounded-2xl border border-slate-200 bg-white/80 px-4 py-4 dark:border-white/10 dark:bg-slate-900/60">
           <p className="text-sm font-semibold text-slate-900 dark:text-white">All signage currently in place</p>
-          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-            Close-up photographs of every individual sign are still being added — items marked below are already
-            shown in the photos above.
-          </p>
           <ul className="mt-3 grid grid-cols-1 gap-x-6 gap-y-1.5 text-sm text-slate-700 sm:grid-cols-2 dark:text-slate-200">
             {fullSignageList.map((sign) => (
-              <li key={sign.label} className="flex items-center justify-between gap-3 border-b border-slate-100 py-1 dark:border-white/5">
-                <span>{sign.label}</span>
-                {sign.photographed ? (
-                  <span className="shrink-0 text-xs font-semibold text-emerald-600 dark:text-emerald-400">Photographed</span>
-                ) : (
-                  <span className="shrink-0 text-xs text-slate-400 dark:text-slate-500">Photo to follow</span>
-                )}
+              <li key={sign} className="border-b border-slate-100 py-1 dark:border-white/5">
+                {sign}
               </li>
             ))}
           </ul>
@@ -478,23 +521,29 @@ export default function PoolSafetyPage() {
           Pool rules
         </h2>
         <p className="text-sm leading-7 text-slate-700 dark:text-slate-200 sm:text-base">
-          The full Pool &amp; Recreation Area Health &amp; Safety Rules are displayed at the main entrance. Key
-          points are summarised below.
+          The Pool &amp; Recreation Area Health &amp; Safety Rules below are displayed at the main entrance.
         </p>
-        <div className="grid gap-4 sm:grid-cols-2">
-          {poolRuleGroups.map((group) => (
-            <div
-              key={group.title}
-              className="rounded-2xl border border-slate-200 bg-white/80 px-4 py-4 dark:border-white/10 dark:bg-slate-900/60"
-            >
-              <p className="text-sm font-semibold text-slate-900 dark:text-white">{group.title}</p>
-              <ul className="mt-2 list-inside list-disc space-y-1 text-sm leading-6 text-slate-700 dark:text-slate-200">
-                {group.items.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
+        <div className="grid gap-6 sm:grid-cols-[1.1fr,0.9fr] sm:items-start">
+          <ol className="list-decimal space-y-2 rounded-2xl border border-slate-200 bg-white/80 px-5 py-4 pl-9 text-sm leading-6 text-slate-700 marker:font-semibold marker:text-slate-400 dark:border-white/10 dark:bg-slate-900/60 dark:text-slate-200">
+            {poolRules.map((rule) => (
+              <li key={rule}>{rule}</li>
+            ))}
+          </ol>
+          <figure className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-slate-900">
+            <div className="relative aspect-[4/3] w-full bg-slate-100 dark:bg-slate-800">
+              <Image
+                src="/images/pool/11-health&saftey-rules-sign.jpeg"
+                alt="Pool and Recreation Area Health and Safety Rules, as displayed at the main entrance"
+                fill
+                loading="lazy"
+                sizes="(min-width: 640px) 40vw, 90vw"
+                className="object-cover"
+              />
             </div>
-          ))}
+            <figcaption className="px-3 py-2 text-xs leading-tight text-slate-600 dark:text-slate-300">
+              The rules poster displayed at the main entrance
+            </figcaption>
+          </figure>
         </div>
       </section>
 

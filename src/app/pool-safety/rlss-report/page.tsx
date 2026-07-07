@@ -7,6 +7,12 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false, nocache: true },
 };
 
+const openingHours = [
+  { area: 'Pool', hours: '5.30am – 11.00pm', note: 'closed 9.30–11.00am daily for cleaning · no booking required' },
+  { area: 'Gym', hours: '11.00am – 5.00pm', note: 'booking recommended' },
+  { area: 'Sauna', hours: '5.00pm – 11.00pm', note: 'booking recommended' },
+];
+
 const waterQualityRanges = [
   { parameter: 'pH', range: '7.40 – 7.80' },
   { parameter: 'Chlorine', range: '0.80 – 4.30 ppm' },
@@ -39,6 +45,28 @@ const fullSignageList = [
   'Cross contamination warning',
   'Fire door signage',
   'Emergency exit signage',
+];
+
+const poolRules = [
+  'All users must shower before entering the pool or sauna (this cuts down on chemical usage and is better for the environment).',
+  'No more than six people from any one flat may use the recreation facilities at any one time, and should be accompanied by the fob holder, who will be responsible for anyone gaining entry with his/her entry card.',
+  'The taking of glass or other breakable vessels into the recreation area is dangerous and strictly prohibited.',
+  'No alcohol to be consumed in the recreation area.',
+  'Smoking is strictly prohibited in the recreation area.',
+  'No unaccompanied children under 16 are permitted to use the recreation area.',
+  'Outdoor footwear must be removed before entering the area. Shoe covers are provided.',
+  'Swimming/sports attire must be worn at all times.',
+  'No ball games, and no items such as airbeds etc, to be taken into the pool or leisure area.',
+  'No animals are allowed.',
+  'Lifebelts are for emergency use only.',
+  'The emergency exit is only for use in a genuine emergency — on no account should it be used for access or exit at any other time.',
+  'Only fresh water, in very small quantities, is to be sprinkled on the coals in the sauna; pool water must not be used, as it will create toxic vapour.',
+  'Please switch off the sauna and showers after use.',
+  'Excessive noise is as unacceptable in these areas as anywhere else in the development.',
+  'Owners will at all times be held responsible for the health and safety of anyone gaining entry with their fob.',
+  'Any person causing damage will be required to pay the cost involved in repair or replacement.',
+  'No running.',
+  'No jumping into the pool.',
 ];
 
 const areasForReview = [
@@ -142,6 +170,29 @@ export default function RlssReportPage() {
           Aquatech, who installed the majority of the pool equipment and provide specialist servicing and technical
           support when required.
         </p>
+        <table className="w-full border-collapse text-left text-[13px]">
+          <thead>
+            <tr className="border-b border-slate-300 bg-slate-50">
+              <th className="px-3 py-1.5 font-semibold">Area</th>
+              <th className="px-3 py-1.5 font-semibold">Opening hours</th>
+              <th className="px-3 py-1.5 font-semibold">Note</th>
+            </tr>
+          </thead>
+          <tbody>
+            {openingHours.map((row) => (
+              <tr key={row.area} className="border-b border-slate-200">
+                <td className="px-3 py-1.5">{row.area}</td>
+                <td className="px-3 py-1.5">{row.hours}</td>
+                <td className="px-3 py-1.5 text-xs text-slate-500">{row.note}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <Figure
+          src="/images/pool/32-air-source-heatpump-to-heat-pool.jpeg"
+          alt="Air source heat pump used to heat the pool"
+          caption="Air source heat pump"
+        />
       </Section>
 
       <Section number="3" title="Pool Operation">
@@ -178,9 +229,19 @@ export default function RlssReportPage() {
         </ul>
         <div className="grid grid-cols-2 gap-3">
           <Figure
-            src="/images/pool/02-exterior-entrance-door.jpeg"
-            alt="External entrance to the pool building with combination keypad lock"
-            caption="External entrance to the pool building, with combination keypad lock"
+            src="/images/pool/01-exterior-door-entrance.jpeg"
+            alt="External entrance to the pool building"
+            caption="External entrance to the pool building"
+          />
+          <Figure
+            src="/images/pool/03-door-number-comination-lock.jpeg"
+            alt="Combination keypad lock on the external door"
+            caption="Combination keypad lock on the external door"
+          />
+          <Figure
+            src="/images/pool/07-door-fob-pad-and-fire-action-sing-and-alarm.jpeg"
+            alt="Internal fob-controlled door reader, fire action notice and fire alarm call point"
+            caption="Internal fob-controlled door reader, fire action notice and fire alarm call point"
           />
           <Figure
             src="/images/pool/01-entrance-hallway.jpeg"
@@ -220,15 +281,28 @@ export default function RlssReportPage() {
           full coverage of the swimming pool itself. Residents are advised that the pool closes at 2300 hours and
           signage reminds users to vacate the premises before the alarm system becomes active.
         </p>
-        <Figure
-          src="/images/pool/Pool-entrance.png"
-          alt="Fire alarm call point and 11pm vacate / alarm reminder notice near the pool hall exit"
-          caption="Fire alarm call point and 11pm vacate / alarm reminder notice, near the pool hall exit"
-        />
-        <p className="text-xs italic text-slate-500">
-          Dedicated close-up photographs of the CCTV cameras, motion sensor and fob-controlled exit release button
-          are not yet available and should be added before circulation to the assessor.
-        </p>
+        <div className="grid grid-cols-2 gap-3">
+          <Figure
+            src="/images/pool/18-cctc-camera-1.jpeg"
+            alt="CCTV camera covering the main entrance and deep end of the pool, deep end depth marker visible below"
+            caption="CCTV camera covering the main entrance and deep end"
+          />
+          <Figure
+            src="/images/pool/19-cctv-camera1-view.jpeg"
+            alt="Second CCTV camera providing full coverage of the swimming pool"
+            caption="Second CCTV camera — full pool coverage"
+          />
+          <Figure
+            src="/images/pool/17-motion-detection-device.jpeg"
+            alt="Motion detection sensor"
+            caption="Motion detection sensor"
+          />
+          <Figure
+            src="/images/pool/14-11pm-warning-sign-and-fire-alarm.jpeg"
+            alt="Fob-controlled exit release button, motion sensor and 11pm vacate / alarm reminder notice"
+            caption="Fob-controlled exit release button and 11pm vacate / alarm reminder notice"
+          />
+        </div>
       </Section>
 
       <Section number="7" title="Water Quality Management">
@@ -255,11 +329,18 @@ export default function RlssReportPage() {
           maintenance of the dosing equipment is provided by Aquatech and equipment is used predominantly by the
           caretaker or appointed Myreside Management cleaning team leader when the caretaker is absent.
         </p>
-        <Figure
-          src="/images/pool/IMG_4149.jpeg"
-          alt="Pool water filtration and dosing plant"
-          caption="Wallace & Tiernan Ezetrol touch automated dosing and monitoring controller area"
-        />
+        <div className="grid grid-cols-2 gap-3">
+          <Figure
+            src="/images/pool/31-chlorine-and-pH-monitor.jpeg"
+            alt="Wallace and Tiernan Ezetrol touch automated dosing and monitoring controller, showing live chlorine and pH readings"
+            caption="Wallace & Tiernan Ezetrol touch automated dosing and monitoring controller"
+          />
+          <Figure
+            src="/images/pool/IMG_4149.jpeg"
+            alt="Pool water filtration plant"
+            caption="Pool water filtration plant"
+          />
+        </div>
       </Section>
 
       <Section number="8" title="Cleaning & Maintenance">
@@ -295,14 +376,14 @@ export default function RlssReportPage() {
         </p>
         <div className="grid grid-cols-2 gap-3">
           <Figure
-            src="/images/pool/Pool-entrance.png"
+            src="/images/pool/15-life-buoy-ring.jpeg"
             alt="Lifebuoy at the main entrance"
             caption="Lifebuoy — main entrance"
           />
           <Figure
-            src="/images/pool/Pool-facing-south.png"
-            alt="Lifebuoy positioned near the pool"
-            caption="Lifebuoy — positioned near the pool"
+            src="/images/pool/27-lifebouy-number2-placement-near-ladders.jpeg"
+            alt="Second lifebuoy positioned near the pool ladders"
+            caption="Lifebuoy — positioned near the pool ladders"
           />
         </div>
       </Section>
@@ -324,13 +405,20 @@ export default function RlssReportPage() {
             <li key={item}>{item}</li>
           ))}
         </ul>
-        <p>Photographs of signage currently documented are included below; the remainder are in place but not yet individually photographed.</p>
+        <p>Photographs of signage currently documented are included below.</p>
         <div className="grid grid-cols-3 gap-3">
-          <Figure src="/images/pool/01-entrance-hallway.jpeg" alt="Entrance signage" caption="Entrance signage: no eating/drinking, CCTV in operation, no outdoor footwear, hygiene notice" />
-          <Figure src="/images/pool/Pool-entrance.png" alt="Lifebuoy for emergency use only signage" caption="Lifebuoy for emergency use only, and fire call point" />
-          <Figure src="/images/pool/Pool-facing-south.png" alt="No diving sign" caption="No diving sign, displayed poolside" />
-          <Figure src="/images/pool/05-sauna-entrance-door.jpeg" alt="Hygiene and single-household changing room notice" caption="Hygiene reminder and single-household changing room notice" />
-          <Figure src="/images/pool/03-gym-facing-south.jpeg" alt="Cross contamination warning" caption="Hygiene and cross-contamination warning notices" />
+          <Figure src="/images/pool/01-entrance-hallway.jpeg" alt="Entrance signage" caption="Entrance: no eating/drinking, CCTV in operation, no outdoor footwear, hygiene notice" />
+          <Figure src="/images/pool/05-remove-outer-footwear-sign.jpeg" alt="No outdoor footwear sign" caption="No outdoor footwear" />
+          <Figure src="/images/pool/10-covid-sign.jpeg" alt="Visitor hygiene notice" caption="Visitor hygiene notice" />
+          <Figure src="/images/pool/29-shower-notice-sign.jpeg" alt="Please shower before entering the pool" caption="Please shower before entering the pool" />
+          <Figure src="/images/pool/09-internal-door-11pm-alarm-sign.jpeg" alt="Pool opening times and 11pm vacate reminder" caption="Pool opening times and 11pm vacate reminder" />
+          <Figure src="/images/pool/24-no-diving-signage.jpeg" alt="No diving sign" caption="No diving" />
+          <Figure src="/images/pool/16-deep-end-sign-no-running-sign.jpeg" alt="Deep end depth marker and no running sign" caption="Deep end depth marker & no running" />
+          <Figure src="/images/pool/28-shallow-end-sign-no-running-and-clock.jpeg" alt="Shallow end depth marker and no running sign" caption="Shallow end depth marker & no running" />
+          <Figure src="/images/pool/30-contamination-sign.jpeg" alt="Cross contamination warning" caption="Cross contamination warning" />
+          <Figure src="/images/pool/26-lifebuoy-number2.jpeg" alt="Lifebuoy for emergency use only signage" caption="Lifebuoy for emergency use only" />
+          <Figure src="/images/pool/20-fire-door.jpeg" alt="Fire door and emergency exit signage" caption="Fire door & emergency exit signage" />
+          <Figure src="/images/pool/Pool-entrance.png" alt="Fire alarm call point" caption="Fire alarm call point" />
         </div>
       </Section>
 
@@ -349,28 +437,40 @@ export default function RlssReportPage() {
           options are considered. This incident forms part of the ongoing refurbishment project and is not
           considered representative of normal pool operation.
         </p>
-        <Figure
-          src="/images/pool/08-ceiling-damage.jpeg"
-          alt="Ceiling finishes damaged following the 2026 plant room electrical failure"
-          caption="Ceiling finishes requiring repair, following the 2026 plant room electrical failure"
-        />
+        <div className="grid grid-cols-3 gap-3">
+          <Figure
+            src="/images/pool/08-ceiling-damage.jpeg"
+            alt="Ceiling finishes damaged following the 2026 plant room electrical failure"
+            caption="Ceiling finishes requiring repair"
+          />
+          <Figure
+            src="/images/pool/22-dehumidifier-ventilation-control-unit.jpeg"
+            alt="Dehumidification / ventilation control unit"
+            caption="Dehumidification / ventilation control unit"
+          />
+          <Figure
+            src="/images/pool/23-control-pannel-screen.jpeg"
+            alt="Control panel showing elevated humidity of 66.8 percent and a service reminder"
+            caption="Control panel showing elevated humidity (66.8%) and service reminder"
+          />
+        </div>
       </Section>
 
       <Section number="13" title="Existing Rules">
-        <p>The full Pool &amp; Recreation Area Health &amp; Safety Rules are displayed at the main entrance. These rules cover:</p>
-        <ul className="list-disc space-y-0.5 pl-5">
-          <li>Supervision of children</li>
-          <li>Maximum occupancy</li>
-          <li>Hygiene requirements</li>
-          <li>Prohibited activities</li>
-          <li>Alcohol and smoking</li>
-          <li>Appropriate footwear</li>
-          <li>Appropriate clothing</li>
-          <li>Safe use of the sauna</li>
-          <li>Responsibility of residents</li>
-          <li>Protection of emergency equipment</li>
-          <li>Behaviour within the facility</li>
-        </ul>
+        <p>
+          The Pool &amp; Recreation Area Health &amp; Safety Rules below are reproduced from the poster displayed at
+          the main entrance.
+        </p>
+        <ol className="list-decimal space-y-1 pl-5">
+          {poolRules.map((rule) => (
+            <li key={rule}>{rule}</li>
+          ))}
+        </ol>
+        <Figure
+          src="/images/pool/11-health&saftey-rules-sign.jpeg"
+          alt="Pool and Recreation Area Health and Safety Rules, as displayed at the main entrance"
+          caption="Pool & Recreation Area Health & Safety Rules, as displayed at the main entrance"
+        />
       </Section>
 
       <Section number="14" title="Areas for Independent Review">
