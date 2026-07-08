@@ -54,7 +54,7 @@ import {
 /* -------------------------------------------------------------------------- */
 
 const HERO_IMAGE = '/images/pool/BC0D4867-E841-4F44-B7B8-90030F8D2E6B.jpeg';
-const FLOOR_PLAN = '/images/pool/floor-plan.png';
+const FLOOR_PLAN = '/images/pool/updated-floor-plane-v2.png';
 
 type FacilityState = 'open' | 'restricted' | 'closed';
 
@@ -92,9 +92,9 @@ const facilityStatus: {
   state: FacilityState;
   note: string;
 }[] = [
-  { name: 'Pool', icon: Waves, state: 'closed', note: 'Closed pending repairs & further assessment' },
-  { name: 'Gym', icon: Dumbbell, state: 'restricted', note: 'Limited access while works continue' },
-  { name: 'Sauna', icon: Flame, state: 'closed', note: 'Closed pending repairs & further assessment' },
+  { name: 'Swimming pool', icon: Waves, state: 'closed', note: 'Temporarily closed pending assessment and further works' },
+  { name: 'Gym', icon: Dumbbell, state: 'closed', note: 'Temporarily closed pending assessment and further works' },
+  { name: 'Sauna', icon: Flame, state: 'closed', note: 'Temporarily closed pending assessment and further works' },
 ];
 
 const quickActions: { label: string; href: string; icon: LucideIcon; external?: boolean }[] = [
@@ -168,7 +168,7 @@ const hotspots: Hotspot[] = [
     x: 85,
     y: 22,
     tone: 'from-orange-500 to-amber-600',
-    body: 'Infrared sauna. Only small quantities of fresh water may be sprinkled on the coals — never pool water, which produces toxic vapour. Please switch off after use.',
+    body: 'Infrared heated sauna. The control panel is outside the sauna: switch it on before use and switch it off again after leaving the sauna area.',
   },
   {
     id: 'showers',
@@ -181,21 +181,12 @@ const hotspots: Hotspot[] = [
   },
   {
     id: 'plant',
-    label: 'Plant room',
+    label: 'External plant room',
     icon: Wrench,
-    x: 66,
-    y: 69,
+    x: 10,
+    y: 88,
     tone: 'from-indigo-500 to-violet-600',
-    body: 'Houses the filtration, circulation, dosing and ventilation plant. Access is restricted to the caretaker and specialist contractors.',
-  },
-  {
-    id: 'isolation',
-    label: 'Emergency isolation',
-    icon: Zap,
-    x: 62,
-    y: 63,
-    tone: 'from-yellow-500 to-amber-600',
-    body: 'Electrical isolation for the pool plant. In an electrical emergency the supply can be isolated here before anyone approaches affected equipment.',
+    body: 'The plant room is not shown inside this pool hall floor plan. It is an external room accessed separately via the caretaker’s office at the front of James Square at Block 65A.',
   },
   {
     id: 'exit',
@@ -208,12 +199,12 @@ const hotspots: Hotspot[] = [
   },
   {
     id: 'cctv',
-    label: 'CCTV',
+    label: 'CCTV cameras',
     icon: Camera,
     x: 90,
-    y: 63,
+    y: 36,
     tone: 'from-slate-500 to-slate-700',
-    body: 'CCTV covers the facility and feeds to the caretaker’s office. It is not continuously monitored and is not a substitute for active supervision.',
+    body: 'There are two CCTV cameras: one to the right/north side of the pool pointing south across the pool hall, and one to the left of the internal entrance monitoring people entering and exiting. CCTV supports security and incident review, but does not imply constant live monitoring.',
   },
 ];
 
@@ -242,17 +233,17 @@ const gallery: GalleryItem[] = [
     title: 'The gymnasium',
     shows: 'The compact gym adjacent to the pool hall, with cardio and resistance equipment.',
     why: 'Provides residents with fitness facilities alongside the pool and sauna.',
-    how: 'Available to residents; booking is recommended to manage occupancy.',
-    safety: 'Train within your ability, keep the area clear and wipe equipment down after use.',
+    how: 'Temporarily closed pending assessment and further works.',
+    safety: 'Do not use the gym while it is closed. Report any concerns or faults to the committee.',
     icon: Dumbbell,
   },
   {
     src: '/images/pool/05-sauna-entrance-door.jpeg',
     title: 'Sauna & changing rooms',
     shows: 'The sauna entrance beside the changing room door.',
-    why: 'The sauna is a heated environment that carries its own safety considerations.',
-    how: 'Shower before use. Only small amounts of fresh water on the coals — never pool water.',
-    safety: 'Switch the sauna off after use. Take care when moving between hot and wet surfaces.',
+    why: 'The sauna was originally an electrically heated element sauna. Following misuse, including excessive water being poured over the electrical element, it was replaced with a safer infrared heated sauna.',
+    how: 'Temporarily closed pending assessment and further works. When available, use the outside control panel to switch it on before use and off again after leaving the sauna area.',
+    safety: 'Do not use the sauna while it is closed. Take care when moving between hot and wet surfaces.',
     icon: Flame,
   },
   {
@@ -287,8 +278,8 @@ const gallery: GalleryItem[] = [
     title: 'Ventilation & dehumidification',
     shows: 'The ventilation and dehumidification control unit for the pool hall.',
     why: 'Controls humidity to protect the building fabric and keep the air comfortable.',
-    how: 'Continuously conditions the pool hall air; central to the current refurbishment works.',
-    safety: 'A ventilation fault contributed to the recent closure — its performance is being reviewed.',
+    how: 'Heats and manages the pool hall air to reduce condensation and prevent moisture building up on windows, walls and cold surfaces.',
+    safety: 'The motherboard was damaged at the same time as the electrical fire in March 2026 and required replacement. The system has now been repaired and is working again.',
     icon: Wind,
   },
   {
@@ -303,10 +294,10 @@ const gallery: GalleryItem[] = [
   {
     src: '/images/pool/18-cctc-camera-1.jpeg',
     title: 'CCTV coverage',
-    shows: 'One of the CCTV cameras covering the leisure facility.',
-    why: 'Supports security and provides a view of the facility from the caretaker’s office.',
-    how: 'Feeds to the office; recordings assist with security and incident review.',
-    safety: 'Not continuously monitored — it is not a substitute for personal supervision.',
+    shows: 'One of the CCTV cameras in the pool hall.',
+    why: 'Supports security and incident review without replacing personal supervision.',
+    how: 'One camera is to the right/north side of the pool and points south across the pool hall. A second camera is to the left of the internal entrance and monitors people entering and exiting.',
+    safety: 'CCTV does not imply constant live monitoring.',
     icon: Camera,
   },
 ];
@@ -410,8 +401,8 @@ const ruleGroups: RuleGroup[] = [
     icon: Flame,
     tone: 'from-orange-500 to-amber-600',
     points: [
-      'Only fresh water, in small quantities, on the coals — never pool water.',
-      'Switch off the sauna and showers after use.',
+      'The sauna is temporarily closed pending assessment and further works.',
+      'When available, switch the sauna on from the outside control panel before use and switch it off again after leaving the sauna area.',
       'Keep noise to a reasonable level, as anywhere in the development.',
     ],
   },
@@ -461,8 +452,8 @@ const emergencyCards: EmergencyCard[] = [
     accent: 'from-amber-500 to-yellow-600',
     steps: [
       'Do not touch anyone in contact with a live source.',
-      'Isolate the supply at the emergency isolation point if safe.',
       'Call 999 and keep everyone clear of the affected area.',
+      'Report the incident to the caretaker or committee as soon as it is safe.',
     ],
   },
   {
@@ -533,9 +524,9 @@ const equipment: EquipmentItem[] = [
     name: 'CCTV',
     icon: Camera,
     src: '/images/pool/18-cctc-camera-1.jpeg',
-    description: 'CCTV cameras covering the facility, feeding the caretaker’s office.',
+    description: 'Two CCTV cameras cover the pool hall: one on the right/north side pointing south across the pool, and one to the left of the internal entrance.',
     purpose: 'Supports security and incident review.',
-    when: 'Always recording — not a substitute for personal supervision.',
+    when: 'Does not imply constant live monitoring and is not a substitute for personal supervision.',
   },
 ];
 
@@ -564,9 +555,9 @@ const operationTopics: OperationTopic[] = [
   {
     title: 'Plant room',
     icon: Wrench,
-    summary: 'Houses filtration, circulation, dosing and ventilation plant.',
+    summary: 'External room accessed separately via Block 65A.',
     detail:
-      'The plant room contains the equipment that keeps the pool running. Access is restricted to the caretaker and specialist contractors such as Aquatech.',
+      'The plant room is not covered by the pool hall floor plan and should not be treated as being inside the pool hall. It is an external room accessed via the caretaker’s office at the front of James Square at Block 65A.',
   },
   {
     title: 'Water testing',
@@ -578,9 +569,9 @@ const operationTopics: OperationTopic[] = [
   {
     title: 'Ventilation',
     icon: Wind,
-    summary: 'Dehumidification protects the building and air quality.',
+    summary: 'Heats and manages air to reduce condensation.',
     detail:
-      'A ventilation and dehumidification system controls humidity in the pool hall. Its performance is central to the current refurbishment following the recent fault.',
+      'The pool hall uses a ventilation and dehumidification system which heats and manages the air to reduce condensation and prevent moisture building up on windows, walls and cold surfaces. The motherboard was damaged at the same time as the electrical fire in March 2026 and required replacement. The system has now been repaired and is working again.',
   },
 ];
 
@@ -604,7 +595,7 @@ const faqs: { q: string; a: string }[] = [
   },
   {
     q: 'What happens during an emergency?',
-    a: 'Call 999 for anything serious. Use the lifebuoys or reach pole for a water rescue, raise the alarm at a fire call point for a fire, and isolate the electrical supply for an electrical emergency. The nearest AED is at St Bride’s Community Centre, roughly 100m away.',
+    a: 'Call 999 for anything serious. Use the lifebuoys or reach pole for a water rescue, raise the alarm at a fire call point for a fire, and keep clear of anyone in contact with a live electrical source. The nearest AED is at St Bride’s Community Centre, roughly 100m away.',
   },
   {
     q: 'How do I report a fault?',
@@ -808,8 +799,8 @@ export default function PoolSafetyClient() {
                 Pool Safety &amp; Operations Centre
               </h1>
               <p className="mt-5 max-w-2xl text-sm leading-7 text-slate-200 sm:text-base sm:leading-8">
-                Everything you need to know about safely using the James Square swimming pool, gym and sauna —
-                including emergency information, operating guidance, facility rules and maintenance updates.
+                Current safety and operations information for the James Square swimming pool, gym and sauna.
+                All three facilities are temporarily closed pending assessment and further works.
               </p>
             </motion.div>
 
@@ -855,7 +846,7 @@ export default function PoolSafetyClient() {
             id="status-heading"
             eyebrow="Live status"
             title="Current facility status"
-            description="At-a-glance availability for each part of the leisure facility. Updated as the refurbishment progresses."
+            description="The swimming pool, gym and sauna are temporarily closed pending assessment and further works. This page will be updated as the refurbishment progresses."
             icon={Info}
           />
         </Reveal>
@@ -898,7 +889,7 @@ export default function PoolSafetyClient() {
             id="overview-heading"
             eyebrow="Interactive plan"
             title="Explore the facility"
-            description="Tap or hover the markers on the floor plan to learn about the pool, equipment and key safety features."
+            description="Tap or hover the markers on the corrected floor plan to learn about the pool, equipment and key safety notes. The plant room is external and is not shown as part of the pool hall layout."
             icon={MapPin}
           />
         </Reveal>
