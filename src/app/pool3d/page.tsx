@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 
+import { ArrowRight, LifeBuoy } from 'lucide-react';
+
 import PoolModelSequence from '@/components/PoolModelSequence';
 import PoolBuildHero from '@/components/pool/PoolBuildHero';
 
@@ -132,6 +134,50 @@ export default function Pool3DPage() {
         </div>
 
         <PoolModelSequence />
+      </section>
+
+      <section aria-labelledby="pool-safety-cta-heading" className="scroll-mt-24">
+        <Link
+          href="/pool-safety"
+          className="group relative flex flex-col gap-6 overflow-hidden rounded-[2rem] border border-sky-200/70 bg-gradient-to-br from-sky-50 via-white to-cyan-50 p-6 shadow-xl shadow-sky-950/5 transition hover:-translate-y-1 hover:shadow-2xl dark:border-white/10 dark:from-slate-950 dark:via-slate-900 dark:to-cyan-950/40 sm:flex-row sm:items-center sm:p-8 lg:p-10"
+        >
+          <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-cyan-300/20 blur-3xl" />
+
+          <div className="relative flex items-center gap-5">
+            <span className="inline-flex h-16 w-16 shrink-0 items-center justify-center rounded-3xl bg-gradient-to-br from-sky-500 to-cyan-500 text-white shadow-lg shadow-sky-500/30 transition group-hover:scale-105 sm:h-20 sm:w-20">
+              <LifeBuoy className="h-8 w-8 sm:h-10 sm:w-10" />
+            </span>
+            <div className="relative hidden h-20 w-32 shrink-0 overflow-hidden rounded-2xl border border-white/60 shadow-lg md:block lg:h-24 lg:w-40">
+              <Image
+                src="/images/pool/Pool-facing-south.png"
+                alt="The James Square swimming pool"
+                fill
+                sizes="160px"
+                className="object-cover transition duration-500 group-hover:scale-105"
+              />
+            </div>
+          </div>
+
+          <div className="relative flex-1">
+            <p className="text-xs font-bold uppercase tracking-[0.22em] text-sky-700 dark:text-sky-300">
+              Pool Safety Centre
+            </p>
+            <h2 id="pool-safety-cta-heading" className="mt-2 text-2xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-3xl">
+              Explore the Pool Safety Centre
+            </h2>
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-300 sm:text-base">
+              Learn how the James Square leisure facilities operate, view safety equipment, read emergency procedures,
+              browse the pool gallery and access facility documentation.
+            </p>
+          </div>
+
+          <div className="relative shrink-0">
+            <span className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-6 py-3 text-sm font-semibold text-white shadow-lg transition group-hover:gap-3 dark:bg-white dark:text-slate-950">
+              Open Pool Safety Centre
+              <ArrowRight className="h-4 w-4" />
+            </span>
+          </div>
+        </Link>
       </section>
 
       <section aria-labelledby="pool-details-heading" className="space-y-4">
