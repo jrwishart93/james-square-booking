@@ -204,7 +204,7 @@ const hotspots: Hotspot[] = [
     x: 60,
     y: 42,
     tone: 'from-slate-500 to-slate-700',
-    body: 'There are two CCTV cameras: one to the right/north side of the pool pointing south across the pool hall, and one to the left of the internal entrance monitoring people entering and exiting. CCTV supports security and incident review, but does not imply constant live monitoring.',
+    body: 'There are two CCTV cameras: one mounted on the north wall overlooking the swimming pool and facing south across the pool hall, and one mounted beside the internal entrance monitoring people entering and leaving the pool hall. CCTV supports security and incident review, but does not imply constant live monitoring.',
   },
 ];
 
