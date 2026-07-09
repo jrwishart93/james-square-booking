@@ -136,21 +136,21 @@ const hotspots: Hotspot[] = [
   },
   {
     id: 'lifebuoy-1',
-    label: 'Lifebuoy (main entrance)',
+    label: 'Lifebuoy 1 (main entrance)',
     icon: LifeBuoy,
     x: 20,
     y: 62,
     tone: 'from-rose-500 to-red-500',
-    body: 'One of two lifebuoys. Throw to a casualty in the water so they can stay afloat while help is arranged. For emergency use only.',
+    body: 'Lifebuoy 1 is positioned in the main entrance area beside the external entrance door. Throw it to a casualty in the water so they can stay afloat while help is arranged. For emergency use only.',
   },
   {
     id: 'lifebuoy-2',
-    label: 'Lifebuoy (east wall)',
+    label: 'Lifebuoy 2 (pool ladder)',
     icon: LifeBuoy,
-    x: 55,
-    y: 66,
+    x: 24,
+    y: 76,
     tone: 'from-rose-500 to-red-500',
-    body: 'Second lifebuoy mounted near the pool ladders on the east wall, so a flotation aid is always within easy reach of either end of the pool.',
+    body: 'Lifebuoy 2 is positioned at the south-west corner of the pool, adjacent to the pool ladder, so a flotation aid is close to the ladder area. For emergency use only.',
   },
   {
     id: 'gym',
@@ -180,15 +180,6 @@ const hotspots: Hotspot[] = [
     body: 'All users must shower before entering the pool or sauna. This reduces chemical demand on the water and keeps the facility hygienic.',
   },
   {
-    id: 'plant',
-    label: 'External plant room',
-    icon: Wrench,
-    x: 10,
-    y: 88,
-    tone: 'from-indigo-500 to-violet-600',
-    body: 'The plant room is not shown inside this pool hall floor plan. It is an external room accessed separately via the caretaker’s office at the front of James Square at Block 65A.',
-  },
-  {
     id: 'exit',
     label: 'Emergency exit',
     icon: DoorOpen,
@@ -198,13 +189,22 @@ const hotspots: Hotspot[] = [
     body: 'Fire exit for use in a genuine emergency only. It must never be used for routine access or exit, and must be kept clear at all times.',
   },
   {
-    id: 'cctv',
-    label: 'CCTV cameras',
+    id: 'cctv-1',
+    label: 'CCTV 1 (pool hall)',
     icon: Camera,
-    x: 90,
+    x: 56,
+    y: 46,
+    tone: 'from-slate-500 to-slate-700',
+    body: 'CCTV camera 1 is on the north side of the pool hall, immediately to the right of the swimming pool. It faces south across the pool hall and provides general coverage of the swimming pool.',
+  },
+  {
+    id: 'cctv-2',
+    label: 'CCTV 2 (internal entrance)',
+    icon: Camera,
+    x: 89,
     y: 36,
     tone: 'from-slate-500 to-slate-700',
-    body: 'There are two CCTV cameras: one to the right/north side of the pool pointing south across the pool hall, and one to the left of the internal entrance monitoring people entering and exiting. CCTV supports security and incident review, but does not imply constant live monitoring.',
+    body: 'CCTV camera 2 sits beside the internal entrance door and monitors people entering and leaving the pool hall through the internal access door.',
   },
 ];
 
@@ -524,7 +524,7 @@ const equipment: EquipmentItem[] = [
     name: 'CCTV',
     icon: Camera,
     src: '/images/pool/18-cctc-camera-1.jpeg',
-    description: 'Two CCTV cameras cover the pool hall: one on the right/north side pointing south across the pool, and one to the left of the internal entrance.',
+    description: 'Two CCTV cameras cover the pool hall: CCTV 1 is on the north side immediately right of the pool and faces south across the pool hall; CCTV 2 sits beside the internal entrance door and monitors people entering and leaving.',
     purpose: 'Supports security and incident review.',
     when: 'Does not imply constant live monitoring and is not a substitute for personal supervision.',
   },
@@ -557,7 +557,7 @@ const operationTopics: OperationTopic[] = [
     icon: Wrench,
     summary: 'External room accessed separately via Block 65A.',
     detail:
-      'The plant room is not covered by the pool hall floor plan and should not be treated as being inside the pool hall. It is an external room accessed via the caretaker’s office at the front of James Square at Block 65A.',
+      'The plant room is not covered by the pool hall floor plan and should not be treated as being inside the pool hall. It is an external room accessed via the caretaker’s office at Block 65A, is not accessible from inside the pool hall, and is restricted to the caretaker and authorised contractors.',
   },
   {
     title: 'Water testing',
@@ -905,7 +905,7 @@ export default function PoolSafetyClient() {
                     key={spot.id}
                     type="button"
                     onClick={() => setActiveHotspot(spot)}
-                    className="group absolute -translate-x-1/2 -translate-y-1/2 focus:outline-none"
+                    className="group absolute flex h-11 w-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center focus:outline-none"
                     style={{ left: `${spot.x}%`, top: `${spot.y}%` }}
                     initial={reduce ? undefined : { opacity: 0, scale: 0 }}
                     whileInView={reduce ? undefined : { opacity: 1, scale: 1 }}
