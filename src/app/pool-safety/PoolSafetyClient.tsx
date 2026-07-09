@@ -132,7 +132,7 @@ const hotspots: Hotspot[] = [
     x: 60,
     y: 31,
     tone: 'from-amber-500 to-orange-500',
-    body: 'A reach pole is stored poolside for use in a water rescue. It lets a rescuer reach a swimmer in difficulty without entering the water themselves.',
+    body: 'The reach pole is positioned beside the timber seating area between the swimming pool and gym so it can be accessed rapidly during a water-rescue emergency. It lets a rescuer reach someone in difficulty without entering the water themselves.',
   },
   {
     id: 'lifebuoy-1',
