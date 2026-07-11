@@ -13,6 +13,7 @@ export async function sendAdminEmailRequest(
       userIds?: string[];
       emails?: string[];
     };
+    cc?: string[];
     bcc?: string[];
   },
 ) {

@@ -18,6 +18,7 @@ type AdminEmailRequest = {
   message: string;
   sender?: string;
   recipients: RecipientSelection;
+  cc?: string[];
   bcc?: string[];
 };
 
@@ -123,6 +124,14 @@ export async function POST(req: NextRequest) {
       ),
     );
 
+    const ccEmails = Array.from(
+      new Set(
+        (Array.isArray(body.cc) ? body.cc : [])
+          .map((email) => (typeof email === "string" ? email.trim() : ""))
+          .filter((email) => email.length > 0),
+      ),
+    );
+
     const bccEmails = Array.from(
       new Set(
         (Array.isArray(body.bcc) ? body.bcc : [])
@@ -131,7 +140,7 @@ export async function POST(req: NextRequest) {
       ),
     );
 
-    const emails = Array.from(new Set([...primaryEmails, ...bccEmails]));
+    const emails = Array.from(new Set([...primaryEmails, ...ccEmails, ...bccEmails]));
 
     if (recipients.mode === "custom") {
       if (primaryEmails.length !== 1) {
@@ -149,7 +158,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    if (primaryEmails.length === 0 && bccEmails.length === 0) {
+    if (primaryEmails.length === 0 && ccEmails.length === 0 && bccEmails.length === 0) {
       return NextResponse.json(
         { error: "No recipient emails found" },
         { status: 400 },
@@ -174,16 +183,16 @@ export async function POST(req: NextRequest) {
 
     const resend = getResendClient();
 
-    const batches = chunk(emails, MAX_RECIPIENTS_PER_BATCH);
+    const isBulkSend = primaryEmails.length > 1 || ["all", "owners", "selected"].includes(recipients.mode);
+    const batches = isBulkSend ? chunk(emails, MAX_RECIPIENTS_PER_BATCH) : [emails];
     let lastMessageId: string | null = null;
-
-    const isBulkSend = emails.length > 1;
 
     for (const batch of batches) {
       const { error, data } = await resend.emails.send({
         from: sender,
-        to: isBulkSend ? sender : batch[0],
-        bcc: isBulkSend ? batch : undefined,
+        to: isBulkSend ? sender : (primaryEmails[0] ?? sender),
+        cc: !isBulkSend && ccEmails.length > 0 ? ccEmails : undefined,
+        bcc: isBulkSend ? batch : bccEmails.length > 0 ? bccEmails : undefined,
         subject,
         html,
         text: stripHtml(html),
@@ -207,6 +216,9 @@ export async function POST(req: NextRequest) {
       adminUserId: decodedToken.uid,
       sender,
       recipientCount: emails.length,
+      primaryRecipientCount: primaryEmails.length,
+      ccRecipientCount: ccEmails.length,
+      bccRecipientCount: bccEmails.length,
       emailType,
     });
 

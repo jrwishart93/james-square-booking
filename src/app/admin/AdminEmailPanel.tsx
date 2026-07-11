@@ -39,6 +39,15 @@ const senderOptions: SenderOption[] = [
 ];
 
 const confirmationPhrase = 'SEND TO ALL';
+const splitEmailList = (value: string) =>
+  value
+    .split(/[\n,;]+/)
+    .map((email) => email.trim().toLowerCase())
+    .filter(Boolean);
+
+const uniqueEmails = (emails: string[]) => Array.from(new Set(emails));
+
+const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 const availableGroups: Array<{ key: EmailGroupKey; label: string }> = [
   { key: 'committee', label: 'Send to Committee' },
   { key: 'myreside', label: 'Copy in Myreside' },
@@ -52,6 +61,8 @@ const AdminEmailPanel = () => {
   const [customEmail, setCustomEmail] = useState('');
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
+  const [ccInput, setCcInput] = useState('');
+  const [bccInput, setBccInput] = useState('');
   const [status, setStatus] = useState<Status>({ tone: 'idle', message: '' });
   const [senderEmail, setSenderEmail] = useState(senderOptions[0]?.value ?? '');
   const [selectedGroups, setSelectedGroups] = useState<EmailGroupKey[]>([]);
@@ -104,8 +115,19 @@ const AdminEmailPanel = () => {
 
   const normalizedCustomEmail = useMemo(() => customEmail.trim().toLowerCase(), [customEmail]);
   const customEmailIsValid = useMemo(
-    () => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedCustomEmail),
+    () => isValidEmail(normalizedCustomEmail),
     [normalizedCustomEmail],
+  );
+
+  const ccRecipients = useMemo(() => uniqueEmails(splitEmailList(ccInput)), [ccInput]);
+  const bccRecipients = useMemo(() => uniqueEmails(splitEmailList(bccInput)), [bccInput]);
+  const invalidCcRecipients = useMemo(
+    () => ccRecipients.filter((email) => !isValidEmail(email)),
+    [ccRecipients],
+  );
+  const invalidBccRecipients = useMemo(
+    () => bccRecipients.filter((email) => !isValidEmail(email)),
+    [bccRecipients],
   );
 
   const recipientCount = useMemo(() => {
@@ -143,9 +165,14 @@ const AdminEmailPanel = () => {
     [selectedGroups],
   );
 
+  const combinedBccRecipients = useMemo(
+    () => uniqueEmails([...bccRecipients, ...groupBccRecipients]),
+    [bccRecipients, groupBccRecipients],
+  );
+
   const totalRecipientCount = useMemo(
-    () => Array.from(new Set([...primaryRecipientEmails, ...groupBccRecipients])).length,
-    [primaryRecipientEmails, groupBccRecipients],
+    () => uniqueEmails([...primaryRecipientEmails, ...ccRecipients, ...combinedBccRecipients]).length,
+    [primaryRecipientEmails, ccRecipients, combinedBccRecipients],
   );
 
   const recipientTypeLabel = useMemo(() => {
@@ -154,7 +181,7 @@ const AdminEmailPanel = () => {
     return 'a group';
   }, [recipientCount, recipientMode]);
 
-  const shouldConfirmSend = recipientMode === 'all' || totalRecipientCount > 1;
+  const shouldConfirmSend = totalRecipientCount > 0;
   const isAllRecipients = recipientMode === 'all';
   const showCommitteeWarning =
     senderEmail === 'committee@james-square.com' && recipientCount > 1;
@@ -197,7 +224,15 @@ const AdminEmailPanel = () => {
       return null;
     }
 
-    if (buildRecipientEmails().length === 0 && groupBccRecipients.length === 0) {
+    if (invalidCcRecipients.length > 0 || invalidBccRecipients.length > 0) {
+      setStatus({
+        tone: 'error',
+        message: 'One or more CC or BCC email addresses are invalid.',
+      });
+      return null;
+    }
+
+    if (buildRecipientEmails().length === 0 && ccRecipients.length === 0 && combinedBccRecipients.length === 0) {
       setStatus({
         tone: 'error',
         message: 'Choose at least one recipient or select a BCC group.',
@@ -222,7 +257,8 @@ const AdminEmailPanel = () => {
           mode: recipientMode,
           emails: buildRecipientEmails(),
         },
-        bcc: groupBccRecipients,
+        cc: ccRecipients,
+        bcc: combinedBccRecipients,
       });
 
       setStatus({
@@ -233,6 +269,8 @@ const AdminEmailPanel = () => {
       setMessage('');
       setSelectedIds([]);
       setCustomEmail('');
+      setCcInput('');
+      setBccInput('');
       setSelectedGroups([]);
     } catch (error) {
       console.error('Failed to send admin email', error);
@@ -256,12 +294,7 @@ const AdminEmailPanel = () => {
     const currentUser = validateSend();
     if (!currentUser) return;
 
-    if (shouldConfirmSend) {
-      setConfirmOpen(true);
-      return;
-    }
-
-    await performSend();
+    setConfirmOpen(true);
   };
 
   const handleConfirmSend = async () => {
@@ -405,6 +438,46 @@ const AdminEmailPanel = () => {
         )}
 
         <div className="grid gap-3 sm:grid-cols-2">
+          <div>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
+              CC recipients (optional)
+            </label>
+            <textarea
+              value={ccInput}
+              onChange={(event) => setCcInput(event.target.value)}
+              rows={3}
+              className="mt-1 w-full rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 dark:border-white/10 dark:bg-white/5 dark:text-white"
+              placeholder="cc1@example.com, cc2@example.com"
+            />
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              Separate multiple CC addresses with commas, semicolons, or new lines.
+            </p>
+            {invalidCcRecipients.length > 0 && (
+              <p className="mt-1 text-xs text-rose-400">
+                Invalid CC emails: {invalidCcRecipients.join(', ')}.
+              </p>
+            )}
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
+              BCC recipients (optional)
+            </label>
+            <textarea
+              value={bccInput}
+              onChange={(event) => setBccInput(event.target.value)}
+              rows={3}
+              className="mt-1 w-full rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 dark:border-white/10 dark:bg-white/5 dark:text-white"
+              placeholder="bcc1@example.com, bcc2@example.com"
+            />
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              Separate multiple BCC addresses with commas, semicolons, or new lines.
+            </p>
+            {invalidBccRecipients.length > 0 && (
+              <p className="mt-1 text-xs text-rose-400">
+                Invalid BCC emails: {invalidBccRecipients.join(', ')}.
+              </p>
+            )}
+          </div>
           <div className="sm:col-span-2">
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
               Subject
@@ -432,8 +505,9 @@ const AdminEmailPanel = () => {
         </div>
 
         <div className="rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-slate-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
-          This email will be sent to <strong>{totalRecipientCount}</strong> recipients ({recipientTypeLabel}) using{' '}
-          <strong>{senderEmail}</strong>.
+          This email will be sent to <strong>{totalRecipientCount}</strong> total recipients ({recipientTypeLabel}) using{' '}
+          <strong>{senderEmail}</strong>. Primary: <strong>{primaryRecipientEmails.length}</strong>, CC:{' '}
+          <strong>{ccRecipients.length}</strong>, BCC: <strong>{combinedBccRecipients.length}</strong>.
         </div>
 
         <div className="grid gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-3 dark:border-white/10 dark:bg-white/5">
@@ -500,10 +574,12 @@ const AdminEmailPanel = () => {
                 <strong>
                   {isAllRecipients ? 'ALL users' : `${totalRecipientCount} recipients`}
                 </strong>. This
-                action cannot be undone. Are you sure you want to continue?
+                action cannot be undone. Are you sure you want to send this email?
               </p>
               <p className="text-sm text-slate-700 dark:text-slate-300">
-                This email will be sent using <strong>{senderEmail}</strong>.
+                This email will be sent using <strong>{senderEmail}</strong>. Primary:{' '}
+                <strong>{primaryRecipientEmails.length}</strong>, CC: <strong>{ccRecipients.length}</strong>,
+                BCC: <strong>{combinedBccRecipients.length}</strong>.
               </p>
               {selectedGroups.includes('committee') && (
                 <p className="text-sm text-slate-700 dark:text-slate-300">
@@ -544,7 +620,7 @@ const AdminEmailPanel = () => {
                   checked={confirmAcknowledged}
                   onChange={(event) => setConfirmAcknowledged(event.target.checked)}
                 />
-                I understand this email will reach multiple recipients.
+                Yes, I am sure I want to send this email.
               </label>
             )}
 
