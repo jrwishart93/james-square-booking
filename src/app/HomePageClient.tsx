@@ -4,8 +4,16 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence, useReducedMotion, type Variants } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import { CalendarDays, ArrowRight, Building2, ChevronDown, MapPinned } from 'lucide-react';
-import MobileAppPoster from '@/components/home/MobileAppPoster';
+import {
+  ArrowRight,
+  Waves,
+  Dumbbell,
+  Flame,
+  Megaphone,
+  ChevronRight,
+} from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { activeNoticeSummaries, type NoticeSummary } from '@/components/home/notices';
 
 /** ------------------------------------------------
  *  Shared styles
@@ -141,18 +149,13 @@ const carouselSlides = [
 ];
 const carouselSlideDurationSeconds = 6.5;
 
-const telferSubwayNoticeEndsAt = new Date('2026-06-20T00:00:00+01:00');
-const telferDiversionMapHref = '/docs/survey/Caledonian%20Crescent%20Footpath%20Closure.pdf';
-
-function isTelferSubwayNoticeActive(now = new Date()) {
-  return now.getTime() < telferSubwayNoticeEndsAt.getTime();
-}
-
 function SectionHeader({
   children,
+  action,
   reduceMotion,
 }: {
   children: string;
+  action?: React.ReactNode;
   reduceMotion: boolean;
 }) {
   return (
@@ -161,71 +164,15 @@ function SectionHeader({
       whileInView="show"
       viewport={viewportOnce}
       variants={sectionHeaderVariants(reduceMotion)}
-      className="mb-4 flex items-center gap-3"
+      className="mb-5 flex items-center gap-3"
     >
       <span className="h-1.5 w-1.5 rounded-full bg-neutral-400/80 dark:bg-neutral-500" />
       <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
         {children}
       </p>
       <div className="flex-1 border-t border-neutral-200 dark:border-white/10" />
+      {action}
     </motion.div>
-  );
-}
-
-/** ------------------------------------------------
- *  Hero rule pill
- *  ------------------------------------------------ */
-function RulePill({
-  title,
-  detail,
-  accent = false,
-  href,
-}: {
-  title: string;
-  detail: string;
-  accent?: boolean;
-  href?: string;
-}) {
-  const content = (
-    <motion.div
-      whileHover={{ scale: 1.02 }}
-      className={
-        accent
-          ? 'rounded-2xl border border-emerald-400/35 bg-emerald-500/10 backdrop-blur-xl shadow-sm px-4 py-3 text-center'
-          : `rounded-2xl px-4 py-3 ${glass} text-center ${
-              href ? 'transition-colors hover:bg-white/70 dark:hover:bg-white/15' : ''
-            }`
-      }
-    >
-      <div
-        className={`text-sm font-semibold tracking-tight ${
-          accent ? 'text-emerald-800 dark:text-emerald-300' : ''
-        }`}
-      >
-        {title}
-      </div>
-      <div
-        className={`text-xs mt-0.5 ${
-          accent
-            ? 'text-emerald-700/80 dark:text-emerald-400'
-            : 'text-neutral-700 dark:text-neutral-300'
-        }`}
-      >
-        {detail}
-      </div>
-    </motion.div>
-  );
-
-  if (!href) return content;
-
-  return (
-    <Link
-      href={href}
-      aria-label={`Book a ${title.toLowerCase()} facility slot`}
-      className="block rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
-    >
-      {content}
-    </Link>
   );
 }
 
@@ -237,7 +184,7 @@ function DualModeIcon({
   darkSrc,
   alt,
   size = 128,
-  className = 'h-20 w-20 object-contain sm:h-24 sm:w-24',
+  className = 'h-14 w-14 object-contain sm:h-16 sm:w-16',
 }: {
   lightSrc: string;
   darkSrc: string;
@@ -253,7 +200,6 @@ function DualModeIcon({
         width={size}
         height={size}
         className={`block dark:hidden ${className}`}
-        priority
       />
       <Image
         src={darkSrc}
@@ -261,14 +207,13 @@ function DualModeIcon({
         width={size}
         height={size}
         className={`hidden dark:block ${className}`}
-        priority
       />
     </>
   );
 }
 
 /** ------------------------------------------------
- *  Reusable destination card
+ *  Compact quick-action card
  *  ------------------------------------------------ */
 function IconCard({
   title,
@@ -277,8 +222,6 @@ function IconCard({
   darkIcon,
   blurb,
   iconAlt,
-  iconClassName,
-  ctaText,
   reduceMotion,
 }: {
   title: string;
@@ -287,44 +230,232 @@ function IconCard({
   darkIcon: string;
   blurb: string;
   iconAlt?: string;
-  iconClassName?: string;
-  ctaText?: string;
   reduceMotion: boolean;
 }) {
   return (
-    <Link href={href} className="group block focus:outline-none">
+    <Link href={href} className="group block h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 rounded-2xl">
       <motion.div
         whileHover={
           reduceMotion
             ? undefined
-            : { y: -4, scale: 1.015, boxShadow: '0 16px 40px rgba(0,0,0,0.10)' }
+            : { y: -3, boxShadow: '0 14px 34px rgba(0,0,0,0.10)' }
         }
         whileTap={reduceMotion ? undefined : { scale: 0.99 }}
         transition={{ type: 'spring', stiffness: 320, damping: 24 }}
-        className={`${glass} p-5 flex items-center gap-4 sm:gap-5 relative overflow-hidden`}
+        className={`${glass} flex h-full items-center gap-4 p-4 sm:p-5`}
       >
-        {/* sheen */}
-        <span className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity">
-          <span className="absolute -inset-1 bg-gradient-to-tr from-white/15 to-transparent" />
-        </span>
-
-        <div className="shrink-0 self-center">
-          <DualModeIcon
-            lightSrc={lightIcon}
-            darkSrc={darkIcon}
-            alt={iconAlt ?? title}
-            className={iconClassName}
-          />
+        <div className="shrink-0">
+          <DualModeIcon lightSrc={lightIcon} darkSrc={darkIcon} alt={iconAlt ?? title} />
         </div>
-        <div className="relative z-10">
-          <h3 className="text-lg font-semibold">{title}</h3>
-          <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">{blurb}</p>
-          <span className="mt-3 inline-flex translate-x-0 items-center gap-1 rounded-full border border-neutral-900/10 bg-white/55 px-3 py-1 text-xs font-semibold text-neutral-900/70 transition-all group-hover:translate-x-1 group-hover:bg-white/80 group-hover:text-neutral-900 dark:border-white/10 dark:bg-white/10 dark:text-neutral-100/80 dark:group-hover:bg-white/15 dark:group-hover:text-neutral-100">
-            {ctaText ?? `Open ${title}`} <ArrowRight className="h-3.5 w-3.5" />
-          </span>
+        <div className="min-w-0 flex-1">
+          <h3 className="text-base font-semibold tracking-tight">{title}</h3>
+          <p className="mt-0.5 text-sm leading-snug text-neutral-600 dark:text-neutral-400">
+            {blurb}
+          </p>
         </div>
+        <ChevronRight className="h-4 w-4 shrink-0 text-neutral-400 transition-transform group-hover:translate-x-0.5 dark:text-neutral-500" />
       </motion.div>
     </Link>
+  );
+}
+
+/** ------------------------------------------------
+ *  Building status panel
+ *  ------------------------------------------------ */
+const facilityStatuses = [
+  { name: 'Swimming Pool', icon: Waves, open: false },
+  { name: 'Gym', icon: Dumbbell, open: false },
+  { name: 'Sauna', icon: Flame, open: false },
+] as const;
+
+function StatusDot({ open }: { open: boolean }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={`h-2 w-2 shrink-0 rounded-full ${
+        open ? 'bg-emerald-500' : 'bg-rose-500'
+      }`}
+    />
+  );
+}
+
+function BuildingStatus({
+  noticeCount,
+  reduceMotion,
+}: {
+  noticeCount: number;
+  reduceMotion: boolean;
+}) {
+  return (
+    <section className="mx-auto max-w-6xl mt-10 sm:mt-14" aria-label="Building status">
+      <SectionHeader reduceMotion={reduceMotion}>Building Status</SectionHeader>
+      <motion.div
+        initial="hidden"
+        whileInView="show"
+        viewport={viewportOnce}
+        variants={staggerContainerVariants(reduceMotion, 0.05)}
+        className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4"
+      >
+        {facilityStatuses.map(({ name, icon: Icon, open }) => (
+          <motion.div key={name} variants={cardRevealVariants(reduceMotion)} className="h-full">
+            <Link
+              href="/updates#pool-facilities"
+              className={`${glass} flex h-full flex-col gap-2 p-4 transition-colors hover:bg-white/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:hover:bg-white/15`}
+            >
+              <div className="flex items-center gap-2 text-neutral-500 dark:text-neutral-400">
+                <Icon className="h-4 w-4" />
+                <span className="text-xs font-medium uppercase tracking-wide">{name}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <StatusDot open={open} />
+                <span
+                  className={`text-sm font-semibold ${
+                    open
+                      ? 'text-emerald-700 dark:text-emerald-300'
+                      : 'text-rose-700 dark:text-rose-300'
+                  }`}
+                >
+                  {open ? 'Open' : 'Temporarily closed'}
+                </span>
+              </div>
+            </Link>
+          </motion.div>
+        ))}
+
+        <motion.div variants={cardRevealVariants(reduceMotion)} className="h-full">
+          <Link
+            href="/updates"
+            className={`${glass} flex h-full flex-col gap-2 p-4 transition-colors hover:bg-white/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:hover:bg-white/15`}
+          >
+            <div className="flex items-center gap-2 text-neutral-500 dark:text-neutral-400">
+              <Megaphone className="h-4 w-4" />
+              <span className="text-xs font-medium uppercase tracking-wide">Building Notices</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span aria-hidden="true" className="h-2 w-2 shrink-0 rounded-full bg-sky-500" />
+              <span className="text-sm font-semibold text-sky-700 dark:text-sky-300">
+                {noticeCount} active {noticeCount === 1 ? 'notice' : 'notices'}
+              </span>
+            </div>
+          </Link>
+        </motion.div>
+      </motion.div>
+    </section>
+  );
+}
+
+/** ------------------------------------------------
+ *  Latest updates — compact cards
+ *  ------------------------------------------------ */
+const noticeToneStyles: Record<NoticeSummary['tone'], { border: string; badge: string }> = {
+  urgent: {
+    border: 'border-l-rose-400',
+    badge:
+      'border-rose-500/40 bg-rose-500/10 text-rose-800 dark:text-rose-300',
+  },
+  action: {
+    border: 'border-l-amber-400',
+    badge:
+      'border-amber-500/40 bg-amber-500/10 text-amber-800 dark:text-amber-300',
+  },
+  info: {
+    border: 'border-l-neutral-300 dark:border-l-neutral-600',
+    badge:
+      'border-neutral-400/40 bg-neutral-500/10 text-neutral-700 dark:text-neutral-300',
+  },
+};
+
+function UpdateCard({ notice }: { notice: NoticeSummary }) {
+  const tone = noticeToneStyles[notice.tone];
+  return (
+    <Link
+      href={`/updates#${notice.id}`}
+      className={`${glass} group flex h-full flex-col border-l-[3px] ${tone.border} p-5 transition-colors hover:bg-white/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:hover:bg-white/15`}
+    >
+      <div className="flex items-center justify-between gap-2">
+        <span
+          className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${tone.badge}`}
+        >
+          {notice.badge}
+        </span>
+        <span className="shrink-0 text-xs text-neutral-500 dark:text-neutral-400">
+          {notice.date}
+        </span>
+      </div>
+      <h3 className="mt-3 text-base font-semibold leading-snug tracking-tight">{notice.title}</h3>
+      <p className="mt-1.5 line-clamp-3 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+        {notice.summary}
+      </p>
+      <span className="mt-auto inline-flex items-center gap-1 pt-3 text-xs font-semibold text-neutral-700 transition-colors group-hover:text-neutral-900 dark:text-neutral-300 dark:group-hover:text-neutral-100">
+        Read more <ArrowRight className="h-3.5 w-3.5" />
+      </span>
+    </Link>
+  );
+}
+
+/** ------------------------------------------------
+ *  Facilities — hours & booking summary
+ *  ------------------------------------------------ */
+const facilityHours = [
+  { label: 'Morning', hours: '05:30 – 09:30', note: 'Booking recommended' },
+  { label: 'Open use', hours: '11:00 – 17:00', note: 'No booking needed' },
+  { label: 'Evening', hours: '17:00 – 23:00', note: 'Booking recommended' },
+];
+
+const facilityCards = [
+  { name: 'Swimming Pool', icon: Waves, href: '/book/pool' },
+  { name: 'Gym', icon: Dumbbell, href: '/book/gym' },
+  { name: 'Sauna', icon: Flame, href: '/book/sauna' },
+];
+
+function FacilityCard({
+  name,
+  icon: Icon,
+  href,
+}: {
+  name: string;
+  icon: typeof Waves;
+  href: string;
+}) {
+  return (
+    <div className={`${glass} flex h-full flex-col p-5`}>
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2.5">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-neutral-900/5 text-neutral-700 dark:bg-white/10 dark:text-neutral-200">
+            <Icon className="h-4.5 w-4.5" />
+          </span>
+          <h3 className="text-base font-semibold tracking-tight">{name}</h3>
+        </div>
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-rose-500/30 bg-rose-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-rose-700 dark:text-rose-300">
+          <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-rose-500" />
+          Closed
+        </span>
+      </div>
+
+      <ul className="mt-4 space-y-1.5 text-sm">
+        {facilityHours.map(({ label, hours, note }) => (
+          <li key={label} className="flex items-baseline justify-between gap-2">
+            <span className="text-neutral-600 dark:text-neutral-400">{label}</span>
+            <span className="text-right">
+              <span className="font-medium tabular-nums">{hours}</span>
+              <span className="block text-[11px] text-neutral-500 dark:text-neutral-400">
+                {note}
+              </span>
+            </span>
+          </li>
+        ))}
+      </ul>
+
+      <div className="mt-auto pt-4">
+        <Link
+          href={href}
+          className="inline-flex w-full items-center justify-center gap-1.5 rounded-full border border-neutral-900/10 bg-white/70 px-4 py-2 text-sm font-semibold text-neutral-900 shadow-sm transition-colors hover:bg-white dark:border-white/15 dark:bg-white/10 dark:text-white dark:hover:bg-white/15"
+        >
+          Book {name.toLowerCase().replace('swimming ', '')}
+          <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
+      </div>
+    </div>
   );
 }
 
@@ -351,7 +482,8 @@ function PhotoCarousel() {
   }, [paused, reduceMotion]);
 
   return (
-    <section className="mx-auto max-w-6xl mt-10 sm:mt-12">
+    <section className="mx-auto max-w-6xl mt-14 sm:mt-16">
+      <SectionHeader reduceMotion={Boolean(reduceMotion)}>Around James Square</SectionHeader>
       <div
         className={`${glass} p-4 sm:p-6`}
         onMouseEnter={() => setPaused(true)}
@@ -364,8 +496,7 @@ function PhotoCarousel() {
           }
         }}
       >
-        <div className="flex items-center justify-between mb-3 sm:mb-4">
-          <h2 className="text-lg font-semibold">Around James Square</h2>
+        <div className="flex items-center justify-end mb-3 sm:mb-4">
           <div className="flex gap-2">
             <button
               onClick={prev}
@@ -402,7 +533,6 @@ function PhotoCarousel() {
                 aria-hidden="true"
                 className="absolute inset-0 h-full w-full scale-110 object-cover opacity-45 blur-xl saturate-125"
                 sizes="(min-width: 1024px) 1000px, 100vw"
-                priority={idx === 0}
               />
               <motion.div
                 className="absolute inset-0"
@@ -425,7 +555,6 @@ function PhotoCarousel() {
                   height={activeSlide.h}
                   className="h-full w-full object-cover"
                   sizes="(min-width: 1024px) 1000px, 100vw"
-                  priority={idx === 0}
                 />
               </motion.div>
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-black/10" />
@@ -476,554 +605,37 @@ function PhotoCarousel() {
 }
 
 /** ------------------------------------------------
- *  Pool & Facilities Notice
+ *  Subtle install-app card
  *  ------------------------------------------------ */
-function PoolNotice() {
-  const [expanded, setExpanded] = useState(false);
-
+function InstallAppCard() {
   return (
-    <div className="jqs-glass rounded-2xl border border-l-[3px] border-sky-400/30 border-l-sky-400 bg-gradient-to-br from-sky-500/10 via-cyan-500/10 to-emerald-500/10 p-6 shadow-lg shadow-sky-900/10">
-      <div className="mb-3 flex flex-wrap items-center gap-2">
-        <span className="inline-flex items-center rounded-full border border-sky-500/40 bg-sky-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-sky-900 dark:text-sky-200">
-          Resident notice
-        </span>
-      </div>
-
-      <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
-        Pool &amp; Facilities Update
-      </h2>
-      <p className="mt-1 text-xs font-medium uppercase tracking-wide text-sky-800/80 dark:text-sky-200/80">
-        Last Updated: June 2026
-      </p>
-
-      <div className="mt-3 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
-        <p>
-          The swimming pool, gym and sauna facilities remain closed due to safety concerns following
-          the pool plant room incident and deterioration identified within the pool area. The AGM was
-          held on Thursday 4 June 2026, where owners discussed the immediate repair needs and the
-          longer-term future of the facilities.
-        </p>
-
-        <AnimatePresence initial={false}>
-          {expanded && (
-            <motion.div
-              key="full-update"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3, ease: 'easeInOut' }}
-              className="overflow-hidden"
-            >
-              <div className="mt-4 space-y-3 border-t border-sky-400/30 pt-4">
-                <h3 className="font-semibold text-neutral-900 dark:text-neutral-100">
-                  Full Update – Pool &amp; Facilities
-                </h3>
-                <p>
-                  As previously reported, a leak within the pool plant room resulted in water coming
-                  into contact with electrical equipment, causing an electrical fault and failure of
-                  the dehumidifier system.
-                </p>
-                <p>
-                  Although the dehumidifier has now been repaired and returned to service, the
-                  prolonged period of elevated humidity within the pool area caused damage to a
-                  number of internal finishes. This included sections of ceiling and decorative
-                  cornicing becoming unstable, with some areas partially detaching.
-                </p>
-                <p>
-                  Following these concerns, Myreside instructed F3 Building Surveyors to inspect the
-                  pool area and advise whether the facilities remained safe to use. Their
-                  recommendation was that the facilities should remain closed until further
-                  investigations and remedial works have been completed.
-                </p>
-                <p>
-                  During the inspection, concerns were also raised regarding the possibility of
-                  Reinforced Autoclaved Aerated Concrete (RAAC) being present within the structure
-                  due to the age of the building. Further investigations were carried out on 28 May
-                  2026, and RAAC has now been ruled out.
-                </p>
-                <p>
-                  The surveyor&apos;s report identified a number of items requiring attention before the
-                  pool can safely reopen. These include further inspection of the ceiling structure,
-                  repairs to damaged or sagging ceiling sections, replacement or repair of loose
-                  cornicing, replacement of deteriorated timber boxing around the pool perimeter,
-                  inspection of lighting, repairs to flooring around poolside vents, maintenance
-                  checks to pool mechanical and electrical systems, and repairs to balcony and tiled
-                  areas.
-                </p>
-                <p>
-                  Whilst some of these items could potentially be addressed through targeted repair
-                  works, the report has also highlighted wider concerns regarding the overall
-                  condition of parts of the pool area. This has prompted discussion about whether
-                  owners should simply undertake the minimum repairs required to reopen the facility,
-                  or whether a more comprehensive refurbishment project should be considered.
-                </p>
-                <p>
-                  The matter was discussed with owners at the AGM held on Thursday 4 June 2026. No
-                  decision has been taken yet. The committee had explored obtaining quotations for
-                  immediate make-safe works which could potentially allow the facilities to reopen
-                  sooner, but any major expenditure will be subject to further owner consultation
-                  before it proceeds.
-                </p>
-                <p>
-                  Options discussed range from temporary repairs of approximately £2,000–£3,000
-                  through to a full refurbishment of the pool, sauna and gym facilities. At this
-                  stage, owners are encouraged to keep an open mind until all information, reports and
-                  potential costs have been fully considered.
-                </p>
-                <p>
-                  The pool and associated facilities will remain closed until the necessary works have
-                  been completed and the area has been confirmed safe for use. Full minutes from the
-                  AGM will be made available and shared soon, with further updates provided as
-                  additional information becomes available.
-                </p>
-                <div className="rounded-xl border border-sky-400/30 bg-white/35 p-4 text-sm font-medium text-neutral-800 shadow-sm dark:bg-white/10 dark:text-neutral-100">
-                  Owners will be consulted before any major expenditure is progressed, and no final
-                  decision has been taken on the future scope of pool, gym and sauna works.
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <button
-          onClick={() => setExpanded((v) => !v)}
-          className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-sky-400/40 bg-sky-500/10 px-4 py-1.5 text-xs font-semibold text-sky-700 dark:text-sky-300 hover:bg-sky-500/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/50"
-          aria-expanded={expanded}
-        >
-          {expanded ? 'Show less' : 'Read Full Update'}
-          <motion.span
-            animate={{ rotate: expanded ? 180 : 0 }}
-            transition={{ duration: 0.2 }}
-            className="inline-block"
-          >
-            <ChevronDown className="h-3.5 w-3.5" />
-          </motion.span>
-        </button>
-      </div>
-    </div>
-  );
-}
-
-/** ------------------------------------------------
- *  Telfer Subway Footpath Closure Notice
- *  ------------------------------------------------ */
-function TelferSubwayClosureNotice() {
-  const [active, setActive] = useState(false);
-  const [expanded, setExpanded] = useState(false);
-
-  useEffect(() => {
-    const refreshActiveState = () => setActive(isTelferSubwayNoticeActive());
-    refreshActiveState();
-
-    const millisecondsUntilExpiry = telferSubwayNoticeEndsAt.getTime() - Date.now();
-    const expiryTimer =
-      millisecondsUntilExpiry > 0 && millisecondsUntilExpiry <= 2_147_483_647
-        ? window.setTimeout(refreshActiveState, millisecondsUntilExpiry)
-        : undefined;
-
-    return () => {
-      if (expiryTimer) window.clearTimeout(expiryTimer);
-    };
-  }, []);
-
-  if (!active) return null;
-
-  return (
-    <div className="jqs-glass rounded-2xl border border-l-[3px] border-amber-400/30 border-l-amber-400 bg-gradient-to-br from-amber-500/10 via-orange-500/10 to-yellow-500/10 p-6 shadow-lg shadow-amber-900/10">
-      <div className="mb-3 flex flex-wrap items-center gap-2">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/40 bg-amber-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-900 dark:text-amber-200">
-          <MapPinned className="h-3.5 w-3.5" />
-          Temporary footpath closure
-        </span>
-      </div>
-
-      <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
-        Telfer Subway / Caledonian Crescent Closure
-      </h2>
-
-      <div className="mt-3 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
-        <p>
-          The Telfer Subway will be closed to pedestrians and cyclists from Monday 15 June to
-          Friday 19 June 2026 while works are carried out near the Caledonian Crescent entrance.
-          A signed diversion route will be in place during the closure.
-        </p>
-
-        <AnimatePresence initial={false}>
-          {expanded && (
-            <motion.div
-              key="telfer-subway-map"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3, ease: 'easeInOut' }}
-              className="overflow-hidden"
-            >
-              <div className="mt-4 space-y-4 border-t border-amber-400/30 pt-4">
-                <p>
-                  Edinburgh Council have advised that the Telfer Subway will be fully closed from
-                  Monday 15 June to Friday 19 June 2026. The closure is required due to safety and
-                  space constraints while contractors carry out works to construct a new raised
-                  table and footway close to the subway entrance at Caledonian Crescent.
-                </p>
-                <p>
-                  Pedestrian and cyclist access through the subway will not be available during
-                  this period. A fully signed diversion route will be in place, and residents
-                  should allow extra time for journeys while the works are ongoing.
-                </p>
-
-                <div className="overflow-hidden rounded-xl border border-amber-400/25 bg-white/60 dark:bg-neutral-950/25">
-                  <iframe
-                    src={`${telferDiversionMapHref}#toolbar=1&navpanes=0`}
-                    title="Telfer Subway diversion map for Caledonian Crescent footpath closure"
-                    className="h-[420px] w-full sm:h-[560px]"
-                  />
-                </div>
-
-                <a
-                  href={telferDiversionMapHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full border border-amber-400/40 bg-amber-500/10 px-4 py-1.5 text-xs font-semibold text-amber-700 transition-colors hover:bg-amber-500/20 dark:text-amber-300"
-                >
-                  Open diversion map PDF
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </a>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <button
-          onClick={() => setExpanded((v) => !v)}
-          className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-amber-400/40 bg-amber-500/10 px-4 py-1.5 text-xs font-semibold text-amber-700 dark:text-amber-300 hover:bg-amber-500/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/50"
-          aria-expanded={expanded}
-        >
-          {expanded ? 'Hide diversion map' : 'View diversion map'}
-          <motion.span
-            animate={{ rotate: expanded ? 180 : 0 }}
-            transition={{ duration: 0.2 }}
-            className="inline-block"
-          >
-            <ChevronDown className="h-3.5 w-3.5" />
-          </motion.span>
-        </button>
-      </div>
-    </div>
-  );
-}
-
-
-/** ------------------------------------------------
- *  AGM Owner Voting Notice
- *  ------------------------------------------------ */
-function AGMOwnerVotingNotice() {
-  return (
-    <div className="jqs-glass rounded-2xl border border-l-[3px] border-cyan-400/30 border-l-cyan-400 bg-gradient-to-br from-cyan-500/10 via-sky-500/10 to-amber-500/10 p-6 shadow-lg shadow-cyan-900/10">
-      <div className="mb-3 flex flex-wrap items-center gap-2">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-500/40 bg-cyan-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-cyan-900 dark:text-cyan-200">
-          <CalendarDays className="h-3.5 w-3.5" />
-          Owners&apos; notice
-        </span>
-        <span className="inline-flex items-center rounded-full border border-amber-500/40 bg-amber-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-900 dark:text-amber-200">
-          Voting closes Monday 13 July 2026
-        </span>
-      </div>
-
-      <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
-        AGM 2026 Owner Voting Now Open
-      </h2>
-
-      <div className="mt-3 space-y-3 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
-        <p>
-          Myreside Management has emailed proprietors the AGM voting documentation following the
-          2026 AGM. Owners should read the official documents before voting and return completed
-          forms directly to Ania Jennings at Myreside Management according to the email
-          instructions.
-        </p>
-        <p>
-          The AGM page now includes a plain-English summary of the Committee Constitution,
-          Building Survey &amp; Planned Preventative Maintenance, and Swimming Pool &amp; Gym items.
-        </p>
-      </div>
-
+    <section className="mx-auto max-w-6xl mt-14 sm:mt-16">
       <Link
-        href="/agm"
-        className="mt-4 inline-flex items-center gap-2 rounded-xl bg-cyan-600 px-4 py-2.5 text-sm font-semibold text-white shadow transition-colors hover:bg-cyan-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/60"
+        href="/how-to-app"
+        className={`${glass} group flex items-center gap-4 p-4 transition-colors hover:bg-white/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:hover:bg-white/15 sm:p-5`}
       >
-        View AGM voting summary
-        <ArrowRight className="h-4 w-4" />
+        <span className="relative h-12 w-12 shrink-0 overflow-hidden rounded-[22%] bg-[#0b1220] shadow-sm">
+          <Image
+            src="/images/icons/JS-app-icon-1024.png"
+            alt="James Square app icon"
+            fill
+            className="object-cover"
+            sizes="48px"
+          />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-sm font-semibold tracking-tight sm:text-base">
+            Use James Square as an app
+          </span>
+          <span className="mt-0.5 block text-xs leading-snug text-neutral-600 dark:text-neutral-400 sm:text-sm">
+            Add the site to your phone&apos;s home screen for a fast, app-like experience.
+          </span>
+        </span>
+        <span className="inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-neutral-700 transition-colors group-hover:text-neutral-900 dark:text-neutral-300 dark:group-hover:text-neutral-100 sm:text-sm">
+          How to install <ArrowRight className="h-3.5 w-3.5" />
+        </span>
       </Link>
-    </div>
-  );
-}
-
-/** ------------------------------------------------
- *  AGM Summary
- *  ------------------------------------------------ */
-function AGMNotice() {
-  const [expanded, setExpanded] = useState(false);
-
-  return (
-    <div className="jqs-glass rounded-2xl border border-l-[3px] border-violet-400/30 border-l-violet-400 bg-gradient-to-br from-violet-500/10 via-purple-500/10 to-indigo-500/10 p-6 shadow-lg shadow-violet-900/10">
-      <div className="mb-3 flex flex-wrap items-center gap-2">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-violet-500/40 bg-violet-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-violet-900 dark:text-violet-200">
-          <CalendarDays className="h-3.5 w-3.5" />
-          AGM summary
-        </span>
-      </div>
-
-      <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
-        AGM Summary – 4 June 2026
-      </h2>
-
-      <div className="mt-3 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
-        <p>
-          The AGM reviewed recent estate matters, including the Fior handover and reconciliation,
-          recovery of Trinity sinking fund balances, and the ongoing pool, gym and sauna closure.
-        </p>
-
-        <AnimatePresence initial={false}>
-          {expanded && (
-            <motion.div
-              key="agm-detail"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3, ease: 'easeInOut' }}
-              className="overflow-hidden"
-            >
-              <div className="mt-4 space-y-3 border-t border-violet-400/30 pt-4">
-                <p>
-                  Discussion covered options for the leisure facilities, the proposed update to
-                  the building survey, and the need to plan future repair funds carefully. Owners
-                  also considered committee growth, caretaker support and estate management
-                  arrangements.
-                </p>
-                <p>
-                  Further consultation will follow before key decisions are taken. Full minutes of
-                  the AGM will be made available and shared soon.
-                </p>
-                <Link
-                  href="/agm"
-                  className="mt-2 inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white shadow hover:bg-violet-700 transition-colors"
-                >
-                  <CalendarDays className="h-4 w-4" />
-                  View AGM summary
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <button
-          onClick={() => setExpanded((v) => !v)}
-          className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-violet-400/40 bg-violet-500/10 px-4 py-1.5 text-xs font-semibold text-violet-700 dark:text-violet-300 hover:bg-violet-500/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/50"
-          aria-expanded={expanded}
-        >
-          {expanded ? 'Show less' : 'Read more'}
-          <motion.span
-            animate={{ rotate: expanded ? 180 : 0 }}
-            transition={{ duration: 0.2 }}
-            className="inline-block"
-          >
-            <ChevronDown className="h-3.5 w-3.5" />
-          </motion.span>
-        </button>
-      </div>
-    </div>
-  );
-}
-
-/** ------------------------------------------------
- *  Orwell Terrace Roadworks Notice
- *  ------------------------------------------------ */
-function RoadworksNotice() {
-  const [expanded, setExpanded] = useState(false);
-
-  return (
-    <div className="jqs-glass rounded-2xl border border-l-[3px] border-amber-400/30 border-l-amber-400 bg-gradient-to-br from-amber-500/10 via-orange-500/10 to-yellow-500/10 p-6 shadow-lg shadow-amber-900/10">
-      <div className="mb-3 flex flex-wrap items-center gap-2">
-        <span className="inline-flex items-center rounded-full border border-amber-500/40 bg-amber-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-900 dark:text-amber-200">
-          Residents update
-        </span>
-      </div>
-
-      <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
-        Orwell Terrace Roadworks (In Progress)
-      </h2>
-
-      <div className="mt-3 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
-        <p>
-          Roadworks at the end of Orwell Terrace are now underway and are expected to last around
-          4 to 6 weeks. The junction with Dalry Road is currently closed, with a diversion in
-          place. Access is being maintained where possible, although some disruption and parking
-          restrictions should be expected.
-        </p>
-
-        <AnimatePresence initial={false}>
-          {expanded && (
-            <motion.div
-              key="roadworks-detail"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3, ease: 'easeInOut' }}
-              className="overflow-hidden"
-            >
-              <div className="mt-4 space-y-3 border-t border-amber-400/30 pt-4">
-                <p>
-                  Works are now in progress as part of the wider Dalry Side Streets improvement
-                  project led by Edinburgh Council. This first phase focuses on upgrading the
-                  footway at the junction of Orwell Terrace and Dalry Road, with construction
-                  taking place on weekdays between 8am and 5pm.
-                </p>
-                <p>
-                  Orwell Terrace is currently closed at its junction with Dalry Road. A signed
-                  diversion route is in place, and access to homes and businesses is being
-                  maintained wherever practical. Some parking spaces have been temporarily removed
-                  to allow for construction activity, and residents are asked not to park in coned
-                  off areas.
-                </p>
-                <p>
-                  Communal bins have been temporarily relocated to the junction with Caledonian
-                  Crescent. Emergency vehicle access and pedestrian routes remain available
-                  throughout the works.
-                </p>
-                <p>
-                  Further phases are planned, including additional footway improvements and
-                  resurfacing works in the surrounding area. Dates for these will be confirmed
-                  separately. While some disruption is expected, the overall aim is to improve the
-                  condition, safety and appearance of the local streets.
-                </p>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <button
-          onClick={() => setExpanded((v) => !v)}
-          className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-amber-400/40 bg-amber-500/10 px-4 py-1.5 text-xs font-semibold text-amber-700 dark:text-amber-300 hover:bg-amber-500/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/50"
-          aria-expanded={expanded}
-        >
-          {expanded ? 'Show less' : 'Read more'}
-          <motion.span
-            animate={{ rotate: expanded ? 180 : 0 }}
-            transition={{ duration: 0.2 }}
-            className="inline-block"
-          >
-            <ChevronDown className="h-3.5 w-3.5" />
-          </motion.span>
-        </button>
-      </div>
-    </div>
-  );
-}
-
-/** ------------------------------------------------
- *  Myreside Management Notice
- *  ------------------------------------------------ */
-function MyresideNotice() {
-  const [expanded, setExpanded] = useState(false);
-
-  return (
-    <div className="jqs-glass rounded-2xl border border-l-[3px] border-emerald-400/30 border-l-emerald-400 bg-gradient-to-br from-emerald-500/10 via-teal-500/10 to-cyan-500/10 p-6 shadow-lg shadow-emerald-900/10">
-      <div className="mb-3 flex flex-wrap items-center gap-2">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-900 dark:text-emerald-200">
-          <Building2 className="h-3.5 w-3.5" />
-          Property management
-        </span>
-      </div>
-
-      <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
-        Myreside Management
-      </h2>
-
-      <div className="mt-3 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
-        <p>
-          Myreside Management are the active property factor for James Square, taking over from
-          Fior Asset &amp; Property on 1 February 2026. All owner payments, maintenance requests,
-          and management queries should be directed to Myreside.
-        </p>
-
-        <AnimatePresence initial={false}>
-          {expanded && (
-            <motion.div
-              key="myreside-detail"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3, ease: 'easeInOut' }}
-              className="overflow-hidden"
-            >
-              <div className="mt-4 space-y-4 border-t border-emerald-400/30 pt-4">
-                <p>
-                  Myreside handle day-to-day operations including owner communications, payments,
-                  contractor coordination, and routine site oversight.
-                </p>
-                <p>
-                  Owners should no longer make any payments to Fior Asset &amp; Property. If any
-                  payments have been made to Fior after 1 February 2026, contact Fior directly to
-                  request a refund. If you have not yet set up payment with Myreside, please
-                  contact them as soon as possible.
-                </p>
-
-                <div className="rounded-xl border border-emerald-400/25 bg-emerald-500/5 p-4 space-y-1 text-sm">
-                  <p className="font-semibold text-neutral-900 dark:text-neutral-100">Myreside Management Limited</p>
-                  <p>3 Dalkeith Road Mews, Edinburgh EH16 5GA</p>
-                  <p>
-                    Tel:{' '}
-                    <a href="tel:01314663001" className="font-medium hover:underline">
-                      0131 466 3001
-                    </a>
-                  </p>
-                  <p>
-                    24hr Emergencies:{' '}
-                    <span className="font-medium">0131 466 3001 – press 1</span>
-                  </p>
-                  <p>
-                    Email:{' '}
-                    <a
-                      href="mailto:info@myreside-management.co.uk"
-                      className="underline underline-offset-2 hover:text-emerald-700 dark:hover:text-emerald-300"
-                    >
-                      info@myreside-management.co.uk
-                    </a>
-                  </p>
-                  <p className="text-neutral-500 dark:text-neutral-400 text-xs pt-1">
-                    Monday – Friday, 9am – 5:30pm
-                  </p>
-                </div>
-
-                <Link
-                  href="/myreside"
-                  className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow hover:bg-emerald-700 transition-colors"
-                >
-                  <Building2 className="h-4 w-4" />
-                  Myreside information page
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <button
-          onClick={() => setExpanded((v) => !v)}
-          className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-4 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
-          aria-expanded={expanded}
-        >
-          {expanded ? 'Show less' : 'View more'}
-          <motion.span
-            animate={{ rotate: expanded ? 180 : 0 }}
-            transition={{ duration: 0.2 }}
-            className="inline-block"
-          >
-            <ChevronDown className="h-3.5 w-3.5" />
-          </motion.span>
-        </button>
-      </div>
-    </div>
+    </section>
   );
 }
 
@@ -1031,14 +643,22 @@ function MyresideNotice() {
  *  Page
  *  ------------------------------------------------ */
 export default function HomePageClient() {
-  const reduceMotion = useReducedMotion();
-  const shouldReduceMotion = Boolean(reduceMotion);
-  const heroKenBurnsAnimate = shouldReduceMotion
+  const reduceMotion = Boolean(useReducedMotion());
+  const { user } = useAuth();
+  const heroKenBurnsAnimate = reduceMotion
     ? { scale: 1, x: 0, y: 0 }
     : { scale: [1, 1.045, 1], x: [0, 10, 0], y: [0, -7, 0] };
-  const heroKenBurnsTransition = shouldReduceMotion
+  const heroKenBurnsTransition = reduceMotion
     ? { duration: 0 }
     : { duration: 30, ease: easeOut, repeat: Infinity };
+
+  // Time-gated notices are resolved after mount so server and client markup match.
+  const [notices, setNotices] = useState(() =>
+    activeNoticeSummaries().filter((notice) => !notice.isActive)
+  );
+  useEffect(() => {
+    setNotices(activeNoticeSummaries());
+  }, []);
 
   return (
     <div className="px-4 py-10 sm:py-14">
@@ -1047,7 +667,7 @@ export default function HomePageClient() {
         <motion.div
           initial="hidden"
           animate="show"
-          variants={staggerContainerVariants(Boolean(reduceMotion), 0.1)}
+          variants={staggerContainerVariants(reduceMotion, 0.1)}
           className={`${glass} overflow-hidden`}
         >
           {/* Top image */}
@@ -1139,7 +759,7 @@ export default function HomePageClient() {
               <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[15] h-28 bg-gradient-to-t from-white/95 via-white/55 to-transparent backdrop-blur-[2px] [-webkit-mask-image:linear-gradient(to_top,black_0%,black_42%,transparent_100%)] [mask-image:linear-gradient(to_top,black_0%,black_42%,transparent_100%)] dark:from-neutral-950/85 dark:via-neutral-950/45 sm:h-36" />
 
               <motion.h1
-                variants={fadeUpVariants(Boolean(reduceMotion))}
+                variants={fadeUpVariants(reduceMotion)}
                 className="absolute inset-x-5 top-[34%] z-20 text-center text-4xl font-bold leading-none tracking-normal text-slate-950 drop-shadow-[0_1px_12px_rgba(255,255,255,0.36)] dark:text-slate-100 dark:drop-shadow-[0_1px_16px_rgba(0,0,0,0.72)] sm:top-[36%] sm:text-6xl lg:text-7xl"
               >
                 <span className="relative inline-block">
@@ -1152,179 +772,195 @@ export default function HomePageClient() {
             <div className="pointer-events-none absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-white via-white/45 to-transparent dark:from-neutral-950/80 dark:via-neutral-950/25 dark:to-transparent" />
           </motion.div>
 
-          <div className="bg-gradient-to-b from-white/95 to-white/60 px-6 pb-6 pt-5 dark:from-neutral-950/60 dark:to-white/5 sm:px-10 sm:pb-8 sm:pt-6">
+          <div className="bg-gradient-to-b from-white/95 to-white/60 px-6 pb-8 pt-6 dark:from-neutral-950/60 dark:to-white/5 sm:px-10 sm:pb-10 sm:pt-7">
             <header className="text-center">
               <motion.p
-                variants={fadeUpVariants(Boolean(reduceMotion))}
+                variants={fadeUpVariants(reduceMotion)}
                 className="mx-auto max-w-2xl text-base leading-relaxed text-neutral-700 dark:text-neutral-300 sm:text-lg"
               >
-                Stay up to date with notices, building information and shared facilities at James
-                Square.
+                The residents&apos; community website for James Square, Edinburgh — notices,
+                building information and shared facilities in one place.
               </motion.p>
 
               <motion.div
-                variants={fadeUpVariants(Boolean(reduceMotion))}
-                className="mt-5 flex flex-col justify-center gap-3 sm:flex-row"
+                variants={fadeUpVariants(reduceMotion)}
+                className="mt-6 flex flex-col justify-center gap-3 sm:flex-row"
               >
                 <Link
                   href="/booking"
-                  className="inline-flex items-center justify-center gap-2 rounded-full bg-neutral-950 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-neutral-950/10 transition-colors hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200"
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-neutral-950 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-neutral-950/10 transition-colors hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200"
                 >
                   Book facilities
                   <ArrowRight className="h-4 w-4" />
                 </Link>
-                <Link
-                  href="/dashboard"
-                  className="inline-flex items-center justify-center gap-2 rounded-full border border-neutral-900/10 bg-white/70 px-5 py-2.5 text-sm font-semibold text-neutral-900 shadow-sm transition-colors hover:bg-white dark:border-white/15 dark:bg-white/10 dark:text-white dark:hover:bg-white/15"
-                >
-                  Manage bookings
-                </Link>
-              </motion.div>
-
-              <motion.div
-                variants={fadeUpVariants(Boolean(reduceMotion))}
-                className="mt-6 border-t border-neutral-200/70 pt-5 dark:border-white/10"
-              >
-                <h2 className="text-lg sm:text-xl font-semibold">
-                  Book the pool, gym &amp; sauna
-                </h2>
-                <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-                  Bookings are recommended for morning and evening sessions. Open use during the
-                  day does not require a booking.
-                </p>
-
-                <div className="mt-4 grid grid-cols-2 gap-3">
-                  <RulePill title="Morning" detail="05:30 – 09:30" href="/booking" />
-                  <RulePill title="Evening" detail="17:00 – 23:00" href="/booking" />
-                  <RulePill title="Open use" detail="11:00 – 17:00" accent />
-                  <RulePill title="Daily limit" detail="Max 2 per facility" />
-                </div>
-
-                <p className="mt-3 text-xs text-neutral-500 dark:text-neutral-400">
-                  No booking needed during open use hours (11:00 – 17:00)
-                </p>
+                {user ? (
+                  <Link
+                    href="/dashboard"
+                    className="inline-flex items-center justify-center gap-2 rounded-full border border-neutral-900/10 bg-white/70 px-6 py-2.5 text-sm font-semibold text-neutral-900 shadow-sm transition-colors hover:bg-white dark:border-white/15 dark:bg-white/10 dark:text-white dark:hover:bg-white/15"
+                  >
+                    Manage bookings
+                  </Link>
+                ) : (
+                  <Link
+                    href="/owners"
+                    className="inline-flex items-center justify-center gap-2 rounded-full border border-neutral-900/10 bg-white/70 px-6 py-2.5 text-sm font-semibold text-neutral-900 shadow-sm transition-colors hover:bg-white dark:border-white/15 dark:bg-white/10 dark:text-white dark:hover:bg-white/15"
+                  >
+                    Owners area
+                  </Link>
+                )}
               </motion.div>
             </header>
           </div>
         </motion.div>
       </section>
 
-      {/* NOTICES */}
-      <section className="mx-auto max-w-6xl mt-10 sm:mt-12">
-        <SectionHeader reduceMotion={Boolean(reduceMotion)}>Latest Updates</SectionHeader>
+      {/* BUILDING STATUS */}
+      <BuildingStatus noticeCount={notices.length} reduceMotion={reduceMotion} />
+
+      {/* QUICK ACTIONS */}
+      <section className="mx-auto max-w-6xl mt-14 sm:mt-16">
+        <SectionHeader reduceMotion={reduceMotion}>Quick Actions</SectionHeader>
         <motion.div
           initial="hidden"
           whileInView="show"
           viewport={viewportOnce}
-          variants={staggerContainerVariants(Boolean(reduceMotion), 0.08)}
-          className="space-y-4"
+          variants={staggerContainerVariants(reduceMotion, 0.05)}
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
         >
-          <motion.div variants={cardRevealVariants(Boolean(reduceMotion))}>
-            <AGMOwnerVotingNotice />
-          </motion.div>
-          <motion.div variants={cardRevealVariants(Boolean(reduceMotion))}>
-            <PoolNotice />
-          </motion.div>
-          <motion.div variants={cardRevealVariants(Boolean(reduceMotion))}>
-            <TelferSubwayClosureNotice />
-          </motion.div>
-          <motion.div variants={cardRevealVariants(Boolean(reduceMotion))}>
-            <AGMNotice />
-          </motion.div>
-          <motion.div variants={cardRevealVariants(Boolean(reduceMotion))}>
-            <RoadworksNotice />
-          </motion.div>
-          <motion.div variants={cardRevealVariants(Boolean(reduceMotion))}>
-            <MyresideNotice />
-          </motion.div>
-        </motion.div>
-      </section>
-
-      {/* QUICK LINKS */}
-      <section className="mx-auto max-w-6xl mt-10 sm:mt-12">
-        <SectionHeader reduceMotion={Boolean(reduceMotion)}>Quick Links</SectionHeader>
-        <motion.div
-          initial="hidden"
-          whileInView="show"
-          viewport={viewportOnce}
-          variants={staggerContainerVariants(Boolean(reduceMotion), 0.06)}
-          className="grid grid-cols-1 gap-6 lg:grid-cols-2"
-        >
-          <motion.div variants={cardRevealVariants(Boolean(reduceMotion))}>
-            <IconCard
-              title="Message Board"
-              href="/message-board"
-              lightIcon="/images/icons/new-message-icon-light.png"
-              darkIcon="/images/icons/new-message-icon-dark.png"
-              blurb="Share updates, ask questions and discuss anything related to James Square."
-              reduceMotion={Boolean(reduceMotion)}
-            />
-          </motion.div>
-
-          <motion.div variants={cardRevealVariants(Boolean(reduceMotion))}>
-            <IconCard
-              title="My Dashboard"
-              href="/dashboard"
-              lightIcon="/images/icons/new-dashboard-icon-light.png"
-              darkIcon="/images/icons/new-dashboard-icon-dark.png"
-              blurb="View, edit and manage your bookings. Add bookings to your calendar."
-              reduceMotion={Boolean(reduceMotion)}
-            />
-          </motion.div>
-
-          <motion.div variants={cardRevealVariants(Boolean(reduceMotion))}>
+          <motion.div variants={cardRevealVariants(reduceMotion)}>
             <IconCard
               title="Book Facilities"
               href="/book"
               lightIcon="/images/icons/new-pool-icon-light.png"
               darkIcon="/images/icons/new-pool-icon-dark.png"
               blurb="Reserve time for the pool, gym or sauna."
-              reduceMotion={Boolean(reduceMotion)}
+              reduceMotion={reduceMotion}
             />
           </motion.div>
 
-          <motion.div variants={cardRevealVariants(Boolean(reduceMotion))}>
+          <motion.div variants={cardRevealVariants(reduceMotion)}>
+            <IconCard
+              title="My Dashboard"
+              href="/dashboard"
+              lightIcon="/images/icons/new-dashboard-icon-light.png"
+              darkIcon="/images/icons/new-dashboard-icon-dark.png"
+              blurb="View, edit and manage your bookings."
+              reduceMotion={reduceMotion}
+            />
+          </motion.div>
+
+          <motion.div variants={cardRevealVariants(reduceMotion)}>
             <IconCard
               title="Owners Area"
               href="/owners"
               lightIcon="/images/icons/Owner-icon-light.PNG"
               darkIcon="/images/icons/new-Owner-icon-dark.png"
-              blurb="Access owner information, voting, and owners-only updates."
+              blurb="Owner information, voting and updates."
               iconAlt="Owners area"
-              reduceMotion={Boolean(reduceMotion)}
+              reduceMotion={reduceMotion}
             />
           </motion.div>
 
-          <motion.div variants={cardRevealVariants(Boolean(reduceMotion))}>
+          <motion.div variants={cardRevealVariants(reduceMotion)}>
+            <IconCard
+              title="Message Board"
+              href="/message-board"
+              lightIcon="/images/icons/new-message-icon-light.png"
+              darkIcon="/images/icons/new-message-icon-dark.png"
+              blurb="Share updates and ask questions."
+              reduceMotion={reduceMotion}
+            />
+          </motion.div>
+
+          <motion.div variants={cardRevealVariants(reduceMotion)}>
             <IconCard
               title="Useful Info"
               href="/local"
               lightIcon="/images/icons/info-icon-light.png"
               darkIcon="/images/icons/new-info-icon-dark.png"
-              blurb="Access, bins & recycling, contacts and local picks (food, shops, coffee)."
-              reduceMotion={Boolean(reduceMotion)}
+              blurb="Access, bins, contacts and local picks."
+              reduceMotion={reduceMotion}
             />
           </motion.div>
 
-          <motion.div variants={cardRevealVariants(Boolean(reduceMotion))}>
+          <motion.div variants={cardRevealVariants(reduceMotion)}>
             <IconCard
-              title="Fior Additional Payments Survey"
+              title="Fior Payments Survey"
               href="/fior-questionnaire"
               lightIcon="/images/icons/q&a-light.png"
               darkIcon="/images/icons/q&a-dark.png"
-              blurb="Help gauge whether owners paid additional money to Fior for roof or maintenance works, or continued paying Fior after February 2026."
-              iconClassName="h-24 w-24 object-cover sm:h-28 sm:w-28"
-              ctaText="Open Questionnaire"
-              reduceMotion={Boolean(reduceMotion)}
+              blurb="Tell us about additional payments made to Fior."
+              reduceMotion={reduceMotion}
             />
           </motion.div>
         </motion.div>
       </section>
 
+      {/* LATEST UPDATES */}
+      <section className="mx-auto max-w-6xl mt-14 sm:mt-16">
+        <SectionHeader
+          reduceMotion={reduceMotion}
+          action={
+            <Link
+              href="/updates"
+              className="inline-flex items-center gap-1 text-xs font-semibold text-neutral-600 transition-colors hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
+            >
+              View all updates <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          }
+        >
+          Latest Updates
+        </SectionHeader>
+        <motion.div
+          initial="hidden"
+          whileInView="show"
+          viewport={viewportOnce}
+          variants={staggerContainerVariants(reduceMotion, 0.08)}
+          className="grid grid-cols-1 gap-4 md:grid-cols-3"
+        >
+          {notices.slice(0, 3).map((notice) => (
+            <motion.div
+              key={notice.id}
+              variants={cardRevealVariants(reduceMotion)}
+              className="h-full"
+            >
+              <UpdateCard notice={notice} />
+            </motion.div>
+          ))}
+        </motion.div>
+      </section>
+
+      {/* FACILITIES */}
+      <section className="mx-auto max-w-6xl mt-14 sm:mt-16">
+        <SectionHeader reduceMotion={reduceMotion}>Facilities</SectionHeader>
+        <motion.div
+          initial="hidden"
+          whileInView="show"
+          viewport={viewportOnce}
+          variants={staggerContainerVariants(reduceMotion, 0.06)}
+          className="grid grid-cols-1 gap-4 md:grid-cols-3"
+        >
+          {facilityCards.map((facility) => (
+            <motion.div
+              key={facility.name}
+              variants={cardRevealVariants(reduceMotion)}
+              className="h-full"
+            >
+              <FacilityCard {...facility} />
+            </motion.div>
+          ))}
+        </motion.div>
+        <p className="mt-3 text-xs text-neutral-500 dark:text-neutral-400">
+          Bookings are recommended for morning and evening sessions — open use during the day does
+          not require a booking. Maximum of 2 bookings per facility per day.
+        </p>
+      </section>
+
       {/* PHOTO CAROUSEL */}
       <PhotoCarousel />
 
-      <MobileAppPoster />
+      {/* INSTALL APP */}
+      <InstallAppCard />
     </div>
   );
 }

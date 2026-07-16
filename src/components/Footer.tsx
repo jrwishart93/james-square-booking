@@ -28,7 +28,7 @@ export default function Footer() {
                   About
                 </h2>
               </div>
-              <h2 className="md:hidden text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 text-center">
+              <h2 className="md:hidden text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 About
               </h2>
               <p className="break-words leading-tight md:leading-relaxed text-slate-600 dark:text-slate-300">
@@ -38,18 +38,18 @@ export default function Footer() {
             </section>
 
             <section className="min-w-0 flex flex-col gap-2 md:gap-3">
-              <h2 className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 text-center md:text-left">
+              <h2 className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 Contact
               </h2>
               <ul className="space-y-2 md:space-y-3">
                 {contactEmails.map((email) => (
                   <li key={email}>
                     <a
-                      className="flex flex-col items-center gap-1 text-center text-slate-600 transition-colors hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 md:items-start md:text-left"
+                      className="flex items-center gap-1.5 text-slate-600 transition-colors hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 md:gap-2"
                       href={`mailto:${email}`}
                     >
-                      <MailIcon className="h-4 w-4" />
-                      <span className="break-words text-[10px] sm:text-[11px] md:text-sm leading-tight">{email}</span>
+                      <MailIcon className="h-3.5 w-3.5 shrink-0 md:h-4 md:w-4" />
+                      <span className="break-all text-[10px] sm:text-[11px] md:text-sm leading-tight">{email}</span>
                     </a>
                   </li>
                 ))}
@@ -60,7 +60,7 @@ export default function Footer() {
             </section>
 
             <section className="min-w-0 flex flex-col gap-2 md:gap-3">
-              <h2 className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 text-center md:text-left">
+              <h2 className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 Links
               </h2>
               <ul className="space-y-2 md:space-y-3">
@@ -68,9 +68,9 @@ export default function Footer() {
                   <li key={href}>
                     <Link
                       href={href}
-                      className="flex flex-col items-center gap-1 rounded-lg px-1.5 py-1 text-center text-slate-600 transition-colors hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 md:items-start md:text-left"
+                      className="flex items-center gap-1.5 rounded-lg text-slate-600 transition-colors hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 md:gap-2"
                     >
-                      <Icon className="h-4 w-4" />
+                      <Icon className="h-3.5 w-3.5 shrink-0 md:h-4 md:w-4" />
                       <span className="break-words text-[10px] sm:text-[11px] md:text-sm leading-tight">{label}</span>
                     </Link>
                   </li>
