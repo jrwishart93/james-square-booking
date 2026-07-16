@@ -270,12 +270,18 @@ const facilityStatuses = [
 
 function StatusDot({ open }: { open: boolean }) {
   return (
-    <span
-      aria-hidden="true"
-      className={`h-2 w-2 shrink-0 rounded-full ${
-        open ? 'bg-emerald-500' : 'bg-rose-500'
-      }`}
-    />
+    <span aria-hidden="true" className="relative flex h-2 w-2 shrink-0">
+      <span
+        className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-50 [animation-duration:2.4s] motion-reduce:animate-none ${
+          open ? 'bg-emerald-400' : 'bg-rose-400'
+        }`}
+      />
+      <span
+        className={`relative inline-flex h-2 w-2 rounded-full ${
+          open ? 'bg-emerald-500' : 'bg-rose-500'
+        }`}
+      />
+    </span>
   );
 }
 
@@ -300,7 +306,7 @@ function BuildingStatus({
           <motion.div key={name} variants={cardRevealVariants(reduceMotion)} className="h-full">
             <Link
               href="/updates#pool-facilities"
-              className={`${glass} flex h-full flex-col gap-2 p-4 transition-colors hover:bg-white/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:hover:bg-white/15`}
+              className={`${glass} flex h-full flex-col gap-2 p-4 transition-[transform,background-color,box-shadow] duration-300 hover:-translate-y-0.5 hover:bg-white/70 hover:shadow-[0_16px_40px_rgba(0,0,0,0.10)] focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 motion-reduce:hover:translate-y-0 dark:hover:bg-white/15`}
             >
               <div className="flex items-center gap-2 text-neutral-500 dark:text-neutral-400">
                 <Icon className="h-4 w-4" />
@@ -325,7 +331,7 @@ function BuildingStatus({
         <motion.div variants={cardRevealVariants(reduceMotion)} className="h-full">
           <Link
             href="/updates"
-            className={`${glass} flex h-full flex-col gap-2 p-4 transition-colors hover:bg-white/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:hover:bg-white/15`}
+            className={`${glass} flex h-full flex-col gap-2 p-4 transition-[transform,background-color,box-shadow] duration-300 hover:-translate-y-0.5 hover:bg-white/70 hover:shadow-[0_16px_40px_rgba(0,0,0,0.10)] focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 motion-reduce:hover:translate-y-0 dark:hover:bg-white/15`}
           >
             <div className="flex items-center gap-2 text-neutral-500 dark:text-neutral-400">
               <Megaphone className="h-4 w-4" />
@@ -370,7 +376,7 @@ function UpdateCard({ notice }: { notice: NoticeSummary }) {
   return (
     <Link
       href={`/updates#${notice.id}`}
-      className={`${glass} group flex h-full flex-col border-l-[3px] ${tone.border} p-5 transition-colors hover:bg-white/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:hover:bg-white/15`}
+      className={`${glass} group flex h-full flex-col border-l-[3px] ${tone.border} p-5 transition-[transform,background-color,box-shadow] duration-300 hover:-translate-y-0.5 hover:bg-white/70 hover:shadow-[0_16px_40px_rgba(0,0,0,0.10)] focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 motion-reduce:hover:translate-y-0 dark:hover:bg-white/15`}
     >
       <div className="flex items-center justify-between gap-2">
         <span
@@ -667,149 +673,92 @@ export default function HomePageClient() {
         <motion.div
           initial="hidden"
           animate="show"
-          variants={staggerContainerVariants(reduceMotion, 0.1)}
-          className={`${glass} overflow-hidden`}
+          variants={staggerContainerVariants(reduceMotion, 0.12)}
+          className="relative overflow-hidden rounded-3xl border border-white/15 bg-slate-950 shadow-[0_24px_80px_rgba(2,6,23,0.25)]"
         >
-          {/* Top image */}
+          {/* Ken Burns background */}
           <motion.div
-            variants={
-              reduceMotion
-                ? fadeUpVariants(true)
-                : {
-                    hidden: { opacity: 0, scale: 0.97 },
-                    show: {
-                      opacity: 1,
-                      scale: 1,
-                      transition: { duration: 0.5, ease: easeOut },
-                    },
-                  }
-            }
-            className="relative overflow-hidden"
+            className="absolute inset-0"
+            initial={{ opacity: 0, scale: 1, x: 0, y: 0 }}
+            animate={{ opacity: 1, ...heroKenBurnsAnimate }}
+            transition={{
+              ...heroKenBurnsTransition,
+              opacity: { duration: reduceMotion ? 0 : 1.1, ease: 'easeOut' },
+            }}
+            style={{ willChange: 'transform' }}
           >
-            <motion.div
-              className="absolute inset-0"
-              initial={{ scale: 1, y: 0 }}
-              animate={reduceMotion ? { scale: 1, y: 0 } : { scale: 1.035, y: -3 }}
-              transition={{
-                duration: reduceMotion ? 0 : 45,
-                ease: 'linear',
-              }}
-              style={{
-                willChange: 'transform',
-              }}
-            >
-              <Image
-                src="/images/buildingimages/Day-drone-js.png"
-                alt=""
-                width={1536}
-                height={1024}
-                priority
-                aria-hidden="true"
-                className="block h-full w-full scale-105 object-cover opacity-30 blur-[6px] saturate-125 contrast-110 dark:hidden"
-              />
-              <Image
-                src="/images/buildingimages/Night-drone-js.png"
-                alt=""
-                width={1536}
-                height={1024}
-                priority
-                aria-hidden="true"
-                className="hidden h-full w-full scale-105 object-cover opacity-40 blur-[6px] saturate-110 contrast-110 dark:block"
-              />
-            </motion.div>
-
-            <div className="relative z-10 h-[240px] overflow-hidden bg-slate-100/80 dark:bg-[#070d18]/80 sm:h-[430px] lg:h-[460px]">
-              <div className="pointer-events-none absolute inset-0 z-10 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.12),transparent_46%),linear-gradient(180deg,rgba(255,255,255,0.12)_0%,transparent_32%,rgba(255,255,255,0.72)_100%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(15,23,42,0.18),transparent_46%),linear-gradient(180deg,rgba(2,6,23,0.16)_0%,transparent_34%,rgba(2,6,23,0.62)_100%)]" />
-              <motion.div
-                className="flex h-full w-full items-center justify-center dark:hidden"
-                initial={{ scale: 1, x: 0, y: 0 }}
-                animate={heroKenBurnsAnimate}
-                transition={heroKenBurnsTransition}
-                style={{ willChange: 'transform' }}
-              >
-                {/* Light mode – daytime drone */}
-                <Image
-                  src="/images/buildingimages/Day-drone-js.png"
-                  alt="James Square aerial daytime"
-                  width={1536}
-                  height={1024}
-                  priority
-                  className="block h-[92%] w-full object-contain drop-shadow-[0_18px_35px_rgba(0,0,0,0.16)] dark:hidden"
-                />
-              </motion.div>
-
-              <motion.div
-                className="hidden h-full w-full items-center justify-center dark:flex"
-                initial={{ scale: 1, x: 0, y: 0 }}
-                animate={heroKenBurnsAnimate}
-                transition={heroKenBurnsTransition}
-                style={{ willChange: 'transform' }}
-              >
-                {/* Dark mode – nighttime drone */}
-                <Image
-                  src="/images/buildingimages/Night-drone-js.png"
-                  alt="James Square aerial nighttime"
-                  width={1536}
-                  height={1024}
-                  priority
-                  className="hidden h-[92%] w-full object-contain drop-shadow-[0_18px_35px_rgba(0,0,0,0.28)] dark:block"
-                />
-              </motion.div>
-
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[15] h-28 bg-gradient-to-t from-white/95 via-white/55 to-transparent backdrop-blur-[2px] [-webkit-mask-image:linear-gradient(to_top,black_0%,black_42%,transparent_100%)] [mask-image:linear-gradient(to_top,black_0%,black_42%,transparent_100%)] dark:from-neutral-950/85 dark:via-neutral-950/45 sm:h-36" />
-
-              <motion.h1
-                variants={fadeUpVariants(reduceMotion)}
-                className="absolute inset-x-5 top-[34%] z-20 text-center text-4xl font-bold leading-none tracking-normal text-slate-950 drop-shadow-[0_1px_12px_rgba(255,255,255,0.36)] dark:text-slate-100 dark:drop-shadow-[0_1px_16px_rgba(0,0,0,0.72)] sm:top-[36%] sm:text-6xl lg:text-7xl"
-              >
-                <span className="relative inline-block">
-                  <span className="absolute inset-x-[-0.35em] inset-y-[-0.22em] -z-10 rounded-full bg-white/70 blur-xl dark:hidden" />
-                  <span>James</span>{' '}
-                  <span className="text-slate-500 dark:text-slate-400">Square</span>
-                </span>
-              </motion.h1>
-            </div>
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-white via-white/45 to-transparent dark:from-neutral-950/80 dark:via-neutral-950/25 dark:to-transparent" />
+            <Image
+              src="/images/buildingimages/Day-drone-js.png"
+              alt="Aerial view of James Square, Edinburgh, by day"
+              width={1536}
+              height={1024}
+              priority
+              className="block h-full w-full object-cover dark:hidden"
+              sizes="(min-width: 1152px) 1152px, 100vw"
+            />
+            <Image
+              src="/images/buildingimages/Night-drone-js.png"
+              alt="Aerial view of James Square, Edinburgh, at night"
+              width={1536}
+              height={1024}
+              priority
+              className="hidden h-full w-full object-cover dark:block"
+              sizes="(min-width: 1152px) 1152px, 100vw"
+            />
           </motion.div>
 
-          <div className="bg-gradient-to-b from-white/95 to-white/60 px-6 pb-8 pt-6 dark:from-neutral-950/60 dark:to-white/5 sm:px-10 sm:pb-10 sm:pt-7">
-            <header className="text-center">
-              <motion.p
-                variants={fadeUpVariants(reduceMotion)}
-                className="mx-auto max-w-2xl text-base leading-relaxed text-neutral-700 dark:text-neutral-300 sm:text-lg"
-              >
-                The residents&apos; community website for James Square, Edinburgh — notices,
-                building information and shared facilities in one place.
-              </motion.p>
+          {/* Scrim for text legibility */}
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/30 to-slate-950/20" />
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_45%,rgba(2,6,23,0.35)_100%)]" />
 
-              <motion.div
-                variants={fadeUpVariants(reduceMotion)}
-                className="mt-6 flex flex-col justify-center gap-3 sm:flex-row"
+          {/* Content */}
+          <div className="relative z-10 flex min-h-[440px] flex-col items-center justify-end px-6 pb-12 pt-24 text-center sm:min-h-[560px] sm:pb-16 lg:min-h-[620px]">
+            <motion.p
+              variants={fadeUpVariants(reduceMotion)}
+              className="text-[10px] font-semibold uppercase tracking-[0.35em] text-white/70 sm:text-xs"
+            >
+              Residents&apos; community<span className="hidden sm:inline"> · Edinburgh</span>
+            </motion.p>
+            <motion.h1
+              variants={fadeUpVariants(reduceMotion)}
+              className="mt-3 text-5xl font-bold tracking-tight text-white drop-shadow-[0_2px_24px_rgba(2,6,23,0.5)] sm:text-6xl lg:text-7xl"
+            >
+              James <span className="text-white/60">Square</span>
+            </motion.h1>
+            <motion.p
+              variants={fadeUpVariants(reduceMotion)}
+              className="mt-4 max-w-xl text-sm leading-relaxed text-white/85 sm:text-base"
+            >
+              Notices, building information and shared facilities — all in one place.
+            </motion.p>
+
+            <motion.div
+              variants={fadeUpVariants(reduceMotion)}
+              className="mt-8 flex w-full flex-col justify-center gap-3 sm:w-auto sm:flex-row"
+            >
+              <Link
+                href="/booking"
+                className="group inline-flex items-center justify-center gap-2 rounded-full bg-white px-7 py-3 text-sm font-semibold text-neutral-950 shadow-lg shadow-slate-950/30 transition-colors hover:bg-neutral-200"
               >
+                Book facilities
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+              </Link>
+              {user ? (
                 <Link
-                  href="/booking"
-                  className="inline-flex items-center justify-center gap-2 rounded-full bg-neutral-950 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-neutral-950/10 transition-colors hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200"
+                  href="/dashboard"
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-white/30 bg-white/10 px-7 py-3 text-sm font-semibold text-white backdrop-blur-md transition-colors hover:bg-white/20"
                 >
-                  Book facilities
-                  <ArrowRight className="h-4 w-4" />
+                  Manage bookings
                 </Link>
-                {user ? (
-                  <Link
-                    href="/dashboard"
-                    className="inline-flex items-center justify-center gap-2 rounded-full border border-neutral-900/10 bg-white/70 px-6 py-2.5 text-sm font-semibold text-neutral-900 shadow-sm transition-colors hover:bg-white dark:border-white/15 dark:bg-white/10 dark:text-white dark:hover:bg-white/15"
-                  >
-                    Manage bookings
-                  </Link>
-                ) : (
-                  <Link
-                    href="/owners"
-                    className="inline-flex items-center justify-center gap-2 rounded-full border border-neutral-900/10 bg-white/70 px-6 py-2.5 text-sm font-semibold text-neutral-900 shadow-sm transition-colors hover:bg-white dark:border-white/15 dark:bg-white/10 dark:text-white dark:hover:bg-white/15"
-                  >
-                    Owners area
-                  </Link>
-                )}
-              </motion.div>
-            </header>
+              ) : (
+                <Link
+                  href="/owners"
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-white/30 bg-white/10 px-7 py-3 text-sm font-semibold text-white backdrop-blur-md transition-colors hover:bg-white/20"
+                >
+                  Owners area
+                </Link>
+              )}
+            </motion.div>
           </div>
         </motion.div>
       </section>
