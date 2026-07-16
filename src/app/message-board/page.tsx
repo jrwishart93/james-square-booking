@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import { MessageCircle, ThumbsDown, ThumbsUp } from 'lucide-react';
+import { ChevronDown, History, MessageCircle, Search, ThumbsDown, ThumbsUp, X } from 'lucide-react';
 import { auth, db } from '@/lib/firebase';
 import {
   collection,
@@ -141,6 +141,7 @@ function formatTimestampLabel(value?: unknown): string {
 }
 
 const TWO_WEEKS_MS = 1000 * 60 * 60 * 24 * 14;
+const TWO_MONTHS_MS = 1000 * 60 * 60 * 24 * 61;
 
 function toMillis(value?: unknown): number | null {
   if (value && typeof value === 'object') {
@@ -181,6 +182,8 @@ export default function MessageBoardPage() {
   const [newBody, setNewBody] = useState('');
   const [busy, setBusy] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [historyOpen, setHistoryOpen] = useState(false);
   const [lastSeenMessageBoardAt, setLastSeenMessageBoardAt] = useState<Timestamp | null | undefined>(
     undefined
   );
@@ -249,6 +252,31 @@ export default function MessageBoardPage() {
       console.error('Failed to update lastSeenMessageBoardAt', err);
     });
   }, [user]);
+
+  const { recentPosts, historyPosts } = useMemo(() => {
+    const cutoff = Date.now() - TWO_MONTHS_MS;
+    const recent: Post[] = [];
+    const history: Post[] = [];
+    for (const p of posts) {
+      const createdMillis = toMillis(p.createdAt);
+      // Posts without a resolved timestamp yet (pending server writes) stay in the recent list
+      if (createdMillis !== null && createdMillis < cutoff) {
+        history.push(p);
+      } else {
+        recent.push(p);
+      }
+    }
+    return { recentPosts: recent, historyPosts: history };
+  }, [posts]);
+
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+  const searchResults = useMemo(() => {
+    if (!normalizedQuery) return null;
+    return posts.filter((p) =>
+      [p.title, p.body, p.authorName ?? '']
+        .some((field) => field.toLowerCase().includes(normalizedQuery))
+    );
+  }, [posts, normalizedQuery]);
 
   async function createPost() {
     if (!user) {
@@ -339,19 +367,112 @@ export default function MessageBoardPage() {
         )}
       </div>
 
-      {/* Posts */}
-      <ul className="space-y-4 sm:space-y-5">
-        {posts.map((p, index) => (
-          <PostCard
-            key={p.id}
-            post={p}
-            currentUser={user}
-            index={index}
-            mounted={mounted}
-            lastSeenMessageBoardAt={lastSeenMessageBoardAt}
-          />
-        ))}
-      </ul>
+      {/* Search */}
+      <div
+        className={`relative transition-all duration-200 ease-out ${
+          mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'
+        }`}
+      >
+        <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
+        <input
+          type="search"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search messages…"
+          aria-label="Search messages"
+          className="w-full rounded-2xl message-field border-none py-3 pl-11 pr-11 text-sm text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-0 transition-all duration-200 ease-out dark:text-slate-100 dark:placeholder:text-slate-500 [&::-webkit-search-cancel-button]:hidden"
+        />
+        {searchQuery && (
+          <button
+            type="button"
+            onClick={() => setSearchQuery('')}
+            aria-label="Clear search"
+            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-slate-400 hover:bg-black/5 hover:text-slate-700 dark:text-slate-500 dark:hover:bg-white/10 dark:hover:text-slate-200"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
+      </div>
+
+      {searchResults ? (
+        <>
+          {/* Search results (all posts, including history) */}
+          <p className="px-1 text-sm text-slate-500 dark:text-slate-400">
+            {searchResults.length === 0
+              ? 'No messages match your search.'
+              : `${searchResults.length} ${searchResults.length === 1 ? 'message matches' : 'messages match'} your search`}
+          </p>
+          <ul className="space-y-4 sm:space-y-5">
+            {searchResults.map((p, index) => (
+              <PostCard
+                key={p.id}
+                post={p}
+                currentUser={user}
+                index={index}
+                mounted={mounted}
+                lastSeenMessageBoardAt={lastSeenMessageBoardAt}
+              />
+            ))}
+          </ul>
+        </>
+      ) : (
+        <>
+          {/* Recent posts */}
+          <ul className="space-y-4 sm:space-y-5">
+            {recentPosts.map((p, index) => (
+              <PostCard
+                key={p.id}
+                post={p}
+                currentUser={user}
+                index={index}
+                mounted={mounted}
+                lastSeenMessageBoardAt={lastSeenMessageBoardAt}
+              />
+            ))}
+          </ul>
+
+          {/* Message board history (posts older than 2 months) */}
+          {historyPosts.length > 0 && (
+            <section className="space-y-4 sm:space-y-5">
+              <button
+                type="button"
+                onClick={() => setHistoryOpen((v) => !v)}
+                aria-expanded={historyOpen}
+                className="message-pressable flex w-full items-center justify-between gap-3 rounded-3xl message-surface px-5 py-4 text-left transition-all duration-200 ease-out hover:shadow-[var(--glass-shadow-lift)]"
+              >
+                <span className="flex items-center gap-3">
+                  <History className="h-4 w-4 text-slate-500 dark:text-slate-400" />
+                  <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+                    Message board history
+                  </span>
+                  <span className="inline-flex items-center rounded-full bg-black/5 px-2.5 py-0.5 text-xs text-slate-500 shadow-inner shadow-black/5 dark:bg-white/5 dark:text-slate-400 dark:shadow-black/10">
+                    {historyPosts.length} older {historyPosts.length === 1 ? 'message' : 'messages'}
+                  </span>
+                </span>
+                <ChevronDown
+                  className={`h-4 w-4 text-slate-500 transition-transform duration-200 dark:text-slate-400 ${
+                    historyOpen ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+              {historyOpen && (
+                <ul className="space-y-4 sm:space-y-5">
+                  {historyPosts.map((p, index) => (
+                    <PostCard
+                      key={p.id}
+                      post={p}
+                      currentUser={user}
+                      index={index}
+                      mounted={mounted}
+                      lastSeenMessageBoardAt={lastSeenMessageBoardAt}
+                    />
+                  ))}
+                </ul>
+              )}
+            </section>
+          )}
+        </>
+      )}
     </main>
   );
 }
@@ -386,6 +507,11 @@ function PostCard({
   const [likeCount, setLikeCount] = useState(0);
   const [dislikeCount, setDislikeCount] = useState(0);
   const [myReaction, setMyReaction] = useState<ReactionType>(null);
+
+  const postedLabel = useMemo(
+    () => (toMillis(post.createdAt) !== null ? formatTimestampLabel(post.createdAt) : null),
+    [post.createdAt]
+  );
 
   // Watch reactions (counts + my reaction)
   useEffect(() => {
@@ -522,6 +648,11 @@ function PostCard({
         <span className="inline-flex items-center rounded-full bg-black/5 px-3 py-1 dark:bg-white/5 shadow-inner shadow-black/5 dark:shadow-black/10">
           By {post.authorName || 'Unknown'}
         </span>
+        {postedLabel && (
+          <time className="text-[11px] text-slate-400/90 dark:text-slate-500" title={`Posted ${postedLabel}`}>
+            {postedLabel}
+          </time>
+        )}
       </div>
 
       <div className="flex items-center justify-between flex-wrap gap-3 pt-2 text-sm text-slate-600/90 dark:text-slate-200/75">
