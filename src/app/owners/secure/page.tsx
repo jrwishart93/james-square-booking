@@ -22,8 +22,10 @@ const SURVEY_DOCUMENTS = [
 
 const AGM_AGENDA_PATH = '/docs/survey/James Square-  AGM  Agenda - 2026.06.04.pdf';
 const AGM_FACTORS_REPORT_PATH = '/docs/survey/James Square-  AGM  - Factors Report - 2026.06.04.pdf';
+const AGM_MINUTES_PATH = '/docs/survey/JSPA - AGM - 4th June 2026 - Minutes.pdf';
 const AGM_AGENDA_HREF = encodeURI(AGM_AGENDA_PATH);
 const AGM_FACTORS_REPORT_HREF = encodeURI(AGM_FACTORS_REPORT_PATH);
+const AGM_MINUTES_HREF = encodeURI(AGM_MINUTES_PATH);
 const AGM_DATE_THRESHOLD = new Date('2026-06-05T00:00:00');
 const AGENDA_SUMMARY_ITEMS = [
   'Previous factor update',
@@ -261,9 +263,9 @@ function Agm2026InformationSection() {
               <>
                 <p>The James Square Annual General Meeting was held on Thursday 4 June 2026.</p>
                 <p>
-                  Owners can review the AGM page, agenda and factors report using the links below. A further update
-                  summarising the discussions, decisions and any agreed actions will be published once the official
-                  minutes have been prepared and circulated.
+                  The official minutes of the meeting are now available, alongside the AGM page, agenda and factors
+                  report, using the links below. Owners are encouraged to review the minutes for a full record of the
+                  discussions, decisions and agreed actions.
                 </p>
               </>
             ) : (
@@ -283,7 +285,16 @@ function Agm2026InformationSection() {
           </div>
         </header>
 
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <a
+            href={AGM_MINUTES_HREF}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-cyan-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-cyan-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/60"
+          >
+            <FileText className="h-4 w-4" aria-hidden="true" />
+            View AGM Minutes
+          </a>
           <Link
             href="/agm"
             className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/40 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100"
@@ -339,8 +350,9 @@ function Agm2026InformationSection() {
           </InfoAccordion>
         </div>
 
-        <p className="rounded-xl border border-amber-300/40 bg-amber-500/10 p-3 text-sm font-medium text-slate-800 dark:text-slate-100">
-          Meeting minutes will be added once available.
+        <p className="rounded-xl border border-emerald-300/40 bg-emerald-500/10 p-3 text-sm font-medium text-slate-800 dark:text-slate-100">
+          The minutes of the AGM held on 4 June 2026 are now available — use the “View AGM Minutes” button above to
+          read them.
         </p>
       </article>
     </GlassCard>
@@ -700,8 +712,8 @@ function AprilOwnersUpdateSection() {
             <Link href="/agm" className="font-semibold text-cyan-700 transition-colors hover:text-cyan-600 dark:text-cyan-300 dark:hover:text-cyan-200">
               AGM page
             </Link>
-            {' '}for the meeting summary, agenda, factors report, and forthcoming minutes. Full minutes will be made
-            available and shared soon.
+            {' '}for the meeting summary, agenda and factors report. The full minutes are now available in the AGM
+            2026 Information section above.
           </p>
         </div>
 
@@ -806,8 +818,8 @@ function AprilOwnersUpdateSection() {
                   <Link href="/agm" className="font-semibold text-cyan-700 transition-colors hover:text-cyan-600 dark:text-cyan-300 dark:hover:text-cyan-200">
                     AGM page
                   </Link>
-                  {' '}for the meeting summary, agenda, factors report, and forthcoming minutes. Full minutes will be
-                  made available and shared soon.
+                  {' '}for the meeting summary, agenda and factors report. The full minutes are now available in the
+                  AGM 2026 Information section above.
                 </p>
               </div>
 
