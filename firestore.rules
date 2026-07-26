@@ -1,4 +1,21 @@
 rules_version = '2';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// James Square — Firestore Security Rules
+//
+// Principles applied throughout:
+//   1. Resident personal data is never world-readable. Anything containing a
+//      name, email address or flat number requires authentication, and where
+//      possible requires that the reader is the subject or an admin.
+//   2. A user can never grant themselves a role. Role fields (isAdmin, roles,
+//      disabled, isFlagged) are writable by admins only, enforced by field-level
+//      diff checks rather than by trusting the client.
+//   3. Rules validate shape as well as identity, so a compromised client cannot
+//      write arbitrary documents into a collection it is allowed to touch.
+//   4. Collections written only by trusted server code (Admin SDK) are closed to
+//      clients entirely — the Admin SDK bypasses these rules by design.
+// ─────────────────────────────────────────────────────────────────────────────
+
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -7,149 +24,219 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // Admin: allow either custom claim `admin: true` OR users doc flag `isAdmin == true`
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    // Admin: custom claim `admin: true` OR users doc flag `isAdmin == true`.
+    // The claim is preferred; the doc flag is retained for existing admins whose
+    // claims have not yet been synced by the syncAdminClaims function.
     function isAdmin() {
       return isSignedIn() && (
         request.auth.token.admin == true ||
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true
+        (
+          exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+          userDoc().isAdmin == true
+        )
       );
     }
 
-    // Owner: allow either custom claim `owner: true` OR users doc flag `roles.owner == true`
+    // Owner: custom claim `owner: true` OR users doc flag `roles.owner == true`.
     function isOwner() {
       return isSignedIn() && (
         request.auth.token.owner == true ||
         (
           exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.owner == true
+          userDoc().roles.owner == true
         )
       );
     }
 
-    // ────────────── USERS (UNCHANGED LOGIC) ──────────────
-    match /users/{userId} {
-      // Anyone can read user profiles (adjust if you want privacy)
-      allow read: if true;
-
-      // A user can create their own profile
-      allow create: if isSignedIn() && request.auth.uid == userId;
-
-      // Allow users to update only their own lastSeenMessageBoardAt timestamp
-      allow update: if isSignedIn()
-        && request.auth.uid == userId
-        && request.resource.data.diff(resource.data).changedKeys().hasOnly(['lastSeenMessageBoardAt']);
-
-      // User can update/delete their own profile OR admin can manage anyone's profile
-      allow update, delete: if isSignedIn() && (
-        request.auth.uid == userId ||
-        isAdmin()
-      );
+    // Fields that decide what someone is allowed to do, or that record an
+    // administrator's decision. Only an admin may change these.
+    //
+    // Deliberately NOT included: residentType, residentTypeLabel,
+    // requiresResidentTypeConfirmation and userRole. Residents self-declare those
+    // from their dashboard, and the declaration is then confirmed by an admin via
+    // the residentTypeConfirmed* fields below. None of them grant access — owner
+    // access is decided by `roles.owner` or the `owner` custom claim.
+    function privilegedUserFields() {
+      return [
+        'isAdmin', 'roles', 'disabled', 'isFlagged',
+        'residentTypeConfirmedAt', 'residentTypeConfirmedBy'
+      ];
     }
 
-    // ────────────── BOOKINGS (UNCHANGED LOGIC) ──────────────
-    match /bookings/{bookingId} {
-      // Everyone can view bookings (so guests see schedule)
-      allow read: if true;
+    function changedKeys() {
+      return request.resource.data.diff(resource.data).affectedKeys();
+    }
 
-      // Logged-in user can create a booking only if `user` matches their email
-      // and the booking ID does not already exist
+    function touchesPrivilegedFields() {
+      return changedKeys().hasAny(privilegedUserFields());
+    }
+
+    // A user may keep their profile email in step with their verified sign-in
+    // address, but may not set it to somebody else's.
+    function emailChangeIsValid() {
+      return !changedKeys().hasAny(['email']) ||
+        request.resource.data.email == request.auth.token.email;
+    }
+
+    // ────────────── USERS ──────────────
+    // Contains full name, email address, flat number and resident type: the most
+    // sensitive collection on the site. Previously world-readable.
+    match /users/{userId} {
+      // A signed-in user may read their own profile. Admins may read any profile.
+      // Cross-resident profile lookups (username -> email at login, display names)
+      // are served by server routes using the Admin SDK instead, so no client
+      // needs to enumerate this collection.
+      allow get: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow list: if isAdmin();
+
+      // A user creates their own profile at registration. They may not arrive
+      // pre-loaded with privileges, and the email must match the verified token.
+      allow create: if isSignedIn()
+        && request.auth.uid == userId
+        && request.resource.data.get('isAdmin', false) == false
+        && !request.resource.data.keys().hasAny(['roles', 'disabled', 'isFlagged'])
+        && (
+          !('email' in request.resource.data) ||
+          request.resource.data.email == request.auth.token.email
+        );
+
+      // A user may edit their own profile but cannot escalate.
+      //
+      // The previous rules contained an `allow update ... if request.auth.uid ==
+      // userId` with no field restrictions, which meant any resident could set
+      // `isAdmin: true` on their own document and — because isAdmin() falls back
+      // to that flag — immediately gain full administrative access.
+      allow update: if isSignedIn() && (
+        (
+          request.auth.uid == userId &&
+          !touchesPrivilegedFields() &&
+          emailChangeIsValid()
+        ) ||
+        isAdmin()
+      );
+
+      // Account deletion: the account holder (right to erasure) or an admin.
+      allow delete: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+    }
+
+    // Public username -> uid directory. Holds no personal data beyond a chosen
+    // username, and exists so login-by-username works without exposing /users.
+    // Written by server code only.
+    match /usernames/{username} {
+      allow read: if false;
+      allow write: if false;
+    }
+
+    // ────────────── BOOKINGS ──────────────
+    // Booking documents carry the booker's email address. The public schedule is
+    // served from /api/availability, which strips identities server-side, so the
+    // collection itself no longer needs to be world-readable.
+    match /bookings/{bookingId} {
+      allow get: if isSignedIn() && (
+        resource.data.user == request.auth.token.email || isAdmin()
+      );
+
+      // Every document a query returns is checked, so an unconstrained query
+      // (e.g. "all bookings on this date") fails for anyone but an admin. In
+      // practice clients must query `where('user', '==', <own email>)`.
+      allow list: if isSignedIn() && (
+        isAdmin() || resource.data.user == request.auth.token.email
+      );
+
       allow create: if isSignedIn()
         && request.resource.data.user == request.auth.token.email
+        && request.resource.data.keys().hasAll(['facility', 'date', 'time', 'user'])
+        && request.resource.data.facility is string
+        && request.resource.data.date is string
+        && request.resource.data.time is string
         && !exists(/databases/$(database)/documents/bookings/$(bookingId));
 
-      // A user can cancel their own booking, or an admin can cancel any booking
       allow delete: if isSignedIn() && (
-        resource.data.user == request.auth.token.email ||
-        isAdmin()
+        resource.data.user == request.auth.token.email || isAdmin()
       );
 
-      // No updates — must cancel + re-book
+      // No updates — cancel and re-book, so history stays honest.
       allow update: if false;
     }
 
-    // ────────────── MAINTENANCE WINDOWS (UNCHANGED LOGIC) ──────────────
+    // ────────────── MAINTENANCE WINDOWS ──────────────
+    // Facility closures. No personal data, and needed by the public schedule.
     match /maintenanceWindows/{docId} {
-      // Everyone can see maintenance
       allow read: if true;
-
-      // Only admins can create/update/delete
-      allow create, update, delete: if isSignedIn() && isAdmin();
+      allow create, update, delete: if isAdmin();
     }
 
-    // ────────────── MESSAGE BOARD POSTS (UNCHANGED LOGIC) ──────────────
+    // ────────────── MESSAGE BOARD ──────────────
+    // A residents' board. Posts carry author names, so reading requires a login;
+    // this also removes the board from search-engine and scraper reach.
     match /messageBoard/{postId} {
-      // Public board
-      allow read: if true;
+      allow read: if isSignedIn();
 
-      // Logged-in users can post
-      allow create: if isSignedIn();
+      allow create: if isSignedIn()
+        && request.resource.data.authorId == request.auth.uid
+        && request.resource.data.get('content', '') is string
+        && request.resource.data.get('content', '').size() <= 10000;
 
-      // Author or admin can edit/delete
       allow update, delete: if isSignedIn() && (
-        resource.data.authorId == request.auth.uid ||
-        isAdmin()
+        resource.data.authorId == request.auth.uid || isAdmin()
       );
+
+      match /reactions/{uid} {
+        allow read: if isSignedIn();
+        allow create, update, delete: if isSignedIn() && request.auth.uid == uid;
+      }
+
+      match /comments/{commentId} {
+        allow read: if isSignedIn();
+        allow create: if isSignedIn()
+          && request.resource.data.authorId == request.auth.uid;
+        allow update, delete: if isSignedIn() && (
+          resource.data.authorId == request.auth.uid || isAdmin()
+        );
+
+        match /replies/{replyId} {
+          allow read: if isSignedIn();
+          allow create: if isSignedIn()
+            && request.resource.data.authorId == request.auth.uid;
+          allow delete: if isSignedIn() && (
+            resource.data.authorId == request.auth.uid || isAdmin()
+          );
+          allow update: if false;
+        }
+      }
     }
 
-    // Reactions on posts
-    match /messageBoard/{postId}/reactions/{uid} {
-      allow read: if true; // counts & my reaction
-      // user can set/update/delete only their own reaction doc
-      allow create, update, delete: if isSignedIn() && request.auth.uid == uid;
-    }
-
-    // Replies under comments
-    match /messageBoard/{postId}/comments/{commentId}/replies/{replyId} {
-      allow read: if true;
-      allow create: if isSignedIn(); // (client should include authorId == uid in data)
-      allow delete: if isSignedIn() && (
-        resource.data.authorId == request.auth.uid ||
-        isAdmin()
-      );
-      allow update: if false;
-    }
-
-    // Reports (admin will review later)
+    // Moderation reports. Reporters must be identifiable to the admin reviewing
+    // them, but reports are never readable by other residents.
     match /reports/{reportId} {
-      allow create: if isSignedIn(); // any signed-in user can report
-      allow read, update, delete: if isSignedIn() && isAdmin();
-    }
-
-    // ────────────── MESSAGE BOARD COMMENTS (UNCHANGED LOGIC) ──────────────
-    match /messageBoard/{postId}/comments/{commentId} {
-      allow read: if true;
       allow create: if isSignedIn();
-      allow update, delete: if isSignedIn() && (
-        resource.data.authorId == request.auth.uid ||
-        isAdmin()
-      );
+      allow read, update, delete: if isAdmin();
     }
 
-    // ────────────── OWNERS-ONLY AREAS (NEW) ──────────────
+    // ────────────── OWNERS-ONLY AREAS ──────────────
 
-    // 1) Owners Discussions (threads + messages)
+    // 1) Owners discussions (threads + messages)
     match /owners_discussions/{threadId} {
-      // Only owners can read the list and thread docs
       allow read: if isOwner();
 
-      // Create a thread (owners only) with minimal shape validation
       allow create: if isOwner()
         && request.resource.data.keys().hasAll(['title', 'createdBy', 'createdAt'])
         && request.resource.data.title is string
+        && request.resource.data.title.size() <= 200
         && request.resource.data.createdBy == request.auth.uid;
 
-      // Update: creator or admin
       allow update: if isOwner()
         && (resource.data.createdBy == request.auth.uid || isAdmin());
 
-      // Delete: admins only
       allow delete: if isAdmin();
 
-      // Messages subcollection
       match /messages/{msgId} {
         allow read: if isOwner();
 
-        // Create: author must be caller; basic length guard
         allow create: if isOwner()
           && request.resource.data.keys().hasAll(['text', 'authorUid', 'createdAt'])
           && request.resource.data.authorUid == request.auth.uid
@@ -157,38 +244,37 @@ service cloud.firestore {
           && request.resource.data.text.size() > 0
           && request.resource.data.text.size() <= 5000;
 
-        // Update: only original author or admin; keep authorUid immutable
         allow update: if isOwner()
           && (resource.data.authorUid == request.auth.uid || isAdmin())
           && request.resource.data.authorUid == resource.data.authorUid;
 
-        // Delete: author or admin
         allow delete: if (isOwner() && resource.data.authorUid == request.auth.uid) || isAdmin();
       }
     }
 
-    // 2) Owners Votes (vote docs + ballots subcollection)
+    // 2) Owners votes (vote docs + ballots)
     match /owner_votes/{voteId} {
-      // Owners can see votes
       allow read: if isOwner();
 
-      // Create/update/delete a vote: admins only, with basic shape/status checks
-      allow create, update, delete: if isAdmin()
+      // Split from delete: `request.resource` does not exist on a delete, so the
+      // shape checks below would previously make deletion impossible.
+      allow create, update: if isAdmin()
         && request.resource.data.keys().hasAll(['question', 'options', 'status', 'createdAt'])
         && request.resource.data.status in ['open', 'closed'];
+      allow delete: if isAdmin();
 
-      // Ballots: each owner writes their own ballot doc (id == uid) while vote is open
       match /ballots/{ballotUid} {
-        allow read: if isOwner();
+        // A ballot is secret: only the owner who cast it, and admins running the
+        // count, may read it. Other owners see totals, not individual choices.
+        allow get: if isSignedIn() && (ballotUid == request.auth.uid || isAdmin());
+        allow list: if isAdmin();
 
-        // Create/Update own ballot only if the parent vote is open
         allow create, update: if isOwner()
           && ballotUid == request.auth.uid
           && get(/databases/$(database)/documents/owner_votes/$(voteId)).data.status == 'open'
           && request.resource.data.keys().hasOnly(['optionId', 'castAt'])
           && request.resource.data.optionId is string;
 
-        // Delete own ballot while open; admin can always delete
         allow delete: if (
             isOwner() &&
             ballotUid == request.auth.uid &&
@@ -197,50 +283,94 @@ service cloud.firestore {
       }
     }
 
-    // 3) Owners Meta (keep fully private; never read/write from client)
+    // 3) Owners meta — never touched from a client.
     match /owners_meta/{doc} {
       allow read, write: if false;
     }
 
-    // ────────────── PUBLIC VOTING (EVERYONE) ──────────────
+    // ────────────── COMMUNITY VOTING ──────────────
     match /voting_questions/{questionId} {
-      // Anyone can read questions/results
+      // Questions themselves contain no personal data and drive the public page.
       allow read: if true;
 
-      // Anyone can create; basic shape and status validation
-      allow create: if request.resource.data.keys().hasAll(['title', 'status', 'createdAt', 'options'])
+      // Previously any anonymous visitor on the internet could create a question.
+      // Now a login is required. This should be tightened further to isOwner()
+      // once every owner has the `roles.owner` flag set — see the audit report,
+      // finding S-11.
+      allow create: if isSignedIn()
+        && request.resource.data.keys().hasAll(['title', 'status', 'createdAt', 'options'])
         && request.resource.data.title is string
+        && request.resource.data.title.size() > 0
+        && request.resource.data.title.size() <= 300
         && request.resource.data.status in ['open', 'closed', 'scheduled']
         && request.resource.data.options is list
-        && (!('startsAt' in request.resource.data) || request.resource.data.startsAt is timestamp)
-        && (!('expiresAt' in request.resource.data) || request.resource.data.expiresAt is timestamp)
-        && (!('voteTotals' in request.resource.data) || request.resource.data.voteTotals is map);
+        && request.resource.data.options.size() <= 20;
 
-      // Admins can update/delete questions
       allow update, delete: if isAdmin();
     }
 
     match /voting_votes/{voteId} {
-      // Anyone can read votes to power public results (names are not surfaced in UI)
-      allow read: if true;
+      // A vote document records the voter's name and flat alongside their choice.
+      // Reading is limited to signed-in residents so ballots are not harvestable
+      // by anonymous visitors or search engines. Individual voters remain
+      // identifiable to signed-in residents, which is a known limitation of the
+      // current tally-on-the-client design — see docs/gdpr-audit-2026.md.
+      allow read: if isSignedIn();
 
-      // Only authenticated users can cast a vote, and it must be tied to their UID
       allow create: if isSignedIn()
         && request.resource.data.keys().hasOnly(['questionId', 'optionId', 'userName', 'userNameLower', 'voterName', 'flat', 'userId', 'createdAt'])
         && request.resource.data.keys().hasAll(['questionId', 'optionId', 'userName', 'flat', 'userId', 'createdAt'])
         && request.resource.data.questionId is string
         && request.resource.data.optionId is string
         && request.resource.data.userName is string
+        && request.resource.data.userName.size() <= 120
         && (!('userNameLower' in request.resource.data) || request.resource.data.userNameLower is string)
         && (!('voterName' in request.resource.data) || request.resource.data.voterName is string)
         && request.resource.data.flat is string
         && request.resource.data.flat.size() > 0
+        && request.resource.data.flat.size() <= 20
         && request.resource.data.userId is string
         && request.resource.data.userId == request.auth.uid
         && request.resource.data.createdAt is timestamp;
 
-      // Only admins can edit/remove votes
       allow update, delete: if isAdmin();
+    }
+
+    // ────────────── ADMIN / AUDIT COLLECTIONS ──────────────
+    // Activity logs record which admin did what to whom. Admin-only, and
+    // append-only so an audit trail cannot be quietly rewritten.
+    match /activityLogs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isAdmin();
+      allow update, delete: if false;
+    }
+
+    // Resident feedback. Readable by admins; a resident may submit but not read
+    // other people's submissions.
+    match /feedback/{feedbackId} {
+      allow read: if isAdmin();
+      allow create: if isSignedIn()
+        && request.resource.data.get('message', '') is string
+        && request.resource.data.get('message', '').size() <= 5000;
+      allow update, delete: if isAdmin();
+    }
+
+    // Written and read exclusively by server routes via the Admin SDK. Contains
+    // the rendered body and recipient counts of committee mailings.
+    match /committeeSentEmails/{docId} {
+      allow read, write: if false;
+    }
+
+    // Rate-limit counters, written by server code only.
+    match /rateLimits/{docId} {
+      allow read, write: if false;
+    }
+
+    // ────────────── DEFAULT DENY ──────────────
+    // Any collection not named above is inaccessible from a client. New features
+    // must add an explicit rule, which is the safe direction to fail in.
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

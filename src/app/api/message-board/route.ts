@@ -2,6 +2,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import admin from 'firebase-admin';
 
+import { clientKey, rateLimit, tooManyRequests } from '@/lib/security/rateLimit';
+import { requireUser } from '@/lib/security/requireAuth';
+
 // Ensure this route runs on Node (firebase-admin is not Edge-compatible)
 export const runtime = 'nodejs';
 // Avoid static optimization so env is read at request time, not at build time
@@ -43,19 +46,37 @@ function getDb(): FirebaseFirestore.Firestore {
   return db!;
 }
 
+const MAX_LIMIT = 50;
+
+/**
+ * Message board summaries.
+ *
+ * Reads with the Admin SDK, which bypasses Firestore rules, so authentication has
+ * to be enforced here: the board carries residents' names and is not public.
+ * Also clamps `limit`, which was previously attacker-controlled and unbounded.
+ */
 export async function GET(req: NextRequest) {
   try {
+    const limit = rateLimit(clientKey(req, 'message-board'), { limit: 60, windowMs: 60_000 });
+    if (!limit.allowed) return tooManyRequests(limit);
+
+    const auth = await requireUser(req);
+    if (!auth.ok) return auth.response;
+
     const database = getDb();
-    const limitParam = parseInt(req.nextUrl.searchParams.get('limit') || '10', 10);
+    const requested = Number.parseInt(req.nextUrl.searchParams.get('limit') || '10', 10);
+    const pageSize = Number.isFinite(requested)
+      ? Math.min(Math.max(requested, 1), MAX_LIMIT)
+      : 10;
 
     const snapshot = await database
       .collection('posts')
       .orderBy('createdAt', 'desc')
-      .limit(Number.isFinite(limitParam) ? limitParam : 10)
+      .limit(pageSize)
       .get();
 
     const posts = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-    return NextResponse.json({ posts });
+    return NextResponse.json({ posts }, { headers: { 'Cache-Control': 'no-store, private' } });
   } catch (err: unknown) {
     const message =
       process.env.NODE_ENV !== 'production' && err instanceof Error

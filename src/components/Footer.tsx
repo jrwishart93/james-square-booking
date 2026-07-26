@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { CookieSettingsLink } from "@/components/consent";
+
 const contactEmails = [
   "contact@james-square.com",
   "support@james-square.com",
@@ -8,11 +10,17 @@ const contactEmails = [
 ];
 
 const quickLinks = [
-  { href: "/privacy", label: "Privacy Policy", icon: ShieldIcon },
-  { href: "/terms", label: "Terms of Use", icon: FileIcon },
   { href: "/local", label: "More Information", icon: InfoIcon },
   { href: "/message-board", label: "Message Board", icon: MessageIcon },
   { href: "/book", label: "Book Facilities", icon: CalendarIcon },
+];
+
+const legalLinks = [
+  { href: "/privacy", label: "Privacy Policy" },
+  { href: "/cookies", label: "Cookie Policy" },
+  { href: "/terms", label: "Terms of Use" },
+  { href: "/acceptable-use", label: "Acceptable Use" },
+  { href: "/data-retention", label: "Data Retention" },
 ];
 
 export default function Footer() {
@@ -20,7 +28,7 @@ export default function Footer() {
     <footer className="mt-12">
       <div className="jqs-glass rounded-t-3xl rounded-b-none border border-slate-200/60 dark:border-slate-800/60">
         <div className="max-w-6xl mx-auto px-3 sm:px-6 py-4 md:py-8">
-          <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-3 sm:gap-4 md:gap-10 text-[10px] sm:text-[11px] md:text-sm text-slate-600 dark:text-slate-300">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-10 text-[10px] sm:text-[11px] md:text-sm text-slate-600 dark:text-slate-300">
             <section className="min-w-0 flex flex-col gap-2 md:gap-3">
               <div className="hidden md:flex items-center gap-3">
                 <LogoMark />
@@ -77,10 +85,44 @@ export default function Footer() {
                 ))}
               </ul>
             </section>
+
+            <section className="min-w-0 flex flex-col gap-2 md:gap-3">
+              <h2 className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                Privacy &amp; Legal
+              </h2>
+              <ul className="space-y-2 md:space-y-3">
+                {legalLinks.map(({ href, label }) => (
+                  <li key={href}>
+                    <Link
+                      href={href}
+                      className="flex items-center gap-1.5 rounded-lg text-slate-600 transition-colors hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 md:gap-2"
+                    >
+                      <ShieldIcon className="h-3.5 w-3.5 shrink-0 md:h-4 md:w-4" />
+                      <span className="break-words text-[10px] sm:text-[11px] md:text-sm leading-tight">
+                        {label}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+                <li>
+                  {/* Permanent, always-available way to review or withdraw consent. */}
+                  <CookieSettingsLink className="flex w-full items-center gap-1.5 rounded-lg text-left text-slate-600 transition-colors hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 md:gap-2" />
+                </li>
+              </ul>
+            </section>
           </div>
 
-          <div className="mt-4 border-t border-slate-200/70 dark:border-slate-700/60 pt-2 text-[10px] text-slate-500 dark:text-slate-400">
-            © {new Date().getFullYear()} James Square. All rights reserved.
+          <div className="mt-4 flex flex-col gap-1 border-t border-slate-200/70 dark:border-slate-700/60 pt-2 text-[10px] text-slate-500 dark:text-slate-400 sm:flex-row sm:items-center sm:justify-between">
+            <span>© {new Date().getFullYear()} James Square. All rights reserved.</span>
+            <span>
+              Privacy enquiries:{" "}
+              <a
+                className="underline underline-offset-2 transition-colors hover:text-slate-700 dark:hover:text-slate-200"
+                href="mailto:privacy@james-square.com"
+              >
+                privacy@james-square.com
+              </a>
+            </span>
           </div>
         </div>
       </div>
@@ -148,23 +190,6 @@ function ShieldIcon({ className }: { className?: string }) {
   );
 }
 
-function FileIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.5}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-6-6Z" />
-      <path d="M14 3v6h6" />
-    </svg>
-  );
-}
 
 function InfoIcon({ className }: { className?: string }) {
   return (

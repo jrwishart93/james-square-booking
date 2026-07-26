@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "reset:voting": "node scripts/resetVoting.js"
+    "reset:voting": "node scripts/resetVoting.js",
+    "test:rules": "firebase emulators:exec --only firestore \"node scripts/testFirestoreRules.mjs\""
   },
   "dependencies": {
     "@google/genai": "^1.34.0",
@@ -31,6 +32,8 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@firebase/rules-unit-testing": "^4.0.1",
+    "firebase-tools": "^13.35.1",
     "@tailwindcss/node": "^4.1.13",
     "@tailwindcss/postcss": "^4.1.13",
     "@types/luxon": "^3.6.2",

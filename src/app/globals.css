@@ -512,3 +512,221 @@ body::before {
     padding: 0 !important;
   }
 }
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Cookie consent — Liquid Glass surfaces
+   Built from the same tokens as .jqs-glass so the consent UI reads as part of
+   the site rather than a bolted-on compliance widget.
+   ────────────────────────────────────────────────────────────────────────── */
+
+.consent-surface {
+  position: relative;
+  border-radius: 1.75rem;
+  border: 1px solid hsl(var(--glass-border));
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--glass-highlight) 70%, transparent) 0%, transparent 32%),
+    color-mix(in srgb, var(--glass-bg-light) 96%, transparent);
+  box-shadow: var(--glass-shadow-lift);
+  backdrop-filter: blur(26px) saturate(160%);
+  -webkit-backdrop-filter: blur(26px) saturate(160%);
+}
+
+/* The thin specular line along the top edge that the site's cards all share. */
+.consent-surface::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--glass-highlight) 90%, transparent),
+    transparent
+  );
+  pointer-events: none;
+}
+
+.consent-scrim {
+  background: color-mix(in srgb, rgb(15 23 42 / 0.28) 100%, transparent);
+  backdrop-filter: blur(10px) saturate(120%);
+  -webkit-backdrop-filter: blur(10px) saturate(120%);
+}
+
+@media (prefers-color-scheme: dark) {
+  .consent-scrim {
+    background: rgb(2 6 12 / 0.52);
+  }
+}
+
+/* Buttons: a clear visual hierarchy achieved with depth, not colour shouting. */
+.consent-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.2;
+  border: 1px solid transparent;
+  /* Labels are short and meaningful; wrapping them mid-phrase reads as cramped. */
+  white-space: nowrap;
+  transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 220ms ease,
+    background-color 220ms ease, filter 220ms ease;
+}
+
+.consent-btn:focus-visible {
+  outline: 2px solid var(--btn-ring);
+  outline-offset: 2px;
+}
+
+.consent-btn:active {
+  transform: scale(0.975);
+}
+
+.consent-btn--primary {
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  box-shadow: 0 10px 26px rgb(37 99 235 / 0.28), inset 0 1px 0 rgb(255 255 255 / 0.28);
+}
+
+.consent-btn--primary:hover {
+  filter: brightness(1.06);
+  box-shadow: 0 14px 32px rgb(37 99 235 / 0.34), inset 0 1px 0 rgb(255 255 255 / 0.3);
+}
+
+.consent-btn--secondary {
+  background: color-mix(in srgb, var(--glass-bg-light) 92%, transparent);
+  border-color: hsl(var(--glass-border));
+  color: var(--text-primary);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--glass-highlight) 80%, transparent);
+}
+
+.consent-btn--secondary:hover {
+  background: color-mix(in srgb, var(--glass-bg-light) 100%, transparent);
+}
+
+.consent-btn--ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  padding-inline: 0.75rem;
+}
+
+.consent-btn--ghost:hover {
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--glass-bg-light) 60%, transparent);
+}
+
+/* Toggle switch — Apple-style, driven entirely by the checkbox state so it
+   stays keyboard operable and announceable. */
+.consent-toggle {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  height: 1.625rem;
+  width: 2.875rem;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid hsl(var(--glass-border));
+  background: color-mix(in srgb, var(--muted) 22%, transparent);
+  transition: background-color 240ms cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+
+.consent-toggle__knob {
+  position: absolute;
+  left: 3px;
+  height: 1.25rem;
+  width: 1.25rem;
+  border-radius: 999px;
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgb(15 23 42 / 0.28);
+  transition: transform 240ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.consent-toggle-input:checked + .consent-toggle {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  border-color: transparent;
+}
+
+.consent-toggle-input:checked + .consent-toggle .consent-toggle__knob {
+  transform: translateX(1.1875rem);
+}
+
+.consent-toggle-input:disabled + .consent-toggle {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.consent-toggle-input:focus-visible + .consent-toggle {
+  outline: 2px solid var(--btn-ring);
+  outline-offset: 2px;
+}
+
+/* The small cookie mark. A slow, single-pass shimmer — noticed, not animated at. */
+@keyframes consent-crumb-drift {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-1px) rotate(6deg); }
+}
+
+.consent-icon {
+  animation: consent-crumb-drift 6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .consent-icon {
+    animation: none;
+  }
+  .consent-btn,
+  .consent-toggle,
+  .consent-toggle__knob {
+    transition-duration: 1ms;
+  }
+}
+
+/* Keeps the banner clear of the iOS home indicator and any PWA safe area. */
+.consent-dock {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
+@media print {
+  .consent-dock,
+  .consent-modal-root {
+    display: none !important;
+  }
+}
+
+/* Skip link — visible only when focused, styled as a small glass pill so it
+   matches the site when a keyboard user lands on it. */
+.skip-to-content {
+  position: fixed;
+  top: 0.75rem;
+  left: 50%;
+  z-index: 100;
+  transform: translate(-50%, -150%);
+  border-radius: 999px;
+  border: 1px solid hsl(var(--glass-border));
+  background: color-mix(in srgb, var(--glass-bg-light) 98%, transparent);
+  box-shadow: var(--glass-shadow-soft);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  padding: 0.5rem 1.125rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.skip-to-content:focus-visible {
+  transform: translate(-50%, 0);
+  outline: 2px solid var(--btn-ring);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skip-to-content {
+    transition-duration: 1ms;
+  }
+}

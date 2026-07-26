@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 
+import { sanitizeHtml } from '@/lib/sanitizeHtml';
+
 export type SentEmail = {
   id: string;
   subject: string;
@@ -68,9 +70,12 @@ export default function PreviouslySentEmails({ emails }: PreviouslySentEmailsPro
               {isOpen ? (
                 <div className="rounded-2xl border border-white/10 bg-slate-100/80 p-4 shadow-inner dark:bg-slate-900/60">
                   <div className="max-h-96 overflow-auto">
+                    {/* Sanitised again at render time. The stored copy was
+                        sanitised when it was sent, but archives outlive the code
+                        that wrote them, so this must not trust its own history. */}
                     <div
                       className="mx-auto w-full max-w-3xl"
-                      dangerouslySetInnerHTML={{ __html: email.html }}
+                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(email.html) }}
                     />
                   </div>
                 </div>

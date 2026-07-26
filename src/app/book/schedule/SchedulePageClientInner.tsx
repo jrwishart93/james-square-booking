@@ -175,23 +175,35 @@ export default function SchedulePageClientInner() {
 
   useEffect(() => {
     async function fetchData(date: string) {
-      const q = query(collection(db, 'bookings'), where('date', '==', date));
-      const snap = await getDocs(q);
       const updated = generateInitialBookings();
-  
-      snap.forEach((docSnap) => {
-        const data = docSnap.data() as {
-          facility: string;
-          date: string;
-          time: string;
-          user: string;
-        };
-        if (!updated[data.facility][data.date]) {
-          updated[data.facility][data.date] = {};
+
+      // Availability comes from a server route rather than a direct Firestore
+      // read: it returns an opaque marker in place of other residents' email
+      // addresses, so the schedule stays public without exposing who booked what.
+      try {
+        const token = await auth.currentUser?.getIdToken();
+        const res = await fetch(`/api/availability?date=${encodeURIComponent(date)}`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+          cache: 'no-store',
+        });
+
+        if (res.ok) {
+          const payload = (await res.json()) as {
+            bookings?: Array<{ facility: string; date: string; time: string; user: string }>;
+          };
+
+          for (const booking of payload.bookings ?? []) {
+            if (!updated[booking.facility]) continue;
+            if (!updated[booking.facility][booking.date]) {
+              updated[booking.facility][booking.date] = {};
+            }
+            updated[booking.facility][booking.date][booking.time] = booking.user;
+          }
         }
-        updated[data.facility][data.date][data.time] = data.user;
-      });
-  
+      } catch (error) {
+        console.error('Failed to load availability', error);
+      }
+
       setBookings(updated);
   
       const winSnap = await getDocs(query(
@@ -274,21 +286,17 @@ export default function SchedulePageClientInner() {
     let consecutiveCount = 0;
     for (let i = 1; i <= 3; i++) {
       const prevDate = currentDate.minus({ days: i }).toISODate();
+      // Constrained to the caller's own bookings: both cheaper and a query the
+      // tightened security rules will accept.
       const q = query(
         collection(db, 'bookings'),
+        where('user', '==', user.email),
         where('facility', '==', facility),
         where('date', '==', prevDate),
         where('time', '==', time)
       );
       const snap = await getDocs(q);
-      let found = false;
-      snap.forEach((docSnap) => {
-        const data = docSnap.data();
-        if (data.user === user.email) {
-          found = true;
-        }
-      });
-      if (found) consecutiveCount++;
+      if (!snap.empty) consecutiveCount++;
       else break;
     }
     return consecutiveCount === 3;

@@ -5,7 +5,17 @@ import { collection, getDocs, orderBy, query } from 'firebase/firestore';
 
 import { auth, db } from '@/lib/firebase';
 import { sendAdminEmailRequest } from '@/lib/client/sendAdminEmailRequest';
-import { EMAIL_GROUPS, type EmailGroupKey } from '@/lib/emailGroups';
+
+/**
+ * Group keys are safe to name in the browser; the addresses behind them are not,
+ * and are fetched from /api/admin/email-groups once an admin is signed in.
+ */
+type EmailGroupKey = 'committee' | 'myreside';
+
+type EmailGroupData = {
+  groups: Record<string, string[]>;
+  counts: Record<string, number>;
+};
 
 const baseCardClasses =
   'rounded-2xl border border-white/20 bg-white/10 dark:border-white/10 dark:bg-white/5 backdrop-blur px-6 py-6 shadow-md space-y-5';
@@ -69,6 +79,38 @@ const AdminEmailPanel = () => {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmText, setConfirmText] = useState('');
   const [confirmAcknowledged, setConfirmAcknowledged] = useState(false);
+  const [emailGroups, setEmailGroups] = useState<EmailGroupData>({ groups: {}, counts: {} });
+
+  // Group addresses are fetched with the admin's ID token rather than compiled
+  // into the bundle, so they are only ever visible to a verified administrator.
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadGroups = async () => {
+      const currentUser = auth.currentUser;
+      if (!currentUser) return;
+
+      try {
+        const token = await currentUser.getIdToken();
+        const res = await fetch('/api/admin/email-groups', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) return;
+        const data = (await res.json()) as EmailGroupData;
+        if (!cancelled) setEmailGroups(data);
+      } catch {
+        // Non-fatal: the composer still works, group counts simply read as zero.
+      }
+    };
+
+    const unsubscribe = auth.onAuthStateChanged(() => void loadGroups());
+    void loadGroups();
+
+    return () => {
+      cancelled = true;
+      unsubscribe();
+    };
+  }, []);
 
   useEffect(() => {
     const loadUsers = async () => {
@@ -161,8 +203,8 @@ const AdminEmailPanel = () => {
   }, [recipientMode, users, ownerUsers, normalizedCustomEmail, selectedIds]);
 
   const groupBccRecipients = useMemo(
-    () => Array.from(new Set(selectedGroups.flatMap((group) => EMAIL_GROUPS[group]))),
-    [selectedGroups],
+    () => Array.from(new Set(selectedGroups.flatMap((group) => emailGroups.groups[group] ?? []))),
+    [selectedGroups, emailGroups],
   );
 
   const combinedBccRecipients = useMemo(
@@ -583,13 +625,13 @@ const AdminEmailPanel = () => {
               </p>
               {selectedGroups.includes('committee') && (
                 <p className="text-sm text-slate-700 dark:text-slate-300">
-                  This email will be sent to <strong>{EMAIL_GROUPS.committee.length}</strong>{' '}
+                  This email will be sent to <strong>{emailGroups.counts.committee ?? 0}</strong>{' '}
                   committee members via BCC.
                 </p>
               )}
               {selectedGroups.includes('myreside') && (
                 <p className="text-sm text-slate-700 dark:text-slate-300">
-                  This email will be copied to Myreside via BCC ({EMAIL_GROUPS.myreside.length}{' '}
+                  This email will be copied to Myreside via BCC ({emailGroups.counts.myreside ?? 0}{' '}
                   recipients).
                 </p>
               )}

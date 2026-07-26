@@ -8,7 +8,6 @@ import {
   collection,
   doc,
   addDoc,
-  getDocs,
   getDoc,
   onSnapshot,
   orderBy,
@@ -79,15 +78,23 @@ type ReportPayload = {
    Helpers
 ============================ */
 
-/** Look up user's display name from /users by email */
-async function getDisplayNameFromProfile(email?: string | null): Promise<string | undefined> {
-  if (!email) return undefined;
-  const snap = await getDocs(query(collection(db, 'users'), where('email', '==', email)));
-  if (!snap.empty) {
-    const data = snap.docs[0].data() as UserDoc;
-    if (data?.fullName) return data.fullName;
+/**
+ * Look up the signed-in user's own display name from /users.
+ *
+ * Reads the profile by uid rather than querying the collection by email: a
+ * resident can read their own profile, but nobody can enumerate everyone else's.
+ * All callers use this for the current user's own name, which is the only case
+ * that ever needed a profile read.
+ */
+async function getDisplayNameFromProfile(uid?: string | null): Promise<string | undefined> {
+  if (!uid) return undefined;
+  try {
+    const snap = await getDoc(doc(db, 'users', uid));
+    const data = snap.data() as UserDoc | undefined;
+    return data?.fullName || undefined;
+  } catch {
+    return undefined;
   }
-  return undefined;
 }
 
 /** Create a report in /reports with a consistent shape */
@@ -288,7 +295,7 @@ export default function MessageBoardPage() {
     setBusy(true);
     try {
       const name =
-        (await getDisplayNameFromProfile(user.email)) ||
+        (await getDisplayNameFromProfile(user.uid)) ||
         user.displayName ||
         user.email ||
         'Unknown';
@@ -774,7 +781,7 @@ function Comments({ postId, currentUser }: { postId: string; currentUser: User |
     if (!body.trim()) return;
 
     const name =
-      (await getDisplayNameFromProfile(currentUser.email)) ||
+      (await getDisplayNameFromProfile(currentUser.uid)) ||
       currentUser.displayName ||
       currentUser.email ||
       'Unknown';
@@ -963,7 +970,7 @@ function Replies({
     if (!body.trim()) return;
 
     const name =
-      (await getDisplayNameFromProfile(currentUser.email)) ||
+      (await getDisplayNameFromProfile(currentUser.uid)) ||
       currentUser.displayName ||
       currentUser.email ||
       'Unknown';

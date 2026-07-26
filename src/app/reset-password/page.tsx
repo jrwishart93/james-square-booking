@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { FirebaseError } from 'firebase/app';
-import { auth, db } from '@/lib/firebase';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { auth } from '@/lib/firebase';
+import { resolveLoginEmail } from '@/lib/client/resolveIdentifier';
 
 export default function ResetPasswordPage() {
   const router = useRouter();
@@ -16,7 +16,8 @@ export default function ResetPasswordPage() {
   const [error, setError] = useState('');
 
   const resolveEmail = async (id: string): Promise<string | null> => {
-    // If it looks like an email, validate its format
+    // Validate an email locally; resolve a username through the server route,
+    // since resident profiles are no longer readable from the browser.
     if (id.includes('@')) {
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailPattern.test(id)) {
@@ -24,13 +25,8 @@ export default function ResetPasswordPage() {
       }
       return id;
     }
-    // Otherwise treat as username and look up
-    const q = query(
-      collection(db, 'users'),
-      where('username', '==', id.toLowerCase())
-    );
-    const snap = await getDocs(q);
-    return snap.empty ? null : (snap.docs[0].data().email as string);
+
+    return resolveLoginEmail(id);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

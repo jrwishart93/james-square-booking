@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { auth } from '@/lib/firebase';
 import { Post } from './types';
 
 export default function MessageBoardHighlights({ limit = 3 }: { limit?: number }) {
@@ -10,7 +11,16 @@ export default function MessageBoardHighlights({ limit = 3 }: { limit?: number }
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await fetch(`/api/message-board?limit=${limit}`);
+        // The board is residents-only, so the request must be authenticated.
+        const token = await auth.currentUser?.getIdToken();
+        if (!token) {
+          setPosts([]);
+          return;
+        }
+
+        const res = await fetch(`/api/message-board?limit=${limit}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         if (res.ok) {
           const data: { posts: Post[] } = await res.json();
           setPosts(data.posts || []);
