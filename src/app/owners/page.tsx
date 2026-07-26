@@ -6,10 +6,10 @@ import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { FormEvent, useState } from 'react';
 
+import { verifyAccessCode } from '@/app/actions/accessCodes';
 import { GlassCard } from '@/components/GlassCard';
 import GradientBG from '@/components/GradientBG';
 
-const OWNERS_ACCESS_CODE = '3579';
 const OWNERS_ACCESS_KEY = 'owners_secure_access';
 const COMMITTEE_EMAIL = 'committee@james-square.com';
 const EMAIL_SUBJECT = 'Request for owners access code – James Square';
@@ -24,22 +24,39 @@ const OwnersPage = () => {
   const prefersReducedMotion = useReducedMotion();
   const [accessCode, setAccessCode] = useState('');
   const [showError, setShowError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleOwnersAccessSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleOwnersAccessSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (isSubmitting) return;
 
-    if (accessCode === OWNERS_ACCESS_CODE) {
-      sessionStorage.setItem(OWNERS_ACCESS_KEY, 'true');
-      setIsSubmitting(true);
-      const delay = prefersReducedMotion ? 0 : 250;
-      window.setTimeout(() => {
-        router.replace('/owners/secure');
-      }, delay);
-      return;
+    setIsSubmitting(true);
+    setShowError(false);
+
+    try {
+      // Checked on the server. The code used to be a constant in this file and
+      // was therefore readable by anyone who viewed the page source.
+      const result = await verifyAccessCode('owners', accessCode);
+
+      if (result.ok) {
+        sessionStorage.setItem(OWNERS_ACCESS_KEY, 'true');
+        setErrorMessage('');
+        const delay = prefersReducedMotion ? 0 : 250;
+        window.setTimeout(() => {
+          router.replace('/owners/secure');
+        }, delay);
+        return;
+      }
+
+      setErrorMessage(result.error ?? '');
+      setShowError(true);
+    } catch {
+      setErrorMessage('We could not check that code. Please try again.');
+      setShowError(true);
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setShowError(true);
   };
 
   return (
@@ -116,8 +133,9 @@ const OwnersPage = () => {
                   exit={{ opacity: 0, y: prefersReducedMotion ? 0 : 4 }}
                   transition={{ duration: prefersReducedMotion ? 0 : 0.2, ease: 'easeOut' }}
                   className="text-sm text-rose-600 dark:text-rose-300"
+                  role="alert"
                 >
-                  Incorrect access code.
+                  {errorMessage || 'Incorrect access code.'}
                   <br />
                   If you’re an owner and don’t have the code, please contact the factor or ask another owner.
                 </motion.p>

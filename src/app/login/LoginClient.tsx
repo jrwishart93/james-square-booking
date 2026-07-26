@@ -10,7 +10,8 @@ import {
   signInWithEmailAndPassword,
   onAuthStateChanged,
 } from 'firebase/auth';
-import { collection, doc, getDoc, getDocs, query, serverTimestamp, where, setDoc } from 'firebase/firestore';
+import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { resolveLoginEmail } from '@/lib/client/resolveIdentifier';
 
 type ResidentType = 'owner' | 'renter' | 'stl_guest';
 
@@ -128,17 +129,12 @@ export default function LoginClient() {
           window.location.href = '/dashboard';
         }, 2000);
       } else {
-        // Login: Treat identifier as email if it contains "@" otherwise as username.
-        let loginEmail = identifier;
-        if (!loginEmail.includes('@')) {
-          const q = query(collection(db, 'users'), where('username', '==', loginEmail));
-          const querySnapshot = await getDocs(q);
-          if (!querySnapshot.empty) {
-            loginEmail = querySnapshot.docs[0].data().email;
-          } else {
-            setMessage('No account found for that username.');
-            return;
-          }
+        // Login: an email is used directly; a username is resolved server-side,
+        // since resident profiles are no longer readable from the browser.
+        const loginEmail = await resolveLoginEmail(identifier);
+        if (!loginEmail) {
+          setMessage('No account found for that username.');
+          return;
         }
         const userCredential = await signInWithEmailAndPassword(auth, loginEmail, password);
         await userCredential.user.getIdToken(true);

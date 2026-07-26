@@ -2,10 +2,11 @@
 
 import { useEffect, useState, type FormEvent } from 'react';
 
+import { verifyAccessCode } from '@/app/actions/accessCodes';
+
 import CommitteeContent from './CommitteeContent';
 
 const ACCESS_KEY = 'js_committee_access';
-const PASSCODE = '9753';
 
 const glassCard =
   'jqs-glass rounded-2xl border border-white/20 bg-white/50 dark:bg-white/10 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.08)]';
@@ -14,6 +15,7 @@ export default function CommitteeGate() {
   const [passcode, setPasscode] = useState('');
   const [hasAccess, setHasAccess] = useState(false);
   const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const stored = sessionStorage.getItem(ACCESS_KEY);
@@ -30,15 +32,26 @@ export default function CommitteeGate() {
     }
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (passcode === PASSCODE) {
-      sessionStorage.setItem(ACCESS_KEY, 'granted');
-      setHasAccess(true);
-      setError('');
-      return;
+    if (submitting) return;
+
+    setSubmitting(true);
+    try {
+      // Verified on the server: the code is no longer present in this bundle.
+      const result = await verifyAccessCode('committee', passcode);
+      if (result.ok) {
+        sessionStorage.setItem(ACCESS_KEY, 'granted');
+        setHasAccess(true);
+        setError('');
+        return;
+      }
+      setError(result.error ?? 'Incorrect passcode. Please try again.');
+    } catch {
+      setError('We could not check that passcode. Please try again.');
+    } finally {
+      setSubmitting(false);
     }
-    setError('Incorrect passcode. Please try again.');
   };
 
   if (hasAccess) {
@@ -69,12 +82,17 @@ export default function CommitteeGate() {
               value={passcode}
             />
           </div>
-          {error ? <p className="text-sm text-red-600 dark:text-red-400">{error}</p> : null}
+          {error ? (
+            <p className="text-sm text-red-600 dark:text-red-400" role="alert">
+              {error}
+            </p>
+          ) : null}
           <button
-            className="w-full rounded-full px-4 py-2 text-sm font-semibold jqs-glass hover:brightness-[1.05] transition"
+            className="w-full rounded-full px-4 py-2 text-sm font-semibold jqs-glass hover:brightness-[1.05] transition disabled:opacity-60"
+            disabled={submitting}
             type="submit"
           >
-            Continue
+            {submitting ? 'Checking…' : 'Continue'}
           </button>
         </form>
       </div>

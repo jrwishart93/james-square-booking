@@ -3,10 +3,13 @@ import { Resend } from "resend";
 import { Timestamp } from "firebase-admin/firestore";
 
 import { committeeEmailTemplate } from "@/lib/email/templates/committeeEmailTemplate";
-import { adminAuth, adminDb } from "@/lib/firebaseAdmin";
+import { adminDb } from "@/lib/firebaseAdmin";
 import { sanitizeHtml } from "@/lib/sanitizeHtml";
+import { clientKey, rateLimit, tooManyRequests } from "@/lib/security/rateLimit";
+import { requireCommittee } from "@/lib/security/requireAuth";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 type CommitteeEmailRequest = {
   subject: string;
@@ -18,13 +21,11 @@ const FROM_EMAIL = "JSPA Committee <committee@james-square.com>";
 const DAILY_RECIPIENT_LIMIT = 100;
 const MAX_RECIPIENTS_PER_BATCH = 50;
 
-const parseBearerToken = (request: NextRequest) => {
-  const header = request.headers.get("authorization") ?? "";
-  const match = header.match(/^Bearer\s+(.+)$/i);
-  return match?.[1];
-};
+const MAX_SUBJECT_LENGTH = 200;
+const MAX_MESSAGE_LENGTH = 50_000;
 
-const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+const isValidEmail = (email: string) =>
+  email.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 const escapeHtml = (value: string) =>
   value
@@ -97,18 +98,22 @@ const getDailyRecipientCount = async () => {
 
 export async function POST(req: NextRequest) {
   try {
-    const token = parseBearerToken(req);
-    let senderEmail: string | null = null;
-
-    if (token) {
-      try {
-        const decoded = await adminAuth.verifyIdToken(token);
-        senderEmail = decoded.email ?? null;
-      } catch (error) {
-        console.error("[committee-email] Failed to verify token", error);
-        return NextResponse.json({ error: "Session invalid or expired." }, { status: 401 });
-      }
+    const limit = rateLimit(clientKey(req, "committee-email"), {
+      limit: 10,
+      windowMs: 10 * 60_000,
+    });
+    if (!limit.allowed) {
+      return tooManyRequests(limit, "Too many email attempts. Please wait before trying again.");
     }
+
+    // Authentication was previously optional: a request with no Authorization
+    // header skipped the check entirely and went on to send mail from
+    // committee@james-square.com to any address supplied in the body.
+    const auth = await requireCommittee(req);
+    if (!auth.ok) return auth.response;
+
+    const senderEmail: string | null = auth.token.email ?? null;
+    const senderUid = auth.token.uid;
 
     const body = (await req.json().catch(() => null)) as CommitteeEmailRequest | null;
 
@@ -119,8 +124,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const subject = String(body.subject).trim();
-    const message = String(body.message).trim();
+    const subject = String(body.subject).trim().slice(0, MAX_SUBJECT_LENGTH);
+    const message = String(body.message).trim().slice(0, MAX_MESSAGE_LENGTH);
 
     const recipients = Array.from(
       new Set(
@@ -194,6 +199,7 @@ export async function POST(req: NextRequest) {
       renderedHtml: html,
       sentAt: Timestamp.now(),
       senderEmail,
+      senderUid,
       recipientCount: recipients.length,
       manualRecipientMode: true,
     });

@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { onAuthStateChanged, signOut, User } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
-import { collection, doc, getDocs, onSnapshot, query, where, DocumentData, type Timestamp } from "firebase/firestore";
+import { doc, getDoc, onSnapshot, DocumentData, type Timestamp } from "firebase/firestore";
 import { motion } from "framer-motion";
 import { getUnreadMessageBoardCount } from "@/lib/messageBoardNotifications";
 import { lightHaptic } from "@/lib/haptics";
@@ -60,9 +60,11 @@ export default function Header() {
         return;
       }
       try {
-        const qUsers = query(collection(db, "users"), where("email", "==", u.email));
-        const snap = await getDocs(qUsers);
-        const docData = snap.docs[0]?.data() as UserDoc | undefined;
+        // Read the profile directly by uid. The previous email query needed the
+        // whole /users collection to be listable, which is what made every
+        // resident's details readable by anyone.
+        const snap = await getDoc(doc(db, "users", u.uid));
+        const docData = snap.data() as UserDoc | undefined;
 
         setUserName(docData?.fullName || u.displayName || "");
         setIsAdmin(Boolean(docData?.isAdmin));

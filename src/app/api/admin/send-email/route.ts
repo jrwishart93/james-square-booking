@@ -2,9 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 
 import { renderAdminEmail } from "@/lib/email/renderAdminEmail";
-import { adminAuth } from "@/lib/firebaseAdmin";
+import { EMAIL_GROUPS, type EmailGroupKey, isEmailGroupKey } from "@/lib/emailGroups";
+import { clientKey, rateLimit, tooManyRequests } from "@/lib/security/rateLimit";
+import { requireAdmin } from "@/lib/security/requireAuth";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 type RecipientMode = "all" | "owners" | "selected" | "custom";
 
@@ -20,9 +23,14 @@ type AdminEmailRequest = {
   recipients: RecipientSelection;
   cc?: string[];
   bcc?: string[];
+  /** Named groups (e.g. "committee") resolved to addresses server-side. */
+  groups?: string[];
 };
 
 const MAX_RECIPIENTS_PER_BATCH = 50;
+const MAX_TOTAL_RECIPIENTS = 500;
+const MAX_SUBJECT_LENGTH = 200;
+const MAX_MESSAGE_LENGTH = 50_000;
 const DEFAULT_SENDER = "no-reply@james-square.com";
 const ALLOWED_SENDERS = new Set([
   "no-reply@james-square.com",
@@ -51,13 +59,8 @@ const getResendClient = () => {
   return new Resend(apiKey);
 };
 
-const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-
-const parseBearerToken = (request: NextRequest) => {
-  const header = request.headers.get("authorization") ?? "";
-  const match = header.match(/^Bearer\s+(.+)$/i);
-  return match?.[1];
-};
+const isValidEmail = (email: string) =>
+  email.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 const resolveSender = (sender?: unknown) => {
   if (sender === undefined || sender === null) {
@@ -78,18 +81,21 @@ const resolveSender = (sender?: unknown) => {
 
 export async function POST(req: NextRequest) {
   try {
-    const token = parseBearerToken(req);
-    if (!token) {
-      return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
+    // Throttle before doing any work, so an unauthenticated flood is cheap to shed.
+    const limit = rateLimit(clientKey(req, "admin-email"), {
+      limit: 10,
+      windowMs: 10 * 60_000,
+    });
+    if (!limit.allowed) {
+      return tooManyRequests(limit, "Too many email attempts. Please wait before trying again.");
     }
 
-    let decodedToken;
-    try {
-      decodedToken = await adminAuth.verifyIdToken(token);
-    } catch (error) {
-      console.error("[admin-email] Failed to verify token", error);
-      return NextResponse.json({ error: "Session invalid or expired." }, { status: 401 });
-    }
+    // Previously this route verified the caller's token but never checked that
+    // they were an admin, so any signed-in resident could send mail from a
+    // james-square.com address to any recipient list they chose.
+    const auth = await requireAdmin(req);
+    if (!auth.ok) return auth.response;
+    const decodedToken = auth.token;
 
     const body = (await req.json().catch(() => null)) as AdminEmailRequest | null;
 
@@ -100,8 +106,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const subject = String(body.subject).trim();
-    const message = String(body.message);
+    const subject = String(body.subject).trim().slice(0, MAX_SUBJECT_LENGTH);
+    const message = String(body.message).slice(0, MAX_MESSAGE_LENGTH);
     const recipients = body.recipients;
     const sender = resolveSender(body.sender);
 
@@ -116,9 +122,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Named groups are expanded here rather than in the browser, so committee
+    // members' personal addresses are never shipped in the client bundle.
+    const groupKeys: EmailGroupKey[] = (Array.isArray(body.groups) ? body.groups : []).filter(
+      isEmailGroupKey,
+    );
+    const groupEmails = groupKeys.flatMap((key) => [...EMAIL_GROUPS[key]]);
+
     const primaryEmails = Array.from(
       new Set(
-        (Array.isArray(recipients.emails) ? recipients.emails : [])
+        [
+          ...(Array.isArray(recipients.emails) ? recipients.emails : []),
+          ...groupEmails,
+        ]
           .map((email) => (typeof email === "string" ? email.trim() : ""))
           .filter((email) => email.length > 0),
       ),
@@ -168,6 +184,15 @@ export async function POST(req: NextRequest) {
     if (emails.some((email) => !isValidEmail(email))) {
       return NextResponse.json(
         { error: "One or more recipient email addresses are invalid." },
+        { status: 400 },
+      );
+    }
+
+    // Upper bound on blast radius: a mistake or a compromised admin session
+    // cannot turn this endpoint into a bulk mailer.
+    if (emails.length > MAX_TOTAL_RECIPIENTS) {
+      return NextResponse.json(
+        { error: `A single send is limited to ${MAX_TOTAL_RECIPIENTS} recipients.` },
         { status: 400 },
       );
     }

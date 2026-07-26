@@ -51,3 +51,8 @@ serviceAccountKey.json
 .env.local
 .env.production
 .env.development
+
+# Firebase emulator logs
+firestore-debug.log
+ui-debug.log
+firebase-debug.log
