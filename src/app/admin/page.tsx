@@ -130,16 +130,16 @@ function Section({
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <section className="jqs-glass rounded-3xl p-6 border border-white/40 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur-xl shadow-sm">
+    <section className="jqs-glass rounded-3xl p-6 border border-white/40 dark:border dark:border-white/10 bg-white/60 dark:bg-white/4 dark:backdrop-blur-xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] backdrop-blur-xl shadow-sm">
       <button
         className="w-full flex items-start justify-between gap-4 text-left"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
       >
         <div>
-          <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">{title}</h2>
+          <h2 className="text-xl font-semibold text-slate-900 dark:text-white">{title}</h2>
           {subtitle && (
-            <p className="text-sm text-slate-600 dark:text-slate-300 mt-0.5">{subtitle}</p>
+            <p className="text-sm text-slate-600 dark:text-gray-400 mt-0.5">{subtitle}</p>
           )}
         </div>
         <div className="flex items-center gap-3">
@@ -173,9 +173,9 @@ function Section({
 /* Badge “pills” for quick KPIs */
 function StatPill({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="jqs-glass rounded-2xl px-4 py-3 text-sm bg-white/60 dark:bg-white/5 border border-white/30 dark:border-white/10 backdrop-blur-lg">
-      <div className="text-slate-600 dark:text-slate-300">{label}</div>
-      <div className="text-lg font-semibold text-slate-900 dark:text-slate-100">{value}</div>
+    <div className="jqs-glass rounded-2xl px-4 py-3 text-sm bg-white/60 dark:bg-white/5 border border-white/30 dark:border dark:border-white/10 dark:backdrop-blur-lg dark:shadow-[0_15px_40px_rgba(0,0,0,0.5)] backdrop-blur-lg">
+      <div className="text-slate-600 dark:text-gray-400">{label}</div>
+      <div className="text-lg font-semibold text-slate-900 dark:text-white">{value}</div>
     </div>
   );
 }
@@ -1243,7 +1243,7 @@ export default function AdminDashboard() {
   return (
     <main className="jqs-gradient-bg min-h-screen text-slate-900 dark:text-slate-100">
       <div className="max-w-7xl mx-auto p-6 space-y-6">
-        <header className="flex flex-wrap items-end justify-between gap-4">
+        <header className="flex flex-wrap items-end justify-between gap-4 dark:bg-gradient-to-b dark:from-[#141926]/90 dark:to-[#0f1320]/95 dark:backdrop-blur-xl dark:border dark:border-white/10 dark:shadow-[0_30px_60px_rgba(0,0,0,0.6)]">
           <div>
             <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Admin Dashboard</h1>
             <p className="text-slate-600 dark:text-slate-300 text-sm mt-1">
@@ -1259,7 +1259,7 @@ export default function AdminDashboard() {
         </header>
 
         <div className="sticky top-0 z-20 -mx-6 px-6 py-2 md:static">
-          <div className="jqs-glass rounded-full px-2 py-2 bg-white/60 dark:bg-white/5 border border-white/40 dark:border-white/10 backdrop-blur-xl shadow-sm">
+          <div className="jqs-glass rounded-full px-2 py-2 bg-white/60 dark:bg-white/5 border border-white/40 dark:border dark:border-white/10 dark:backdrop-blur-lg backdrop-blur-xl shadow-sm">
             <div className="flex gap-2 overflow-x-auto whitespace-nowrap scrollbar-thin">
               {tabs.map((tab) => {
                 const isActive = activeTab === tab.id;
@@ -1270,8 +1270,8 @@ export default function AdminDashboard() {
                     onClick={() => setActiveTab(tab.id)}
                     className={`px-4 py-2 rounded-full text-xs font-semibold transition ${
                       isActive
-                        ? 'bg-indigo-600 text-white shadow'
-                        : 'text-slate-600 dark:text-slate-200 hover:bg-white/30 dark:hover:bg-white/10'
+                        ? 'bg-indigo-600 text-white shadow dark:bg-indigo-500/20 dark:text-indigo-200 dark:shadow-[0_0_20px_rgba(99,102,241,0.35)]'
+                        : 'text-slate-600 dark:text-gray-400 hover:bg-white/30 dark:hover:text-gray-200 dark:hover:bg-white/5'
                     }`}
                   >
                     {tab.label}
@@ -1284,15 +1284,15 @@ export default function AdminDashboard() {
 
         {activeTab === 'overview' && (
           <>
-            <div className="jqs-glass rounded-2xl p-4">
+            <div className="jqs-glass rounded-2xl p-4 dark:bg-white/4 dark:border dark:border-white/10 dark:backdrop-blur-xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
               <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                 <div>
-                  <h2 className="text-lg font-semibold">Resident Breakdown</h2>
-                  <p className="text-xs opacity-75">
+                  <h2 className="text-lg font-semibold dark:text-white">Resident Breakdown</h2>
+                  <p className="text-xs opacity-75 dark:text-gray-400">
                     Admin/system accounts excluded from totals.
                   </p>
                 </div>
-                <div className="text-xs opacity-70">Matches the filtered user list.</div>
+                <div className="text-xs opacity-70 dark:text-gray-400">Matches the filtered user list.</div>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                 <StatPill label="Total Residents" value={residentStats.total} />
@@ -1302,7 +1302,7 @@ export default function AdminDashboard() {
                 <StatPill label="Inactive 30+ days" value={activityStats.inactive} />
               </div>
             </div>
-            <div className="jqs-glass rounded-2xl px-4 py-3 text-xs opacity-80">
+            <div className="jqs-glass rounded-2xl px-4 py-3 text-xs opacity-80 dark:bg-white/4 dark:border dark:border-white/10 dark:backdrop-blur-xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] dark:text-gray-400">
               Some residents signed up before resident-type confirmation existed. Unknown residents will be
               asked to confirm their status later. (Admin-only notice)
             </div>
