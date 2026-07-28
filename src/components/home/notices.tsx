@@ -3,7 +3,14 @@
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import { CalendarDays, ArrowRight, Building2, ChevronDown, MapPinned } from 'lucide-react';
+import {
+  CalendarDays,
+  ArrowRight,
+  Building2,
+  CheckCircle2,
+  ChevronDown,
+  MapPinned,
+} from 'lucide-react';
 
 const telferSubwayNoticeEndsAt = new Date('2026-06-20T00:00:00+01:00');
 const telferDiversionMapHref = '/docs/survey/Caledonian%20Crescent%20Footpath%20Closure.pdf';
@@ -31,11 +38,11 @@ export const noticeSummaries: NoticeSummary[] = [
   {
     id: 'agm-voting',
     badge: "Owners' notice",
-    title: 'AGM 2026 Owner Voting',
+    title: 'Owner Consultation Results',
     summary:
-      'Myreside has emailed proprietors the AGM voting documentation. Read the official documents and return completed forms to Myreside Management.',
-    date: 'Voting closes 13 July 2026',
-    tone: 'action',
+      'The consultation has closed, with the majority of owners supporting progress on the proposals presented following the 2026 AGM.',
+    date: 'Updated July 2026',
+    tone: 'info',
   },
   {
     id: 'pool-facilities',
@@ -327,43 +334,68 @@ export function TelferSubwayClosureNotice() {
 }
 
 /** ------------------------------------------------
- *  AGM Owner Voting Notice
+ *  AGM Owner Consultation Results Notice
  *  ------------------------------------------------ */
 export function AGMOwnerVotingNotice() {
   return (
-    <div className="jqs-glass rounded-2xl border border-l-[3px] border-cyan-400/30 border-l-cyan-400 bg-gradient-to-br from-cyan-500/10 via-sky-500/10 to-amber-500/10 p-6 shadow-lg shadow-cyan-900/10">
+    <div className="jqs-glass rounded-2xl border border-l-[3px] border-teal-400/30 border-l-teal-400 bg-gradient-to-br from-teal-500/10 via-cyan-500/10 to-emerald-500/10 p-6 shadow-lg shadow-teal-900/10">
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-500/40 bg-cyan-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-cyan-900 dark:text-cyan-200">
           <CalendarDays className="h-3.5 w-3.5" />
           Owners&apos; notice
         </span>
-        <span className="inline-flex items-center rounded-full border border-amber-500/40 bg-amber-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-900 dark:text-amber-200">
-          Voting closes Monday 13 July 2026
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-900 dark:text-emerald-200">
+          <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
+          Owner consultation complete
         </span>
       </div>
 
       <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
-        AGM 2026 Owner Voting Now Open
+        Owner Consultation Results
       </h2>
+      <p className="mt-1 text-xs font-medium uppercase tracking-wide text-teal-800/80 dark:text-teal-200/80">
+        Updated July 2026
+      </p>
 
       <div className="mt-3 space-y-3 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
         <p>
-          Myreside Management has emailed proprietors the AGM voting documentation following the
-          2026 AGM. Owners should read the official documents before voting and return completed
-          forms directly to Ania Jennings at Myreside Management according to the email
-          instructions.
+          Thank you to everyone who took the time to review the AGM documents and return their
+          voting forms.
         </p>
         <p>
-          The AGM page now includes a plain-English summary of the Committee Constitution,
-          Building Survey &amp; Planned Preventative Maintenance, and Swimming Pool &amp; Gym items.
+          The consultation has now closed and the responses received show that the majority of
+          owners support progressing the proposals presented following the 2026 AGM.
+        </p>
+        <p>
+          This allows Myreside Management and the Committee to begin moving forward with the agreed
+          next steps, including:
+        </p>
+        <ul className="list-disc space-y-2 pl-5 marker:text-teal-600 dark:marker:text-teal-300">
+          <li>Updating the F3 Building Condition Survey.</li>
+          <li>
+            Progressing work relating to the swimming pool, gym and sauna following professional
+            recommendations.
+          </li>
+          <li>
+            Continuing long term planning for future maintenance and investment across James
+            Square.
+          </li>
+        </ul>
+        <p>
+          Further updates will be published on the website as surveys, quotations and works
+          progress.
+        </p>
+        <p className="font-medium text-teal-900 dark:text-teal-100">
+          Thank you to everyone who participated. Your feedback is helping shape the future of
+          James Square.
         </p>
       </div>
 
       <Link
         href="/agm"
-        className="mt-4 inline-flex items-center gap-2 rounded-xl bg-cyan-600 px-4 py-2.5 text-sm font-semibold text-white shadow transition-colors hover:bg-cyan-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/60"
+        className="mt-4 inline-flex items-center gap-2 rounded-xl bg-teal-600 px-4 py-2.5 text-sm font-semibold text-white shadow transition-colors hover:bg-teal-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60"
       >
-        View AGM voting summary
+        View AGM Update
         <ArrowRight className="h-4 w-4" />
       </Link>
     </div>
