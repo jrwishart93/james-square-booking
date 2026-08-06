@@ -32,16 +32,6 @@ export default function Header() {
   );
   const [hasUnreadMessageBoard, setHasUnreadMessageBoard] = useState<boolean>(false);
 
-  const handleMenuToggle = () => {
-    setOpen((prev) => {
-      const next = !prev;
-      if (next !== prev) {
-        lightHaptic();
-      }
-      return next;
-    });
-  };
-
   const handleMenuClose = () => {
     setOpen((prev) => {
       if (prev) {
@@ -264,6 +254,7 @@ export default function Header() {
                 <NavLink href="/message-board" label="Message Board" showUnread={hasUnreadMessageBoard} />
                 {user && <NavLink href="/owners" label="Owners" />}
                 <NavLink href="/local" label="Useful Info" />
+                <NavLink href="/cleaning" label="Cleaning" />
                 {isAdmin && <NavLink href="/admin" label="Admin" />}
 
                 {user ? (
@@ -318,6 +309,7 @@ export default function Header() {
               <NavLink href="/message-board" label="Message Board" showUnread={hasUnreadMessageBoard} />
               {user && <NavLink href="/owners" label="Owners" />}
               <NavLink href="/local" label="Useful Info" />
+              <NavLink href="/cleaning" label="Cleaning" />
               {isAdmin && <NavLink href="/admin" label="Admin" />}
 
               {user ? (
