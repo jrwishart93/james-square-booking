@@ -32,16 +32,6 @@ export default function Header() {
   );
   const [hasUnreadMessageBoard, setHasUnreadMessageBoard] = useState<boolean>(false);
 
-  const handleMenuToggle = () => {
-    setOpen((prev) => {
-      const next = !prev;
-      if (next !== prev) {
-        lightHaptic();
-      }
-      return next;
-    });
-  };
-
   const handleMenuClose = () => {
     setOpen((prev) => {
       if (prev) {
