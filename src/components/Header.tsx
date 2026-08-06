@@ -264,6 +264,7 @@ export default function Header() {
                 <NavLink href="/message-board" label="Message Board" showUnread={hasUnreadMessageBoard} />
                 {user && <NavLink href="/owners" label="Owners" />}
                 <NavLink href="/local" label="Useful Info" />
+                <NavLink href="/cleaning" label="Cleaning" />
                 {isAdmin && <NavLink href="/admin" label="Admin" />}
 
                 {user ? (
@@ -318,6 +319,7 @@ export default function Header() {
               <NavLink href="/message-board" label="Message Board" showUnread={hasUnreadMessageBoard} />
               {user && <NavLink href="/owners" label="Owners" />}
               <NavLink href="/local" label="Useful Info" />
+              <NavLink href="/cleaning" label="Cleaning" />
               {isAdmin && <NavLink href="/admin" label="Admin" />}
 
               {user ? (
