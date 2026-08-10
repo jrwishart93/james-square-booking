@@ -31,6 +31,7 @@ export async function sendWithResend(args: {
   to: string | string[];
   subject: string;
   html: string;
+  text?: string;
   attachments?: { filename: string; content: string }[];
 }) {
   const resend = getResendClient();
@@ -43,7 +44,7 @@ export async function sendWithResend(args: {
     to: args.to,
     subject: args.subject,
     html: args.html,
-    text: stripHtml(args.html),
+    text: args.text ?? stripHtml(args.html),
     attachments: args.attachments,
   });
 
