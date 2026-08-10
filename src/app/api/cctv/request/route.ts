@@ -1,5 +1,5 @@
-import { randomUUID } from 'crypto';
 import { validateCctvRequest } from '@/lib/cctvRequest';
+import { createCctvRequestRecord, setCctvRequestDeliveryStatus } from '@/lib/cctvReference';
 import { renderCctvRequest } from '@/lib/email/renderCctvRequest';
 import { sendWithResend } from '@/lib/email/sendWithResend';
 import { clientKey, rateLimit, tooManyRequests } from '@/lib/security/rateLimit';
@@ -27,18 +27,29 @@ export async function POST(request: Request) {
   try { body = JSON.parse(text); } catch { return response({ error: 'Invalid JSON request.' }, 400); }
   const validated = validateCctvRequest(body);
   if (!validated.success) return response({ error: 'Please correct the highlighted fields.', fields: validated.errors }, 400);
-  const requestId = randomUUID();
+  let requestId: string;
+  try {
+    requestId = await createCctvRequestRecord(validated.data);
+  } catch {
+    return response({ error: 'We could not submit your request. Please try again later.' }, 503);
+  }
   const rendered = renderCctvRequest(validated.data);
   const subjectName = validated.data.requestorName.replace(/[\r\n]+/g, ' ');
   try {
     await sendWithResend({
       to: RECIPIENT,
       subject: `CCTV review request — ${validated.data.incidentDate} — ${subjectName}`,
-      html: `<p><strong>Request ID:</strong> ${requestId}</p>${rendered.html}`,
-      text: `Request ID: ${requestId}\n\n${rendered.text}`,
+      html: `<p><strong>James Square reference:</strong> ${requestId}</p>${rendered.html}`,
+      text: `James Square reference: ${requestId}\n\n${rendered.text}`,
     });
   } catch {
+    // Do not log the provider response or submission. Preserve only a searchable
+    // delivery state so an administrator can safely identify requests to retry.
+    await setCctvRequestDeliveryStatus(requestId, 'delivery-failed').catch(() => undefined);
     return response({ error: 'We could not submit your request. Please try again later.' }, 503);
   }
+  // Delivery has already succeeded, so a bookkeeping failure must not encourage
+  // the requestor to submit the same sensitive request a second time.
+  await setCctvRequestDeliveryStatus(requestId, 'delivered').catch(() => undefined);
   return response({ success: true, requestId }, 200);
 }
