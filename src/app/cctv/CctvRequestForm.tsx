@@ -7,6 +7,30 @@ const today = () => new Date().toISOString().slice(0, 10);
 const initial: CctvRequest = { requestorName:'',email:'',telephone:'',property:'',preferredContact:'email',incidentDate:'',timePrecision:'exact',incidentTime:'',timeFrom:'',timeTo:'',incidentType:'crime',location:'',detailedLocation:'',policeStatus:'not-reported',policeReportDate:'',policeReference:'',officerDetails:'',narrative:'',identifyingDetails:'',signature:'',submissionDate:today(),privacyAcknowledgement:false,policeAcknowledgement:false,website:'' };
 const inputClass = 'mt-1 min-h-11 w-full rounded-lg border border-slate-400 bg-white px-3 py-2 text-slate-950 focus:outline focus:outline-2 focus:outline-blue-600';
 
+class CctvApiError extends Error {}
+
+async function sendRequest(data: CctvRequest) {
+  // WebKit can reject a relative fetch target with a DOMException reading
+  // "The string did not match the expected pattern" in installed/standalone
+  // contexts. Resolve the route against the current page so fetch always gets
+  // a fully qualified, same-origin URL.
+  const endpoint = new URL('/api/cctv/request', window.location.href);
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  const body = await response.json().catch(() => null) as { error?: string; requestId?: string } | null;
+
+  if (!response.ok) {
+    throw new CctvApiError(body?.error || 'We could not submit your request. Please try again.');
+  }
+  if (!body?.requestId || !/^JS-\d{8}-\d{4}$/.test(body.requestId)) {
+    throw new CctvApiError('The server returned an invalid request reference. Please try again.');
+  }
+  return body.requestId;
+}
+
 export default function CctvRequestForm() {
   const [form,setForm] = useState(initial); const [errors,setErrors] = useState<CctvErrors>({});
   const [state,setState] = useState<'idle'|'submitting'|'success'|'error'>('idle');
@@ -19,8 +43,8 @@ export default function CctvRequestForm() {
     event.preventDefault(); if(state==='submitting') return;
     const checked=validateCctvRequest(form); if(!checked.success){setErrors(checked.errors);setState('error');setMessage('Please correct the highlighted fields.');queueMicrotask(()=>status.current?.focus());return;}
     setErrors({});setState('submitting');setMessage('Submitting your request…');
-    try { const res=await fetch('/api/cctv/request',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(checked.data)}); const body=await res.json(); if(!res.ok) throw new Error(body.error); setReference(body.requestId);setState('success');setMessage(`Request submitted successfully. Your reference is ${body.requestId}.`);setForm({...initial,submissionDate:today()}); }
-    catch(error){setState('error');setMessage(error instanceof Error ? error.message : 'We could not submit your request. Please try again. Your entries have been preserved.');}
+    try { const requestId=await sendRequest(checked.data); setReference(requestId);setState('success');setMessage(`Request submitted successfully. Your reference is ${requestId}.`);setForm({...initial,submissionDate:today()}); }
+    catch(error){setState('error');setMessage(error instanceof CctvApiError ? error.message : 'We could not submit your request. Please try again. Your entries have been preserved.');}
     finally { queueMicrotask(()=>status.current?.focus()); }
   }
   return <form onSubmit={submit} noValidate className="mt-8 space-y-8">
