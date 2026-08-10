@@ -51,7 +51,9 @@ describe('POST /api/cctv/request', () => {
     const body = await result.json();
     expect(body).toEqual({ success: true, requestId: expect.stringMatching(/^JS-\d{8}-\d{4}$/) });
     expect(mocks.sendWithResend).toHaveBeenCalledWith(expect.objectContaining({
+      from: 'James Square CCTV <cctv@james-square.com>',
       to: 'cctv@james-square.com',
+      replyTo: 'alex@example.com',
       html: expect.stringContaining(body.requestId),
     }));
     expect(mocks.saveDeliveredCctvRequest).toHaveBeenCalledWith(body.requestId, expect.any(Object));

@@ -16,8 +16,6 @@ function getResendClient() {
   return new Resend(apiKey);
 }
 
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL;
-
 function stripHtml(html: string) {
   return html
     .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
@@ -28,20 +26,22 @@ function stripHtml(html: string) {
 }
 
 export async function sendWithResend(args: {
+  from?: string;
   to: string | string[];
+  replyTo?: string;
   subject: string;
   html: string;
   text?: string;
   attachments?: { filename: string; content: string }[];
 }) {
   const resend = getResendClient();
-  if (!FROM_EMAIL) {
-    throw new Error("RESEND_FROM_EMAIL is not set");
-  }
+  const from = args.from ?? process.env.RESEND_FROM_EMAIL;
+  if (!from) throw new Error("An email sender is not configured");
 
   const { error, data } = await resend.emails.send({
-    from: FROM_EMAIL,
+    from,
     to: args.to,
+    replyTo: args.replyTo,
     subject: args.subject,
     html: args.html,
     text: args.text ?? stripHtml(args.html),

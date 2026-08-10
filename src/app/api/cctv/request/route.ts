@@ -14,6 +14,9 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 const MAX_BODY_BYTES = 32 * 1024;
 const RECIPIENT = 'cctv@james-square.com';
+// Use the verified james-square.com domain directly rather than relying on the
+// optional RESEND_FROM_EMAIL setting used by generic application emails.
+const SENDER = 'James Square CCTV <cctv@james-square.com>';
 const headers = { 'Cache-Control': 'no-store', 'Content-Type': 'application/json' };
 const response = (body: object, status: number) => Response.json(body, { status, headers });
 
@@ -54,7 +57,9 @@ export async function POST(request: Request) {
   const subjectName = validated.data.requestorName.replace(/[\r\n]+/g, ' ');
   try {
     await sendWithResend({
+      from: SENDER,
       to: RECIPIENT,
+      replyTo: validated.data.email,
       subject: `CCTV review request — ${validated.data.incidentDate} — ${subjectName}`,
       html: `<p><strong>James Square reference:</strong> ${requestId}</p>${rendered.html}`,
       text: `James Square reference: ${requestId}\n\n${rendered.text}`,
