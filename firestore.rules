@@ -366,6 +366,17 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // Public CCTV requests are written by the server-side Admin SDK only. They
+    // contain personal and incident information and must never be client-readable.
+    match /cctvRequests/{reference} {
+      allow read, write: if false;
+    }
+
+    // Daily counters are also server-only and cannot be manipulated by clients.
+    match /cctvRequestCounters/{date} {
+      allow read, write: if false;
+    }
+
     // ────────────── DEFAULT DENY ──────────────
     // Any collection not named above is inaccessible from a client. New features
     // must add an explicit rule, which is the safe direction to fail in.
