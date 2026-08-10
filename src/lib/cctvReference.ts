@@ -52,3 +52,19 @@ export async function setCctvRequestDeliveryStatus(
     deliveryUpdatedAt: FieldValue.serverTimestamp(),
   });
 }
+
+/**
+ * Records the final delivery state. `set(..., { merge: true })` also creates a
+ * record for references generated while the daily counter was unavailable.
+ */
+export async function saveDeliveredCctvRequest(
+  reference: string,
+  request: CctvRequest,
+) {
+  await adminDb.collection('cctvRequests').doc(reference).set({
+    reference,
+    request,
+    status: 'delivered',
+    deliveryUpdatedAt: FieldValue.serverTimestamp(),
+  }, { merge: true });
+}

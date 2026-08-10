@@ -1,5 +1,11 @@
+import { randomInt } from 'node:crypto';
+
 import { validateCctvRequest } from '@/lib/cctvRequest';
-import { createCctvRequestRecord, setCctvRequestDeliveryStatus } from '@/lib/cctvReference';
+import {
+  createCctvRequestRecord,
+  saveDeliveredCctvRequest,
+  setCctvRequestDeliveryStatus,
+} from '@/lib/cctvReference';
 import { renderCctvRequest } from '@/lib/email/renderCctvRequest';
 import { sendWithResend } from '@/lib/email/sendWithResend';
 import { clientKey, rateLimit, tooManyRequests } from '@/lib/security/rateLimit';
@@ -10,6 +16,17 @@ const MAX_BODY_BYTES = 32 * 1024;
 const RECIPIENT = 'cctv@james-square.com';
 const headers = { 'Cache-Control': 'no-store', 'Content-Type': 'application/json' };
 const response = (body: object, status: number) => Response.json(body, { status, headers });
+
+/**
+ * Firestore normally supplies a strictly sequential daily suffix. When it is
+ * unavailable, this cryptographically generated suffix preserves the public
+ * JS-YYYYMMDD-NNNN format. Random fallback suffixes are unique best-effort,
+ * not sequential; the email remains the authoritative request delivery.
+ */
+const fallbackReference = (now = new Date()) => {
+  const dateKey = now.toISOString().slice(0, 10).replaceAll('-', '');
+  return `JS-${dateKey}-${String(randomInt(10_000)).padStart(4, '0')}`;
+};
 
 export async function POST(request: Request) {
   const limited = rateLimit(clientKey(request, 'cctv-request'), { limit: 5, windowMs: 15 * 60_000 });
@@ -31,7 +48,7 @@ export async function POST(request: Request) {
   try {
     requestId = await createCctvRequestRecord(validated.data);
   } catch {
-    return response({ error: 'We could not submit your request. Please try again later.' }, 503);
+    requestId = fallbackReference();
   }
   const rendered = renderCctvRequest(validated.data);
   const subjectName = validated.data.requestorName.replace(/[\r\n]+/g, ' ');
@@ -50,6 +67,6 @@ export async function POST(request: Request) {
   }
   // Delivery has already succeeded, so a bookkeeping failure must not encourage
   // the requestor to submit the same sensitive request a second time.
-  await setCctvRequestDeliveryStatus(requestId, 'delivered').catch(() => undefined);
+  await saveDeliveredCctvRequest(requestId, validated.data).catch(() => undefined);
   return response({ success: true, requestId }, 200);
 }
