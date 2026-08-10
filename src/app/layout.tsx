@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono"
 export const metadata: Metadata = {
   title: "James Square",
   description: "Residents community website for James Square, Edinburgh",
-  metadataBase: new URL("https://james-square.com"),
+  metadataBase: new URL("https://www.james-square.com"),
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
