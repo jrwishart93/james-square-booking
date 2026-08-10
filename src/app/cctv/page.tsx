@@ -10,6 +10,7 @@ import {
   Mail,
   ShieldCheck,
 } from 'lucide-react';
+import CctvRequestForm from './CctvRequestForm';
 
 const requestPdf = '/docs/survey/James-Square-CCTV-Review-Request-v1.3-fillable.pdf';
 const outcomePdf = '/docs/survey/James-Square-CCTV-Review-Outcome-v1.3-fillable.pdf';
@@ -87,7 +88,7 @@ export default function CctvPage() {
         <ol className="mt-6 grid gap-4 md:grid-cols-2">
           {[
             ['Report the incident', 'If the matter may involve a crime, report it to Police Scotland and obtain a reference number.'],
-            ['Complete the CCTV review request', 'Download and complete the James Square CCTV Review Request Form. Provide the incident date, approximate time, location and any information that may help identify the correct recording.'],
+            ['Complete the CCTV review request', 'Complete the online form below, then press Submit CCTV review request. Provide the incident date, approximate time, location and any information that may help identify the correct recording.'],
             ['James Square reviews the available recordings', 'The authorised CCTV reviewer will check the available recordings using the information supplied. The response will confirm only whether footage that may be relevant is available.'],
             ['Send the outcome to the relevant organisation', 'If potentially relevant footage may be available, the completed review outcome can be passed to the Police Scotland enquiry officer, insurer, solicitor or other authorised organisation. That organisation must contact James Square directly and provide an appropriate official or data-protection request.'],
           ].map(([title, copy], index) => (
@@ -105,6 +106,10 @@ export default function CctvPage() {
         <div className="flex items-center gap-3"><FileText aria-hidden="true" className="size-7 text-blue-700 dark:text-blue-300" /><span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-blue-800 dark:bg-blue-900 dark:text-blue-100">Main form</span></div>
         <h2 id="request-form-heading" className="mt-5 text-3xl font-bold text-slate-950 dark:text-white">Request a CCTV review</h2>
         <p className="mt-3 max-w-3xl leading-7">Complete this form if you would like James Square to check whether potentially relevant CCTV footage may be available.</p>
+        <CctvRequestForm />
+        <div className="mt-10 border-t border-slate-300 pt-8 dark:border-slate-700">
+        <h3 className="text-xl font-bold">Fallback: PDF, email or caretaker return</h3>
+        <p className="mt-2">If you cannot use the online form, use the fillable PDF and email it or return a printed copy to the caretaker.</p>
         <div className="mt-6 rounded-xl bg-slate-50 p-4 dark:bg-slate-800">
           <p className="font-bold text-slate-950 dark:text-white">James Square CCTV Review Request Form</p>
           <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Fillable PDF · v1.3 · approximately 294 KB</p>
@@ -120,6 +125,7 @@ export default function CctvPage() {
         <div className="mt-7 grid gap-5 lg:grid-cols-2">
           <div><h3 className="font-bold text-slate-950 dark:text-white">Complete and return the form</h3><ol className="mt-3 list-decimal space-y-2 pl-5 leading-7"><li>Open and complete the form electronically.</li><li>Save a completed copy.</li><li>Alternatively, print and complete it by hand.</li><li>Email the completed form to James Square.</li></ol></div>
           <div className="rounded-xl border border-slate-200 p-5 dark:border-slate-700"><p className="text-sm font-semibold text-slate-600 dark:text-slate-300">Submission email</p><a className="mt-1 block break-all text-lg font-bold text-blue-700 underline underline-offset-4 dark:text-blue-300" href={mailto}>{email}</a><p className="mt-3 leading-7">Attach your completed request form to the email and include your name and James Square property or flat in the message.</p></div>
+        </div>
         </div>
       </section>
 
