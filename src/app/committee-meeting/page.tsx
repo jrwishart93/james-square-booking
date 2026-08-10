@@ -13,6 +13,13 @@ import {
 const teamsLink =
   "https://teams.live.com/meet/9392352296034?p=TlgOqGScBL4kqTLwZV";
 
+const pageTitle = "James Square Committee Meeting";
+const pageDescription =
+  "Committee meeting information, agenda and joining details for the James Square community.";
+const canonicalUrl = "https://www.james-square.com/committee-meeting";
+const socialImageUrl =
+  "https://www.james-square.com/images/logo/E7197D9E-8704-47EC-92E2-BC4D9C9506BC.png";
+
 const agendaItems = [
   "Introductions for new members",
   "Official acceptance of the constitution",
@@ -26,11 +33,36 @@ const agendaItems = [
 ];
 
 export const metadata: Metadata = {
-  title: "Committee Meeting – 10 August 2026 | James Square",
-  description:
-    "Joining details and agenda for the James Square committee meeting on 10 August 2026 at 18:00.",
+  title: pageTitle,
+  description: pageDescription,
   alternates: {
-    canonical: "/committee-meeting",
+    canonical: canonicalUrl,
+  },
+  openGraph: {
+    title: pageTitle,
+    description: pageDescription,
+    url: canonicalUrl,
+    type: "website",
+    siteName: "James Square",
+    images: [
+      {
+        url: socialImageUrl,
+        width: 1536,
+        height: 1024,
+        alt: "James Square Committee Meeting",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: pageTitle,
+    description: pageDescription,
+    images: [
+      {
+        url: socialImageUrl,
+        alt: "James Square Committee Meeting",
+      },
+    ],
   },
   robots: {
     index: false,
