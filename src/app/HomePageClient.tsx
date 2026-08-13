@@ -11,6 +11,10 @@ import {
   Flame,
   Megaphone,
   ChevronRight,
+  CalendarDays,
+  ChevronDown,
+  Clock3,
+  TrafficCone,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { activeNoticeSummaries, type NoticeSummary } from '@/components/home/notices';
@@ -646,6 +650,161 @@ function InstallAppCard() {
 }
 
 /** ------------------------------------------------
+ *  Temporary Caledonian Crescent roadworks notice
+ *  ------------------------------------------------ */
+function RoadworksNotice({ reduceMotion }: { reduceMotion: boolean }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const detailsId = 'caledonian-crescent-roadworks-details';
+
+  return (
+    <section className="mx-auto mt-8 max-w-6xl sm:mt-10" aria-labelledby="roadworks-heading">
+      <motion.div
+        initial="hidden"
+        whileInView="show"
+        viewport={viewportOnce}
+        variants={fadeUpVariants(reduceMotion)}
+        className={`${glass} overflow-hidden border-amber-300/60 bg-amber-50/75 dark:border-amber-400/25 dark:bg-amber-950/20`}
+      >
+        <div className="border-l-4 border-amber-500 px-5 py-6 sm:px-7 sm:py-7">
+          <div className="flex items-start gap-4">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-500/15 text-amber-700 dark:bg-amber-400/15 dark:text-amber-300">
+              <TrafficCone className="h-6 w-6" aria-hidden="true" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-amber-700 dark:text-amber-300">
+                Important Roadworks Notice
+              </p>
+              <h2
+                id="roadworks-heading"
+                className="mt-1 text-xl font-bold tracking-tight text-neutral-950 dark:text-white sm:text-2xl"
+              >
+                Caledonian Crescent Resurfacing
+              </h2>
+            </div>
+          </div>
+
+          <div className="mt-5 grid gap-3 sm:grid-cols-3">
+            <div className="flex items-center gap-2 rounded-xl border border-amber-200/80 bg-white/55 px-3 py-2.5 dark:border-amber-400/15 dark:bg-black/10">
+              <CalendarDays className="h-4 w-4 shrink-0 text-amber-700 dark:text-amber-300" aria-hidden="true" />
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Starts</p>
+                <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Monday 17 August 2026</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 rounded-xl border border-amber-200/80 bg-white/55 px-3 py-2.5 dark:border-amber-400/15 dark:bg-black/10">
+              <CalendarDays className="h-4 w-4 shrink-0 text-amber-700 dark:text-amber-300" aria-hidden="true" />
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Duration</p>
+                <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Approximately four working days</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 rounded-xl border border-amber-200/80 bg-white/55 px-3 py-2.5 dark:border-amber-400/15 dark:bg-black/10">
+              <Clock3 className="h-4 w-4 shrink-0 text-amber-700 dark:text-amber-300" aria-hidden="true" />
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Working hours</p>
+                <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">8:00am–5:00pm</p>
+              </div>
+            </div>
+          </div>
+
+          <p className="mt-5 max-w-4xl text-sm leading-6 text-neutral-700 dark:text-neutral-300 sm:text-base">
+            Edinburgh Council&apos;s Dalry Side Streets Project will begin resurfacing Caledonian
+            Crescent on Monday 17 August 2026. The work is expected to take approximately four
+            working days.
+          </p>
+
+          <div className="mt-5 rounded-xl border border-amber-400/70 bg-amber-100/80 px-4 py-3 text-sm font-bold leading-6 text-amber-950 dark:border-amber-400/35 dark:bg-amber-400/10 dark:text-amber-100 sm:text-base">
+            Please move any vehicle parked on Caledonian Crescent before work begins on Monday 17
+            August.
+          </div>
+
+          <button
+            type="button"
+            aria-expanded={isExpanded}
+            aria-controls={detailsId}
+            onClick={() => setIsExpanded((expanded) => !expanded)}
+            className="mt-5 flex w-full items-center justify-between gap-3 rounded-xl border border-amber-300/70 bg-white/55 px-4 py-3 text-left text-sm font-semibold text-neutral-900 transition-colors hover:bg-white/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:border-amber-400/20 dark:bg-white/5 dark:text-neutral-100 dark:hover:bg-white/10 dark:focus-visible:ring-offset-neutral-900"
+          >
+            <span>{isExpanded ? 'Hide full roadworks information' : 'View full roadworks information'}</span>
+            <ChevronDown
+              className={`h-5 w-5 shrink-0 text-amber-700 transition-transform dark:text-amber-300 ${isExpanded ? 'rotate-180' : ''}`}
+              aria-hidden="true"
+            />
+          </button>
+
+          <div id={detailsId} hidden={!isExpanded} className="pt-6">
+            <div className="grid gap-7 lg:grid-cols-2 lg:gap-10">
+              <div>
+                <h3 className="text-base font-bold text-neutral-950 dark:text-white">Important information</h3>
+                <ul className="mt-3 space-y-2.5 text-sm leading-6 text-neutral-700 dark:text-neutral-300">
+                  {[
+                    'Work will normally take place between 8:00am and 5:00pm.',
+                    'Caledonian Crescent will be closed for the duration of the works.',
+                    'A signed vehicle diversion route will be in place.',
+                    'No parking will be permitted on Caledonian Crescent.',
+                    'Vehicle access will be very limited while resurfacing is underway.',
+                    'Street signs will confirm the temporary parking restrictions.',
+                    'Communal refuse bins will be temporarily moved to adjacent streets.',
+                    'Vehicles must not be left within coned-off areas and may be removed.',
+                    'James Square is situated at the edge of the resurfacing area, so disruption within the development itself should be kept to a minimum.',
+                  ].map((item) => (
+                    <li key={item} className="flex gap-3">
+                      <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-base font-bold text-neutral-950 dark:text-white">Access concerns</h3>
+                  <p className="mt-2 text-sm leading-6 text-neutral-700 dark:text-neutral-300">
+                    Anyone requiring assistance with access, essential deliveries or other arrangements during the work should contact the site manager:
+                  </p>
+                  <address className="mt-3 not-italic text-sm leading-6 text-neutral-700 dark:text-neutral-300">
+                    <strong className="text-neutral-950 dark:text-white">Lorenzo Tortolano</strong><br />
+                    MacLay Civil Engineering<br />
+                    Telephone:{' '}
+                    <a className="font-semibold text-amber-800 underline decoration-amber-500/50 underline-offset-2 hover:text-amber-950 dark:text-amber-300 dark:hover:text-amber-200" href="tel:01236768388">01236 768388</a><br />
+                    Email:{' '}
+                    <a className="break-all font-semibold text-amber-800 underline decoration-amber-500/50 underline-offset-2 hover:text-amber-950 dark:text-amber-300 dark:hover:text-amber-200" href="mailto:ltortolano@maclaycivil.co.uk">ltortolano@maclaycivil.co.uk</a>
+                  </address>
+                </div>
+
+                <div>
+                  <h3 className="text-base font-bold text-neutral-950 dark:text-white">Further information</h3>
+                  <p className="mt-2 text-sm leading-6 text-neutral-700 dark:text-neutral-300">For general questions about the project, residents can contact:</p>
+                  <address className="mt-3 not-italic text-sm leading-6 text-neutral-700 dark:text-neutral-300">
+                    <strong className="text-neutral-950 dark:text-white">Steven Peacock</strong><br />
+                    Senior Engineer, Transport Contracts and Design<br />
+                    City of Edinburgh Council<br />
+                    Email:{' '}
+                    <a className="break-all font-semibold text-amber-800 underline decoration-amber-500/50 underline-offset-2 hover:text-amber-950 dark:text-amber-300 dark:hover:text-amber-200" href="mailto:steven.peacock@edinburgh.gov.uk">steven.peacock@edinburgh.gov.uk</a>
+                  </address>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-7 border-t border-amber-300/60 pt-6 dark:border-amber-400/20">
+              <h3 className="text-base font-bold text-neutral-950 dark:text-white">Access pend update</h3>
+              <p className="mt-2 text-sm leading-6 text-neutral-700 dark:text-neutral-300">
+                The road immediately outside James Square will be assessed after resurfacing to
+                determine whether any alterations are required to the access pend. If further
+                restrictions or work are needed, residents will receive advance notice and efforts
+                will be made to minimise disruption.
+              </p>
+            </div>
+          </div>
+
+          <p className="mt-6 text-xs text-neutral-500 dark:text-neutral-400">Information issued 12 August 2026</p>
+        </div>
+      </motion.div>
+    </section>
+  );
+}
+
+/** ------------------------------------------------
  *  Page
  *  ------------------------------------------------ */
 export default function HomePageClient() {
@@ -762,6 +921,9 @@ export default function HomePageClient() {
           </div>
         </motion.div>
       </section>
+
+      {/* TEMPORARY ROADWORKS NOTICE */}
+      <RoadworksNotice reduceMotion={reduceMotion} />
 
       {/* BUILDING STATUS */}
       <BuildingStatus noticeCount={notices.length} reduceMotion={reduceMotion} />
