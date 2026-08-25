@@ -2,12 +2,9 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import { AuthProvider } from "@/context/AuthContext";
 import AppLaunchShell from "@/components/AppLaunchShell";
 import AppModeGate from "@/components/layout/AppModeGate";
-import { ConsentProvider, ConsentSurface } from "@/components/consent";
+import SiteFrame from "@/components/layout/SiteFrame";
 
 const geistSans = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
 const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono" });
@@ -64,26 +61,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`}>
         <AppModeGate />
         <AppLaunchShell>
-          <AuthProvider>
-            <ConsentProvider>
-              <a className="skip-to-content" href="#main-content">
-                Skip to main content
-              </a>
-              {/* Placed before the header in the DOM so a keyboard user reaches
-                  the consent choice immediately. The banner is position: fixed,
-                  so it still appears at the bottom of the viewport, and the
-                  preferences dialog is portalled to <body> regardless. */}
-              <ConsentSurface />
-              <Header />
-              <main
-                className="site-content max-w-6xl mx-auto px-4 sm:px-6 py-8"
-                id="main-content"
-              >
-                {children}
-              </main>
-              <Footer />
-            </ConsentProvider>
-          </AuthProvider>
+          <SiteFrame>{children}</SiteFrame>
         </AppLaunchShell>
       </body>
     </html>
