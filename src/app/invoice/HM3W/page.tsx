@@ -3,7 +3,7 @@ import styles from "./invoice.module.css";
 
 export const metadata: Metadata = {
   title: "Invoice #HM3W | James Square Accommodation",
-  description: "Accommodation invoice for David Harant.",
+  description: "Accommodation invoice for David Harant's two-night stay, 23–25 August 2026.",
   robots: {
     index: false,
     follow: false,
@@ -56,10 +56,34 @@ export default function InvoicePage() {
           </div>
           <dl className={styles.meta}>
             <div><dt>Invoice date</dt><dd>2 August 2026</dd></div>
-            <div><dt>Stay</dt><dd>2 nights</dd></div>
+            <div><dt>Stay duration</dt><dd>2 nights</dd></div>
             <div><dt>Booking channel</dt><dd>Airbnb</dd></div>
             <div><dt>Confirmation</dt><dd>HM3WSQKX92</dd></div>
           </dl>
+        </section>
+
+        <section className={styles.stay} aria-labelledby="stay-heading">
+          <div className={styles.stayIntro}>
+            <p className={styles.label}>Reservation dates</p>
+            <h2 id="stay-heading">23–25 August 2026</h2>
+            <p>Two-night accommodation at James Square, Edinburgh.</p>
+          </div>
+          <div className={styles.dateCards}>
+            <div className={styles.dateCard}>
+              <span>Check-in</span>
+              <strong><b>23</b> August 2026</strong>
+            </div>
+            <div className={styles.nightCount} aria-label="2 nights">
+              <span>2 nights</span>
+              <svg aria-hidden="true" viewBox="0 0 80 12" fill="none">
+                <path d="M1 6h78M74 1l5 5-5 5" />
+              </svg>
+            </div>
+            <div className={styles.dateCard}>
+              <span>Check-out</span>
+              <strong><b>25</b> August 2026</strong>
+            </div>
+          </div>
         </section>
 
         <section className={styles.summary} aria-labelledby="summary-heading">
@@ -96,18 +120,18 @@ export default function InvoicePage() {
 
         <footer className={styles.actions}>
           <div>
-            <p className={styles.label}>Payment status</p>
-            <p>Payment processed through Airbnb · Paid in full</p>
+            <p className={styles.label}>Your invoice is ready</p>
+            <p>Download and retain the final PDF invoice for your records.</p>
           </div>
           <a
             className={styles.download}
-            href="/docs/survey/accommodation_invoice_david_harant.pdf"
-            download="accommodation_invoice_david_harant.pdf"
+            href="/docs/survey/accommodation_invoice_david_harant_final.pdf"
+            download="accommodation_invoice_david_harant_final.pdf"
           >
             <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
               <path d="M12 3v12m0 0 4-4m-4 4-4-4M5 19h14" />
             </svg>
-            Download PDF Invoice
+            Download final invoice
           </a>
         </footer>
       </article>
