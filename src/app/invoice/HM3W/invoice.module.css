@@ -15,7 +15,7 @@
   box-shadow: 0 18px 50px rgb(15 23 42 / 8%);
 }
 
-.header, .recipient, .summary, .actions { padding: 32px 40px; }
+.header, .recipient, .stay, .summary, .actions { padding: 32px 40px; }
 .header, .recipient, .sectionHeading, .actions { display: flex; justify-content: space-between; gap: 32px; }
 .header { align-items: flex-start; border-bottom: 1px solid #e6eaf0; }
 .header h1 { max-width: 560px; margin: 5px 0 0; font-size: clamp(1.65rem, 4vw, 2.35rem); line-height: 1.15; letter-spacing: -.035em; }
@@ -31,6 +31,19 @@
 .meta div { min-width: 0; }
 .meta dt { color: #64748b; font-size: .75rem; }
 .meta dd { margin: 4px 0 0; font-size: .9rem; font-weight: 600; overflow-wrap: anywhere; }
+
+.stay { display: flex; align-items: center; justify-content: space-between; gap: 36px; border-bottom: 1px solid #e6eaf0; background: linear-gradient(135deg, #f8fafc 0%, #f0f7f5 100%); }
+.stayIntro { flex: 0 1 280px; }
+.stayIntro h2 { margin: 5px 0 0; font-size: 1.25rem; letter-spacing: -.02em; }
+.stayIntro > p:last-child { margin: 7px 0 0; color: #64748b; font-size: .84rem; line-height: 1.5; }
+.dateCards { display: flex; flex: 1 1 450px; align-items: center; justify-content: flex-end; gap: 14px; }
+.dateCard { min-width: 150px; padding: 15px 17px; border: 1px solid #dce5e2; border-radius: 11px; background: rgb(255 255 255 / 85%); box-shadow: 0 4px 14px rgb(15 23 42 / 4%); }
+.dateCard > span { display: block; margin-bottom: 5px; color: #64748b; font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.dateCard strong { display: flex; align-items: baseline; gap: 6px; font-size: .82rem; white-space: nowrap; }
+.dateCard b { color: #087647; font-size: 1.45rem; line-height: 1; }
+.nightCount { width: 72px; color: #64748b; text-align: center; }
+.nightCount span { display: block; margin-bottom: 2px; font-size: .7rem; font-weight: 700; white-space: nowrap; }
+.nightCount svg { width: 64px; stroke: #94a3b8; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 
 .summary { padding-top: 36px; }
 .sectionHeading { align-items: center; }
@@ -50,18 +63,22 @@
 
 .actions { align-items: center; border-top: 1px solid #e6eaf0; background: #f8fafc; }
 .actions p { margin: 4px 0 0; font-size: .85rem; }
-.download { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; gap: 9px; min-height: 46px; border-radius: 9px; padding: 12px 18px; background: #172033; color: #fff; font-size: .875rem; font-weight: 700; text-decoration: none; transition: background .15s ease, transform .15s ease; }
-.download:hover { background: #2c3b55; transform: translateY(-1px); }
+.download { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; gap: 9px; min-height: 48px; border-radius: 9px; padding: 12px 20px; background: #087647; color: #fff; font-size: .875rem; font-weight: 700; text-decoration: none; box-shadow: 0 7px 18px rgb(8 118 71 / 18%); transition: background .15s ease, box-shadow .15s ease, transform .15s ease; }
+.download:hover { background: #06613b; box-shadow: 0 9px 22px rgb(8 118 71 / 25%); transform: translateY(-1px); }
 .download:focus-visible { outline: 3px solid #93c5fd; outline-offset: 3px; }
 .download svg { width: 18px; height: 18px; stroke: currentcolor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
 @media (max-width: 680px) {
   .portal { padding: 18px 12px; }
   .invoice { border-radius: 13px; }
-  .header, .recipient, .summary, .actions { padding: 24px 20px; }
-  .header, .recipient, .actions { flex-direction: column; gap: 22px; }
+  .header, .recipient, .stay, .summary, .actions { padding: 24px 20px; }
+  .header, .recipient, .stay, .actions { flex-direction: column; gap: 22px; }
   .reference { width: 100%; text-align: left; }
   .meta { width: 100%; }
+  .stay { align-items: stretch; }
+  .stayIntro { flex-basis: auto; }
+  .dateCards { flex-basis: auto; justify-content: stretch; }
+  .dateCard { flex: 1; min-width: 0; }
   .actions { align-items: stretch; }
   .download { width: 100%; }
   .tableWrap { border: 0; overflow: visible; }
@@ -71,6 +88,11 @@
   .tableWrap td { padding: 3px 0; border: 0; }
   .tableWrap td:nth-child(2) { font-size: .8rem; }
   .tableWrap td:last-child { margin-top: 7px; text-align: left; }
+}
+
+@media (max-width: 430px) {
+  .dateCards { display: grid; grid-template-columns: 1fr; }
+  .nightCount { display: none; }
 }
 
 @media print {
