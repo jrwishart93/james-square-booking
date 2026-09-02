@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { activeNoticeSummaries, type NoticeSummary } from '@/components/home/notices';
+import EdinburghParallaxScene from '@/components/EdinburghParallaxScene';
 
 /** ------------------------------------------------
  *  Shared styles
@@ -921,6 +922,11 @@ export default function HomePageClient() {
           </div>
         </motion.div>
       </section>
+
+      {/* EDINBURGH LAYERED PARALLAX */}
+      <div className="-mx-4 mt-10 sm:mt-14">
+        <EdinburghParallaxScene />
+      </div>
 
       {/* TEMPORARY ROADWORKS NOTICE */}
       <RoadworksNotice reduceMotion={reduceMotion} />
