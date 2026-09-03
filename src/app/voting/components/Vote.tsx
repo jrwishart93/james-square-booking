@@ -547,7 +547,6 @@ const VotePage: React.FC = () => {
 
         {/* Voting Form */}
         <form onSubmit={handleSubmit} className="p-8 space-y-8">
-
           {/* Identity Section */}
           <div className="bg-sky-50 p-5 rounded-2xl border border-sky-100 relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-4 opacity-20 pointer-events-none text-cyan-400">
