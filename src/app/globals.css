@@ -178,6 +178,13 @@ body.app-mode .dashboard-tabs {
     linear-gradient(hsl(var(--bg)), hsl(var(--bg)));
 }
 
+.dark .admin-scope.jqs-gradient-bg {
+  background:
+    radial-gradient(1400px 900px at 10% -10%, rgba(15, 23, 42, 0.35), transparent 55%),
+    radial-gradient(1200px 700px at 110% 10%, rgba(15, 23, 42, 0.2), transparent 55%),
+    linear-gradient(180deg, #0b1220 0%, #0a0f1c 100%);
+}
+
 /* Subtle grain for depth */
 body::before {
   content: "";
@@ -204,6 +211,12 @@ body::before {
   background: hsl(var(--glass));
   border-color: hsl(var(--glass-border));
   box-shadow: 0 12px 40px rgb(0 0 0 / 0.12);
+}
+
+.admin-scope .jqs-glass {
+  background: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 10px 28px rgb(0 0 0 / 0.35);
 }
 
 @keyframes footer-glow {
