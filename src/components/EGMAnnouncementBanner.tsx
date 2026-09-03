@@ -2,7 +2,7 @@
 
 import { motion, useReducedMotion } from 'framer-motion';
 import { DateTime } from 'luxon';
-import { Calendar, Lock, Vote } from 'lucide-react';
+import { Calendar, Link2, Lock, Vote } from 'lucide-react';
 
 const expiryDate = DateTime.fromISO('2026-01-21T18:30:00', { zone: 'Europe/London' });
 
@@ -48,6 +48,34 @@ export default function EGMAnnouncementBanner() {
                 Tonight at 6:00pm — The Extraordinary General Meeting (EGM) will be held online via
                 Microsoft Teams.
               </p>
+            </div>
+
+            <div className="h-px bg-slate-200/50 dark:bg-slate-700/50" aria-hidden />
+
+            <div className="flex items-start gap-3">
+              <motion.span
+                className="mt-0.5 text-slate-500 dark:text-slate-300"
+                aria-hidden
+                initial={reduceMotion ? undefined : { opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, ease: 'easeOut', delay: reduceMotion ? 0 : 0.075 }}
+              >
+                <Link2 className="h-5 w-5" />
+              </motion.span>
+              <div className="space-y-2">
+                <p className="font-semibold text-slate-900 dark:text-slate-100">
+                  Trying to join the Teams meeting tonight?
+                </p>
+                <p>Please refresh this page and click the button below to join now.</p>
+                <a
+                  href="https://teams.live.com/meet/9361186540157?p=3nM4fcihwFSrOLglvH"
+                  className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  Join the Teams meeting
+                </a>
+              </div>
             </div>
 
             <div className="h-px bg-slate-200/50 dark:bg-slate-700/50" aria-hidden />
