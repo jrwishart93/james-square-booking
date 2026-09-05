@@ -4,20 +4,14 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence, useReducedMotion, type Variants } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import {
-  ArrowRight,
-  Waves,
-  Dumbbell,
-  Flame,
-  Megaphone,
-  ChevronRight,
-  CalendarDays,
-  ChevronDown,
-  Clock3,
-  TrafficCone,
-} from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
+import { ArrowRight, ChevronRight, Megaphone } from 'lucide-react';
 import { activeNoticeSummaries, type NoticeSummary } from '@/components/home/notices';
+import {
+  bookingEnabled,
+  facilitiesExplainer,
+  facilitiesHeadline,
+  facilityStatuses,
+} from '@/components/home/facilityStatus';
 
 /** ------------------------------------------------
  *  Shared styles
@@ -181,97 +175,8 @@ function SectionHeader({
 }
 
 /** ------------------------------------------------
- *  Light/Dark icon without theme libs
+ *  Facilities status band
  *  ------------------------------------------------ */
-function DualModeIcon({
-  lightSrc,
-  darkSrc,
-  alt,
-  size = 128,
-  className = 'h-14 w-14 object-contain sm:h-16 sm:w-16',
-}: {
-  lightSrc: string;
-  darkSrc: string;
-  alt: string;
-  size?: number;
-  className?: string;
-}) {
-  return (
-    <>
-      <Image
-        src={lightSrc}
-        alt={alt}
-        width={size}
-        height={size}
-        className={`block dark:hidden ${className}`}
-      />
-      <Image
-        src={darkSrc}
-        alt={alt}
-        width={size}
-        height={size}
-        className={`hidden dark:block ${className}`}
-      />
-    </>
-  );
-}
-
-/** ------------------------------------------------
- *  Compact quick-action card
- *  ------------------------------------------------ */
-function IconCard({
-  title,
-  href,
-  lightIcon,
-  darkIcon,
-  blurb,
-  iconAlt,
-  reduceMotion,
-}: {
-  title: string;
-  href: string;
-  lightIcon: string;
-  darkIcon: string;
-  blurb: string;
-  iconAlt?: string;
-  reduceMotion: boolean;
-}) {
-  return (
-    <Link href={href} className="group block h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 rounded-2xl">
-      <motion.div
-        whileHover={
-          reduceMotion
-            ? undefined
-            : { y: -3, boxShadow: '0 14px 34px rgba(0,0,0,0.10)' }
-        }
-        whileTap={reduceMotion ? undefined : { scale: 0.99 }}
-        transition={{ type: 'spring', stiffness: 320, damping: 24 }}
-        className={`${glass} flex h-full items-center gap-4 p-4 sm:p-5`}
-      >
-        <div className="shrink-0">
-          <DualModeIcon lightSrc={lightIcon} darkSrc={darkIcon} alt={iconAlt ?? title} />
-        </div>
-        <div className="min-w-0 flex-1">
-          <h3 className="text-base font-semibold tracking-tight">{title}</h3>
-          <p className="mt-0.5 text-sm leading-snug text-neutral-600 dark:text-neutral-400">
-            {blurb}
-          </p>
-        </div>
-        <ChevronRight className="h-4 w-4 shrink-0 text-neutral-400 transition-transform group-hover:translate-x-0.5 dark:text-neutral-500" />
-      </motion.div>
-    </Link>
-  );
-}
-
-/** ------------------------------------------------
- *  Building status panel
- *  ------------------------------------------------ */
-const facilityStatuses = [
-  { name: 'Swimming Pool', icon: Waves, open: false },
-  { name: 'Gym', icon: Dumbbell, open: false },
-  { name: 'Sauna', icon: Flame, open: false },
-] as const;
-
 function StatusDot({ open }: { open: boolean }) {
   return (
     <span aria-hidden="true" className="relative flex h-2 w-2 shrink-0">
@@ -289,7 +194,7 @@ function StatusDot({ open }: { open: boolean }) {
   );
 }
 
-function BuildingStatus({
+function FacilitiesStatus({
   noticeCount,
   reduceMotion,
 }: {
@@ -297,58 +202,81 @@ function BuildingStatus({
   reduceMotion: boolean;
 }) {
   return (
-    <section className="mx-auto max-w-6xl mt-10 sm:mt-14" aria-label="Building status">
-      <SectionHeader reduceMotion={reduceMotion}>Building Status</SectionHeader>
+    <section className="mx-auto mt-6 max-w-6xl sm:mt-10" aria-labelledby="facilities-status-heading">
       <motion.div
         initial="hidden"
         whileInView="show"
         viewport={viewportOnce}
-        variants={staggerContainerVariants(reduceMotion, 0.05)}
-        className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4"
+        variants={fadeUpVariants(reduceMotion)}
+        className={`${glass} p-5 sm:p-7`}
       >
-        {facilityStatuses.map(({ name, icon: Icon, open }) => (
-          <motion.div key={name} variants={cardRevealVariants(reduceMotion)} className="h-full">
-            <Link
-              href="/updates#pool-facilities"
-              className={`${glass} flex h-full flex-col gap-2 p-4 transition-[transform,background-color,box-shadow] duration-300 hover:-translate-y-0.5 hover:bg-white/70 hover:shadow-[0_16px_40px_rgba(0,0,0,0.10)] focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 motion-reduce:hover:translate-y-0 dark:hover:bg-white/15`}
+        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-500 dark:text-neutral-400 sm:text-xs">
+          Facilities
+        </p>
+        <h2
+          id="facilities-status-heading"
+          className="mt-1.5 text-xl font-bold tracking-tight text-neutral-950 dark:text-white sm:text-2xl"
+        >
+          {facilitiesHeadline}
+        </h2>
+
+        <div className="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+          {facilityStatuses.map(({ key, name, open, expectedReopen }) => (
+            <div
+              key={key}
+              className="flex items-center gap-2.5 rounded-xl border border-black/5 bg-white/55 px-3.5 py-2.5 dark:border-white/10 dark:bg-white/5"
             >
-              <div className="flex items-center gap-2 text-neutral-500 dark:text-neutral-400">
-                <Icon className="h-4 w-4" />
-                <span className="text-xs font-medium uppercase tracking-wide">{name}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <StatusDot open={open} />
-                <span
-                  className={`text-sm font-semibold ${
+              <StatusDot open={open} />
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                  {name}
+                </p>
+                <p
+                  className={`text-xs font-medium ${
                     open
                       ? 'text-emerald-700 dark:text-emerald-300'
                       : 'text-rose-700 dark:text-rose-300'
                   }`}
                 >
-                  {open ? 'Open' : 'Temporarily closed'}
-                </span>
+                  {open ? 'Open' : 'Closed'}
+                  {!open && expectedReopen ? ` \u00b7 expected ${expectedReopen}` : ''}
+                </p>
               </div>
-            </Link>
-          </motion.div>
-        ))}
+            </div>
+          ))}
+        </div>
 
-        <motion.div variants={cardRevealVariants(reduceMotion)} className="h-full">
+        <p className="mt-4 max-w-2xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+          {facilitiesExplainer}
+        </p>
+
+        <div className="mt-5 flex flex-col gap-2.5 sm:flex-row sm:items-center">
+          <Link
+            href="/updates#pool-facilities"
+            className="inline-flex items-center justify-center gap-1.5 rounded-full bg-neutral-900 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-neutral-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200"
+          >
+            Read the full facilities update
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
           <Link
             href="/updates"
-            className={`${glass} flex h-full flex-col gap-2 p-4 transition-[transform,background-color,box-shadow] duration-300 hover:-translate-y-0.5 hover:bg-white/70 hover:shadow-[0_16px_40px_rgba(0,0,0,0.10)] focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 motion-reduce:hover:translate-y-0 dark:hover:bg-white/15`}
+            className="inline-flex items-center justify-center gap-1.5 rounded-full border border-black/10 px-5 py-2.5 text-sm font-semibold text-neutral-800 transition-colors hover:bg-black/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/15 dark:text-neutral-200 dark:hover:bg-white/10"
           >
-            <div className="flex items-center gap-2 text-neutral-500 dark:text-neutral-400">
-              <Megaphone className="h-4 w-4" />
-              <span className="text-xs font-medium uppercase tracking-wide">Building Notices</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span aria-hidden="true" className="h-2 w-2 shrink-0 rounded-full bg-sky-500" />
-              <span className="text-sm font-semibold text-sky-700 dark:text-sky-300">
-                {noticeCount} active {noticeCount === 1 ? 'notice' : 'notices'}
-              </span>
-            </div>
+            <Megaphone className="h-3.5 w-3.5" aria-hidden="true" />
+            {noticeCount} active {noticeCount === 1 ? 'notice' : 'notices'}
           </Link>
-        </motion.div>
+        </div>
+
+        {bookingEnabled ? (
+          <div className="mt-4">
+            <Link
+              href="/book"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-sky-700 underline underline-offset-4 dark:text-sky-300"
+            >
+              Book a facility <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+        ) : null}
       </motion.div>
     </section>
   );
@@ -400,72 +328,6 @@ function UpdateCard({ notice }: { notice: NoticeSummary }) {
         Read more <ArrowRight className="h-3.5 w-3.5" />
       </span>
     </Link>
-  );
-}
-
-/** ------------------------------------------------
- *  Facilities — hours & booking summary
- *  ------------------------------------------------ */
-const facilityHours = [
-  { label: 'Morning', hours: '05:30 – 09:30', note: 'Booking recommended' },
-  { label: 'Open use', hours: '11:00 – 17:00', note: 'No booking needed' },
-  { label: 'Evening', hours: '17:00 – 23:00', note: 'Booking recommended' },
-];
-
-const facilityCards = [
-  { name: 'Swimming Pool', icon: Waves, href: '/book/pool' },
-  { name: 'Gym', icon: Dumbbell, href: '/book/gym' },
-  { name: 'Sauna', icon: Flame, href: '/book/sauna' },
-];
-
-function FacilityCard({
-  name,
-  icon: Icon,
-  href,
-}: {
-  name: string;
-  icon: typeof Waves;
-  href: string;
-}) {
-  return (
-    <div className={`${glass} flex h-full flex-col p-5`}>
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2.5">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-neutral-900/5 text-neutral-700 dark:bg-white/10 dark:text-neutral-200">
-            <Icon className="h-4.5 w-4.5" />
-          </span>
-          <h3 className="text-base font-semibold tracking-tight">{name}</h3>
-        </div>
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-rose-500/30 bg-rose-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-rose-700 dark:text-rose-300">
-          <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-rose-500" />
-          Closed
-        </span>
-      </div>
-
-      <ul className="mt-4 space-y-1.5 text-sm">
-        {facilityHours.map(({ label, hours, note }) => (
-          <li key={label} className="flex items-baseline justify-between gap-2">
-            <span className="text-neutral-600 dark:text-neutral-400">{label}</span>
-            <span className="text-right">
-              <span className="font-medium tabular-nums">{hours}</span>
-              <span className="block text-[11px] text-neutral-500 dark:text-neutral-400">
-                {note}
-              </span>
-            </span>
-          </li>
-        ))}
-      </ul>
-
-      <div className="mt-auto pt-4">
-        <Link
-          href={href}
-          className="inline-flex w-full items-center justify-center gap-1.5 rounded-full border border-neutral-900/10 bg-white/70 px-4 py-2 text-sm font-semibold text-neutral-900 shadow-sm transition-colors hover:bg-white dark:border-white/15 dark:bg-white/10 dark:text-white dark:hover:bg-white/15"
-        >
-          Book {name.toLowerCase().replace('swimming ', '')}
-          <ArrowRight className="h-3.5 w-3.5" />
-        </Link>
-      </div>
-    </div>
   );
 }
 
@@ -648,156 +510,189 @@ function InstallAppCard() {
     </section>
   );
 }
+/** ------------------------------------------------
+ *  Audience doors: Owners and Residents
+ *  ------------------------------------------------ */
+type AudienceDoor = {
+  eyebrow: string;
+  title: string;
+  strapline: string;
+  body: string;
+  cta: { label: string; href: string };
+  links: Array<{ label: string; href: string }>;
+};
+
+const audienceDoors: AudienceDoor[] = [
+  {
+    eyebrow: 'For owners',
+    title: 'Owners',
+    strapline: 'Governance, money and decisions.',
+    body: 'Fior handover and the payments survey, AGM papers and summaries, sinking fund and Trinity balances, voting and consultations, your factor contacts.',
+    cta: { label: 'Go to the owners area', href: '/owners' },
+    links: [
+      { label: 'AGM papers and summaries', href: '/agm' },
+      { label: 'Voting and consultations', href: '/voting' },
+      { label: 'Fior payments survey', href: '/fior-questionnaire' },
+    ],
+  },
+  {
+    eyebrow: 'For residents',
+    title: 'Residents',
+    strapline: 'Living here, day to day.',
+    body: 'Current notices, bin days and recycling, building access and parking, is the pool open, the message board, local recommendations.',
+    cta: { label: 'See what is happening', href: '/updates' },
+    links: [
+      { label: 'Notices and updates', href: '/updates' },
+      { label: 'Message board', href: '/message-board' },
+      { label: 'Bins, access and parking', href: '/local' },
+    ],
+  },
+];
+
+function AudienceDoors({ reduceMotion }: { reduceMotion: boolean }) {
+  return (
+    <section className="mx-auto mt-12 max-w-6xl sm:mt-16" aria-label="Choose your area">
+      <motion.div
+        initial="hidden"
+        whileInView="show"
+        viewport={viewportOnce}
+        variants={staggerContainerVariants(reduceMotion, 0.08)}
+        className="grid grid-cols-1 gap-4 md:grid-cols-2"
+      >
+        {audienceDoors.map((door) => (
+          <motion.div key={door.title} variants={cardRevealVariants(reduceMotion)} className="h-full">
+            <div className={`${glass} flex h-full flex-col p-6 sm:p-7`}>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-500 dark:text-neutral-400 sm:text-xs">
+                {door.eyebrow}
+              </p>
+              <h2 className="mt-1.5 text-2xl font-bold tracking-tight text-neutral-950 dark:text-white">
+                {door.title}
+              </h2>
+              <p className="mt-1 text-sm font-semibold text-neutral-700 dark:text-neutral-300">
+                {door.strapline}
+              </p>
+              <p className="mt-3 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+                {door.body}
+              </p>
+
+              <ul className="mt-5 space-y-1.5">
+                {door.links.map((link) => (
+                  <li key={link.href + link.label}>
+                    <Link
+                      href={link.href}
+                      className="group inline-flex items-center gap-1.5 text-sm font-medium text-neutral-700 transition-colors hover:text-neutral-950 dark:text-neutral-300 dark:hover:text-white"
+                    >
+                      <ChevronRight className="h-3.5 w-3.5 shrink-0 text-neutral-400 transition-transform group-hover:translate-x-0.5" />
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="mt-auto pt-6">
+                <Link
+                  href={door.cta.href}
+                  className="inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-neutral-900 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-neutral-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200 sm:w-auto"
+                >
+                  {door.cta.label}
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </motion.div>
+    </section>
+  );
+}
 
 /** ------------------------------------------------
- *  Temporary Caledonian Crescent roadworks notice
+ *  Living here: the day to day practicalities
  *  ------------------------------------------------ */
-function RoadworksNotice({ reduceMotion }: { reduceMotion: boolean }) {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const detailsId = 'caledonian-crescent-roadworks-details';
+const livingHereLinks = [
+  { title: 'Bins and recycling', blurb: 'Collection days and where the bins are.', href: '/local' },
+  { title: 'Access and parking', blurb: 'Entry, fobs, visitors and where to park.', href: '/local' },
+  { title: 'Cleaning', blurb: 'Stair and common area cleaning schedule.', href: '/cleaning' },
+  { title: 'Message board', blurb: 'Ask neighbours a question or share news.', href: '/message-board' },
+  { title: 'Your factor', blurb: 'Myreside Management contacts and reporting.', href: '/myreside' },
+  { title: 'Around Dalry', blurb: 'Coffee, food and shops within a short walk.', href: '/local' },
+];
 
+function LivingHere({ reduceMotion }: { reduceMotion: boolean }) {
   return (
-    <section className="mx-auto mt-8 max-w-6xl sm:mt-10" aria-labelledby="roadworks-heading">
+    <section className="mx-auto mt-12 max-w-6xl sm:mt-16">
+      <SectionHeader reduceMotion={reduceMotion}>Living Here</SectionHeader>
+      <motion.div
+        initial="hidden"
+        whileInView="show"
+        viewport={viewportOnce}
+        variants={staggerContainerVariants(reduceMotion, 0.05)}
+        className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3"
+      >
+        {livingHereLinks.map((item) => (
+          <motion.div key={item.title} variants={cardRevealVariants(reduceMotion)} className="h-full">
+            <Link
+              href={item.href}
+              className={`${glass} group flex h-full items-center gap-3 p-4 transition-[transform,background-color,box-shadow] duration-300 hover:-translate-y-0.5 hover:bg-white/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 motion-reduce:hover:translate-y-0 dark:hover:bg-white/15`}
+            >
+              <div className="min-w-0 flex-1">
+                <h3 className="text-sm font-semibold tracking-tight sm:text-base">{item.title}</h3>
+                <p className="mt-0.5 text-xs leading-snug text-neutral-600 dark:text-neutral-400 sm:text-sm">
+                  {item.blurb}
+                </p>
+              </div>
+              <ChevronRight className="h-4 w-4 shrink-0 text-neutral-400 transition-transform group-hover:translate-x-0.5 dark:text-neutral-500" />
+            </Link>
+          </motion.div>
+        ))}
+      </motion.div>
+    </section>
+  );
+}
+
+/** ------------------------------------------------
+ *  New to James Square: visitors and prospective buyers
+ *  ------------------------------------------------ */
+function NewToJamesSquare({ reduceMotion }: { reduceMotion: boolean }) {
+  return (
+    <section className="mx-auto mt-12 max-w-6xl sm:mt-16" aria-labelledby="new-to-js-heading">
       <motion.div
         initial="hidden"
         whileInView="show"
         viewport={viewportOnce}
         variants={fadeUpVariants(reduceMotion)}
-        className={`${glass} overflow-hidden border-amber-300/60 bg-amber-50/75 dark:border-amber-400/25 dark:bg-amber-950/20`}
+        className={`${glass} p-6 sm:p-7`}
       >
-        <div className="border-l-4 border-amber-500 px-5 py-6 sm:px-7 sm:py-7">
-          <div className="flex items-start gap-4">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-500/15 text-amber-700 dark:bg-amber-400/15 dark:text-amber-300">
-              <TrafficCone className="h-6 w-6" aria-hidden="true" />
-            </span>
-            <div className="min-w-0 flex-1">
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-amber-700 dark:text-amber-300">
-                Important Roadworks Notice
-              </p>
-              <h2
-                id="roadworks-heading"
-                className="mt-1 text-xl font-bold tracking-tight text-neutral-950 dark:text-white sm:text-2xl"
-              >
-                Caledonian Crescent Resurfacing
-              </h2>
-            </div>
-          </div>
-
-          <div className="mt-5 grid gap-3 sm:grid-cols-3">
-            <div className="flex items-center gap-2 rounded-xl border border-amber-200/80 bg-white/55 px-3 py-2.5 dark:border-amber-400/15 dark:bg-black/10">
-              <CalendarDays className="h-4 w-4 shrink-0 text-amber-700 dark:text-amber-300" aria-hidden="true" />
-              <div>
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Starts</p>
-                <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Monday 17 August 2026</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 rounded-xl border border-amber-200/80 bg-white/55 px-3 py-2.5 dark:border-amber-400/15 dark:bg-black/10">
-              <CalendarDays className="h-4 w-4 shrink-0 text-amber-700 dark:text-amber-300" aria-hidden="true" />
-              <div>
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Duration</p>
-                <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Approximately four working days</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 rounded-xl border border-amber-200/80 bg-white/55 px-3 py-2.5 dark:border-amber-400/15 dark:bg-black/10">
-              <Clock3 className="h-4 w-4 shrink-0 text-amber-700 dark:text-amber-300" aria-hidden="true" />
-              <div>
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Working hours</p>
-                <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">8:00am–5:00pm</p>
-              </div>
-            </div>
-          </div>
-
-          <p className="mt-5 max-w-4xl text-sm leading-6 text-neutral-700 dark:text-neutral-300 sm:text-base">
-            Edinburgh Council&apos;s Dalry Side Streets Project will begin resurfacing Caledonian
-            Crescent on Monday 17 August 2026. The work is expected to take approximately four
-            working days.
-          </p>
-
-          <div className="mt-5 rounded-xl border border-amber-400/70 bg-amber-100/80 px-4 py-3 text-sm font-bold leading-6 text-amber-950 dark:border-amber-400/35 dark:bg-amber-400/10 dark:text-amber-100 sm:text-base">
-            Please move any vehicle parked on Caledonian Crescent before work begins on Monday 17
-            August.
-          </div>
-
-          <button
-            type="button"
-            aria-expanded={isExpanded}
-            aria-controls={detailsId}
-            onClick={() => setIsExpanded((expanded) => !expanded)}
-            className="mt-5 flex w-full items-center justify-between gap-3 rounded-xl border border-amber-300/70 bg-white/55 px-4 py-3 text-left text-sm font-semibold text-neutral-900 transition-colors hover:bg-white/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:border-amber-400/20 dark:bg-white/5 dark:text-neutral-100 dark:hover:bg-white/10 dark:focus-visible:ring-offset-neutral-900"
+        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-500 dark:text-neutral-400 sm:text-xs">
+          For visitors
+        </p>
+        <h2
+          id="new-to-js-heading"
+          className="mt-1.5 text-xl font-bold tracking-tight text-neutral-950 dark:text-white sm:text-2xl"
+        >
+          New to James Square
+        </h2>
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+          James Square is a residential development on Caledonian Crescent in Dalry, Edinburgh. The
+          building is managed by Myreside Management, who have been the factor since February 2026.
+        </p>
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+          The shared pool, gym and sauna are currently closed. Everything else about the building,
+          including bins, access and parking, is covered in Living Here.
+        </p>
+        <div className="mt-5 flex flex-col gap-2.5 sm:flex-row">
+          <Link
+            href="/local"
+            className="inline-flex items-center justify-center gap-1.5 rounded-full border border-black/10 px-5 py-2.5 text-sm font-semibold text-neutral-800 transition-colors hover:bg-black/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/15 dark:text-neutral-200 dark:hover:bg-white/10"
           >
-            <span>{isExpanded ? 'Hide full roadworks information' : 'View full roadworks information'}</span>
-            <ChevronDown
-              className={`h-5 w-5 shrink-0 text-amber-700 transition-transform dark:text-amber-300 ${isExpanded ? 'rotate-180' : ''}`}
-              aria-hidden="true"
-            />
-          </button>
-
-          <div id={detailsId} hidden={!isExpanded} className="pt-6">
-            <div className="grid gap-7 lg:grid-cols-2 lg:gap-10">
-              <div>
-                <h3 className="text-base font-bold text-neutral-950 dark:text-white">Important information</h3>
-                <ul className="mt-3 space-y-2.5 text-sm leading-6 text-neutral-700 dark:text-neutral-300">
-                  {[
-                    'Work will normally take place between 8:00am and 5:00pm.',
-                    'Caledonian Crescent will be closed for the duration of the works.',
-                    'A signed vehicle diversion route will be in place.',
-                    'No parking will be permitted on Caledonian Crescent.',
-                    'Vehicle access will be very limited while resurfacing is underway.',
-                    'Street signs will confirm the temporary parking restrictions.',
-                    'Communal refuse bins will be temporarily moved to adjacent streets.',
-                    'Vehicles must not be left within coned-off areas and may be removed.',
-                    'James Square is situated at the edge of the resurfacing area, so disruption within the development itself should be kept to a minimum.',
-                  ].map((item) => (
-                    <li key={item} className="flex gap-3">
-                      <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" />
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-base font-bold text-neutral-950 dark:text-white">Access concerns</h3>
-                  <p className="mt-2 text-sm leading-6 text-neutral-700 dark:text-neutral-300">
-                    Anyone requiring assistance with access, essential deliveries or other arrangements during the work should contact the site manager:
-                  </p>
-                  <address className="mt-3 not-italic text-sm leading-6 text-neutral-700 dark:text-neutral-300">
-                    <strong className="text-neutral-950 dark:text-white">Lorenzo Tortolano</strong><br />
-                    MacLay Civil Engineering<br />
-                    Telephone:{' '}
-                    <a className="font-semibold text-amber-800 underline decoration-amber-500/50 underline-offset-2 hover:text-amber-950 dark:text-amber-300 dark:hover:text-amber-200" href="tel:01236768388">01236 768388</a><br />
-                    Email:{' '}
-                    <a className="break-all font-semibold text-amber-800 underline decoration-amber-500/50 underline-offset-2 hover:text-amber-950 dark:text-amber-300 dark:hover:text-amber-200" href="mailto:ltortolano@maclaycivil.co.uk">ltortolano@maclaycivil.co.uk</a>
-                  </address>
-                </div>
-
-                <div>
-                  <h3 className="text-base font-bold text-neutral-950 dark:text-white">Further information</h3>
-                  <p className="mt-2 text-sm leading-6 text-neutral-700 dark:text-neutral-300">For general questions about the project, residents can contact:</p>
-                  <address className="mt-3 not-italic text-sm leading-6 text-neutral-700 dark:text-neutral-300">
-                    <strong className="text-neutral-950 dark:text-white">Steven Peacock</strong><br />
-                    Senior Engineer, Transport Contracts and Design<br />
-                    City of Edinburgh Council<br />
-                    Email:{' '}
-                    <a className="break-all font-semibold text-amber-800 underline decoration-amber-500/50 underline-offset-2 hover:text-amber-950 dark:text-amber-300 dark:hover:text-amber-200" href="mailto:steven.peacock@edinburgh.gov.uk">steven.peacock@edinburgh.gov.uk</a>
-                  </address>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-7 border-t border-amber-300/60 pt-6 dark:border-amber-400/20">
-              <h3 className="text-base font-bold text-neutral-950 dark:text-white">Access pend update</h3>
-              <p className="mt-2 text-sm leading-6 text-neutral-700 dark:text-neutral-300">
-                The road immediately outside James Square will be assessed after resurfacing to
-                determine whether any alterations are required to the access pend. If further
-                restrictions or work are needed, residents will receive advance notice and efforts
-                will be made to minimise disruption.
-              </p>
-            </div>
-          </div>
-
-          <p className="mt-6 text-xs text-neutral-500 dark:text-neutral-400">Information issued 12 August 2026</p>
+            About the building
+          </Link>
+          <a
+            href="mailto:contact@james-square.com"
+            className="inline-flex items-center justify-center gap-1.5 rounded-full border border-black/10 px-5 py-2.5 text-sm font-semibold text-neutral-800 transition-colors hover:bg-black/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/15 dark:text-neutral-200 dark:hover:bg-white/10"
+          >
+            Contact
+          </a>
         </div>
       </motion.div>
     </section>
@@ -809,7 +704,6 @@ function RoadworksNotice({ reduceMotion }: { reduceMotion: boolean }) {
  *  ------------------------------------------------ */
 export default function HomePageClient() {
   const reduceMotion = Boolean(useReducedMotion());
-  const { user } = useAuth();
   const heroKenBurnsAnimate = reduceMotion
     ? { scale: 1, x: 0, y: 0 }
     : { scale: [1, 1.045, 1], x: [0, 10, 0], y: [0, -7, 0] };
@@ -819,14 +713,14 @@ export default function HomePageClient() {
 
   // Time-gated notices are resolved after mount so server and client markup match.
   const [notices, setNotices] = useState(() =>
-    activeNoticeSummaries().filter((notice) => !notice.isActive)
+    activeNoticeSummaries().filter((notice) => !notice.isActive && !notice.endsAt)
   );
   useEffect(() => {
     setNotices(activeNoticeSummaries());
   }, []);
 
   return (
-    <div className="px-4 py-10 sm:py-14">
+    <div className="px-4 py-8 sm:py-14">
       {/* HERO */}
       <section className="mx-auto max-w-6xl">
         <motion.div
@@ -871,144 +765,37 @@ export default function HomePageClient() {
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_45%,rgba(2,6,23,0.35)_100%)]" />
 
           {/* Content */}
-          <div className="relative z-10 flex min-h-[440px] flex-col items-center justify-end px-6 pb-12 pt-24 text-center sm:min-h-[560px] sm:pb-16 lg:min-h-[620px]">
+          <div className="relative z-10 flex min-h-[320px] flex-col items-center justify-end px-6 pb-8 pt-16 text-center sm:min-h-[460px] sm:pb-12 lg:min-h-[520px]">
             <motion.p
               variants={fadeUpVariants(reduceMotion)}
               className="text-[10px] font-semibold uppercase tracking-[0.35em] text-white/70 sm:text-xs"
             >
-              Residents&apos; community<span className="hidden sm:inline"> · Edinburgh</span>
+              Residents&apos; community<span className="hidden sm:inline"> &middot; Edinburgh</span>
             </motion.p>
             <motion.h1
               variants={fadeUpVariants(reduceMotion)}
-              className="mt-3 text-5xl font-bold tracking-tight text-white drop-shadow-[0_2px_24px_rgba(2,6,23,0.5)] sm:text-6xl lg:text-7xl"
+              className="mt-3 text-4xl font-bold tracking-tight text-white drop-shadow-[0_2px_24px_rgba(2,6,23,0.5)] sm:text-6xl lg:text-7xl"
             >
               James <span className="text-white/60">Square</span>
             </motion.h1>
             <motion.p
               variants={fadeUpVariants(reduceMotion)}
-              className="mt-4 max-w-xl text-sm leading-relaxed text-white/85 sm:text-base"
+              className="mt-3 max-w-xl text-sm leading-relaxed text-white/85 sm:text-base"
             >
-              Notices, building information and shared facilities — all in one place.
+              Notices, building information and shared facilities, all in one place.
             </motion.p>
-
-            <motion.div
-              variants={fadeUpVariants(reduceMotion)}
-              className="mt-8 flex w-full flex-col justify-center gap-3 sm:w-auto sm:flex-row"
-            >
-              <Link
-                href="/booking"
-                className="group inline-flex items-center justify-center gap-2 rounded-full bg-white px-7 py-3 text-sm font-semibold text-neutral-950 shadow-lg shadow-slate-950/30 transition-colors hover:bg-neutral-200"
-              >
-                Book facilities
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-              </Link>
-              {user ? (
-                <Link
-                  href="/dashboard"
-                  className="inline-flex items-center justify-center gap-2 rounded-full border border-white/30 bg-white/10 px-7 py-3 text-sm font-semibold text-white backdrop-blur-md transition-colors hover:bg-white/20"
-                >
-                  Manage bookings
-                </Link>
-              ) : (
-                <Link
-                  href="/owners"
-                  className="inline-flex items-center justify-center gap-2 rounded-full border border-white/30 bg-white/10 px-7 py-3 text-sm font-semibold text-white backdrop-blur-md transition-colors hover:bg-white/20"
-                >
-                  Owners area
-                </Link>
-              )}
-            </motion.div>
           </div>
         </motion.div>
       </section>
 
-      {/* TEMPORARY ROADWORKS NOTICE */}
-      <RoadworksNotice reduceMotion={reduceMotion} />
+      {/* FACILITIES STATUS */}
+      <FacilitiesStatus noticeCount={notices.length} reduceMotion={reduceMotion} />
 
-      {/* BUILDING STATUS */}
-      <BuildingStatus noticeCount={notices.length} reduceMotion={reduceMotion} />
-
-      {/* QUICK ACTIONS */}
-      <section className="mx-auto max-w-6xl mt-14 sm:mt-16">
-        <SectionHeader reduceMotion={reduceMotion}>Quick Actions</SectionHeader>
-        <motion.div
-          initial="hidden"
-          whileInView="show"
-          viewport={viewportOnce}
-          variants={staggerContainerVariants(reduceMotion, 0.05)}
-          className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
-        >
-          <motion.div variants={cardRevealVariants(reduceMotion)}>
-            <IconCard
-              title="Book Facilities"
-              href="/book"
-              lightIcon="/images/icons/new-pool-icon-light.png"
-              darkIcon="/images/icons/new-pool-icon-dark.png"
-              blurb="Reserve time for the pool, gym or sauna."
-              reduceMotion={reduceMotion}
-            />
-          </motion.div>
-
-          <motion.div variants={cardRevealVariants(reduceMotion)}>
-            <IconCard
-              title="My Dashboard"
-              href="/dashboard"
-              lightIcon="/images/icons/new-dashboard-icon-light.png"
-              darkIcon="/images/icons/new-dashboard-icon-dark.png"
-              blurb="View, edit and manage your bookings."
-              reduceMotion={reduceMotion}
-            />
-          </motion.div>
-
-          <motion.div variants={cardRevealVariants(reduceMotion)}>
-            <IconCard
-              title="Owners Area"
-              href="/owners"
-              lightIcon="/images/icons/Owner-icon-light.PNG"
-              darkIcon="/images/icons/new-Owner-icon-dark.png"
-              blurb="Owner information, voting and updates."
-              iconAlt="Owners area"
-              reduceMotion={reduceMotion}
-            />
-          </motion.div>
-
-          <motion.div variants={cardRevealVariants(reduceMotion)}>
-            <IconCard
-              title="Message Board"
-              href="/message-board"
-              lightIcon="/images/icons/new-message-icon-light.png"
-              darkIcon="/images/icons/new-message-icon-dark.png"
-              blurb="Share updates and ask questions."
-              reduceMotion={reduceMotion}
-            />
-          </motion.div>
-
-          <motion.div variants={cardRevealVariants(reduceMotion)}>
-            <IconCard
-              title="Useful Info"
-              href="/local"
-              lightIcon="/images/icons/info-icon-light.png"
-              darkIcon="/images/icons/new-info-icon-dark.png"
-              blurb="Access, bins, contacts and local picks."
-              reduceMotion={reduceMotion}
-            />
-          </motion.div>
-
-          <motion.div variants={cardRevealVariants(reduceMotion)}>
-            <IconCard
-              title="Fior Payments Survey"
-              href="/fior-questionnaire"
-              lightIcon="/images/icons/q&a-light.png"
-              darkIcon="/images/icons/q&a-dark.png"
-              blurb="Tell us about additional payments made to Fior."
-              reduceMotion={reduceMotion}
-            />
-          </motion.div>
-        </motion.div>
-      </section>
+      {/* OWNERS AND RESIDENTS */}
+      <AudienceDoors reduceMotion={reduceMotion} />
 
       {/* LATEST UPDATES */}
-      <section className="mx-auto max-w-6xl mt-14 sm:mt-16">
+      <section className="mx-auto mt-12 max-w-6xl sm:mt-16">
         <SectionHeader
           reduceMotion={reduceMotion}
           action={
@@ -1041,34 +828,14 @@ export default function HomePageClient() {
         </motion.div>
       </section>
 
-      {/* FACILITIES */}
-      <section className="mx-auto max-w-6xl mt-14 sm:mt-16">
-        <SectionHeader reduceMotion={reduceMotion}>Facilities</SectionHeader>
-        <motion.div
-          initial="hidden"
-          whileInView="show"
-          viewport={viewportOnce}
-          variants={staggerContainerVariants(reduceMotion, 0.06)}
-          className="grid grid-cols-1 gap-4 md:grid-cols-3"
-        >
-          {facilityCards.map((facility) => (
-            <motion.div
-              key={facility.name}
-              variants={cardRevealVariants(reduceMotion)}
-              className="h-full"
-            >
-              <FacilityCard {...facility} />
-            </motion.div>
-          ))}
-        </motion.div>
-        <p className="mt-3 text-xs text-neutral-500 dark:text-neutral-400">
-          Bookings are recommended for morning and evening sessions — open use during the day does
-          not require a booking. Maximum of 2 bookings per facility per day.
-        </p>
-      </section>
+      {/* LIVING HERE */}
+      <LivingHere reduceMotion={reduceMotion} />
 
       {/* PHOTO CAROUSEL */}
       <PhotoCarousel />
+
+      {/* NEW TO JAMES SQUARE */}
+      <NewToJamesSquare reduceMotion={reduceMotion} />
 
       {/* INSTALL APP */}
       <InstallAppCard />

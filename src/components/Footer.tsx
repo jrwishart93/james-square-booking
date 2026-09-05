@@ -10,9 +10,9 @@ const contactEmails = [
 ];
 
 const quickLinks = [
-  { href: "/local", label: "More Information", icon: InfoIcon },
+  { href: "/updates", label: "Notices", icon: CalendarIcon },
+  { href: "/local", label: "Living Here", icon: InfoIcon },
   { href: "/message-board", label: "Message Board", icon: MessageIcon },
-  { href: "/book", label: "Book Facilities", icon: CalendarIcon },
 ];
 
 const legalLinks = [
@@ -40,7 +40,7 @@ export default function Footer() {
                 About
               </h2>
               <p className="break-words leading-tight md:leading-relaxed text-slate-600 dark:text-slate-300">
-                James-Square.com is an online portal for residents and owners to manage facilities, communications, and
+                James-Square.com is the community website for residents and owners: notices, communications, and
                 building information.
               </p>
             </section>

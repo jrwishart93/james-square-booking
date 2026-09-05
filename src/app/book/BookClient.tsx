@@ -8,6 +8,11 @@ import { FacilityCard } from '@/components/FacilityCard';
 import FacilitySelectorMobile from '@/components/FacilitySelectorMobile';
 import Button from '@/components/ui/Button';
 import GlassCard from '@/components/ui/GlassCard';
+import {
+  bookingEnabled,
+  facilitiesExplainer,
+  facilityStatuses,
+} from '@/components/home/facilityStatus';
 
 export type FacilityKey = 'pool' | 'gym' | 'sauna';
 
@@ -83,19 +88,94 @@ function Pool3DCallout({ className = '' }: { className?: string }) {
   );
 }
 
+function ClosedFacilityCard({ title, description }: { title: string; description: string }) {
+  const status = facilityStatuses.find(
+    (facility) => facility.name.toLowerCase().includes(title.toLowerCase())
+  );
+
+  return (
+    <article className="rounded-2xl border border-black/5 bg-white/60 p-5 text-left opacity-80 dark:border-white/10 dark:bg-white/5">
+      <div className="flex items-center justify-between gap-3">
+        <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{title}</h3>
+        <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-rose-500/30 bg-rose-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-rose-700 dark:text-rose-300">
+          <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-rose-500" />
+          Closed
+        </span>
+      </div>
+      <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{description}</p>
+      {status?.expectedReopen ? (
+        <p className="mt-2 text-xs font-medium text-slate-500 dark:text-slate-400">
+          Expected to reopen {status.expectedReopen}.
+        </p>
+      ) : null}
+    </article>
+  );
+}
+
+function ClosedFacilityList() {
+  return (
+    <div className="space-y-3">
+      {FACILITIES.map(({ key, title, description }) => (
+        <ClosedFacilityCard key={key} title={title} description={description} />
+      ))}
+    </div>
+  );
+}
+
+function FacilitiesClosedNotice() {
+  return (
+    <section
+      className="mb-10 rounded-2xl border border-rose-200 bg-rose-50/80 p-5 text-left dark:border-rose-400/25 dark:bg-rose-950/20 sm:p-6"
+      aria-labelledby="facilities-closed-heading"
+    >
+      <p className="text-xs font-bold uppercase tracking-[0.16em] text-rose-700 dark:text-rose-300">
+        Booking unavailable
+      </p>
+      <h2
+        id="facilities-closed-heading"
+        className="mt-1.5 text-xl font-bold tracking-tight text-slate-950 dark:text-white"
+      >
+        The swimming pool, gym and sauna are closed.
+      </h2>
+      <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+        {facilitiesExplainer}
+      </p>
+      <div className="mt-4 flex flex-wrap gap-2.5">
+        <Button variant="primary" href="/updates#pool-facilities" className="text-sm">
+          Read the full facilities update
+        </Button>
+        <Button variant="secondary" href="/" className="text-sm">
+          Back to home
+        </Button>
+      </div>
+    </section>
+  );
+}
+
 export default function BookClient() {
   return (
     <main className="max-w-4xl mx-auto py-16 px-6 font-sans bg-white dark:bg-gray-900">
+      {bookingEnabled ? null : <FacilitiesClosedNotice />}
       <div className="flex flex-col items-center text-center gap-3">
-        <h1 className="text-4xl font-bold text-black dark:text-white">Choose a facility</h1>
-        <p className="text-base text-gray-600 dark:text-gray-300">Select a space to view schedules and book your spot.</p>
+        <h1 className="text-4xl font-bold text-black dark:text-white">
+          {bookingEnabled ? 'Choose a facility' : 'Facilities'}
+        </h1>
+        <p className="text-base text-gray-600 dark:text-gray-300">
+          {bookingEnabled
+            ? 'Select a space to view schedules and book your spot.'
+            : 'Booking reopens when the facilities do. The details below are kept for reference.'}
+        </p>
         <div className="w-full max-w-xl flex flex-col gap-3 rounded-2xl border border-black/5 bg-white/70 px-4 py-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-gray-800/60 md:flex-row md:items-center md:justify-center md:gap-3 md:py-2">
-          <Button variant="primary" href="/book/schedule" className="w-full text-sm sm:text-base md:w-auto">
-            View availability
-          </Button>
-          <Button variant="secondary" href="/dashboard" className="w-full text-sm sm:text-base md:w-auto">
-            My dashboard
-          </Button>
+          {bookingEnabled ? (
+            <>
+              <Button variant="primary" href="/book/schedule" className="w-full text-sm sm:text-base md:w-auto">
+                View availability
+              </Button>
+              <Button variant="secondary" href="/dashboard" className="w-full text-sm sm:text-base md:w-auto">
+                My dashboard
+              </Button>
+            </>
+          ) : null}
           <Button variant="secondary" href="/pool3d" className="w-full text-sm sm:text-base md:w-auto">
             View pool 3D models
           </Button>
@@ -103,6 +183,7 @@ export default function BookClient() {
       </div>
 
       <section className="mt-12 space-y-5 md:hidden">
+        {bookingEnabled ? (
         <FacilitySelectorMobile
           options={FACILITIES.map((facility) => ({
             key: facility.key,
@@ -111,25 +192,34 @@ export default function BookClient() {
             href: facility.href,
           }))}
         />
+        ) : (
+          <ClosedFacilityList />
+        )}
         <Pool3DCallout />
       </section>
 
       <div className="mt-12 hidden grid-cols-1 gap-5 sm:gap-6 md:grid md:grid-cols-2 xl:grid-cols-3">
-        {FACILITIES.map(({ key, ...facility }) => (
-          <FacilityCard key={key} {...facility} />
-        ))}
+        {bookingEnabled
+          ? FACILITIES.map(({ key, ...facility }) => <FacilityCard key={key} {...facility} />)
+          : FACILITIES.map(({ key, title, description }) => (
+              <ClosedFacilityCard key={key} title={title} description={description} />
+            ))}
         <Pool3DCallout className="md:col-span-2 xl:col-span-3" />
       </div>
       <div className="mt-14 md:mt-16">
         <GlassCard
-          title="Opening times &amp; rules"
+          title="Opening times and rules"
           className="text-base shadow-none md:shadow-[0_18px_38px_rgba(15,23,42,0.12)] md:dark:shadow-[0_24px_50px_rgba(0,0,0,0.55)]"
         >
           <details className="group">
             <summary
               className="list-none flex w-full items-center justify-between gap-3 rounded-xl border border-white/40 bg-white/70 px-4 py-3 text-slate-900 shadow-sm transition hover:border-white/60 hover:bg-white/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:border-white/20 dark:hover:bg-white/10 dark:focus-visible:ring-offset-gray-900 [&::-webkit-details-marker]:hidden"
             >
-              <span className="font-semibold">Open daily 05:30–23:00</span>
+              <span className="font-semibold">
+                {bookingEnabled
+                  ? 'Open daily 05:30 to 23:00'
+                  : 'Opening times and rules (for reference while closed)'}
+              </span>
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/60 text-slate-700 transition duration-200 group-open:rotate-180 dark:bg-white/10 dark:text-white">
                 <ChevronDown className="h-4 w-4" aria-hidden />
               </span>

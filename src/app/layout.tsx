@@ -11,7 +11,8 @@ const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono"
 
 export const metadata: Metadata = {
   title: "James Square",
-  description: "Residents community website for James Square, Edinburgh",
+  description:
+    "Notices, building information and shared facilities for James Square, Caledonian Crescent, Edinburgh.",
   metadataBase: new URL("https://www.james-square.com"),
   manifest: "/manifest.json",
   appleWebApp: {
@@ -20,8 +21,9 @@ export const metadata: Metadata = {
     statusBarStyle: "black-translucent",
   },
   openGraph: {
-    title: "James Square Booking Portal",
-    description: "Residents can book the pool, gym and sauna.",
+    title: "James Square",
+    description:
+      "Notices, building information and shared facilities for James Square, Caledonian Crescent, Edinburgh.",
     url: "https://james-square.com",
     siteName: "James Square",
     images: [{ url: "/images/logo/Logo.png", width: 1200, height: 630, alt: "James Square" }],
@@ -30,8 +32,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "James Square Booking Portal",
-    description: "Book pool, gym and sauna.",
+    title: "James Square",
+    description:
+      "Notices, building information and shared facilities for James Square, Edinburgh.",
     images: ["/images/logo/Logo.png"],
   },
   icons: { icon: "/favicon.ico" },

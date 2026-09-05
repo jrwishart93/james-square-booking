@@ -30,11 +30,28 @@ export type NoticeSummary = {
   date: string;
   /** urgent = safety/closure, action = resident action needed, info = general news */
   tone: 'urgent' | 'action' | 'info';
+  /**
+   * The date this notice stops being true. Dated notices MUST set this: it is
+   * why the Caledonian Crescent resurfacing banner was still on the homepage
+   * three weeks after the works finished. Standing notices (the facilities
+   * closure, the current factor) may leave it undefined.
+   */
+  endsAt?: string;
+  /** Optional extra condition, for notices whose relevance is not purely date based. */
   isActive?: () => boolean;
 };
 
-/** Ordered newest/most important first — homepage shows the first three active. */
+/** Ordered newest/most important first \u2014 homepage shows the first three active. */
 export const noticeSummaries: NoticeSummary[] = [
+  {
+    id: 'pool-facilities',
+    badge: 'Resident notice',
+    title: 'Pool, Gym and Sauna Closed',
+    summary:
+      'The swimming pool, gym and sauna remain closed on safety grounds following the plant room failure. No reopening date has been set.',
+    date: 'Updated June 2026',
+    tone: 'urgent',
+  },
   {
     id: 'agm-voting',
     badge: "Owners' notice",
@@ -45,40 +62,12 @@ export const noticeSummaries: NoticeSummary[] = [
     tone: 'info',
   },
   {
-    id: 'pool-facilities',
-    badge: 'Resident notice',
-    title: 'Pool & Facilities Update',
-    summary:
-      'The swimming pool, gym and sauna remain closed for safety following the plant room incident. Repair and refurbishment options were discussed at the AGM.',
-    date: 'Updated June 2026',
-    tone: 'urgent',
-  },
-  {
-    id: 'telfer-subway',
-    badge: 'Footpath closure',
-    title: 'Telfer Subway / Caledonian Crescent Closure',
-    summary:
-      'The Telfer Subway is closed to pedestrians and cyclists from Monday 15 to Friday 19 June 2026, with a signed diversion in place.',
-    date: '15 – 19 June 2026',
-    tone: 'urgent',
-    isActive: isTelferSubwayNoticeActive,
-  },
-  {
     id: 'agm-summary',
     badge: 'AGM summary',
-    title: 'AGM Summary – 4 June 2026',
+    title: 'AGM Summary, 4 June 2026',
     summary:
       'The AGM reviewed the Fior handover, recovery of Trinity sinking fund balances, and the ongoing pool, gym and sauna closure.',
     date: '4 June 2026',
-    tone: 'info',
-  },
-  {
-    id: 'roadworks',
-    badge: 'Residents update',
-    title: 'Orwell Terrace Roadworks',
-    summary:
-      'Roadworks at the end of Orwell Terrace are underway for around 4 to 6 weeks. The junction with Dalry Road is closed, with a diversion in place.',
-    date: 'In progress',
     tone: 'info',
   },
   {
@@ -90,11 +79,49 @@ export const noticeSummaries: NoticeSummary[] = [
     date: 'Since 1 February 2026',
     tone: 'info',
   },
+  {
+    id: 'telfer-subway',
+    badge: 'Footpath closure',
+    title: 'Telfer Subway / Caledonian Crescent Closure',
+    summary:
+      'The Telfer Subway is closed to pedestrians and cyclists from Monday 15 to Friday 19 June 2026, with a signed diversion in place.',
+    date: '15 to 19 June 2026',
+    tone: 'urgent',
+    endsAt: '2026-06-20T00:00:00+01:00',
+  },
+  {
+    id: 'caledonian-crescent-resurfacing',
+    badge: 'Roadworks',
+    title: 'Caledonian Crescent Resurfacing',
+    summary:
+      "Edinburgh Council's Dalry Side Streets Project resurfaced Caledonian Crescent over approximately four working days from Monday 17 August 2026.",
+    date: 'August 2026',
+    tone: 'info',
+    endsAt: '2026-08-24T00:00:00+01:00',
+  },
+  {
+    id: 'roadworks',
+    badge: 'Residents update',
+    title: 'Orwell Terrace Roadworks',
+    summary:
+      'Roadworks at the end of Orwell Terrace are underway for around 4 to 6 weeks. The junction with Dalry Road is closed, with a diversion in place.',
+    date: 'In progress',
+    tone: 'info',
+    endsAt: '2026-10-01T00:00:00+01:00',
+  },
 ];
 
-export function activeNoticeSummaries() {
-  return noticeSummaries.filter((notice) => !notice.isActive || notice.isActive());
+/** A notice is active until its endsAt passes and any extra condition still holds. */
+export function isNoticeActive(notice: NoticeSummary, now = new Date()) {
+  if (notice.endsAt && now.getTime() >= new Date(notice.endsAt).getTime()) return false;
+  if (notice.isActive && !notice.isActive()) return false;
+  return true;
 }
+
+export function activeNoticeSummaries(now = new Date()) {
+  return noticeSummaries.filter((notice) => isNoticeActive(notice, now));
+}
+
 
 /** ------------------------------------------------
  *  Pool & Facilities Notice
