@@ -255,7 +255,7 @@ export default function Header() {
                 <NavLink href="/owners" label="Owners" />
                 <NavLink href="/message-board" label="Message Board" showUnread={hasUnreadMessageBoard} />
                 <NavLink href="/cleaning" label="Cleaning" />
-                {bookingEnabled && <NavLink href="/book" label="Book Facilities" />}
+                <NavLink href="/book" label={bookingEnabled ? "Book Facilities" : "Facilities"} />
                 {bookingEnabled && user && <NavLink href="/dashboard" label="My Dashboard" />}
                 {isAdmin && <NavLink href="/admin" label="Admin" />}
 
@@ -311,7 +311,7 @@ export default function Header() {
               <NavLink href="/owners" label="Owners" />
               <NavLink href="/message-board" label="Message Board" showUnread={hasUnreadMessageBoard} />
               <NavLink href="/cleaning" label="Cleaning" />
-              {bookingEnabled && <NavLink href="/book" label="Book Facilities" />}
+              <NavLink href="/book" label={bookingEnabled ? "Book Facilities" : "Facilities"} />
               {bookingEnabled && user && <NavLink href="/dashboard" label="My Dashboard" />}
               {isAdmin && <NavLink href="/admin" label="Admin" />}
 
