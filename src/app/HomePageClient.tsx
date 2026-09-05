@@ -10,6 +10,7 @@ import {
   bookingEnabled,
   facilitiesExplainer,
   facilitiesHeadline,
+  facilitiesPageLinkLabel,
   facilityStatuses,
 } from '@/components/home/facilityStatus';
 
@@ -267,16 +268,19 @@ function FacilitiesStatus({
           </Link>
         </div>
 
-        {bookingEnabled ? (
-          <div className="mt-4">
-            <Link
-              href="/book"
-              className="inline-flex items-center gap-1.5 text-sm font-semibold text-sky-700 underline underline-offset-4 dark:text-sky-300"
-            >
-              Book a facility <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
-          </div>
-        ) : null}
+        <div className="mt-4">
+          <Link
+            href="/book"
+            className={`inline-flex items-center gap-1.5 underline-offset-4 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 ${
+              bookingEnabled
+                ? 'text-sm font-semibold text-sky-700 underline dark:text-sky-300'
+                : 'text-sm font-medium text-neutral-600 dark:text-neutral-400'
+            }`}
+          >
+            {facilitiesPageLinkLabel}
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
       </motion.div>
     </section>
   );

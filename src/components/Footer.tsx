@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { CookieSettingsLink } from "@/components/consent";
+import { bookingEnabled } from "@/components/home/facilityStatus";
 
 const contactEmails = [
   "contact@james-square.com",
@@ -13,6 +14,11 @@ const quickLinks = [
   { href: "/updates", label: "Notices", icon: CalendarIcon },
   { href: "/local", label: "Living Here", icon: InfoIcon },
   { href: "/message-board", label: "Message Board", icon: MessageIcon },
+  {
+    href: "/book",
+    label: bookingEnabled ? "Book Facilities" : "Facilities",
+    icon: CalendarIcon,
+  },
 ];
 
 const legalLinks = [
