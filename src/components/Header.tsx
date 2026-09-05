@@ -10,6 +10,7 @@ import { doc, getDoc, onSnapshot, DocumentData, type Timestamp } from "firebase/
 import { motion } from "framer-motion";
 import { getUnreadMessageBoardCount } from "@/lib/messageBoardNotifications";
 import { lightHaptic } from "@/lib/haptics";
+import { bookingEnabled } from "@/components/home/facilityStatus";
 
 /** Shape of the Firestore user document */
 type UserDoc = {
@@ -249,12 +250,13 @@ export default function Header() {
             {/* Desktop nav */}
             <nav className="hidden sm:block">
               <ul className="flex items-center gap-2 text-sm">
-                <NavLink href="/book" label="Book Facilities" />
-                <NavLink href="/dashboard" label="My Dashboard" />
+                <NavLink href="/updates" label="Notices" />
+                <NavLink href="/local" label="Living Here" />
+                <NavLink href="/owners" label="Owners" />
                 <NavLink href="/message-board" label="Message Board" showUnread={hasUnreadMessageBoard} />
-                {user && <NavLink href="/owners" label="Owners" />}
-                <NavLink href="/local" label="Useful Info" />
                 <NavLink href="/cleaning" label="Cleaning" />
+                {bookingEnabled && <NavLink href="/book" label="Book Facilities" />}
+                {bookingEnabled && user && <NavLink href="/dashboard" label="My Dashboard" />}
                 {isAdmin && <NavLink href="/admin" label="Admin" />}
 
                 {user ? (
@@ -304,12 +306,13 @@ export default function Header() {
         <div className="mt-2 px-4 sm:px-6">
           <div className="glass p-3 sm:hidden">
             <ul className="flex flex-col gap-2">
-              <NavLink href="/book" label="Book Facilities" />
-              <NavLink href="/dashboard" label="My Dashboard" />
+              <NavLink href="/updates" label="Notices" />
+              <NavLink href="/local" label="Living Here" />
+              <NavLink href="/owners" label="Owners" />
               <NavLink href="/message-board" label="Message Board" showUnread={hasUnreadMessageBoard} />
-              {user && <NavLink href="/owners" label="Owners" />}
-              <NavLink href="/local" label="Useful Info" />
               <NavLink href="/cleaning" label="Cleaning" />
+              {bookingEnabled && <NavLink href="/book" label="Book Facilities" />}
+              {bookingEnabled && user && <NavLink href="/dashboard" label="My Dashboard" />}
               {isAdmin && <NavLink href="/admin" label="Admin" />}
 
               {user ? (

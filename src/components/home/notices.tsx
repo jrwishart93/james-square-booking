@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   CalendarDays,
   ArrowRight,
@@ -30,11 +30,28 @@ export type NoticeSummary = {
   date: string;
   /** urgent = safety/closure, action = resident action needed, info = general news */
   tone: 'urgent' | 'action' | 'info';
+  /**
+   * The date this notice stops being true. Dated notices MUST set this: it is
+   * why the Caledonian Crescent resurfacing banner was still on the homepage
+   * three weeks after the works finished. Standing notices (the facilities
+   * closure, the current factor) may leave it undefined.
+   */
+  endsAt?: string;
+  /** Optional extra condition, for notices whose relevance is not purely date based. */
   isActive?: () => boolean;
 };
 
-/** Ordered newest/most important first — homepage shows the first three active. */
+/** Ordered newest/most important first \u2014 homepage shows the first three active. */
 export const noticeSummaries: NoticeSummary[] = [
+  {
+    id: 'pool-facilities',
+    badge: 'Resident notice',
+    title: 'Pool, Gym and Sauna Closed',
+    summary:
+      'The swimming pool, gym and sauna remain closed on safety grounds following the plant room failure. No reopening date has been set.',
+    date: 'Updated June 2026',
+    tone: 'urgent',
+  },
   {
     id: 'agm-voting',
     badge: "Owners' notice",
@@ -45,40 +62,12 @@ export const noticeSummaries: NoticeSummary[] = [
     tone: 'info',
   },
   {
-    id: 'pool-facilities',
-    badge: 'Resident notice',
-    title: 'Pool & Facilities Update',
-    summary:
-      'The swimming pool, gym and sauna remain closed for safety following the plant room incident. Repair and refurbishment options were discussed at the AGM.',
-    date: 'Updated June 2026',
-    tone: 'urgent',
-  },
-  {
-    id: 'telfer-subway',
-    badge: 'Footpath closure',
-    title: 'Telfer Subway / Caledonian Crescent Closure',
-    summary:
-      'The Telfer Subway is closed to pedestrians and cyclists from Monday 15 to Friday 19 June 2026, with a signed diversion in place.',
-    date: '15 – 19 June 2026',
-    tone: 'urgent',
-    isActive: isTelferSubwayNoticeActive,
-  },
-  {
     id: 'agm-summary',
     badge: 'AGM summary',
-    title: 'AGM Summary – 4 June 2026',
+    title: 'AGM Summary, 4 June 2026',
     summary:
       'The AGM reviewed the Fior handover, recovery of Trinity sinking fund balances, and the ongoing pool, gym and sauna closure.',
     date: '4 June 2026',
-    tone: 'info',
-  },
-  {
-    id: 'roadworks',
-    badge: 'Residents update',
-    title: 'Orwell Terrace Roadworks',
-    summary:
-      'Roadworks at the end of Orwell Terrace are underway for around 4 to 6 weeks. The junction with Dalry Road is closed, with a diversion in place.',
-    date: 'In progress',
     tone: 'info',
   },
   {
@@ -90,11 +79,49 @@ export const noticeSummaries: NoticeSummary[] = [
     date: 'Since 1 February 2026',
     tone: 'info',
   },
+  {
+    id: 'telfer-subway',
+    badge: 'Footpath closure',
+    title: 'Telfer Subway / Caledonian Crescent Closure',
+    summary:
+      'The Telfer Subway is closed to pedestrians and cyclists from Monday 15 to Friday 19 June 2026, with a signed diversion in place.',
+    date: '15 to 19 June 2026',
+    tone: 'urgent',
+    endsAt: '2026-06-20T00:00:00+01:00',
+  },
+  {
+    id: 'caledonian-crescent-resurfacing',
+    badge: 'Roadworks',
+    title: 'Caledonian Crescent Resurfacing',
+    summary:
+      "Edinburgh Council's Dalry Side Streets Project resurfaced Caledonian Crescent over approximately four working days from Monday 17 August 2026.",
+    date: 'August 2026',
+    tone: 'info',
+    endsAt: '2026-08-24T00:00:00+01:00',
+  },
+  {
+    id: 'roadworks',
+    badge: 'Residents update',
+    title: 'Orwell Terrace and Caledonian Crescent Roadworks',
+    summary:
+      'The footway works at Orwell Terrace and the resurfacing of Caledonian Crescent and the surrounding streets are complete. Roads, parking and bin collections are back to normal.',
+    date: 'Completed September 2026',
+    tone: 'info',
+    endsAt: '2026-09-05T00:00:00+01:00',
+  },
 ];
 
-export function activeNoticeSummaries() {
-  return noticeSummaries.filter((notice) => !notice.isActive || notice.isActive());
+/** A notice is active until its endsAt passes and any extra condition still holds. */
+export function isNoticeActive(notice: NoticeSummary, now = new Date()) {
+  if (notice.endsAt && now.getTime() >= new Date(notice.endsAt).getTime()) return false;
+  if (notice.isActive && !notice.isActive()) return false;
+  return true;
 }
+
+export function activeNoticeSummaries(now = new Date()) {
+  return noticeSummaries.filter((notice) => isNoticeActive(notice, now));
+}
+
 
 /** ------------------------------------------------
  *  Pool & Facilities Notice
@@ -228,26 +255,14 @@ export function PoolNotice() {
 /** ------------------------------------------------
  *  Telfer Subway Footpath Closure Notice
  *  ------------------------------------------------ */
+/**
+ * Visibility is decided by the page that renders this (see the endsAt date on
+ * the matching entry in noticeSummaries), so the component itself always
+ * renders. That lets a finished closure sit in the completed section rather
+ * than vanishing without a trace.
+ */
 export function TelferSubwayClosureNotice() {
-  const [active, setActive] = useState(false);
   const [expanded, setExpanded] = useState(false);
-
-  useEffect(() => {
-    const refreshActiveState = () => setActive(isTelferSubwayNoticeActive());
-    refreshActiveState();
-
-    const millisecondsUntilExpiry = telferSubwayNoticeEndsAt.getTime() - Date.now();
-    const expiryTimer =
-      millisecondsUntilExpiry > 0 && millisecondsUntilExpiry <= 2_147_483_647
-        ? window.setTimeout(refreshActiveState, millisecondsUntilExpiry)
-        : undefined;
-
-    return () => {
-      if (expiryTimer) window.clearTimeout(expiryTimer);
-    };
-  }, []);
-
-  if (!active) return null;
 
   return (
     <div className="jqs-glass rounded-2xl border border-l-[3px] border-amber-400/30 border-l-amber-400 bg-gradient-to-br from-amber-500/10 via-orange-500/10 to-yellow-500/10 p-6 shadow-lg shadow-amber-900/10">
@@ -487,23 +502,26 @@ export function RoadworksNotice() {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="jqs-glass rounded-2xl border border-l-[3px] border-amber-400/30 border-l-amber-400 bg-gradient-to-br from-amber-500/10 via-orange-500/10 to-yellow-500/10 p-6 shadow-lg shadow-amber-900/10">
+    <div className="jqs-glass rounded-2xl border border-l-[3px] border-neutral-400/30 border-l-neutral-400 bg-white/40 p-6 shadow-lg shadow-neutral-900/5 dark:bg-white/5">
       <div className="mb-3 flex flex-wrap items-center gap-2">
-        <span className="inline-flex items-center rounded-full border border-amber-500/40 bg-amber-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-900 dark:text-amber-200">
+        <span className="inline-flex items-center rounded-full border border-neutral-400/40 bg-neutral-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-300">
           Residents update
+        </span>
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-800 dark:text-emerald-300">
+          <CheckCircle2 className="h-3.5 w-3.5" />
+          Complete
         </span>
       </div>
 
       <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
-        Orwell Terrace Roadworks (In Progress)
+        Orwell Terrace and Caledonian Crescent Roadworks (Complete)
       </h2>
 
       <div className="mt-3 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
         <p>
-          Roadworks at the end of Orwell Terrace are now underway and are expected to last around
-          4 to 6 weeks. The junction with Dalry Road is currently closed, with a diversion in
-          place. Access is being maintained where possible, although some disruption and parking
-          restrictions should be expected.
+          The roadworks on Caledonian Crescent, Orwell Terrace and the surrounding streets are
+          finished. The junction with Dalry Road has reopened, the diversion has been lifted, and
+          parking and bin collections are back to normal.
         </p>
 
         <AnimatePresence initial={false}>
@@ -518,28 +536,21 @@ export function RoadworksNotice() {
             >
               <div className="mt-4 space-y-3 border-t border-amber-400/30 pt-4">
                 <p>
-                  Works are now in progress as part of the wider Dalry Side Streets improvement
-                  project led by Edinburgh Council. This first phase focuses on upgrading the
-                  footway at the junction of Orwell Terrace and Dalry Road, with construction
-                  taking place on weekdays between 8am and 5pm.
+                  The works were carried out as part of Edinburgh Council&apos;s Dalry Side Streets
+                  improvement project. They covered the footway at the junction of Orwell Terrace
+                  and Dalry Road, and the resurfacing of Caledonian Crescent, which took place over
+                  approximately four working days from Monday 17 August 2026.
                 </p>
                 <p>
-                  Orwell Terrace is currently closed at its junction with Dalry Road. A signed
-                  diversion route is in place, and access to homes and businesses is being
-                  maintained wherever practical. Some parking spaces have been temporarily removed
-                  to allow for construction activity, and residents are asked not to park in coned
-                  off areas.
+                  The Orwell Terrace junction with Dalry Road has reopened and the signed diversion
+                  has been removed. Parking restrictions and cones have been lifted, and the
+                  communal bins that were temporarily moved to the junction with Caledonian
+                  Crescent are back in their usual position.
                 </p>
                 <p>
-                  Communal bins have been temporarily relocated to the junction with Caledonian
-                  Crescent. Emergency vehicle access and pedestrian routes remain available
-                  throughout the works.
-                </p>
-                <p>
-                  Further phases are planned, including additional footway improvements and
-                  resurfacing works in the surrounding area. Dates for these will be confirmed
-                  separately. While some disruption is expected, the overall aim is to improve the
-                  condition, safety and appearance of the local streets.
+                  The council has previously indicated that further phases of the Dalry Side
+                  Streets project are planned for the wider area. No dates have been confirmed for
+                  those, and we will post a notice here if and when they are.
                 </p>
               </div>
             </motion.div>
