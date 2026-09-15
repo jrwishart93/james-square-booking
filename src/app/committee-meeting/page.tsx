@@ -3,15 +3,16 @@ import Image from "next/image";
 import {
   CalendarDays,
   Clock3,
-  DoorOpen,
+  Download,
   ExternalLink,
   ListChecks,
   MapPin,
   MonitorSmartphone,
 } from "lucide-react";
+import PreviousMeeting from "./PreviousMeeting";
 
 const teamsLink =
-  "https://teams.live.com/meet/9392352296034?p=TlgOqGScBL4kqTLwZV";
+  "https://teams.live.com/meet/9379620383354?p=GEqjTA0LIPWYyshEWv";
 
 const pageTitle = "James Square Committee Meeting";
 const pageDescription =
@@ -21,23 +22,44 @@ const socialImageUrl =
   "https://www.james-square.com/images/logo/E7197D9E-8704-47EC-92E2-BC4D9C9506BC.png";
 
 const agendaItems = [
-  "Introductions for new members",
-  "Official acceptance of the constitution",
-  "Discussion and election of office holders",
-  "Discussion on emergency contacts and alarm responders",
-  "Jimmy meeting update",
-  "Agreement on wages to allow instruction to Myreside Management",
-  "Discussion on access and key holders",
-  "Update on Fior next steps",
-  "Update on the JSPA account",
+  {
+    title: "Swimming Pool – Lothian House Visit",
+    description:
+      "Update following the recent visit to the swimming pool facilities at Lothian House.",
+  },
+  {
+    title: "Swimming Pool Risk Assessment",
+    description:
+      "Update following the recent risk assessment visit and any actions arising from it.",
+  },
+  {
+    title: "Caretaker",
+    description:
+      "Update and discussion regarding the caretaker arrangements at James Square.",
+  },
+  {
+    title: "Fire Alarm",
+    description:
+      "Update on recent fire alarm discussions, volunteer arrangements and training.",
+  },
+  {
+    title: "Cleaning",
+    description:
+      "Update on recent discussions regarding cleaning arrangements at James Square.",
+  },
+  { title: "FIOR", description: "Update on matters relating to FIOR." },
+  {
+    title: "Myreside",
+    description:
+      "Update on recent discussions and matters raised with Myreside Management.",
+  },
+  { title: "Any Other Business" },
 ];
 
 export const metadata: Metadata = {
   title: pageTitle,
   description: pageDescription,
-  alternates: {
-    canonical: canonicalUrl,
-  },
+  alternates: { canonical: canonicalUrl },
   openGraph: {
     title: pageTitle,
     description: pageDescription,
@@ -49,7 +71,7 @@ export const metadata: Metadata = {
         url: socialImageUrl,
         width: 1536,
         height: 1024,
-        alt: "James Square Committee Meeting",
+        alt: pageTitle,
       },
     ],
   },
@@ -57,17 +79,9 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: pageTitle,
     description: pageDescription,
-    images: [
-      {
-        url: socialImageUrl,
-        alt: "James Square Committee Meeting",
-      },
-    ],
+    images: [{ url: socialImageUrl, alt: pageTitle }],
   },
-  robots: {
-    index: false,
-    follow: false,
-  },
+  robots: { index: false, follow: false },
 };
 
 export default function CommitteeMeetingPage() {
@@ -84,11 +98,10 @@ export default function CommitteeMeetingPage() {
 
       <div className="relative space-y-8 px-5 py-7 sm:px-10 sm:py-10">
         <header className="space-y-5">
-          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-sm font-medium text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">
+          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-sm font-semibold uppercase tracking-[0.12em] text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">
             <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />
-            Open meeting information — no sign-in required
+            Current meeting
           </div>
-
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.16em] text-blue-600 dark:text-blue-300">
               James Square
@@ -97,138 +110,95 @@ export default function CommitteeMeetingPage() {
               Committee meeting
             </h1>
             <p className="mt-4 max-w-3xl text-lg leading-relaxed text-slate-600 dark:text-slate-300">
-              Join us today, Monday 10 August 2026, either in person at the
-              conservatory or online using Microsoft Teams.
+              Attend in person at The Conservatory, James Square or join remotely
+              using Microsoft Teams.
             </p>
           </div>
         </header>
 
-        <section aria-labelledby="meeting-details-heading">
-          <h2 id="meeting-details-heading" className="sr-only">
-            Meeting details
-          </h2>
-          <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <MeetingDetail
-              icon={<CalendarDays className="h-5 w-5" aria-hidden="true" />}
-              label="Date"
-              value={<time dateTime="2026-08-10">Monday 10 August 2026</time>}
-            />
-            <MeetingDetail
-              icon={<Clock3 className="h-5 w-5" aria-hidden="true" />}
-              label="Time"
-              value={<time dateTime="2026-08-10T18:00:00+01:00">18:00</time>}
-            />
-            <MeetingDetail
-              icon={<MapPin className="h-5 w-5" aria-hidden="true" />}
-              label="In person"
-              value="The conservatory at James Square"
-            />
-            <MeetingDetail
-              icon={<MonitorSmartphone className="h-5 w-5" aria-hidden="true" />}
-              label="Online"
-              value="Microsoft Teams"
-            />
-          </dl>
-        </section>
-
-        <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-          <section className="space-y-5 rounded-2xl border border-blue-200 bg-blue-50/70 p-5 sm:p-6 dark:border-blue-900 dark:bg-blue-950/20">
-            <div className="flex items-start gap-3">
-              <div className="rounded-xl bg-white p-2.5 shadow-sm dark:bg-slate-800">
-                <Image
-                  src="/images/brands/microsoft-teams.svg"
-                  alt=""
-                  width={28}
-                  height={28}
-                />
-              </div>
-              <div>
-                <h2 className="text-xl font-semibold text-slate-950 dark:text-white">
-                  Join on Microsoft Teams
-                </h2>
-                <p className="mt-1 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
-                  Tap the button below, or copy and paste the meeting link into
-                  your browser to join.
-                </p>
-              </div>
-            </div>
-
-            <a
-              href={teamsLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3.5 font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:-translate-y-0.5 hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-            >
-              Join the Teams meeting
-              <ExternalLink className="h-4 w-4" aria-hidden="true" />
-            </a>
-
-            <a
-              href={teamsLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block break-all rounded-xl border border-blue-200 bg-white/80 px-4 py-3 text-sm text-blue-700 underline decoration-blue-300 underline-offset-2 hover:text-blue-900 dark:border-blue-900 dark:bg-slate-900/70 dark:text-blue-300 dark:hover:text-blue-200"
-            >
-              {teamsLink}
-            </a>
-
-            <div className="flex gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-relaxed text-amber-900 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-100">
-              <DoorOpen className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
-              <p>
-                <strong>Arriving in person?</strong> The conservatory door will
-                be wedged open.
+        <section
+          aria-labelledby="meeting-details-heading"
+          className="jqs-glass rounded-2xl border border-white/40 bg-white/55 p-5 shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-white/5 sm:p-6"
+        >
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-600 dark:text-blue-300">
+                Next meeting
+              </p>
+              <h2
+                id="meeting-details-heading"
+                className="mt-2 text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl dark:text-white"
+              >
+                <time dateTime="2026-09-15">Tuesday 15 September 2026</time>
+                <span className="mx-2 text-slate-300 dark:text-slate-600" aria-hidden="true">·</span>
+                <time dateTime="2026-09-15T18:15:00+01:00">18:15</time>
+              </h2>
+              <p className="mt-3 flex items-start gap-2 text-slate-600 dark:text-slate-300">
+                <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-blue-600 dark:text-blue-300" aria-hidden="true" />
+                <span><span className="font-medium text-slate-900 dark:text-slate-100">Location:</span> The Conservatory, James Square</span>
               </p>
             </div>
-          </section>
 
-          <section className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5 sm:p-6 dark:border-slate-800 dark:bg-slate-950/40">
-            <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-emerald-100 p-2 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
-                <ListChecks className="h-5 w-5" aria-hidden="true" />
-              </div>
-              <h2 className="text-2xl font-semibold text-slate-950 dark:text-white">
-                Agenda
-              </h2>
+            <div className="flex w-full flex-col gap-3 sm:flex-row lg:w-auto">
+              <a
+                href={teamsLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:-translate-y-0.5 hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+              >
+                <Image src="/images/brands/microsoft-teams.svg" alt="" width={22} height={22} />
+                Join Meeting on Teams
+                <ExternalLink className="h-4 w-4" aria-hidden="true" />
+              </a>
+              <a
+                href="/calendar/james-square-committee-meeting-september-2026.ics"
+                download="james-square-committee-meeting-september-2026.ics"
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white/80 px-5 py-3 font-semibold text-slate-800 shadow-sm transition hover:-translate-y-0.5 hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-100 dark:hover:bg-slate-800"
+              >
+                <CalendarDays className="h-5 w-5" aria-hidden="true" />
+                Add to Calendar
+                <Download className="h-4 w-4" aria-hidden="true" />
+              </a>
             </div>
+          </div>
 
-            <ol className="mt-5 space-y-3">
-              {agendaItems.map((item, index) => (
-                <li
-                  key={item}
-                  className="flex gap-3 rounded-xl border border-slate-200/80 bg-white px-4 py-3 text-slate-700 shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
-                >
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-100 text-sm font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-                    {index + 1}
-                  </span>
-                  <span className="pt-0.5 leading-relaxed">{item}</span>
-                </li>
-              ))}
-            </ol>
-          </section>
-        </div>
+          <div className="mt-5 flex items-center gap-2 border-t border-slate-200/80 pt-4 text-sm text-slate-500 dark:border-slate-700/80 dark:text-slate-400">
+            <MonitorSmartphone className="h-4 w-4 shrink-0" aria-hidden="true" />
+            Microsoft Teams is available for remote attendance.
+          </div>
+        </section>
+
+        <section
+          aria-labelledby="agenda-heading"
+          className="jqs-glass rounded-2xl border border-white/40 bg-white/55 p-5 shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-white/5 sm:p-6"
+        >
+          <div className="flex items-center gap-3">
+            <div className="rounded-lg bg-emerald-100 p-2 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+              <ListChecks className="h-5 w-5" aria-hidden="true" />
+            </div>
+            <h2 id="agenda-heading" className="text-2xl font-semibold text-slate-950 dark:text-white">
+              Agenda
+            </h2>
+          </div>
+          <ol className="mt-5 divide-y divide-slate-200/80 border-y border-slate-200/80 dark:divide-slate-700/80 dark:border-slate-700/80">
+            {agendaItems.map((item, index) => (
+              <li key={item.title} className="flex gap-4 py-4">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-100 text-sm font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                  {index + 1}
+                </span>
+                <div>
+                  <h3 className="font-semibold text-slate-900 dark:text-slate-100">{item.title}</h3>
+                  {item.description && (
+                    <p className="mt-1 text-sm leading-relaxed text-slate-600 dark:text-slate-400">{item.description}</p>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <PreviousMeeting />
       </div>
-    </div>
-  );
-}
-
-function MeetingDetail({
-  icon,
-  label,
-  value,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4 dark:border-slate-800 dark:bg-slate-950/40">
-      <dt className="flex items-center gap-2 text-sm font-medium text-slate-500 dark:text-slate-400">
-        <span className="text-blue-600 dark:text-blue-300">{icon}</span>
-        {label}
-      </dt>
-      <dd className="mt-2 font-semibold leading-snug text-slate-900 dark:text-slate-100">
-        {value}
-      </dd>
     </div>
   );
 }
