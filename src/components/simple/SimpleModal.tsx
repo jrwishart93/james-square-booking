@@ -16,7 +16,14 @@ export default function SimpleModal({ open, onClose, title, children }: { open: 
     const keydown = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
       if (event.key !== "Tab" || !panel.current) return;
-      const items = [...panel.current.querySelectorAll<HTMLElement>('button, textarea, a[href], [tabindex]:not([tabindex="-1"])')];
+      // Use Array.from rather than spreading the NodeList. The project does not
+      // include `DOM.Iterable` in its TypeScript libs, so a NodeList cannot be
+      // consumed with spread syntax in the production build.
+      const items = Array.from(
+        panel.current.querySelectorAll<HTMLElement>(
+          'button, textarea, a[href], [tabindex]:not([tabindex="-1"])',
+        ),
+      );
       if (!items.length) return;
       const first = items[0], last = items[items.length - 1];
       if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
@@ -34,4 +41,3 @@ export default function SimpleModal({ open, onClose, title, children }: { open: 
     </div>
   </div>;
 }
-
