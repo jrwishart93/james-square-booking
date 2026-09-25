@@ -56,3 +56,24 @@ serviceAccountKey.json
 firestore-debug.log
 ui-debug.log
 firebase-debug.log
+
+# logs
+*.log
+logs/
+
+# caches and temporary files
+.cache/
+.eslintcache
+.turbo/
+*.tmp
+*.temp
+*.swp
+*~
+Thumbs.db
+
+# Finder/iCloud duplicate copies (e.g. "package-lock 2.json")
+* [0-9].json
+
+# Firebase local cache and compiled functions test output
+.firebase/
+functions/node_modules/
