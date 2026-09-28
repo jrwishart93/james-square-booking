@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import ClaimPreparation from "./ClaimPreparation";
 import Reveal from "./Reveal";
-import { CopyButton } from "./ui";
+import { CopyButton, scrollMargin } from "./ui";
 import {
   FIOR_REPAYMENT_EMAIL,
   LIMITS,
@@ -165,6 +165,24 @@ export default function RepaymentRequest() {
   const recordsHeadingRef = useRef<HTMLHeadingElement>(null);
   const pendingFocus = useRef<React.RefObject<HTMLElement | null> | null>(null);
 
+  // Links to #part-2b elsewhere on the page (e.g. the FAQ) open Part 2B, which
+  // is otherwise only shown after choosing "still unresolved".
+  useEffect(() => {
+    const openFromHash = () => {
+      if (window.location.hash === "#part-2b") setOutcome("unresolved");
+    };
+    const onClick = (e: MouseEvent) => {
+      if ((e.target as Element | null)?.closest?.('a[href="#part-2b"]')) setOutcome("unresolved");
+    };
+    openFromHash();
+    window.addEventListener("hashchange", openFromHash);
+    document.addEventListener("click", onClick);
+    return () => {
+      window.removeEventListener("hashchange", openFromHash);
+      document.removeEventListener("click", onClick);
+    };
+  }, []);
+
   // Move focus after the stage changes so keyboard and screen reader users land on the new content.
   useEffect(() => {
     pendingFocus.current?.current?.focus();
@@ -206,7 +224,7 @@ export default function RepaymentRequest() {
   const activeStep = stage === "form" ? 0 : stage === "preview" ? 1 : confirmedSent ? 4 : 3;
 
   return (
-    <section id="part-2" aria-labelledby="part2-heading" className="scroll-mt-[calc(var(--nav-height,4rem)+1rem)]">
+    <section id="part-2" aria-labelledby="part2-heading" className={scrollMargin}>
       {/* ── Part 2 intro ─────────────────────────────────── */}
       <Reveal className="border-t border-slate-200/80 pt-14 dark:border-white/10 sm:pt-20">
         <p className="inline-flex items-center gap-2 rounded-full border border-sky-200/80 bg-white/60 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-sky-700 backdrop-blur dark:border-sky-400/20 dark:bg-white/5 dark:text-sky-300">
@@ -258,7 +276,7 @@ export default function RepaymentRequest() {
 
       {/* ── Step 1 ───────────────────────────────────────── */}
       <div className="mt-14 grid gap-10 lg:grid-cols-[minmax(0,4fr)_minmax(0,7fr)] lg:gap-14">
-        <div className="lg:sticky lg:top-[calc(var(--nav-height)+2rem)] lg:self-start">
+        <div className="lg:sticky lg:top-[calc(var(--nav-height)+4.5rem)] lg:self-start">
           <Reveal>
             <p className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-sky-700 dark:text-sky-300">
               <span className="font-mono tracking-normal text-slate-400 dark:text-slate-500">Step 1 of 4</span>
