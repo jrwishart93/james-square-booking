@@ -155,7 +155,7 @@ const journey = [
     title: "Simple Procedure guide",
     description:
       "A practical step-by-step guide to requesting repayment, preparing evidence and, where appropriate, submitting a Simple Procedure claim.",
-    status: "Coming next",
+    status: "Available below",
     state: "next" as const,
   },
   {
