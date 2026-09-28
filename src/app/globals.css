@@ -730,3 +730,82 @@ body::before {
     transition-duration: 1ms;
   }
 }
+
+/* /fior-info claim preparation: print one personal preparation document
+   (schedule of payments or summary). The document is rendered into
+   #jqs-print-root only while printing; everything else is hidden. */
+#jqs-print-root {
+  display: none;
+}
+@media print {
+  html.jqs-printing body > *:not(#jqs-print-root) {
+    display: none !important;
+  }
+  html.jqs-printing #jqs-print-root {
+    display: block !important;
+  }
+  html.jqs-printing,
+  html.jqs-printing body {
+    background: #fff !important;
+    background-image: none !important;
+  }
+  html.jqs-printing body::before {
+    display: none !important;
+  }
+  @page {
+    margin: 18mm;
+  }
+}
+.jqs-print-doc {
+  color: #000;
+  background: #fff;
+  font: 11pt/1.5 Georgia, "Times New Roman", serif;
+  padding: 0;
+}
+.jqs-print-doc h1 {
+  font-size: 18pt;
+  margin: 0.25rem 0 0.75rem;
+}
+.jqs-print-doc h2 {
+  font-size: 12.5pt;
+  margin: 1.25rem 0 0.35rem;
+  break-after: avoid;
+}
+.jqs-print-doc p {
+  margin: 0.2rem 0;
+}
+.jqs-print-doc .jqs-pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.jqs-print-doc .jqs-print-label {
+  font: 600 8.5pt/1.4 system-ui, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border: 1px solid #000;
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+}
+.jqs-print-doc table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.75rem 0;
+}
+.jqs-print-doc th,
+.jqs-print-doc td {
+  border: 1px solid #999;
+  padding: 0.3rem 0.5rem;
+  text-align: left;
+  vertical-align: top;
+}
+.jqs-print-doc tr {
+  break-inside: avoid;
+}
+.jqs-print-doc ul {
+  margin: 0.2rem 0 0 1.25rem;
+  list-style: disc;
+}
+.jqs-print-doc .jqs-print-footer {
+  margin-top: 1.5rem;
+  font-size: 9pt;
+}

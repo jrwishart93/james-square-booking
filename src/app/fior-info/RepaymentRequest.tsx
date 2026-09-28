@@ -5,19 +5,20 @@ import {
   ArrowRight,
   Check,
   CheckCircle2,
-  Copy,
   FileText,
   Hourglass,
+  Landmark,
   Lock,
   Mail,
   MailCheck,
   MessageSquareReply,
   PencilLine,
-  Scale,
   Send,
   XCircle,
 } from "lucide-react";
+import ClaimPreparation from "./ClaimPreparation";
 import Reveal from "./Reveal";
+import { CopyButton } from "./ui";
 import {
   FIOR_REPAYMENT_EMAIL,
   LIMITS,
@@ -74,74 +75,40 @@ const recordsToKeep = [
   "Evidence relating to the payment.",
 ];
 
-const outcomes = [
+type Outcome = "resolved" | "response" | "unresolved";
+
+const outcomes: { id: Outcome; kicker: string; title: string; body: string; icon: typeof CheckCircle2 }[] = [
   {
-    title: "Money returned",
-    body: "No further recovery action may be necessary if you consider the matter resolved.",
+    id: "resolved",
+    kicker: "Money returned",
+    title: "My issue has been resolved",
+    body: "If you are satisfied the matter has been resolved, you may not need to continue with this guide.",
     icon: CheckCircle2,
   },
   {
-    title: "FIOR responds",
-    body: "Consider their response and compare it with your own records.",
+    id: "response",
+    kicker: "FIOR responded",
+    title: "I’ve received a response",
+    body: "Consider the response and compare it with your own records before deciding what to do next. This guide cannot tell you whether a response is correct.",
     icon: MessageSquareReply,
   },
   {
-    title: "No repayment or resolution",
-    body: "The next section of this guide will explain the Scottish Simple Procedure process and where to find the official Scottish Courts service.",
+    id: "unresolved",
+    kicker: "Still unresolved",
+    title: "My repayment request has not resolved the matter",
+    body: "Part 2B below explains Simple Procedure and helps you organise your information before you decide whether to use the official Scottish Courts service.",
     icon: XCircle,
   },
 ];
 
+const partTwoJourney = [
+  { number: "01", title: "Request repayment", note: "Available", state: "available" as const },
+  { number: "02", title: "Prepare your claim", note: "Part 2B – this guide", state: "available" as const },
+  { number: "03", title: "Submit through Scottish Courts", note: "External – Civil Online", state: "external" as const },
+  { number: "04", title: "Follow your court case", note: "Brief guidance", state: "info" as const },
+];
+
 type Stage = "form" | "preview" | "opened";
-
-async function copyText(text: string): Promise<boolean> {
-  try {
-    await navigator.clipboard.writeText(text);
-    return true;
-  } catch {
-    // Older browsers / non-secure contexts: fall back to a temporary textarea.
-    try {
-      const el = document.createElement("textarea");
-      el.value = text;
-      el.setAttribute("readonly", "");
-      el.style.position = "fixed";
-      el.style.opacity = "0";
-      document.body.appendChild(el);
-      el.select();
-      const ok = document.execCommand("copy");
-      document.body.removeChild(el);
-      return ok;
-    } catch {
-      return false;
-    }
-  }
-}
-
-function CopyButton({ label, text }: { label: string; text: string }) {
-  const [state, setState] = useState<"idle" | "copied" | "failed">("idle");
-  useEffect(() => {
-    if (state === "idle") return;
-    const t = window.setTimeout(() => setState("idle"), 2500);
-    return () => window.clearTimeout(t);
-  }, [state]);
-  return (
-    <button
-      type="button"
-      onClick={async () => setState((await copyText(text)) ? "copied" : "failed")}
-      className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-slate-200 bg-white/70 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-white dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-200 dark:hover:bg-white/[0.08] ${focusRing}`}
-    >
-      {state === "copied" ? (
-        <Check className="h-4 w-4 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
-      ) : (
-        <Copy className="h-4 w-4" aria-hidden="true" />
-      )}
-      <span>{label}</span>
-      <span aria-live="polite" className="text-emerald-700 dark:text-emerald-300">
-        {state === "copied" ? "Copied" : state === "failed" ? "Couldn’t copy – please select the text instead" : ""}
-      </span>
-    </button>
-  );
-}
 
 function Field({
   id,
@@ -189,6 +156,7 @@ export default function RepaymentRequest() {
   const [stage, setStage] = useState<Stage>("form");
   const [body, setBody] = useState("");
   const [confirmedSent, setConfirmedSent] = useState(false);
+  const [outcome, setOutcome] = useState<Outcome | null>(null);
 
   const formHeadingRef = useRef<HTMLHeadingElement>(null);
   const errorSummaryRef = useRef<HTMLDivElement>(null);
@@ -253,12 +221,47 @@ export default function RepaymentRequest() {
         </p>
       </Reveal>
 
+      <Reveal className="mt-10">
+        <ol className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4" aria-label="Part 2 journey">
+          {partTwoJourney.map(({ number, title, note, state }) => (
+            <li
+              key={number}
+              className={`flex items-center gap-3 rounded-2xl border px-4 py-3 ${
+                state === "available"
+                  ? "border-sky-200/80 bg-white/75 dark:border-sky-400/20 dark:bg-slate-900/60"
+                  : "border-dashed border-slate-300/90 bg-white/40 dark:border-white/15 dark:bg-white/[0.02]"
+              }`}
+            >
+              <span
+                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border font-mono text-sm font-semibold ${
+                  state === "available"
+                    ? "border-sky-500 bg-sky-500 text-white dark:border-sky-400 dark:bg-sky-400 dark:text-slate-950"
+                    : "border-slate-300 bg-white text-slate-500 dark:border-white/15 dark:bg-slate-900 dark:text-slate-400"
+                }`}
+                aria-hidden="true"
+              >
+                {state === "external" ? <Landmark className="h-4 w-4" /> : number}
+              </span>
+              <span className="min-w-0">
+                <span className="sr-only">Step {number}: </span>
+                <span className="block text-[15px] font-semibold leading-5 text-slate-900 dark:text-white">{title}</span>
+                <span className="mt-0.5 block text-xs text-slate-500 dark:text-slate-400">{note}</span>
+              </span>
+            </li>
+          ))}
+        </ol>
+        <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-400">
+          Moving through these steps is optional. Reaching step 02 does not mean you should raise court proceedings –
+          that is a decision for each owner.
+        </p>
+      </Reveal>
+
       {/* ── Step 1 ───────────────────────────────────────── */}
       <div className="mt-14 grid gap-10 lg:grid-cols-[minmax(0,4fr)_minmax(0,7fr)] lg:gap-14">
         <div className="lg:sticky lg:top-[calc(var(--nav-height)+2rem)] lg:self-start">
           <Reveal>
             <p className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-sky-700 dark:text-sky-300">
-              <span className="font-mono tracking-normal text-slate-400 dark:text-slate-500">Step 1 of 5</span>
+              <span className="font-mono tracking-normal text-slate-400 dark:text-slate-500">Step 1 of 4</span>
               <span className="h-px w-6 bg-sky-600/40 dark:bg-sky-300/40" aria-hidden="true" />
               Repayment request
             </p>
@@ -643,35 +646,61 @@ export default function RepaymentRequest() {
           </div>
         </Reveal>
 
-        <ul className="mt-10 grid gap-4 md:grid-cols-3" role="list">
-          {outcomes.map(({ title, body: text, icon: Icon }, i) => (
-            <Reveal as="li" key={title} delay={i} className="h-full">
-              <div className={`${glassPanel} flex h-full flex-col rounded-2xl p-5 sm:p-6`}>
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-50 text-sky-700 ring-1 ring-sky-100 dark:bg-sky-400/10 dark:text-sky-300 dark:ring-sky-400/20">
-                  <Icon className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
-                </span>
-                <h4 className="mt-5 text-base font-semibold tracking-tight text-slate-950 dark:text-white">{title}</h4>
-                <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{text}</p>
-              </div>
-            </Reveal>
-          ))}
-        </ul>
-
-        <Reveal className="mt-8">
-          <div className="flex items-center gap-4 rounded-3xl border border-dashed border-slate-300/90 p-5 dark:border-white/15 sm:p-6">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-500 dark:border-white/15 dark:bg-slate-900 dark:text-slate-400">
-              <Scale className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
-            </span>
-            <div className="flex flex-1 flex-wrap items-center justify-between gap-2">
-              <p className="text-lg font-semibold tracking-tight text-slate-800 dark:text-slate-200">
-                Step 2 – Simple Procedure
-              </p>
-              <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-500 dark:bg-white/[0.06] dark:text-slate-400">
-                Coming next
-              </span>
+        <Reveal className="mt-10">
+          <fieldset>
+            <legend className="text-lg font-semibold tracking-tight text-slate-950 dark:text-white">
+              Where are things now?
+            </legend>
+            <div className="mt-4 grid gap-4 md:grid-cols-3">
+              {outcomes.map(({ id, kicker, title, icon: Icon }) => {
+                const selected = outcome === id;
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    aria-pressed={selected}
+                    aria-controls={id === "unresolved" ? "part-2b" : undefined}
+                    onClick={() => setOutcome(selected ? null : id)}
+                    className={`flex h-full flex-col rounded-2xl border p-5 text-left transition sm:p-6 ${focusRing} ${
+                      selected
+                        ? "border-sky-500 bg-white shadow-[0_16px_40px_rgba(14,165,233,0.16)] ring-1 ring-sky-500 dark:border-sky-400 dark:bg-slate-900 dark:ring-sky-400"
+                        : `${glassPanel} hover:border-sky-300 dark:hover:border-sky-400/40`
+                    }`}
+                  >
+                    <span className="flex w-full items-center justify-between">
+                      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-50 text-sky-700 ring-1 ring-sky-100 dark:bg-sky-400/10 dark:text-sky-300 dark:ring-sky-400/20">
+                        <Icon className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
+                      </span>
+                      <span
+                        className={`flex h-6 w-6 items-center justify-center rounded-full border ${
+                          selected
+                            ? "border-sky-600 bg-sky-600 text-white dark:border-sky-300 dark:bg-sky-300 dark:text-slate-950"
+                            : "border-slate-300 dark:border-white/20"
+                        }`}
+                        aria-hidden="true"
+                      >
+                        {selected && <Check className="h-3.5 w-3.5" strokeWidth={3} />}
+                      </span>
+                    </span>
+                    <span className="mt-5 text-[11px] font-semibold uppercase tracking-[0.16em] text-sky-700 dark:text-sky-300">
+                      {kicker}
+                    </span>
+                    <span className="mt-1 text-base font-semibold tracking-tight text-slate-950 dark:text-white">{title}</span>
+                  </button>
+                );
+              })}
             </div>
+          </fieldset>
+          <div aria-live="polite">
+            {outcome && outcome !== "unresolved" && (
+              <p className="mt-5 rounded-2xl border border-slate-200/80 bg-slate-50/70 px-5 py-4 text-[15px] leading-7 text-slate-700 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-300">
+                {outcomes.find((o) => o.id === outcome)?.body}
+              </p>
+            )}
           </div>
         </Reveal>
+
+        {outcome === "unresolved" && <ClaimPreparation repaymentSent={confirmedSent} fromRequest={details} />}
       </div>
     </section>
   );
