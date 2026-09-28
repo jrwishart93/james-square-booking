@@ -1,5 +1,23 @@
 import type { Metadata } from "next";
-import { ArrowUpRight, Check, Clock3, FileText, Info } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import {
+  ArrowUpRight,
+  Check,
+  ClipboardList,
+  FileText,
+  HandCoins,
+  Hammer,
+  Info,
+  MessagesSquare,
+  RefreshCw,
+  Repeat,
+  Scale,
+  ShieldCheck,
+  Undo2,
+  UserRound,
+  Users,
+} from "lucide-react";
+import Reveal from "./Reveal";
 
 const pageTitle = "FIOR Property Assets | Owner Information | James Square";
 const pageDescription =
@@ -17,254 +35,596 @@ export const metadata: Metadata = {
   },
 };
 
-const sectionClass =
-  "jqs-glass relative overflow-hidden p-6 sm:p-8 lg:p-10 bg-white/65 dark:bg-slate-900/55";
-const headingClass = "text-2xl font-semibold tracking-tight text-slate-950 dark:text-white sm:text-3xl";
-const copyClass = "space-y-4 text-[15px] leading-7 text-slate-700 dark:text-slate-200 sm:text-base";
+const SIMPLE_PROCEDURE_URL = "https://www.scotcourts.gov.uk/taking-action/simple-procedure/";
 
-const concerns = [
-  "Direct Debit payments continuing after FIOR ceased acting as factor.",
-  "Owners making payments which they believe were no longer due to FIOR.",
-  "Money being requested from some owners towards proposed roof or repair works.",
-  "Owners reporting that planned works associated with some of those payments had not been carried out.",
-  "Owners experiencing difficulties or delays when subsequently requesting repayment.",
+const glassPanel =
+  "rounded-3xl border border-white/70 bg-white/65 shadow-[0_12px_40px_rgba(15,23,42,0.07)] backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/50 dark:shadow-[0_20px_50px_rgba(0,0,0,0.35)]";
+const h2Class = "text-[1.75rem] font-semibold leading-tight tracking-tight text-slate-950 dark:text-white sm:text-4xl";
+const copyClass = "space-y-4 text-[15px] leading-7 text-slate-700 dark:text-slate-300 sm:text-base sm:leading-[1.8]";
+const hoverLift =
+  "transition duration-300 motion-safe:md:hover:-translate-y-0.5 md:hover:shadow-[0_16px_40px_rgba(15,23,42,0.10)] dark:md:hover:shadow-[0_20px_50px_rgba(0,0,0,0.45)]";
+
+const statusMarkers = [
+  { label: "Factor changed", value: "1 February 2026" },
+  { label: "Owner concerns", value: "Information gathered" },
+  { label: "Current position", value: "Information & options available" },
 ];
 
-const nextSteps = [
+const timeline = [
+  {
+    when: "Late 2025 / Early 2026",
+    title: "Discussions about change of factor",
+    body: "Discussions took place regarding FIOR’s intention to leave James Square alongside concerns raised by owners about aspects of the factoring service.",
+    icon: MessagesSquare,
+  },
+  {
+    when: "1 February 2026",
+    title: "Myreside takes over",
+    body: "Myreside Management became the new factor for James Square.",
+    icon: RefreshCw,
+    milestone: true,
+  },
+  {
+    when: "Following the change",
+    title: "Outstanding funds pursued",
+    body: "Correspondence took place requesting the transfer of James Square funds to Myreside.",
+    icon: HandCoins,
+  },
+  {
+    when: "Owner concerns emerge",
+    title: "Individual payments reported",
+    body: "Owners contacted the committee regarding Direct Debits, payments and money paid towards proposed works.",
+    icon: UserRound,
+  },
+  {
+    when: "Committee questionnaire",
+    title: "Information gathered",
+    body: "The committee gathered information from affected owners to understand whether similar circumstances were being experienced across the development.",
+    icon: ClipboardList,
+  },
+  {
+    when: "Information provided to Police Scotland",
+    title: "Concerns reported",
+    body: "Information gathered by the committee was provided to Police Scotland. The matter remains subject to an ongoing enquiry.",
+    icon: ShieldCheck,
+  },
+];
+
+const concerns: { title: string; body: string; icon: LucideIcon }[] = [
+  {
+    title: "Direct Debit payments",
+    body: "Direct Debit payments continuing after FIOR ceased acting as factor.",
+    icon: Repeat,
+  },
+  {
+    title: "Other payments",
+    body: "Owners making payments which they believe were no longer due to FIOR.",
+    icon: HandCoins,
+  },
+  {
+    title: "Roof & repair funds",
+    body: "Money being requested from some owners towards proposed roof or repair works. Some owners reported that planned works associated with those payments had not been carried out.",
+    icon: Hammer,
+  },
+  {
+    title: "Repayment difficulties",
+    body: "Owners experiencing difficulties or delays when subsequently requesting repayment.",
+    icon: Undo2,
+  },
+];
+
+const legalOptions = [
+  {
+    title: "Collective solicitor action",
+    kicker: "Owners acting together",
+    icon: Users,
+    points: [
+      "Owners would need to be individually onboarded and formally instruct the solicitor.",
+      "Identification and documentation may be required.",
+      "Legal costs may be incurred.",
+      "Responsibility for costs may need to be shared between participating owners.",
+    ],
+  },
+  {
+    title: "Individual Simple Procedure",
+    kicker: "Each owner acting for themselves",
+    icon: Scale,
+    points: [
+      "An individual owner makes their own claim.",
+      "The Scottish Courts and Tribunals Service states it can be used for claims seeking payment of £5,000 or less.",
+      "A solicitor is not required, although an owner can choose to use one.",
+      "Court fees apply, although some people may qualify for fee exemption.",
+      "Official guidance is published by the Scottish Courts and Tribunals Service.",
+    ],
+  },
+];
+
+const journey = [
   {
     number: "01",
-    title: "Understand the background",
-    eyebrow: "You are here",
-    description: "Why this information page has been created and what has happened so far.",
-    state: "Current section",
-    icon: Check,
-    current: true,
+    kicker: "Understand the background",
+    title: "Background & current position",
+    description: "Why this page exists, what owners have reported and what has happened so far.",
+    status: "You are here",
+    state: "current" as const,
   },
   {
     number: "02",
-    title: "Recovering money through Simple Procedure",
-    eyebrow: "Step-by-step guide",
+    kicker: "Recovering money",
+    title: "Simple Procedure guide",
     description:
-      "A practical guide explaining how an individual owner can prepare and submit a Simple Procedure claim, what information they will need and links to the official Scottish Courts Civil Online service.",
-    state: "Guide coming next",
-    icon: FileText,
+      "A practical step-by-step guide to requesting repayment, preparing evidence and, where appropriate, submitting a Simple Procedure claim.",
+    status: "Coming next",
+    state: "next" as const,
   },
   {
     number: "03",
+    kicker: "Further information",
     title: "Police Scotland & FAQs",
-    eyebrow: "Further information",
     description:
-      "Information for owners who believe their circumstances may be relevant to the ongoing Police Scotland enquiry, together with frequently asked questions.",
-    state: "To be added",
-    icon: Clock3,
+      "Information for owners whose circumstances may be relevant to the ongoing enquiry, together with answers to common questions.",
+    status: "To be added",
+    state: "later" as const,
   },
 ];
 
+function SectionLabel({ number, children }: { number: string; children: React.ReactNode }) {
+  return (
+    <p className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-sky-700 dark:text-sky-300">
+      <span className="font-mono tracking-normal text-slate-400 dark:text-slate-500">{number}</span>
+      <span className="h-px w-6 bg-sky-600/40 dark:bg-sky-300/40" aria-hidden="true" />
+      {children}
+    </p>
+  );
+}
+
 export default function FiorInfoPage() {
   return (
-    <div className="relative isolate -mx-4 -my-8 overflow-hidden px-4 py-10 sm:-mx-6 sm:px-6 sm:py-14 lg:py-16">
-      <div
-        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_12%_4%,rgba(56,189,248,0.13),transparent_31%),radial-gradient(circle_at_88%_24%,rgba(99,102,241,0.10),transparent_30%)] dark:bg-[radial-gradient(circle_at_12%_4%,rgba(56,189,248,0.10),transparent_31%),radial-gradient(circle_at_88%_24%,rgba(99,102,241,0.12),transparent_30%)]"
-        aria-hidden="true"
-      />
+    <div className="relative isolate -mx-4 -my-8 overflow-x-clip px-4 pb-16 sm:-mx-6 sm:px-6 sm:pb-24">
+      <article className="mx-auto max-w-5xl">
+        {/* ── Hero ─────────────────────────────────────────── */}
+        <header className="relative pb-14 pt-14 sm:pb-20 sm:pt-24 lg:pt-28">
+          <div
+            className="pointer-events-none absolute -left-24 -top-10 -z-10 h-[26rem] w-[26rem] rounded-full bg-sky-300/25 blur-3xl dark:bg-sky-500/15 sm:h-[34rem] sm:w-[34rem]"
+            aria-hidden="true"
+          />
+          <div
+            className="pointer-events-none absolute -right-32 top-20 -z-10 h-72 w-72 rounded-full bg-indigo-300/20 blur-3xl dark:bg-indigo-500/15 sm:h-96 sm:w-96"
+            aria-hidden="true"
+          />
 
-      <article className="mx-auto max-w-5xl space-y-6 sm:space-y-8">
-        <header className="relative overflow-hidden rounded-3xl border border-white/70 bg-white/70 px-6 py-10 shadow-[0_20px_60px_rgba(15,23,42,0.10)] backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/55 dark:shadow-[0_24px_70px_rgba(0,0,0,0.35)] sm:px-10 sm:py-14 lg:px-14 lg:py-16">
-          <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-sky-400 via-blue-500 to-indigo-500" aria-hidden="true" />
-          <div className="relative max-w-4xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-700 dark:text-sky-300">
-              OWNER INFORMATION
+          <Reveal>
+            <p className="inline-flex items-center gap-2 rounded-full border border-sky-200/80 bg-white/60 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-sky-700 backdrop-blur dark:border-sky-400/20 dark:bg-white/5 dark:text-sky-300">
+              Owner information
+              <span className="h-1 w-1 rounded-full bg-sky-500/70" aria-hidden="true" />
+              <span className="text-slate-500 dark:text-slate-400">Part 1</span>
             </p>
-            <h1 className="mt-4 text-4xl font-semibold tracking-tight text-slate-950 dark:text-white sm:text-5xl lg:text-6xl">
-              FIOR Property Assets
+            <h1 className="mt-6 text-[2.75rem] font-semibold leading-[1.02] tracking-[-0.035em] text-slate-950 dark:text-white sm:text-6xl lg:text-7xl">
+              FIOR Property
+              <br className="hidden sm:block" /> Assets
             </h1>
-            <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-700 dark:text-slate-200 sm:text-xl">
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-700 dark:text-slate-200 sm:text-xl sm:leading-9">
               Information for James Square owners about outstanding funds, individual payments and the options available
               to owners.
             </p>
-            <div className="mt-8 max-w-3xl border-t border-slate-200/80 pt-6 text-[15px] leading-7 text-slate-600 dark:border-white/10 dark:text-slate-300 sm:text-base">
-              This page has been created to bring together information for James Square owners following the departure
-              of FIOR Property Assets as factor and concerns raised by owners regarding money they believe remains
-              outstanding.
-            </div>
-          </div>
+          </Reveal>
+
+          <Reveal delay={2}>
+            <dl className="mt-10 grid gap-px overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-200/70 dark:border-white/10 dark:bg-white/10 sm:mt-12 sm:grid-cols-3">
+              {statusMarkers.map(({ label, value }) => (
+                <div key={label} className="bg-white/80 px-5 py-4 backdrop-blur dark:bg-slate-900/80">
+                  <dt className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+                    {label}
+                  </dt>
+                  <dd className="mt-1 text-[15px] font-medium text-slate-900 dark:text-slate-100">{value}</dd>
+                </div>
+              ))}
+            </dl>
+          </Reveal>
         </header>
 
-        <section className={sectionClass} aria-labelledby="background-heading">
-          <h2 id="background-heading" className={headingClass}>Background</h2>
-          <div className={`${copyClass} mt-5`}>
-            <p>
-              FIOR Property Assets ceased acting as factor for James Square at the end of January 2026, with Myreside
-              Management taking over from 1 February 2026.
-            </p>
-            <p>
-              The change followed discussions during the preceding months regarding FIOR&apos;s intention to leave James
-              Square and concerns from owners about aspects of the factoring service and work which owners understood
-              FIOR was responsible for arranging or completing.
-            </p>
-            <p>
-              Following the change of factor, correspondence took place requesting that money and communal funds held
-              in connection with James Square be transferred to Myreside Management. At the time this page was prepared,
-              the committee understands that some funds remain outstanding and Myreside continues to pursue this
-              separately.
-            </p>
-            <p className="rounded-2xl border border-sky-200/70 bg-sky-50/70 px-5 py-4 font-medium text-slate-800 dark:border-sky-400/20 dark:bg-sky-400/10 dark:text-slate-100">
-              Communal James Square funds are separate from any money that may be owed directly to individual owners.
-            </p>
-          </div>
-        </section>
+        {/* ── Introduction ─────────────────────────────────── */}
+        <Reveal className="border-t border-slate-200/80 pt-10 dark:border-white/10 sm:pt-14">
+          <p className="max-w-3xl text-xl leading-9 tracking-[-0.01em] text-slate-800 dark:text-slate-100 sm:text-2xl sm:leading-[1.6]">
+            This page has been created to bring together information for James Square owners following the departure of
+            FIOR Property Assets as factor and concerns raised by owners regarding money they believe remains
+            outstanding.
+          </p>
+        </Reveal>
 
-        <section className={sectionClass} aria-labelledby="concerns-heading">
-          <h2 id="concerns-heading" className={headingClass}>Concerns raised by owners</h2>
-          <div className={`${copyClass} mt-5`}>
-            <p>
-              After Myreside Management took over, the James Square Owners Committee began receiving reports from
-              individual owners who believed they had personally paid money to FIOR which should be returned.
-            </p>
-            <p>Examples reported to the committee included:</p>
-            <ul className="grid gap-3" role="list">
-              {concerns.map((concern) => (
-                <li key={concern} className="flex gap-3 rounded-xl border border-slate-200/80 bg-white/55 px-4 py-3 dark:border-white/10 dark:bg-white/5">
-                  <span className="mt-[0.65rem] h-1.5 w-1.5 shrink-0 rounded-full bg-sky-500" aria-hidden="true" />
-                  <span>{concern}</span>
-                </li>
-              ))}
-            </ul>
-            <p className="text-sm text-slate-600 dark:text-slate-300">
-              These are concerns reported by individual owners. They are not presented as findings about FIOR or any
-              individual.
-            </p>
-          </div>
-        </section>
-
-        <section className={sectionClass} aria-labelledby="information-heading">
-          <h2 id="information-heading" className={headingClass}>Information gathered by the committee</h2>
-          <div className={`${copyClass} mt-5`}>
-            <p>
-              As similar concerns were being raised by more than one owner, the James Square Owners Committee prepared a
-              questionnaire to better understand the scale and nature of the issue. A number of owners responded and
-              confirmed circumstances in which they believed money remained due back to them.
-            </p>
-            <p>
-              The purpose of gathering this information was to establish whether individual reports appeared to form
-              part of a wider issue and to allow the committee to determine what appropriate steps could be taken.
-            </p>
-            <div className="flex items-start gap-3 rounded-2xl border border-slate-200/80 bg-slate-50/75 p-5 dark:border-white/10 dark:bg-white/5">
-              <Info className="mt-0.5 h-5 w-5 shrink-0 text-sky-600 dark:text-sky-300" aria-hidden="true" />
-              <p className="text-sm leading-6">
-                No owners&apos; names, property numbers, amounts, bank information, questionnaire responses or other
-                personally identifiable information are published on this page.
-              </p>
+        <div className="mt-20 space-y-24 sm:mt-28 sm:space-y-32">
+          {/* ── 1.1 Background + timeline ──────────────────── */}
+          <section aria-labelledby="background-heading" className="grid gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-16">
+            <div className="lg:sticky lg:top-[calc(var(--nav-height)+2rem)] lg:self-start">
+              <Reveal>
+                <SectionLabel number="1.1">Background</SectionLabel>
+                <h2 id="background-heading" className={`${h2Class} mt-4`}>
+                  What has happened so far
+                </h2>
+                <div className={`${copyClass} mt-6`}>
+                  <p>
+                    FIOR Property Assets ceased acting as factor for James Square at the end of January 2026, with
+                    Myreside Management taking over from 1 February 2026.
+                  </p>
+                  <p>
+                    The change followed discussions during the preceding months regarding FIOR&apos;s intention to leave
+                    James Square and concerns from owners about aspects of the factoring service and work which owners
+                    understood FIOR was responsible for arranging or completing.
+                  </p>
+                  <p>
+                    Following the change of factor, correspondence took place requesting that money and communal funds
+                    held in connection with James Square be transferred to Myreside Management. At the time this page
+                    was prepared, the committee understands that some funds remain outstanding and Myreside continues to
+                    pursue this separately.
+                  </p>
+                </div>
+                <p className="mt-6 border-l-2 border-sky-500 pl-4 text-[15px] font-medium leading-7 text-slate-900 dark:border-sky-400 dark:text-white">
+                  Communal James Square funds are separate from any money that may be owed directly to individual owners.
+                </p>
+              </Reveal>
             </div>
-          </div>
-        </section>
 
-        <section className={sectionClass} aria-labelledby="police-heading">
-          <h2 id="police-heading" className={headingClass}>Information provided to Police Scotland</h2>
-          <div className={`${copyClass} mt-5`}>
-            <p>
-              Following the information received from owners, the committee contacted Police Scotland and provided
-              information about the concerns which had been reported.
-            </p>
-            <p>
-              The purpose was to make Police Scotland aware that a number of owners reported difficulty recovering money
-              and to allow Police Scotland to determine whether any circumstances required investigation. The matter
-              remains the subject of an ongoing enquiry. Police Scotland has not reached a conclusion, and this page
-              does not state or imply that FIOR, or any director or employee of FIOR, has committed an offence or is
-              guilty of wrongdoing.
-            </p>
-            <p className="border-l-2 border-sky-400 pl-4 text-sm italic text-slate-600 dark:text-slate-300">
-              If you believe your circumstances may be relevant to the ongoing Police Scotland enquiry, further
-              information on contacting the enquiry officer will be added in Part 3 of this guide.
-            </p>
-          </div>
-        </section>
-
-        <section className={sectionClass} aria-labelledby="recovering-heading">
-          <h2 id="recovering-heading" className={headingClass}>Recovering money owed to individual owners</h2>
-          <div className={`${copyClass} mt-5`}>
-            <p>
-              The committee also sought legal guidance about the practical options available to owners who believe FIOR
-              owes money directly to them.
-            </p>
-            <p>
-              The guidance received was that, while collective legal action could potentially be considered, affected
-              owners could need to be individually onboarded by a solicitor, provide identification and documentation,
-              formally instruct the firm and potentially share responsibility for legal costs. For relatively modest
-              individual amounts, this may not be the most proportionate way for owners to attempt to recover their
-              money.
-            </p>
-            <p>
-              Owners were therefore advised to consider whether the Scottish Simple Procedure may be appropriate for
-              their individual circumstances. This is ultimately a decision for each individual owner.
-            </p>
-            <div className="rounded-2xl border border-sky-200/80 bg-gradient-to-br from-sky-50/90 to-white/60 p-5 dark:border-sky-400/20 dark:from-sky-400/10 dark:to-white/5 sm:p-6">
-              <p className="font-medium text-slate-900 dark:text-white">
-                The Scottish Courts and Tribunals Service states that Simple Procedure can be used for claims seeking
-                payment of £5,000 or less. A solicitor is not required, although an owner can choose to use one.
-              </p>
-              <p className="mt-3 text-sm">
-                Court fees apply when submitting a claim, although some people may qualify for fee exemption.
-              </p>
-              <a
-                href="https://www.scotcourts.gov.uk/taking-action/simple-procedure/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100"
-              >
-                Read the official Simple Procedure guidance
-                <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
-              </a>
-            </div>
-          </div>
-        </section>
-
-        <section className="relative overflow-hidden rounded-3xl bg-slate-950 p-6 text-white shadow-2xl sm:p-8 lg:p-10" aria-labelledby="next-heading">
-          <div className="absolute right-0 top-0 h-64 w-64 translate-x-1/3 -translate-y-1/3 rounded-full bg-sky-400/20 blur-3xl" aria-hidden="true" />
-          <div className="relative">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-300">This owner resource</p>
-            <h2 id="next-heading" className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">What happens next?</h2>
-            <div className="mt-8 grid gap-4 lg:grid-cols-3">
-              {nextSteps.map(({ number, title, eyebrow, description, state, icon: Icon, current }) => (
-                <article
-                  key={number}
-                  className={`flex min-h-full flex-col rounded-2xl border p-5 sm:p-6 ${
-                    current
-                      ? "border-sky-300/50 bg-sky-400/15"
-                      : "border-white/10 bg-white/[0.06]"
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-sm text-sky-300">{number}</span>
-                    <Icon className="h-5 w-5 text-slate-300" aria-hidden="true" />
-                  </div>
-                  <p className="mt-6 text-xs font-semibold uppercase tracking-[0.14em] text-sky-300">{eyebrow}</p>
-                  <h3 className="mt-2 text-xl font-semibold leading-snug">{title}</h3>
-                  <p className="mt-3 flex-1 text-sm leading-6 text-slate-300">{description}</p>
-                  <span className={`mt-6 inline-flex w-fit rounded-full px-3 py-1.5 text-xs font-semibold ${current ? "bg-sky-300 text-slate-950" : "bg-white/10 text-slate-200"}`}>
-                    {state}
+            <ol className="relative" aria-label="Timeline of events">
+              <span
+                className="absolute bottom-6 left-[1.1875rem] top-6 w-px bg-gradient-to-b from-sky-400/70 via-slate-300 to-slate-300/0 dark:from-sky-400/60 dark:via-white/15 dark:to-white/0"
+                aria-hidden="true"
+              />
+              {timeline.map(({ when, title, body, icon: Icon, milestone }, i) => (
+                <Reveal as="li" key={title} delay={i} className="relative pb-8 pl-16 last:pb-0">
+                  <span
+                    className={`absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-full border shadow-sm ${
+                      milestone
+                        ? "border-sky-500 bg-sky-500 text-white dark:border-sky-400 dark:bg-sky-400 dark:text-slate-950"
+                        : "border-slate-200 bg-white text-sky-700 dark:border-white/15 dark:bg-slate-900 dark:text-sky-300"
+                    }`}
+                    aria-hidden="true"
+                  >
+                    <Icon className="h-[18px] w-[18px]" strokeWidth={1.75} />
                   </span>
-                </article>
+                  <div className={`${glassPanel} ${hoverLift} rounded-2xl px-5 py-4 sm:px-6 sm:py-5`}>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-sky-700 dark:text-sky-300">
+                      {when}
+                    </p>
+                    <h3 className="mt-1.5 text-lg font-semibold tracking-tight text-slate-950 dark:text-white">{title}</h3>
+                    <p className="mt-1.5 text-[15px] leading-7 text-slate-600 dark:text-slate-300">{body}</p>
+                  </div>
+                </Reveal>
+              ))}
+            </ol>
+          </section>
+
+          {/* ── 1.2 Concerns raised by owners (full width) ─── */}
+          <section aria-labelledby="concerns-heading" className="relative">
+            <div
+              className="pointer-events-none absolute inset-y-0 left-1/2 -z-10 w-screen -translate-x-1/2 border-y border-slate-200/70 bg-white/45 dark:border-white/[0.06] dark:bg-white/[0.025]"
+              aria-hidden="true"
+            />
+            <div className="py-16 sm:py-20">
+              <Reveal className="max-w-3xl">
+                <SectionLabel number="1.2">Owner reports</SectionLabel>
+                <h2 id="concerns-heading" className={`${h2Class} mt-4`}>
+                  Concerns raised by owners
+                </h2>
+                <div className={`${copyClass} mt-6`}>
+                  <p>
+                    After Myreside Management took over, the James Square Owners Committee began receiving reports from
+                    individual owners who believed they had personally paid money to FIOR which should be returned.
+                  </p>
+                  <p>Examples reported to the committee included:</p>
+                </div>
+              </Reveal>
+
+              <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4" role="list">
+                {concerns.map(({ title, body, icon: Icon }, i) => (
+                  <Reveal as="li" key={title} delay={i} className="h-full">
+                    <div className={`${glassPanel} ${hoverLift} flex h-full flex-col rounded-2xl p-5 sm:p-6`}>
+                      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-50 text-sky-700 ring-1 ring-sky-100 dark:bg-sky-400/10 dark:text-sky-300 dark:ring-sky-400/20">
+                        <Icon className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
+                      </span>
+                      <h3 className="mt-5 text-base font-semibold tracking-tight text-slate-950 dark:text-white">{title}</h3>
+                      <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{body}</p>
+                    </div>
+                  </Reveal>
+                ))}
+              </ul>
+
+              <Reveal className="mt-6">
+                <p className="flex items-start gap-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 px-5 py-4 text-sm leading-6 text-slate-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-300">
+                  <Info className="mt-0.5 h-4 w-4 shrink-0 text-slate-400 dark:text-slate-500" aria-hidden="true" />
+                  <span>
+                    These are circumstances reported by individual owners. Their inclusion here should not be interpreted
+                    as a finding that FIOR or any individual has committed wrongdoing.
+                  </span>
+                </p>
+              </Reveal>
+            </div>
+          </section>
+
+          {/* ── 1.3 Information gathered ──────────────────── */}
+          <section aria-labelledby="information-heading" className="grid gap-10 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-16">
+            <Reveal>
+              <SectionLabel number="1.3">Committee questionnaire</SectionLabel>
+              <h2 id="information-heading" className={`${h2Class} mt-4`}>
+                Information gathered by the committee
+              </h2>
+              <div className={`${copyClass} mt-6`}>
+                <p>
+                  As similar concerns were being raised by more than one owner, the James Square Owners Committee
+                  prepared a questionnaire to better understand the scale and nature of the issue. A number of owners
+                  responded and confirmed circumstances in which they believed money remained due back to them.
+                </p>
+                <p>
+                  The purpose of gathering this information was to establish whether individual reports appeared to form
+                  part of a wider issue and to allow the committee to determine what appropriate steps could be taken.
+                </p>
+              </div>
+            </Reveal>
+            <Reveal delay={1} className="lg:pt-16">
+              <div className={`${glassPanel} p-6 sm:p-7`}>
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100 dark:bg-emerald-400/10 dark:text-emerald-300 dark:ring-emerald-400/20">
+                  <ShieldCheck className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
+                </span>
+                <p className="mt-5 text-sm font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">
+                  Owner privacy
+                </p>
+                <p className="mt-2 text-[15px] leading-7 text-slate-700 dark:text-slate-200">
+                  No owners&apos; names, property numbers, amounts, bank information, questionnaire responses or other
+                  personally identifiable information are published on this page.
+                </p>
+              </div>
+            </Reveal>
+          </section>
+
+          {/* ── 1.4 Police Scotland (feature) ─────────────── */}
+          <Reveal>
+            <section
+              aria-labelledby="police-heading"
+              className="relative overflow-hidden rounded-[2rem] border border-slate-300/60 bg-gradient-to-br from-slate-100/90 via-white/80 to-sky-50/80 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)] dark:border-white/10 dark:from-slate-900/90 dark:via-slate-900/70 dark:to-sky-950/50 dark:shadow-[0_24px_70px_rgba(0,0,0,0.4)] sm:p-10 lg:p-12"
+            >
+              <div
+                className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-sky-300/20 blur-3xl dark:bg-sky-500/10"
+                aria-hidden="true"
+              />
+              <div className="relative grid gap-10 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:gap-14">
+                <div>
+                  <SectionLabel number="1.4">Police Scotland</SectionLabel>
+                  <h2 id="police-heading" className={`${h2Class} mt-4`}>
+                    Information provided to Police Scotland
+                  </h2>
+                  <div className={`${copyClass} mt-6`}>
+                    <p>
+                      Following the information received from owners, the committee contacted Police Scotland and
+                      provided information about the concerns which had been reported.
+                    </p>
+                    <p>
+                      The purpose was to make Police Scotland aware that a number of owners reported difficulty
+                      recovering money and to allow Police Scotland to determine whether any circumstances required
+                      investigation. The matter remains the subject of an ongoing enquiry. Police Scotland has not
+                      reached a conclusion, and this page does not state or imply that FIOR, or any director or employee
+                      of FIOR, has committed an offence or is guilty of wrongdoing.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-4 lg:pt-12">
+                  <div className="rounded-2xl border border-slate-200/80 bg-white/75 p-5 dark:border-white/10 dark:bg-white/[0.05]">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+                      Current status
+                    </p>
+                    <p className="mt-2 flex items-center gap-2.5 text-lg font-semibold text-slate-950 dark:text-white">
+                      <span className="relative flex h-2.5 w-2.5" aria-hidden="true">
+                        <span className="h-2.5 w-2.5 rounded-full bg-sky-500 ring-4 ring-sky-500/15 dark:bg-sky-400 dark:ring-sky-400/15" />
+                      </span>
+                      Ongoing enquiry
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-dashed border-slate-300/90 p-5 dark:border-white/15">
+                    <p className="text-[15px] font-semibold text-slate-900 dark:text-white">
+                      Have information which may be relevant?
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                      If you believe your circumstances may be relevant to the ongoing Police Scotland enquiry, further
+                      information about contacting the enquiry officer will be included in Part 3. You do not need to
+                      take any action through this page.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </Reveal>
+
+          {/* ── 1.5 Legal options comparison ──────────────── */}
+          <section aria-labelledby="recovering-heading">
+            <Reveal className="max-w-3xl">
+              <SectionLabel number="1.5">Legal guidance</SectionLabel>
+              <h2 id="recovering-heading" className={`${h2Class} mt-4`}>
+                Recovering money owed to individual owners
+              </h2>
+              <div className={`${copyClass} mt-6`}>
+                <p>
+                  The committee also sought legal guidance about the practical options available to owners who believe
+                  FIOR owes money directly to them. The guidance described two broad routes.
+                </p>
+              </div>
+            </Reveal>
+
+            <div className="relative mt-10 grid gap-4 md:grid-cols-2 md:gap-5">
+              {legalOptions.map(({ title, kicker, icon: Icon, points }, i) => (
+                <Reveal key={title} delay={i} className="h-full">
+                  <div className={`${glassPanel} ${hoverLift} flex h-full flex-col p-6 sm:p-8`}>
+                    <div className="flex items-center gap-3">
+                      <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-700 ring-1 ring-slate-200 dark:bg-white/[0.06] dark:text-slate-200 dark:ring-white/10">
+                        <Icon className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
+                      </span>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+                        {kicker}
+                      </p>
+                    </div>
+                    <h3 className="mt-5 text-xl font-semibold tracking-tight text-slate-950 dark:text-white sm:text-2xl">
+                      {title}
+                    </h3>
+                    <ul className="mt-5 space-y-3" role="list">
+                      {points.map((point) => (
+                        <li key={point} className="flex gap-3 text-[15px] leading-6 text-slate-700 dark:text-slate-300">
+                          <span className="mt-[0.6rem] h-1.5 w-1.5 shrink-0 rounded-full bg-sky-500/80" aria-hidden="true" />
+                          <span>{point}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </Reveal>
               ))}
             </div>
-          </div>
-        </section>
 
-        <aside className="rounded-3xl border border-amber-200/80 bg-amber-50/75 p-6 shadow-sm dark:border-amber-300/20 dark:bg-amber-300/[0.07] sm:p-8" aria-labelledby="important-heading">
-          <div className="flex items-start gap-4">
-            <Info className="mt-1 h-5 w-5 shrink-0 text-amber-700 dark:text-amber-300" aria-hidden="true" />
-            <div>
-              <h2 id="important-heading" className="text-xl font-semibold text-slate-950 dark:text-white">Important information</h2>
-              <div className="mt-4 space-y-3 text-sm leading-6 text-slate-700 dark:text-slate-200 sm:text-[15px]">
-                <p>This page has been prepared to help James Square owners understand the information currently available and the options they may wish to consider.</p>
-                <p className="font-semibold text-slate-900 dark:text-white">It does not constitute legal advice.</p>
-                <p>The James Square Owners Committee and its members are not acting as legal representatives and cannot determine whether an individual owner has a valid legal claim.</p>
-                <p>Any decision to raise a Simple Procedure claim, seek legal advice or contact Police Scotland remains a matter for the individual owner.</p>
-                <p>Information relating to court procedures should always be checked against the current guidance published by the Scottish Courts and Tribunals Service.</p>
+            <Reveal className="mt-8">
+              <div className="rounded-3xl border border-sky-200/80 bg-gradient-to-br from-sky-50/90 to-white/60 p-6 dark:border-sky-400/20 dark:from-sky-400/[0.08] dark:to-white/[0.03] sm:p-8">
+                <div className={`${copyClass} max-w-3xl`}>
+                  <p>
+                    The guidance received was that, while collective legal action could potentially be considered,
+                    affected owners could need to be individually onboarded by a solicitor, provide identification and
+                    documentation, formally instruct the firm and potentially share responsibility for legal costs. For
+                    relatively modest individual amounts, this may not be the most proportionate way for owners to
+                    attempt to recover their money.
+                  </p>
+                  <p className="font-medium text-slate-900 dark:text-white">
+                    Owners were therefore advised to consider whether the Scottish Simple Procedure may be appropriate
+                    for their individual circumstances. This is ultimately a decision for each individual owner.
+                  </p>
+                </div>
+                <a
+                  href={SIMPLE_PROCEDURE_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-6 inline-flex min-h-12 items-center gap-2 rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100"
+                >
+                  View official Simple Procedure guidance
+                  <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+                  <span className="sr-only">(opens in a new tab)</span>
+                </a>
+              </div>
+            </Reveal>
+          </section>
+
+          {/* ── 1.6 What happens next ─────────────────────── */}
+          <section aria-labelledby="next-heading">
+            <Reveal className="max-w-3xl">
+              <SectionLabel number="1.6">This owner resource</SectionLabel>
+              <h2 id="next-heading" className={`${h2Class} mt-4`}>
+                What happens next?
+              </h2>
+              <p className={`${copyClass} mt-5`}>
+                This page is the first part of a guided resource for James Square owners. Further parts will be added
+                here.
+              </p>
+            </Reveal>
+
+            <ol className="relative mt-12 grid gap-5 lg:grid-cols-3 lg:gap-6" aria-label="FIOR owner resource parts">
+              {/* connector: vertical on mobile, horizontal on desktop */}
+              <span
+                className="absolute bottom-10 left-[1.4375rem] top-10 w-px bg-gradient-to-b from-sky-400 via-sky-300/70 to-slate-300/60 dark:via-sky-400/40 dark:to-white/10 lg:hidden"
+                aria-hidden="true"
+              />
+              <span
+                className="absolute left-[16.66%] right-[16.66%] top-[1.4375rem] hidden h-px bg-gradient-to-r from-sky-400 via-sky-300/70 to-slate-300/60 dark:via-sky-400/40 dark:to-white/10 lg:block"
+                aria-hidden="true"
+              />
+              {journey.map(({ number, kicker, title, description, status, state }, i) => {
+                const current = state === "current";
+                const next = state === "next";
+                return (
+                  <Reveal as="li" key={number} delay={i} className="relative flex gap-5 lg:flex-col lg:items-center lg:gap-0">
+                    <span
+                      className={`relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-full border text-sm font-semibold ${
+                        current
+                          ? "border-sky-500 bg-sky-500 text-white dark:border-sky-400 dark:bg-sky-400 dark:text-slate-950"
+                          : next
+                            ? "border-sky-400 bg-white text-sky-700 ring-4 ring-sky-400/15 dark:border-sky-400/70 dark:bg-slate-900 dark:text-sky-300"
+                            : "border-slate-300 bg-white text-slate-500 dark:border-white/15 dark:bg-slate-900 dark:text-slate-400"
+                      }`}
+                      aria-hidden="true"
+                    >
+                      {current ? <Check className="h-5 w-5" strokeWidth={2.25} /> : <span className="font-mono">{number}</span>}
+                    </span>
+
+                    <div
+                      className={`flex w-full flex-1 flex-col rounded-3xl border p-5 sm:p-6 lg:mt-6 ${
+                        next
+                          ? "border-sky-300/80 bg-white/85 shadow-[0_18px_50px_rgba(14,165,233,0.14)] backdrop-blur-xl dark:border-sky-400/30 dark:bg-slate-900/70 dark:shadow-[0_24px_60px_rgba(0,0,0,0.45)]"
+                          : current
+                            ? "border-sky-200/80 bg-sky-50/70 backdrop-blur-xl dark:border-sky-400/20 dark:bg-sky-400/[0.07]"
+                            : "border-slate-200/80 bg-white/50 backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.03]"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="font-mono text-xs text-slate-400 dark:text-slate-500">Part {number}</span>
+                        <span
+                          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.1em] ${
+                            current
+                              ? "bg-sky-500 text-white dark:bg-sky-400 dark:text-slate-950"
+                              : next
+                                ? "bg-sky-100 text-sky-800 dark:bg-sky-400/15 dark:text-sky-200"
+                                : "bg-slate-100 text-slate-500 dark:bg-white/[0.06] dark:text-slate-400"
+                          }`}
+                        >
+                          {current && <Check className="h-3 w-3" strokeWidth={3} aria-hidden="true" />}
+                          {next && <FileText className="h-3 w-3" aria-hidden="true" />}
+                          {status}
+                        </span>
+                      </div>
+                      <p className="mt-5 text-[11px] font-semibold uppercase tracking-[0.16em] text-sky-700 dark:text-sky-300">
+                        {kicker}
+                      </p>
+                      <h3
+                        className={`mt-1.5 text-xl font-semibold tracking-tight ${
+                          state === "later" ? "text-slate-700 dark:text-slate-300" : "text-slate-950 dark:text-white"
+                        }`}
+                      >
+                        {title}
+                      </h3>
+                      <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">{description}</p>
+                    </div>
+                  </Reveal>
+                );
+              })}
+            </ol>
+          </section>
+        </div>
+
+        {/* ── Important information (separate, understated) ── */}
+        <Reveal className="mt-24 border-t border-slate-200/80 pt-10 dark:border-white/10 sm:mt-32">
+          <aside
+            aria-labelledby="important-heading"
+            className="rounded-2xl border border-slate-200/70 bg-slate-50/60 p-5 backdrop-blur dark:border-white/[0.08] dark:bg-white/[0.03] sm:p-7"
+          >
+            <div className="flex items-start gap-3">
+              <Info className="mt-0.5 h-4 w-4 shrink-0 text-slate-400 dark:text-slate-500" aria-hidden="true" />
+              <div>
+                <h2 id="important-heading" className="text-sm font-semibold uppercase tracking-[0.14em] text-slate-600 dark:text-slate-300">
+                  Important information
+                </h2>
+                <div className="mt-3 space-y-2.5 text-sm leading-6 text-slate-600 dark:text-slate-400">
+                  <p>
+                    This page has been prepared to help James Square owners understand the information currently
+                    available and the options they may wish to consider.
+                  </p>
+                  <p className="font-semibold text-slate-800 dark:text-slate-200">It does not constitute legal advice.</p>
+                  <p>
+                    The James Square Owners Committee and its members are not acting as legal representatives and cannot
+                    determine whether an individual owner has a valid legal claim.
+                  </p>
+                  <p>
+                    Any decision to raise a Simple Procedure claim, seek legal advice or contact Police Scotland remains a
+                    matter for the individual owner.
+                  </p>
+                  <p>
+                    Information relating to court procedures should always be checked against the current guidance
+                    published by the Scottish Courts and Tribunals Service.
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
-        </aside>
+          </aside>
+        </Reveal>
       </article>
     </div>
   );
