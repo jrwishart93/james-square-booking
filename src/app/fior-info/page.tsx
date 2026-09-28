@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import type { LucideIcon } from "lucide-react";
 import {
+  ArrowRight,
   ArrowUpRight,
   Check,
   ClipboardList,
-  FileText,
   HandCoins,
   Hammer,
   Info,
@@ -17,12 +17,15 @@ import {
   UserRound,
   Users,
 } from "lucide-react";
+import FiorFaq from "./FiorFaq";
+import PoliceScotland from "./PoliceScotland";
 import RepaymentRequest from "./RepaymentRequest";
 import Reveal from "./Reveal";
+import SectionNav from "./SectionNav";
 
 const pageTitle = "FIOR Property Assets | Owner Information | James Square";
 const pageDescription =
-  "Information for James Square owners about outstanding funds, individual payments and the options available to owners.";
+  "Information for James Square owners about FIOR Property Assets: background, recovering money you believe is due to you, Police Scotland and frequently asked questions.";
 
 export const metadata: Metadata = {
   title: pageTitle,
@@ -35,6 +38,9 @@ export const metadata: Metadata = {
     type: "article",
   },
 };
+
+const stickyTop = "lg:top-[calc(var(--nav-height)+4.5rem)]";
+const anchorMargin = "!scroll-mt-[calc(var(--safe-top,0px)+var(--nav-height,4rem)+4.5rem)]";
 
 const SIMPLE_PROCEDURE_URL = "https://www.scotcourts.gov.uk/taking-action/simple-procedure/";
 
@@ -143,29 +149,25 @@ const legalOptions = [
 const journey = [
   {
     number: "01",
+    href: "#part-1",
     kicker: "Understand the background",
     title: "Background & current position",
     description: "Why this page exists, what owners have reported and what has happened so far.",
-    status: "You are here",
-    state: "current" as const,
   },
   {
     number: "02",
-    kicker: "Recovering money",
-    title: "Simple Procedure guide",
-    description:
-      "A practical step-by-step guide to requesting repayment, preparing evidence and, where appropriate, submitting a Simple Procedure claim.",
-    status: "Available below",
-    state: "next" as const,
+    href: "#part-2",
+    kicker: "Recovering your money",
+    title: "Repayment request & Simple Procedure",
+    description: "This contains the repayment request and Simple Procedure preparation guide.",
   },
   {
     number: "03",
+    href: "#part-3",
     kicker: "Further information",
     title: "Police Scotland & FAQs",
     description:
       "Information for owners whose circumstances may be relevant to the ongoing enquiry, together with answers to common questions.",
-    status: "To be added",
-    state: "later" as const,
   },
 ];
 
@@ -184,7 +186,7 @@ export default function FiorInfoPage() {
     <div className="relative isolate -mx-4 -my-8 overflow-x-clip px-4 pb-16 sm:-mx-6 sm:px-6 sm:pb-24">
       <article className="mx-auto max-w-5xl">
         {/* ── Hero ─────────────────────────────────────────── */}
-        <header className="relative pb-14 pt-14 sm:pb-20 sm:pt-24 lg:pt-28">
+        <header id="part-1" className={`relative pb-10 pt-14 sm:pb-14 sm:pt-24 lg:pt-28 ${anchorMargin}`}>
           <div
             className="pointer-events-none absolute -left-24 -top-10 -z-10 h-[26rem] w-[26rem] rounded-full bg-sky-300/25 blur-3xl dark:bg-sky-500/15 sm:h-[34rem] sm:w-[34rem]"
             aria-hidden="true"
@@ -224,8 +226,10 @@ export default function FiorInfoPage() {
           </Reveal>
         </header>
 
+        <SectionNav />
+
         {/* ── Introduction ─────────────────────────────────── */}
-        <Reveal className="border-t border-slate-200/80 pt-10 dark:border-white/10 sm:pt-14">
+        <Reveal className="mt-10 border-t border-slate-200/80 pt-10 dark:border-white/10 sm:mt-14 sm:pt-14">
           <p className="max-w-3xl text-xl leading-9 tracking-[-0.01em] text-slate-800 dark:text-slate-100 sm:text-2xl sm:leading-[1.6]">
             This page has been created to bring together information for James Square owners following the departure of
             FIOR Property Assets as factor and concerns raised by owners regarding money they believe remains
@@ -236,7 +240,7 @@ export default function FiorInfoPage() {
         <div className="mt-20 space-y-24 sm:mt-28 sm:space-y-32">
           {/* ── 1.1 Background + timeline ──────────────────── */}
           <section aria-labelledby="background-heading" className="grid gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-16">
-            <div className="lg:sticky lg:top-[calc(var(--nav-height)+2rem)] lg:self-start">
+            <div className={`lg:sticky ${stickyTop} lg:self-start`}>
               <Reveal>
                 <SectionLabel number="1.1">Background</SectionLabel>
                 <h2 id="background-heading" className={`${h2Class} mt-4`}>
@@ -424,10 +428,17 @@ export default function FiorInfoPage() {
                       Have information which may be relevant?
                     </p>
                     <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                      If you believe your circumstances may be relevant to the ongoing Police Scotland enquiry, further
-                      information about contacting the enquiry officer will be included in Part 3. You do not need to
-                      take any action through this page.
+                      If you believe your circumstances may be relevant to the ongoing Police Scotland enquiry, Part 3
+                      explains how you can make the enquiry officer aware of them. You do not need to take any action
+                      through this page.
                     </p>
+                    <a
+                      href="#part-3"
+                      className="mt-3 inline-flex items-center gap-1 rounded text-sm font-semibold text-sky-700 underline decoration-sky-400/50 underline-offset-4 hover:decoration-sky-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:text-sky-300"
+                    >
+                      Go to Part 3
+                      <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                    </a>
                   </div>
                 </div>
               </div>
@@ -514,8 +525,8 @@ export default function FiorInfoPage() {
                 What happens next?
               </h2>
               <p className={`${copyClass} mt-5`}>
-                This page is the first part of a guided resource for James Square owners. Further parts will be added
-                here.
+                This page is a guided resource for James Square owners in three parts. Each part is available now – go
+                straight to the one you need.
               </p>
             </Reveal>
 
@@ -529,69 +540,47 @@ export default function FiorInfoPage() {
                 className="absolute left-[16.66%] right-[16.66%] top-[1.4375rem] hidden h-px bg-gradient-to-r from-sky-400 via-sky-300/70 to-slate-300/60 dark:via-sky-400/40 dark:to-white/10 lg:block"
                 aria-hidden="true"
               />
-              {journey.map(({ number, kicker, title, description, status, state }, i) => {
-                const current = state === "current";
-                const next = state === "next";
-                return (
-                  <Reveal as="li" key={number} delay={i} className="relative flex gap-5 lg:flex-col lg:items-center lg:gap-0">
-                    <span
-                      className={`relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-full border text-sm font-semibold ${
-                        current
-                          ? "border-sky-500 bg-sky-500 text-white dark:border-sky-400 dark:bg-sky-400 dark:text-slate-950"
-                          : next
-                            ? "border-sky-400 bg-white text-sky-700 ring-4 ring-sky-400/15 dark:border-sky-400/70 dark:bg-slate-900 dark:text-sky-300"
-                            : "border-slate-300 bg-white text-slate-500 dark:border-white/15 dark:bg-slate-900 dark:text-slate-400"
-                      }`}
-                      aria-hidden="true"
-                    >
-                      {current ? <Check className="h-5 w-5" strokeWidth={2.25} /> : <span className="font-mono">{number}</span>}
-                    </span>
+              {journey.map(({ number, href, kicker, title, description }, i) => (
+                <Reveal as="li" key={number} delay={i} className="relative flex gap-5 lg:flex-col lg:items-center lg:gap-0">
+                  <span
+                    className="relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-sky-400 bg-white text-sm font-semibold text-sky-700 ring-4 ring-sky-400/15 dark:border-sky-400/70 dark:bg-slate-900 dark:text-sky-300"
+                    aria-hidden="true"
+                  >
+                    <span className="font-mono">{number}</span>
+                  </span>
 
-                    <div
-                      className={`flex w-full flex-1 flex-col rounded-3xl border p-5 sm:p-6 lg:mt-6 ${
-                        next
-                          ? "border-sky-300/80 bg-white/85 shadow-[0_18px_50px_rgba(14,165,233,0.14)] backdrop-blur-xl dark:border-sky-400/30 dark:bg-slate-900/70 dark:shadow-[0_24px_60px_rgba(0,0,0,0.45)]"
-                          : current
-                            ? "border-sky-200/80 bg-sky-50/70 backdrop-blur-xl dark:border-sky-400/20 dark:bg-sky-400/[0.07]"
-                            : "border-slate-200/80 bg-white/50 backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.03]"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="font-mono text-xs text-slate-400 dark:text-slate-500">Part {number}</span>
-                        <span
-                          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.1em] ${
-                            current
-                              ? "bg-sky-500 text-white dark:bg-sky-400 dark:text-slate-950"
-                              : next
-                                ? "bg-sky-100 text-sky-800 dark:bg-sky-400/15 dark:text-sky-200"
-                                : "bg-slate-100 text-slate-500 dark:bg-white/[0.06] dark:text-slate-400"
-                          }`}
-                        >
-                          {current && <Check className="h-3 w-3" strokeWidth={3} aria-hidden="true" />}
-                          {next && <FileText className="h-3 w-3" aria-hidden="true" />}
-                          {status}
-                        </span>
-                      </div>
-                      <p className="mt-5 text-[11px] font-semibold uppercase tracking-[0.16em] text-sky-700 dark:text-sky-300">
-                        {kicker}
-                      </p>
-                      <h3
-                        className={`mt-1.5 text-xl font-semibold tracking-tight ${
-                          state === "later" ? "text-slate-700 dark:text-slate-300" : "text-slate-950 dark:text-white"
-                        }`}
-                      >
-                        {title}
-                      </h3>
-                      <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">{description}</p>
-                    </div>
-                  </Reveal>
-                );
-              })}
+                  <a
+                    href={href}
+                    className="group flex w-full flex-1 flex-col rounded-3xl border border-sky-200/80 bg-white/80 p-5 backdrop-blur-xl transition hover:border-sky-300 hover:shadow-[0_18px_50px_rgba(14,165,233,0.14)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 dark:border-sky-400/20 dark:bg-slate-900/60 dark:hover:border-sky-400/40 dark:focus-visible:ring-offset-slate-950 sm:p-6 lg:mt-6"
+                  >
+                    <span className="flex items-center justify-between gap-3">
+                      <span className="font-mono text-xs text-slate-400 dark:text-slate-500">Part {number}</span>
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-sky-100 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.1em] text-sky-800 dark:bg-sky-400/15 dark:text-sky-200">
+                        <Check className="h-3 w-3" strokeWidth={3} aria-hidden="true" />
+                        Available
+                      </span>
+                    </span>
+                    <span className="mt-5 text-[11px] font-semibold uppercase tracking-[0.16em] text-sky-700 dark:text-sky-300">
+                      {kicker}
+                    </span>
+                    <span className="mt-1.5 text-xl font-semibold tracking-tight text-slate-950 dark:text-white">{title}</span>
+                    <span className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">{description}</span>
+                    <span className="mt-auto flex items-center gap-1.5 pt-5 text-sm font-semibold text-sky-700 dark:text-sky-300">
+                      Go to Part {Number(number)}
+                      <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5 motion-reduce:transition-none" aria-hidden="true" />
+                    </span>
+                  </a>
+                </Reveal>
+              ))}
             </ol>
           </section>
 
           {/* ── Part 2: Step 1 – Request your money back ──── */}
           <RepaymentRequest />
+
+          {/* ── Part 3: Police Scotland, FAQs and resources ── */}
+          <PoliceScotland />
+          <FiorFaq />
         </div>
 
         {/* ── Important information (separate, understated) ── */}
@@ -608,21 +597,29 @@ export default function FiorInfoPage() {
                 </h2>
                 <div className="mt-3 space-y-2.5 text-sm leading-6 text-slate-600 dark:text-slate-400">
                   <p>
-                    This page has been prepared to help James Square owners understand the information currently
-                    available and the options they may wish to consider.
+                    The information on this page has been prepared to help James Square owners understand the background
+                    to concerns involving FIOR Property Assets and the options which may be available to them.
                   </p>
-                  <p className="font-semibold text-slate-800 dark:text-slate-200">It does not constitute legal advice.</p>
+                  <p className="font-semibold text-slate-800 dark:text-slate-200">
+                    It is provided for general information only and does not constitute legal advice.
+                  </p>
                   <p>
                     The James Square Owners Committee and its members are not acting as legal representatives and cannot
                     determine whether an individual owner has a valid legal claim.
                   </p>
                   <p>
-                    Any decision to raise a Simple Procedure claim, seek legal advice or contact Police Scotland remains a
-                    matter for the individual owner.
+                    Information provided to Police Scotland will be assessed by Police Scotland. The existence of an
+                    enquiry should not be interpreted as establishing that FIOR Property Assets, its directors, employees
+                    or any other person has committed a criminal offence.
                   </p>
                   <p>
-                    Information relating to court procedures should always be checked against the current guidance
-                    published by the Scottish Courts and Tribunals Service.
+                    Any decision to request repayment, commence court proceedings, obtain legal advice or provide
+                    information to Police Scotland remains a matter for the individual owner.
+                  </p>
+                  <p>
+                    Court procedures, fees, forms and deadlines may change. Owners should always check the current
+                    Scottish Courts and Tribunals Service guidance and follow instructions issued by the court in their
+                    individual case.
                   </p>
                 </div>
               </div>

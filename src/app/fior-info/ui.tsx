@@ -16,7 +16,8 @@ export const secondaryButton = `inline-flex min-h-12 w-full items-center justify
 export const inputClass = `block w-full rounded-xl border bg-white/90 px-4 py-3 text-base text-slate-900 placeholder:text-slate-400 transition dark:bg-slate-950/60 dark:text-white dark:placeholder:text-slate-500 dark:[color-scheme:dark] ${focusRing}`;
 export const inputBorder = (error?: string) =>
   error ? "border-rose-500 dark:border-rose-400" : "border-slate-300 dark:border-white/15";
-export const scrollMargin = "scroll-mt-[calc(var(--nav-height,4rem)+1.5rem)]";
+// Leaves room for the site header and the sticky /fior-info section nav. "!" beats the app-mode global scroll margin.
+export const scrollMargin = "!scroll-mt-[calc(var(--safe-top,0px)+var(--nav-height,4rem)+4.5rem)]";
 
 export async function copyText(text: string): Promise<boolean> {
   try {
@@ -239,15 +240,18 @@ export function Accordion({
   children,
   defaultOpen = false,
   tone = "default",
+  headingLevel = "h4",
 }: {
   title: React.ReactNode;
   icon?: React.ReactNode;
   children: React.ReactNode;
   defaultOpen?: boolean;
   tone?: "default" | "important";
+  headingLevel?: "h3" | "h4";
 }) {
   const [open, setOpen] = useState(defaultOpen);
   const uid = useId();
+  const Heading = headingLevel;
   return (
     <div
       className={`rounded-2xl border ${
@@ -256,7 +260,7 @@ export function Accordion({
           : "border-slate-200/80 bg-white/60 dark:border-white/10 dark:bg-white/[0.03]"
       }`}
     >
-      <h4>
+      <Heading>
         <button
           type="button"
           id={`${uid}-button`}
@@ -272,7 +276,7 @@ export function Accordion({
             aria-hidden="true"
           />
         </button>
-      </h4>
+      </Heading>
       <div
         id={`${uid}-panel`}
         role="region"
