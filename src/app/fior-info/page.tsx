@@ -17,6 +17,7 @@ import {
   UserRound,
   Users,
 } from "lucide-react";
+import RepaymentRequest from "./RepaymentRequest";
 import Reveal from "./Reveal";
 
 const pageTitle = "FIOR Property Assets | Owner Information | James Square";
@@ -588,6 +589,9 @@ export default function FiorInfoPage() {
               })}
             </ol>
           </section>
+
+          {/* ── Part 2: Step 1 – Request your money back ──── */}
+          <RepaymentRequest />
         </div>
 
         {/* ── Important information (separate, understated) ── */}
