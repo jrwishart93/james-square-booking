@@ -31,7 +31,7 @@ const reference = resolvePoliceReference(undefined);
 const contact = resolvePoliceContact(undefined);
 
 describe("police configuration", () => {
-  it("does not invent an email address for the enquiry officer", () => {
+  it("does not hard-code an email address for the enquiry officer", () => {
     expect(contact.officer).toBe("DC Holly Webster");
     expect(contact.email).toBeNull();
   });
@@ -39,11 +39,12 @@ describe("police configuration", () => {
   it("only accepts a Police Scotland address", () => {
     expect(resolvePoliceContact("officer@scotland.police.uk").email).toBe("officer@scotland.police.uk");
     expect(resolvePoliceContact(" officer@example.com ").email).toBeNull();
+    expect(resolvePoliceContact("").email).toBeNull();
     expect(resolvePoliceContact("officer@scotland.police.uk.evil.com").email).toBeNull();
   });
 
   it("shows the reference unless explicitly hidden", () => {
-    expect(reference).toEqual({ reference: "EN/0016676/26", visible: true });
+    expect(reference).toEqual({ reference: "EN/0016676/26", incident: "PS-20260720-1008", visible: true });
     expect(resolvePoliceReference("false").visible).toBe(false);
     expect(policeSubject(resolvePoliceReference("false"))).not.toContain("EN/");
   });
@@ -69,6 +70,10 @@ describe("buildPoliceBody", () => {
     expect(body).toContain("Yes – April 2026");
     expect(body).toContain("including bank statements showing payment and FIOR invoices,");
     expect(body).toContain("enquiry reference I have been provided with is EN/0016676/26");
+    expect(body).toContain("incident reference is PS-20260720-1008");
+    expect(policeSubject(reference)).toBe(
+      "James Square / FIOR – Information relating to enquiry EN/0016676/26 (incident PS-20260720-1008)",
+    );
   });
 
   it("never generates criminal allegations", () => {
@@ -86,7 +91,9 @@ describe("buildPoliceBody", () => {
   });
 
   it("omits the reference when hidden", () => {
-    expect(buildPoliceBody(details, [], contact, resolvePoliceReference("false"))).not.toContain("EN/0016676/26");
+    const hidden = buildPoliceBody(details, [], contact, resolvePoliceReference("false"));
+    expect(hidden).not.toContain("EN/0016676/26");
+    expect(hidden).not.toContain("PS-20260720-1008");
   });
 
   it("encodes safely into a mailto link", () => {

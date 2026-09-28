@@ -366,12 +366,21 @@ export default function PoliceScotland() {
                 <p className="mt-2 font-mono text-xl font-semibold tracking-wide text-slate-950 dark:text-white">
                   {reference.reference}
                 </p>
-                <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-400">
-                  Quote this reference when contacting Police Scotland about this matter.
-                </p>
-                <div className="mt-3">
+                <div className="mt-2">
                   <CopyButton label="Copy reference" text={reference.reference} />
                 </div>
+                <p className="mt-5 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+                  Police incident reference
+                </p>
+                <p className="mt-2 font-mono text-xl font-semibold tracking-wide text-slate-950 dark:text-white">
+                  {reference.incident}
+                </p>
+                <div className="mt-2">
+                  <CopyButton label="Copy incident reference" text={reference.incident} />
+                </div>
+                <p className="mt-4 text-sm leading-6 text-slate-600 dark:text-slate-400">
+                  Quote both references when contacting Police Scotland about this matter.
+                </p>
               </div>
             )}
 
@@ -390,13 +399,17 @@ export default function PoliceScotland() {
                 </span>
               </p>
               {contact.email ? (
-                <a
-                  href={buildMailtoUri(contact.email, subject, "")}
+                // The address is only assembled into a mailto: link on click, so it is never shown on the page.
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (contact.email) window.location.href = buildMailtoUri(contact.email, subject, "");
+                  }}
                   className={`${secondaryButton} mt-4`}
                 >
                   <Mail className="h-4 w-4" aria-hidden="true" />
                   Email the enquiry officer
-                </a>
+                </button>
               ) : (
                 <p className="mt-4 rounded-xl bg-slate-100/80 px-4 py-3 text-sm leading-6 text-slate-700 dark:bg-white/[0.05] dark:text-slate-300">
                   Direct contact details for the enquiry officer will be added once confirmed.
@@ -757,11 +770,10 @@ export default function PoliceScotland() {
                   <dl className="divide-y divide-slate-200/80 text-[15px] dark:divide-white/10">
                     <div className="flex flex-col gap-0.5 px-5 py-3 sm:flex-row sm:gap-3 sm:px-7">
                       <dt className="w-20 shrink-0 font-semibold text-slate-500 dark:text-slate-400">To</dt>
-                      <dd className="break-all font-medium text-slate-900 dark:text-white">
-                        {contact.email ?? (
-                          <span className="font-normal text-slate-600 dark:text-slate-400">
-                            {contact.officer}, {contact.organisation} – email address not yet confirmed
-                          </span>
+                      <dd className="font-medium text-slate-900 dark:text-white">
+                        {contact.officer}, {contact.organisation}
+                        {!contact.email && (
+                          <span className="font-normal text-slate-600 dark:text-slate-400"> – email address not yet confirmed</span>
                         )}
                       </dd>
                     </div>
@@ -813,7 +825,7 @@ export default function PoliceScotland() {
                     <p>
                       Direct contact details for the enquiry officer will be added once confirmed. In the meantime you can
                       copy your summary and keep it ready. If you contact Police Scotland through its official channels,
-                      {reference.visible ? ` quote reference ${reference.reference} and` : ""} mention that your information
+                      {reference.visible ? ` quote references ${reference.reference} and ${reference.incident}, and` : ""} mention that your information
                       relates to the existing James Square / FIOR enquiry.
                     </p>
                     <p>
@@ -837,7 +849,7 @@ export default function PoliceScotland() {
                     Paste each part into a new email in Gmail, Outlook, Apple Mail or any other email service.
                   </p>
                   <div className="mt-4 flex flex-wrap gap-2">
-                    {contact.email && <CopyButton label="Copy email address" text={contact.email} />}
+                    {contact.email && <CopyButton label="Copy recipient address" text={contact.email} />}
                     <CopyButton label="Copy subject" text={subject} />
                     <CopyButton label="Copy message" text={draft} />
                   </div>

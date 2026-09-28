@@ -20,18 +20,19 @@ export type PoliceContact = {
 
 export type PoliceReference = {
   reference: string;
+  /** Police Scotland incident number linked to the enquiry. */
+  incident: string;
   /** False hides the reference from the page and from generated emails. */
   visible: boolean;
 };
 
 /**
- * Enquiry officer contact.
- *
- * The officer's name was supplied by the Owners Committee. No email address
- * or telephone number has been verified, so none is hard-coded. To enable the
- * "Email the enquiry officer" route, set NEXT_PUBLIC_FIOR_POLICE_CONTACT_EMAIL
- * to the verified address. Anything other than an @scotland.police.uk address
- * is ignored.
+ * Enquiry officer contact. The officer's email address has been confirmed by
+ * the Owners Committee but is deliberately kept out of this public repository:
+ * set NEXT_PUBLIC_FIOR_POLICE_CONTACT_EMAIL in the hosting environment to
+ * enable the email route. The address is never printed on the page; it only
+ * reaches the owner's own email app through a mailto: link. Anything other
+ * than an @scotland.police.uk address is ignored.
  */
 export function resolvePoliceContact(email: string | undefined): PoliceContact {
   const trimmed = email?.trim() ?? "";
@@ -44,12 +45,13 @@ export function resolvePoliceContact(email: string | undefined): PoliceContact {
 }
 
 /**
- * Enquiry reference supplied by the Owners Committee for owners to quote.
+ * Enquiry and incident references confirmed by the Owners Committee for
+ * owners to quote.
  * Set NEXT_PUBLIC_FIOR_POLICE_REFERENCE_VISIBLE=false to withdraw it from
  * the page without a code change.
  */
 export function resolvePoliceReference(visible: string | undefined): PoliceReference {
-  return { reference: "EN/0016676/26", visible: visible?.trim().toLowerCase() !== "false" };
+  return { reference: "EN/0016676/26", incident: "PS-20260720-1008", visible: visible?.trim().toLowerCase() !== "false" };
 }
 
 export const FIOR_POLICE_CONTACT = resolvePoliceContact(process.env.NEXT_PUBLIC_FIOR_POLICE_CONTACT_EMAIL);
@@ -137,7 +139,7 @@ export function validatePoliceDetails(d: PoliceDetails): PoliceErrors {
 
 export function policeSubject(reference: PoliceReference): string {
   return reference.visible
-    ? `James Square / FIOR – Information relating to enquiry ${reference.reference}`
+    ? `James Square / FIOR – Information relating to enquiry ${reference.reference} (incident ${reference.incident})`
     : "James Square / FIOR – Information relating to an existing enquiry";
 }
 
@@ -206,7 +208,10 @@ export function buildPoliceBody(
       : "I can provide supporting documents if these would assist your enquiries.",
   ];
   if (reference.visible) {
-    lines.push("", `The Police Scotland enquiry reference I have been provided with is ${reference.reference}.`);
+    lines.push(
+      "",
+      `The Police Scotland enquiry reference I have been provided with is ${reference.reference}, and the related incident reference is ${reference.incident}.`,
+    );
   }
   lines.push(
     "",
