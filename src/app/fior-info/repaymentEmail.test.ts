@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  FIOR_DIRECTOR_CC_EMAIL,
   FIOR_REPAYMENT_EMAIL,
   REPAYMENT_SUBJECT,
   buildMailtoUri,
@@ -12,7 +13,7 @@ import {
 
 const details = {
   fullName: "Siobhán O'Neill-Brown",
-  address: '59/2 Caledonian Crescent',
+  address: '12/3 Caledonian Crescent, Edinburgh',
   amount: '1,250.5',
   reason: "Direct Debits & a roof payment (£300) continued after Feb 2026.\nIt's 50% of #3?a=b",
   email: 'siobhan+js@example.co.uk',
@@ -39,13 +40,25 @@ describe('repayment email', () => {
     expect(formatPreparedAt(new Date(2026, 8, 28, 21, 52))).toBe('28 September 2026 at 21:52');
   });
 
-  it('builds the body with amount, reason and "prepared on" wording', () => {
+  it('builds a neutral body addressed to the company', () => {
     const body = buildRepaymentBody(details, new Date(2026, 8, 28, 21, 52));
-    expect(body).toContain('repayment of £1,250.50, which I believe is due to me');
-    expect(body).toContain('Amount requested: £1,250.50');
-    expect(body).toContain('this repayment request was prepared on 28 September 2026 at 21:52.');
-    expect(body).not.toMatch(/sent on/i);
-    expect(body.endsWith("Siobhán O'Neill-Brown\n\n59/2 Caledonian Crescent\n\nsiobhan+js@example.co.uk")).toBe(true);
+    expect(body.startsWith('Dear Sir or Madam,')).toBe(true);
+    expect(body).toContain('I am the owner of 12/3 Caledonian Crescent, Edinburgh, James Square.');
+    expect(body).toContain('Amount I believe is due to me: £1,250.50');
+    expect(body).toContain('confirm the payments you have received from me');
+    expect(body).toContain('confirm the balance you consider to be outstanding');
+    expect(body).toContain('let me know how and when repayment will be made');
+    expect(body).toContain('this request was prepared on 28 September 2026 at 21:52.');
+    expect(body).not.toMatch(/sent on|Pedrom|fraud|criminal|police|no choice/i);
+    expect(body.endsWith("Siobhán O'Neill-Brown\n\n12/3 Caledonian Crescent, Edinburgh\n\nsiobhan+js@example.co.uk")).toBe(true);
+  });
+
+  it('sends to the company inbox and adds the director only as an optional CC', () => {
+    expect(FIOR_REPAYMENT_EMAIL).toBe('info@fiorassetandproperty.com');
+    const withCc = buildMailtoUri(FIOR_REPAYMENT_EMAIL, REPAYMENT_SUBJECT, 'Hi', [FIOR_DIRECTOR_CC_EMAIL]);
+    expect(withCc.startsWith(`mailto:${FIOR_REPAYMENT_EMAIL}?cc=${FIOR_DIRECTOR_CC_EMAIL}&subject=`)).toBe(true);
+    expect(new URL(withCc).searchParams.get('cc')).toBe(FIOR_DIRECTOR_CC_EMAIL);
+    expect(buildMailtoUri(FIOR_REPAYMENT_EMAIL, REPAYMENT_SUBJECT, 'Hi')).not.toContain('cc=');
   });
 
   it('encodes a mailto URI that round-trips special characters and line breaks', () => {

@@ -18,8 +18,9 @@ import {
 } from "lucide-react";
 import ClaimPreparation from "./ClaimPreparation";
 import Reveal from "./Reveal";
-import { CopyButton, scrollMargin } from "./ui";
+import { AddressSuggestion, Checkbox, CopyButton, scrollMargin } from "./ui";
 import {
+  FIOR_DIRECTOR_CC_EMAIL,
   FIOR_REPAYMENT_EMAIL,
   LIMITS,
   REPAYMENT_SUBJECT,
@@ -157,6 +158,7 @@ export default function RepaymentRequest() {
   const [body, setBody] = useState("");
   const [confirmedSent, setConfirmedSent] = useState(false);
   const [outcome, setOutcome] = useState<Outcome | null>(null);
+  const [ccDirector, setCcDirector] = useState(false);
 
   const formHeadingRef = useRef<HTMLHeadingElement>(null);
   const errorSummaryRef = useRef<HTMLDivElement>(null);
@@ -219,7 +221,8 @@ export default function RepaymentRequest() {
     setStage("form");
   };
 
-  const mailto = body ? buildMailtoUri(FIOR_REPAYMENT_EMAIL, REPAYMENT_SUBJECT, body) : "";
+  const cc = ccDirector ? [FIOR_DIRECTOR_CC_EMAIL] : [];
+  const mailto = body ? buildMailtoUri(FIOR_REPAYMENT_EMAIL, REPAYMENT_SUBJECT, body, cc) : "";
   const errorList = fieldOrder.filter((f) => errors[f]);
   const activeStep = stage === "form" ? 0 : stage === "preview" ? 1 : confirmedSent ? 4 : 3;
 
@@ -234,8 +237,8 @@ export default function RepaymentRequest() {
           Recovering money you believe is due to you
         </h2>
         <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-700 dark:text-slate-200 sm:text-xl sm:leading-9">
-          If you believe FIOR owes money directly to you, the first step is to clearly request repayment and give FIOR an
-          opportunity to respond.
+          If you believe FIOR owes money directly to you, a sensible first step is usually to request repayment in writing
+          and give FIOR an opportunity to respond. Whether to request repayment, and what to do next, is your decision.
         </p>
       </Reveal>
 
@@ -354,7 +357,7 @@ export default function RepaymentRequest() {
               >
                 Your details
               </h4>
-              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">All fields are required.</p>
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">All fields are required unless marked optional.</p>
 
               {errorList.length > 0 && (
                 <div
@@ -394,19 +397,24 @@ export default function RepaymentRequest() {
                   />
                 </Field>
 
-                <Field id={ids.address} label={fieldLabels.address} error={errors.address}>
+                <Field
+                  id={ids.address}
+                  label={fieldLabels.address}
+                  hint="Start with your property number and we will suggest the rest. You can edit it."
+                  error={errors.address}
+                >
                   <input
                     id={ids.address}
                     type="text"
                     autoComplete="street-address"
-                    placeholder="59/2 Caledonian Crescent"
                     maxLength={LIMITS.address}
                     value={details.address}
                     onChange={(e) => update("address")(e.target.value)}
                     aria-invalid={errors.address ? true : undefined}
-                    aria-describedby={describedBy("address", false)}
+                    aria-describedby={describedBy("address", true)}
                     className={`${inputClass} ${errorBorder("address")}`}
                   />
+                  <AddressSuggestion inputId={ids.address} value={details.address} onAccept={update("address")} />
                 </Field>
 
                 <Field
@@ -443,9 +451,13 @@ export default function RepaymentRequest() {
                   label={fieldLabels.reason}
                   hint={
                     <>
-                      <p>Briefly explain what the payment relates to and why you believe it should be returned.</p>
+                      <p>
+                        Briefly and factually explain what the payment relates to and why you believe it should be
+                        returned. Describe what happened rather than making allegations about anyone.
+                      </p>
                       <p className="mt-1 italic">
-                        For example: Direct Debit payments continued after FIOR ceased acting as factor in February 2026.
+                        For example: Direct Debit payments of £X a month continued to be collected after FIOR ceased
+                        acting as factor at the end of January 2026.
                       </p>
                     </>
                   }
@@ -488,6 +500,23 @@ export default function RepaymentRequest() {
                     className={`${inputClass} ${errorBorder("email")}`}
                   />
                 </Field>
+
+                <div>
+                  <p className="text-[15px] font-semibold text-slate-900 dark:text-white">Who the email is addressed to</p>
+                  <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-400">
+                    Your request will be addressed to FIOR&apos;s general company email address,{" "}
+                    <span className="break-all font-medium text-slate-800 dark:text-slate-200">{FIOR_REPAYMENT_EMAIL}</span>.
+                  </p>
+                  <div className="mt-3">
+                    <Checkbox checked={ccDirector} onChange={setCcDirector}>
+                      Also copy (CC) the company director&apos;s FIOR email address,{" "}
+                      <span className="break-all font-medium">{FIOR_DIRECTOR_CC_EMAIL}</span>
+                      <span className="mt-0.5 block text-sm text-slate-600 dark:text-slate-400">
+                        Optional. This is a company address the director has used in correspondence.
+                      </span>
+                    </Checkbox>
+                  </div>
+                </div>
 
                 <div className="flex items-start gap-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 px-5 py-4 dark:border-white/10 dark:bg-white/[0.04]">
                   <Lock className="mt-0.5 h-4 w-4 shrink-0 text-slate-500 dark:text-slate-400" aria-hidden="true" />
@@ -599,6 +628,12 @@ export default function RepaymentRequest() {
                     <dt className="w-20 shrink-0 font-semibold text-slate-500 dark:text-slate-400">To</dt>
                     <dd className="break-all font-medium text-slate-900 dark:text-white">{FIOR_REPAYMENT_EMAIL}</dd>
                   </div>
+                  {ccDirector && (
+                    <div className="flex flex-col gap-0.5 px-5 py-3 sm:flex-row sm:gap-3 sm:px-7">
+                      <dt className="w-20 shrink-0 font-semibold text-slate-500 dark:text-slate-400">CC</dt>
+                      <dd className="break-all font-medium text-slate-900 dark:text-white">{FIOR_DIRECTOR_CC_EMAIL}</dd>
+                    </div>
+                  )}
                   <div className="flex flex-col gap-0.5 px-5 py-3 sm:flex-row sm:gap-3 sm:px-7">
                     <dt className="w-20 shrink-0 font-semibold text-slate-500 dark:text-slate-400">Subject</dt>
                     <dd className="font-medium text-slate-900 dark:text-white">{REPAYMENT_SUBJECT}</dd>
@@ -641,6 +676,7 @@ export default function RepaymentRequest() {
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <CopyButton label="Copy email address" text={FIOR_REPAYMENT_EMAIL} />
+                  {ccDirector && <CopyButton label="Copy CC address" text={FIOR_DIRECTOR_CC_EMAIL} />}
                   <CopyButton label="Copy subject" text={REPAYMENT_SUBJECT} />
                   <CopyButton label="Copy email text" text={body} />
                 </div>
@@ -659,7 +695,7 @@ export default function RepaymentRequest() {
           </p>
           <h3 className={`${h2Class} mt-4`}>Give FIOR an opportunity to respond</h3>
           <div className={`${copyClass} mt-5`}>
-            <p>You have now clearly set out what you believe is owed and requested repayment.</p>
+            <p>Once you have sent your request, you will have set out in writing what you believe is due and asked for repayment.</p>
             <p>Allow a reasonable opportunity for FIOR to respond or resolve the matter.</p>
           </div>
         </Reveal>

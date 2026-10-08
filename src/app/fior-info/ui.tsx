@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { ArrowUpRight, Check, ChevronDown, Copy } from "lucide-react";
+import { suggestAddress } from "./address";
 
 // Shared building blocks for the interactive parts of /fior-info.
 
@@ -116,6 +117,40 @@ export function FieldError({ id, message }: { id: string; message: string }) {
 /** aria-describedby helper: joins the hint / error ids that exist. */
 export function describedBy(id: string, { hint, error }: { hint?: boolean; error?: string }) {
   return [hint && `${id}-hint`, error && `${id}-error`].filter(Boolean).join(" ") || undefined;
+}
+
+/**
+ * Offers to complete a James Square address once a property number such as
+ * "59/2" has been typed. The owner chooses whether to accept it and can keep
+ * editing the field either way.
+ */
+export function AddressSuggestion({
+  inputId,
+  value,
+  onAccept,
+}: {
+  inputId: string;
+  value: string;
+  onAccept: (address: string) => void;
+}) {
+  const suggestion = suggestAddress(value);
+  return (
+    <div aria-live="polite">
+      {suggestion && (
+        <button
+          type="button"
+          onClick={() => {
+            onAccept(suggestion);
+            document.getElementById(inputId)?.focus();
+          }}
+          className={`mt-2 inline-flex max-w-full items-center gap-2 rounded-xl border border-sky-200 bg-sky-50/80 px-3 py-2 text-left text-sm text-slate-700 transition hover:border-sky-300 hover:bg-sky-50 dark:border-sky-400/25 dark:bg-sky-400/[0.08] dark:text-slate-200 dark:hover:border-sky-400/40 ${focusRing}`}
+        >
+          <span className="shrink-0 font-semibold text-sky-800 dark:text-sky-200">Use</span>
+          <span className="min-w-0 break-words font-medium text-slate-900 dark:text-white">{suggestion}</span>
+        </button>
+      )}
+    </div>
+  );
 }
 
 /** Radio group rendered as large, tappable pill options. */

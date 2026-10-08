@@ -71,14 +71,35 @@ export const LINKS = {
 /**
  * Respondent identity, from the Companies House register (company SC681823).
  * The legal name differs from "FIOR Property Assets", which is how the company
- * is commonly referred to on this site. When checked, the register showed an
- * active proposal to strike off — owners must re-check before claiming.
+ * is commonly referred to on this site. The register is the authority – owners
+ * are always pointed to the live record rather than relying on this page.
  */
 export const FIOR_COMPANY = {
   legalName: "FIOR ASSET AND PROPERTY LIMITED",
   companyNumber: "SC681823",
   registeredOffice: "CBC House, 24 Canning Street, Edinburgh, EH3 8EG",
-  statusWhenChecked: "Active – proposal to strike off",
   companiesHouseUrl: "https://find-and-update.company-information.service.gov.uk/company/SC681823",
+  filingHistoryUrl: "https://find-and-update.company-information.service.gov.uk/company/SC681823/filing-history",
   strikeOffObjectionUrl: "https://www.gov.uk/object-to-a-limited-company-being-struck-off",
 } as const;
+
+export type CompanyStatusCheck = {
+  /** The status exactly as the live Companies House record showed it, e.g. "Active – Proposal to Strike off". */
+  status: string;
+  /** The date a committee member personally checked the live record, e.g. "8 October 2026". */
+  checkedOn: string;
+  /** True only when the live record showed a strike-off notice (first Gazette) at that check. */
+  strikeOffProposed: boolean;
+};
+
+/**
+ * The page never publishes a company status that has not been checked against
+ * the live register. Leave this as null until someone has looked at the live
+ * record; the notice then simply directs owners to Companies House. After
+ * checking, set it, for example:
+ *
+ *   { status: "Active – Proposal to Strike off", checkedOn: "8 October 2026", strikeOffProposed: true }
+ *
+ * Re-check and update it (or set it back to null) whenever the page is updated.
+ */
+export const COMPANY_STATUS_CHECK: CompanyStatusCheck | null = null;
