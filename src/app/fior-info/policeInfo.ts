@@ -2,60 +2,39 @@
 //
 // Everything the owner types into the Part 3 preparation tool stays in the
 // component's state in their browser. Nothing is written to Firestore,
-// localStorage, an API route or analytics, and James Square never sends the
-// email: it is opened in the owner's own email application via mailto:.
+// localStorage, an API route or analytics, and James Square never sends
+// anything: the owner copies their own summary if they wish to use it.
 
 import { formatAmount, parseAmount } from "./repaymentEmail";
 
-/** Only Police Scotland addresses are accepted as the enquiry officer's email. */
-const POLICE_EMAIL_PATTERN = /^[^\s@]+@scotland\.police\.uk$/i;
+// The page deliberately does not publish the name of any police officer or any
+// Police Scotland reference number. Owners who need the reference details ask
+// the Owners Committee or Myreside, who can confirm the owner before sharing.
 
-export type PoliceContact = {
-  officer: string;
-  salutation: string;
-  organisation: string;
-  /** Verified Police Scotland email for the enquiry officer, or null until confirmed. */
-  email: string | null;
-};
+/** Owners Committee inbox for reference requests. */
+export const COMMITTEE_EMAIL = "committee@james-square.com";
 
-export type PoliceReference = {
-  reference: string;
-  /** Police Scotland incident number linked to the enquiry. */
-  incident: string;
-  /** False hides the reference from the page and from generated emails. */
-  visible: boolean;
-};
+/** Myreside Management contact who can also provide the reference details. */
+export const MYRESIDE_REFERENCE_EMAIL = "ania@myreside-management.co.uk";
 
-/**
- * Enquiry officer contact. The officer's email address has been confirmed by
- * the Owners Committee but is deliberately kept out of this public repository:
- * set NEXT_PUBLIC_FIOR_POLICE_CONTACT_EMAIL in the hosting environment to
- * enable the email route. The address is never printed on the page; it only
- * reaches the owner's own email app through a mailto: link. Anything other
- * than an @scotland.police.uk address is ignored.
- */
-export function resolvePoliceContact(email: string | undefined): PoliceContact {
-  const trimmed = email?.trim() ?? "";
-  return {
-    officer: "DC Holly Webster",
-    salutation: "DC Webster",
-    organisation: "Police Scotland",
-    email: POLICE_EMAIL_PATTERN.test(trimmed) ? trimmed : null,
-  };
-}
+export const REFERENCE_REQUEST_SUBJECT = "Request for Police Scotland reference details – James Square / FIOR";
 
-/**
- * Enquiry and incident references confirmed by the Owners Committee for
- * owners to quote.
- * Set NEXT_PUBLIC_FIOR_POLICE_REFERENCE_VISIBLE=false to withdraw it from
- * the page without a code change.
- */
-export function resolvePoliceReference(visible: string | undefined): PoliceReference {
-  return { reference: "EN/0016676/26", incident: "PS-20260720-1008", visible: visible?.trim().toLowerCase() !== "false" };
-}
+/** Short prefilled request. Left for the owner to complete and send themselves. */
+export const REFERENCE_REQUEST_BODY = [
+  "Dear James Square Owners Committee,",
+  "",
+  "I am a James Square owner. Please could you provide me with the Police Scotland reference details relating to the concerns reported about payments made to the former factor, FIOR Property Assets.",
+  "",
+  "My name:",
+  "My James Square address:",
+  "",
+  "Kind regards,",
+].join("\n");
 
-export const FIOR_POLICE_CONTACT = resolvePoliceContact(process.env.NEXT_PUBLIC_FIOR_POLICE_CONTACT_EMAIL);
-export const FIOR_POLICE_REFERENCE = resolvePoliceReference(process.env.NEXT_PUBLIC_FIOR_POLICE_REFERENCE_VISIBLE);
+export const POLICE_PHONE = {
+  nonEmergency: "101",
+  emergency: "999",
+} as const;
 
 export const POLICE_LINKS = {
   contact: { label: "Contact Police Scotland", href: "https://www.scotland.police.uk/contact-us/" },
@@ -137,11 +116,8 @@ export function validatePoliceDetails(d: PoliceDetails): PoliceErrors {
   return errors;
 }
 
-export function policeSubject(reference: PoliceReference): string {
-  return reference.visible
-    ? `James Square / FIOR – Information relating to enquiry ${reference.reference} (incident ${reference.incident})`
-    : "James Square / FIOR – Information relating to an existing enquiry";
-}
+/** Subject line an owner can use if Police Scotland asks them to send their information by email. */
+export const POLICE_SUMMARY_SUBJECT = "James Square – information about payments made to FIOR Property Assets";
 
 function text(value: string): string {
   return value.trim().replace(/\r\n?/g, "\n");
@@ -159,16 +135,11 @@ export function joinDocuments(items: readonly string[]): string {
 }
 
 /**
- * Builds a neutral, factual email from the owner's own answers. The website
- * adds no allegations of criminal conduct: whether the circumstances are
- * relevant is for Police Scotland to assess.
+ * Builds a neutral, factual summary from the owner's own answers. The website
+ * adds no allegations of criminal conduct and no statement about any police
+ * enquiry: whether the circumstances are relevant is for Police Scotland.
  */
-export function buildPoliceBody(
-  d: PoliceDetails,
-  documents: readonly string[],
-  contact: Pick<PoliceContact, "salutation">,
-  reference: PoliceReference,
-): string {
+export function buildPoliceBody(d: PoliceDetails, documents: readonly string[]): string {
   const repayment =
     d.repaymentRequested === "yes"
       ? `Yes${d.repaymentWhen.trim() ? ` – ${d.repaymentWhen.trim()}` : ""}`
@@ -187,11 +158,11 @@ export function buildPoliceBody(
   const block = (label: string, value: string) => (value ? ["", `${label}:`, value] : []);
 
   const lines = [
-    `Dear ${contact.salutation},`,
+    "Dear Officer,",
     "",
-    "I am an owner at James Square, Edinburgh, and understand that Police Scotland is currently making enquiries regarding concerns which have been reported in relation to payments made to FIOR Property Assets.",
+    "I am an owner at James Square, Edinburgh. I understand that concerns about payments made to the former factor, FIOR Property Assets, have been reported to Police Scotland.",
     "",
-    "I would like to provide information regarding my own circumstances which I believe may be relevant.",
+    "I would like to provide information about my own circumstances in case it is of assistance.",
     ...inline("Name", text(d.fullName)),
     ...inline("James Square property", text(d.address)),
     ...inline("Payment", text(d.payment)),
@@ -204,15 +175,9 @@ export function buildPoliceBody(
     ...block("Additional information", text(d.whyRelevant)),
     "",
     documents.length
-      ? `I can provide supporting documents, including ${joinDocuments(documents)}, if these would assist your enquiries.`
-      : "I can provide supporting documents if these would assist your enquiries.",
+      ? `I can provide supporting documents, including ${joinDocuments(documents)}, if these would be of assistance.`
+      : "I can provide supporting documents if these would be of assistance.",
   ];
-  if (reference.visible) {
-    lines.push(
-      "",
-      `The Police Scotland enquiry reference I have been provided with is ${reference.reference}, and the related incident reference is ${reference.incident}.`,
-    );
-  }
   lines.push(
     "",
     "Please let me know if you require any further information from me.",

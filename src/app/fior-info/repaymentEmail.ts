@@ -2,14 +2,19 @@
 // owner's browser only: nothing is sent to James Square, stored or logged.
 
 /**
- * Recipient for owner repayment requests.
- *
- * Source: Pedrom Aghabala's own reply to the committee on 21 May 2026 was sent
- * from this address (see FIOR_EMAIL_CORRESPONDENCE in
- * src/app/owners/secure/page.tsx). FIOR's general inbox,
- * info@fiorassetandproperty.com, appears in the same signature and on /factor.
+ * Recipient for owner repayment requests: FIOR's general company inbox, as
+ * published in FIOR's email signature and on /factor. Requests go to the
+ * company rather than to an individual.
  */
-export const FIOR_REPAYMENT_EMAIL = "pedrom@fiorassetandproperty.com";
+export const FIOR_REPAYMENT_EMAIL = "info@fiorassetandproperty.com";
+
+/**
+ * Optional CC: the director's company email address. Source: the director's
+ * own reply to the committee on 21 May 2026 was sent from this address (see
+ * FIOR_EMAIL_CORRESPONDENCE in src/app/owners/secure/page.tsx). Owners choose
+ * whether to include it; it is never added by default.
+ */
+export const FIOR_DIRECTOR_CC_EMAIL = "pedrom@fiorassetandproperty.com";
 
 export const REPAYMENT_SUBJECT = "Request for repayment – James Square";
 
@@ -90,30 +95,37 @@ export function formatPreparedAt(date: Date): string {
   return `${day} at ${time}`;
 }
 
+/**
+ * A polite, factual request. It asks FIOR to confirm payments received, the
+ * outstanding balance and repayment arrangements, and makes no allegation
+ * about anyone's conduct.
+ */
 export function buildRepaymentBody(details: RepaymentDetails, preparedAt: Date): string {
   const amount = `£${formatAmount(parseAmount(details.amount) ?? 0)}`;
   const address = details.address.trim();
   const reason = details.reason.trim().replace(/\r\n?/g, "\n");
   return [
-    "Dear Pedrom,",
+    "Dear Sir or Madam,",
     "",
-    `I am writing to formally request repayment of ${amount}, which I believe is due to me in connection with my property at ${address}.`,
+    `I am the owner of ${address}, James Square. I am writing about money I paid to FIOR which I believe should now be returned to me.`,
     "",
-    `Amount requested: ${amount}`,
+    `Amount I believe is due to me: ${amount}`,
     "",
-    "Reason for request:",
+    "What the payment relates to:",
     "",
     reason,
     "",
-    "I would be grateful if you could arrange repayment, or contact me if you believe there is any reason why this amount is not due.",
+    "I would be grateful if you could:",
     "",
-    "I would like to resolve this matter directly and without the need for any further action. Please therefore arrange repayment, or provide a substantive response regarding the outstanding amount, within a reasonable timeframe.",
+    "1. confirm the payments you have received from me in connection with this property;",
+    "2. confirm the balance you consider to be outstanding; and",
+    "3. let me know how and when repayment will be made.",
     "",
-    "If I do not receive repayment or a response which resolves the matter, I will have no choice but to consider taking the matter further, including the options available to me for recovering the outstanding sum.",
+    "If you consider that this amount, or any part of it, is not due, I would be grateful if you could explain why so that I can review my own records.",
     "",
-    "Please acknowledge receipt of this email.",
+    "I would like to resolve this matter directly and would appreciate a response within 14 days. Please acknowledge receipt of this email.",
     "",
-    `For record purposes, this repayment request was prepared on ${formatPreparedAt(preparedAt)}.`,
+    `For my records, this request was prepared on ${formatPreparedAt(preparedAt)}.`,
     "",
     "Kind regards,",
     "",
@@ -130,7 +142,8 @@ export function buildRepaymentBody(details: RepaymentDetails, preparedAt: Date):
  * UTF-8 (so £, &, #, ?, = and accented characters cannot break the link) and
  * line breaks are sent as CRLF (%0D%0A), which mail clients expect.
  */
-export function buildMailtoUri(to: string, subject: string, body: string): string {
+export function buildMailtoUri(to: string, subject: string, body: string, cc: readonly string[] = []): string {
   const encode = (value: string) => encodeURIComponent(value.replace(/\r\n?/g, "\n").replace(/\n/g, "\r\n"));
-  return `mailto:${to}?subject=${encode(subject)}&body=${encode(body)}`;
+  const ccPart = cc.length ? `cc=${cc.join(",")}&` : "";
+  return `mailto:${to}?${ccPart}subject=${encode(subject)}&body=${encode(body)}`;
 }

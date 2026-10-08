@@ -30,8 +30,10 @@ import {
   type FieldErrors,
   type Totals,
 } from "./claimPrep";
+import CompanyStatusNotice from "./CompanyStatusNotice";
 import { FIOR_COMPANY, LINKS, NARRATIVE_CHARACTER_TARGET, SOURCES_CHECKED_ON } from "./claimPrepSources";
 import {
+  AddressSuggestion,
   Checkbox,
   ChoiceGroup,
   CopyButton,
@@ -397,6 +399,7 @@ export function StepDetails({ prep, setPrep, errors, fromRequest }: StepProps) {
           aria-describedby={describedBy(`${uid}-address`, { hint: true, error: errors.address })}
           className={`${inputClass} ${inputBorder(errors.address)} resize-y leading-7`}
         />
+        <AddressSuggestion inputId={`${uid}-address`} value={c.address} onAccept={(v) => set("address", v)} />
       </Field>
       <TextInput
         id={`${uid}-postcode`}
@@ -473,16 +476,10 @@ export function StepRespondent({ prep, setPrep }: StepProps) {
             </dt>
             <dd className="mt-1 font-medium text-slate-900 dark:text-white">{FIOR_COMPANY.registeredOffice}</dd>
           </div>
-          <div className="sm:col-span-2">
-            <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
-              Company status when checked
-            </dt>
-            <dd className="mt-1 font-medium text-slate-900 dark:text-white">{FIOR_COMPANY.statusWhenChecked}</dd>
-          </div>
         </dl>
         <p className="mt-4 text-sm leading-6 text-slate-600 dark:text-slate-400">
-          Source: Companies House register. These details were checked on {SOURCES_CHECKED_ON}. Verify them again before
-          submitting your claim. The legal name is different from “FIOR Property Assets”, the name used elsewhere on this
+          Source: Companies House register. These details were last checked on {SOURCES_CHECKED_ON}. Verify them on the live
+          register before submitting your claim. The legal name is different from “FIOR Property Assets”, the name used elsewhere on this
           page.
         </p>
         <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
@@ -509,19 +506,7 @@ export function StepRespondent({ prep, setPrep }: StepProps) {
         </div>
       </div>
 
-      <Notice tone="warning" icon={<AlertTriangle className="h-4 w-4" aria-hidden="true" />} title="Check the company’s status first">
-        <p>
-          When this guide was prepared, the Companies House record showed an <strong>active proposal to strike off</strong>.
-          If a company is struck off and dissolved, it generally stops existing as a legal entity, which may prevent or
-          complicate a claim against it.
-        </p>
-        <p>
-          Check the current status on Companies House before deciding what to do. Where a strike-off notice has been
-          published, people who believe a company owes them money may be able to object within the time allowed.{" "}
-          <ExternalLink href={FIOR_COMPANY.strikeOffObjectionUrl}>How to object to a company being struck off (GOV.UK)</ExternalLink>
-        </p>
-        <p>If you are unsure how this affects your circumstances, consider obtaining independent advice.</p>
-      </Notice>
+      <CompanyStatusNotice />
 
       <div className="space-y-6">
         <h4 className={subHeading}>Respondent details for your claim</h4>

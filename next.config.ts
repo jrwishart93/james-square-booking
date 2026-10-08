@@ -100,6 +100,13 @@ const nextConfig: NextConfig = {
         headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" }],
       },
       {
+        // Shared with owners by direct link only. Kept out of search indexes
+        // (the page also sets robots metadata). It must stay crawlable – a
+        // robots.txt Disallow would stop crawlers seeing this noindex.
+        source: "/fior-info",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" }],
+      },
+      {
         // Never let a proxy or CDN cache an authenticated API response.
         source: "/api/:path*",
         headers: [

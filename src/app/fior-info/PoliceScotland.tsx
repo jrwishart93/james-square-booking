@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import {
   ArrowLeft,
+  ChevronDown,
   FileSearch,
   FileText,
   HandCoins,
@@ -10,16 +11,17 @@ import {
   HelpCircle,
   Lock,
   Mail,
-  MailCheck,
   PencilLine,
+  Phone,
   Scale,
   ShieldCheck,
   Trash2,
   Undo2,
-  UserRound,
 } from "lucide-react";
 import Reveal from "./Reveal";
 import {
+  Accordion,
+  AddressSuggestion,
   Checkbox,
   ChoiceGroup,
   CopyButton,
@@ -38,14 +40,17 @@ import {
 } from "./ui";
 import { buildMailtoUri, sanitiseAmountInput } from "./repaymentEmail";
 import {
+  COMMITTEE_EMAIL,
   EMPTY_POLICE_DETAILS,
-  FIOR_POLICE_CONTACT,
-  FIOR_POLICE_REFERENCE,
+  MYRESIDE_REFERENCE_EMAIL,
   POLICE_EVIDENCE,
   POLICE_LIMITS,
   POLICE_LINKS,
+  POLICE_PHONE,
+  POLICE_SUMMARY_SUBJECT,
+  REFERENCE_REQUEST_BODY,
+  REFERENCE_REQUEST_SUBJECT,
   buildPoliceBody,
-  policeSubject,
   validatePoliceDetails,
   type PoliceDetails,
   type PoliceErrors,
@@ -56,15 +61,15 @@ import {
 // Privacy: everything entered here lives in this component's state only. It is
 // not written to localStorage, Firestore, an API route or analytics, is never
 // placed in the page URL and is lost when the page is closed. James Square does
-// not send the email: the owner's own email application is opened via mailto:.
-
-/** Some email apps truncate very long mailto: links; beyond this, suggest copying instead. */
-const MAILTO_SOFT_LIMIT = 1800;
+// not send anything: the owner copies their summary if they choose to use it.
+//
+// No police officer's name and no Police Scotland reference number is shown on
+// this page. Owners who need the references ask the committee or Myreside.
 
 const relevanceExamples = [
   {
     title: "Roof or repair payments",
-    body: "You paid FIOR money specifically towards proposed roof, repair or other works and believe the circumstances surrounding that payment may be relevant to the existing enquiry.",
+    body: "You paid FIOR money towards proposed roof, repair or other works and have questions about what happened to that payment.",
     icon: Hammer,
   },
   {
@@ -74,12 +79,12 @@ const relevanceExamples = [
   },
   {
     title: "Information or documents",
-    body: "You hold correspondence, payment requests, invoices or other information which you believe may assist the existing enquiry.",
+    body: "You hold correspondence, payment requests, invoices or other records relating to payments you made to FIOR.",
     icon: FileSearch,
   },
   {
     title: "Something else you believe is relevant",
-    body: "Your circumstances do not fit the examples above but you believe you have information which Police Scotland should be aware of.",
+    body: "Your circumstances do not fit the examples above but you believe you hold information which may be of assistance.",
     icon: HelpCircle,
   },
 ];
@@ -103,7 +108,7 @@ const YES_NO_OPTIONS: { value: Exclude<YesNo, "">; label: string }[] = [
   { value: "no", label: "No" },
 ];
 
-type Stage = "form" | "preview" | "opened";
+type Stage = "form" | "preview";
 
 function TextArea({
   id,
@@ -139,9 +144,10 @@ function TextArea({
 export default function PoliceScotland() {
   const uid = useId();
   const ids = Object.fromEntries(fieldOrder.map((f) => [f, `${uid}-${f}`])) as Record<PoliceField, string>;
-  const contact = FIOR_POLICE_CONTACT;
-  const reference = FIOR_POLICE_REFERENCE;
-  const subject = policeSubject(reference);
+  const referenceMailto = buildMailtoUri(COMMITTEE_EMAIL, REFERENCE_REQUEST_SUBJECT, REFERENCE_REQUEST_BODY, [
+    MYRESIDE_REFERENCE_EMAIL,
+  ]);
+  const [showPhone, setShowPhone] = useState(false);
 
   const [details, setDetails] = useState<PoliceDetails>(EMPTY_POLICE_DETAILS);
   const [documents, setDocuments] = useState<string[]>([]);
@@ -153,7 +159,6 @@ export default function PoliceScotland() {
   const formHeadingRef = useRef<HTMLHeadingElement>(null);
   const errorSummaryRef = useRef<HTMLDivElement>(null);
   const previewHeadingRef = useRef<HTMLHeadingElement>(null);
-  const openedHeadingRef = useRef<HTMLHeadingElement>(null);
   const pendingFocus = useRef<React.RefObject<HTMLElement | null> | null>(null);
 
   useEffect(() => {
@@ -181,7 +186,7 @@ export default function PoliceScotland() {
       pendingFocus.current = errorSummaryRef;
       return;
     }
-    setDraft(buildPoliceBody(details, documents, contact, reference));
+    setDraft(buildPoliceBody(details, documents));
     pendingFocus.current = previewHeadingRef;
     setStage("preview");
   };
@@ -201,7 +206,6 @@ export default function PoliceScotland() {
     setAnnouncement("Your information has been cleared from this page.");
   };
 
-  const mailto = contact.email && draft ? buildMailtoUri(contact.email, subject, draft) : "";
   const errorList = fieldOrder.filter((f) => errors[f]);
 
   return (
@@ -223,13 +227,13 @@ export default function PoliceScotland() {
         </h2>
         <div className="mt-6 max-w-3xl space-y-4 text-lg leading-8 text-slate-700 dark:text-slate-200 sm:text-xl sm:leading-9">
           <p>
-            Some of the circumstances reported by James Square owners were provided to Police Scotland and remain part of
-            an ongoing enquiry.
+            Concerns relating to payments made to the former factor have been reported to Police Scotland. Police
+            Scotland is responsible for deciding what, if any, action is appropriate.
           </p>
           <p className="text-base leading-7 text-slate-700 dark:text-slate-300 sm:text-lg sm:leading-8">
-            If you believe your own circumstances may be relevant, particularly where you paid money towards proposed
-            works which were not subsequently carried out and the money has not been returned, you may wish to make the
-            enquiry officer aware of your circumstances.
+            This part explains how to contact Police Scotland if you decide that you wish to. Whether to do so is
+            entirely a matter for you. The committee does not encourage or discourage any owner from contacting Police
+            Scotland, and does not act on behalf of Police Scotland.
           </p>
         </div>
       </Reveal>
@@ -269,6 +273,10 @@ export default function PoliceScotland() {
             Relevance
           </p>
           <h3 className={`${h2Class} mt-4`}>Is my information potentially relevant?</h3>
+          <p className={`${copyClass} mt-5`}>
+            Owners sometimes ask whether their own circumstances could be of interest to Police Scotland. Examples of
+            the kinds of circumstances owners have described include:
+          </p>
         </Reveal>
         <ul className="mt-8 grid gap-4 sm:grid-cols-2" role="list">
           {relevanceExamples.map(({ title, body, icon: Icon }, i) => (
@@ -288,8 +296,9 @@ export default function PoliceScotland() {
         <Reveal className="mt-5">
           <Notice icon={<ShieldCheck className="h-4 w-4" aria-hidden="true" />} title="These are examples only">
             <p>
-              These examples do not mean that a criminal offence has occurred. Police Scotland will determine whether
-              information provided is relevant to its enquiry.
+              These examples do not mean that any offence has occurred, and they are not a suggestion that you should
+              contact Police Scotland. It is for Police Scotland to decide whether any information it receives is
+              relevant.
             </p>
           </Notice>
         </Reveal>
@@ -320,104 +329,110 @@ export default function PoliceScotland() {
         </Reveal>
       </div>
 
-      {/* ── Existing enquiry ─────────────────────────────── */}
+      {/* ── Police Scotland enquiry (expandable) ─────────── */}
       <section aria-labelledby={`${uid}-enquiry`} className="mt-20 sm:mt-24">
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:gap-14">
-          <Reveal>
-            <p className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-sky-700 dark:text-sky-300">
-              <span className="font-mono tracking-normal text-slate-400 dark:text-slate-500">3.2</span>
-              <span className="h-px w-6 bg-sky-600/40 dark:bg-sky-300/40" aria-hidden="true" />
-              Police Scotland
-            </p>
-            <h3 id={`${uid}-enquiry`} className={`${h2Class} mt-4`}>
-              Existing enquiry
-            </h3>
-            <div className={`${copyClass} mt-6`}>
+        <Reveal className="max-w-3xl">
+          <p className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-sky-700 dark:text-sky-300">
+            <span className="font-mono tracking-normal text-slate-400 dark:text-slate-500">3.2</span>
+            <span className="h-px w-6 bg-sky-600/40 dark:bg-sky-300/40" aria-hidden="true" />
+            Police Scotland
+          </p>
+          <h3 id={`${uid}-enquiry`} className={`${h2Class} mt-4`}>
+            Contacting Police Scotland
+          </h3>
+          <p className={`${copyClass} mt-5`}>
+            Open the section below for how to contact Police Scotland and how to request the relevant reference details.
+          </p>
+        </Reveal>
+
+        <Reveal className="mt-8">
+          <Accordion title="Police Scotland Enquiry" icon={<ShieldCheck className="h-5 w-5" aria-hidden="true" />}>
+            <div className={copyClass}>
               <p>
-                The James Square Owners Committee previously provided Police Scotland with information received from
-                owners regarding concerns surrounding payments to FIOR.
+                Concerns relating to payments made to the former factor, FIOR Property Assets, have been reported to
+                Police Scotland by the James Square Owners Committee.
               </p>
               <p>
-                Police Scotland is responsible for assessing that information and determining what, if any, criminal
-                investigation or further enquiries are appropriate.
+                Reporting a concern does not mean that any company or person has committed an offence. Police Scotland is
+                responsible for assessing any information it receives and for deciding what, if any, action to take. The
+                committee does not act on behalf of Police Scotland and cannot comment on, or provide updates about, any
+                police enquiry.
+              </p>
+
+              <h5 className="pt-2 text-base font-semibold text-slate-950 dark:text-white">Contacting Police Scotland</h5>
+              <p>
+                If you wish to contact Police Scotland, telephone {POLICE_PHONE.nonEmergency} and ask to be directed to the
+                enquiry officer dealing with the FIOR matter relating to James Square.
+              </p>
+
+              <h5 className="pt-2 text-base font-semibold text-slate-950 dark:text-white">Police reference details</h5>
+              <p>
+                Police reference numbers are not published on this page. If you need them, please contact the Owners
+                Committee at{" "}
+                <a href={`mailto:${COMMITTEE_EMAIL}`} className="break-all font-semibold text-sky-700 underline underline-offset-2 dark:text-sky-300">
+                  {COMMITTEE_EMAIL}
+                </a>{" "}
+                or Myreside Management at{" "}
+                <a
+                  href={`mailto:${MYRESIDE_REFERENCE_EMAIL}`}
+                  className="break-all font-semibold text-sky-700 underline underline-offset-2 dark:text-sky-300"
+                >
+                  {MYRESIDE_REFERENCE_EMAIL}
+                </a>
+                . You may be asked to confirm that you are a James Square owner.
               </p>
             </div>
-          </Reveal>
 
-          <Reveal delay={1} className="flex flex-col gap-4 lg:pt-10">
-            <div className="rounded-2xl border border-slate-200/80 bg-white/75 p-5 dark:border-white/10 dark:bg-white/[0.05]">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
-                Current status
-              </p>
-              <p className="mt-2 flex items-center gap-2.5 text-lg font-semibold text-slate-950 dark:text-white">
-                <span
-                  className="h-2.5 w-2.5 rounded-full bg-sky-500 ring-4 ring-sky-500/15 dark:bg-sky-400 dark:ring-sky-400/15"
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <a href={referenceMailto} className={primaryButton}>
+                <Mail className="h-4 w-4" aria-hidden="true" />
+                Request reference details
+              </a>
+              <button
+                type="button"
+                aria-expanded={showPhone}
+                aria-controls={`${uid}-phone`}
+                onClick={() => setShowPhone((v) => !v)}
+                className={secondaryButton}
+              >
+                <Phone className="h-4 w-4" aria-hidden="true" />
+                Contact Police Scotland
+                <ChevronDown
+                  className={`h-4 w-4 transition motion-reduce:transition-none ${showPhone ? "rotate-180" : ""}`}
                   aria-hidden="true"
                 />
-                Ongoing enquiry
-              </p>
+              </button>
             </div>
+            <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-400">
+              “Request reference details” opens a short prefilled email to the committee, copied to Myreside, in your own
+              email app. Add your name and address, then send it yourself.
+            </p>
 
-            {reference.visible && (
+            <div id={`${uid}-phone`} hidden={!showPhone} className="mt-5">
               <div className="rounded-2xl border border-slate-200/80 bg-white/75 p-5 dark:border-white/10 dark:bg-white/[0.05]">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
-                  Police Scotland enquiry reference
-                </p>
-                <p className="mt-2 font-mono text-xl font-semibold tracking-wide text-slate-950 dark:text-white">
-                  {reference.reference}
-                </p>
-                <div className="mt-2">
-                  <CopyButton label="Copy reference" text={reference.reference} />
+                <p className="text-[15px] font-semibold text-slate-950 dark:text-white">How to contact Police Scotland</p>
+                <ol className="mt-3 list-decimal space-y-2 pl-5 text-[15px] leading-7 text-slate-700 dark:text-slate-300">
+                  <li>
+                    Telephone <strong>{POLICE_PHONE.nonEmergency}</strong>, the Police Scotland non-emergency number.
+                  </li>
+                  <li>Explain that you are a James Square owner in Edinburgh.</li>
+                  <li>Ask to be directed to the enquiry officer dealing with the FIOR matter relating to James Square.</li>
+                  <li>If you have the reference details, have them to hand when you call.</li>
+                </ol>
+                <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+                  <a href={`tel:${POLICE_PHONE.nonEmergency}`} className={secondaryButton}>
+                    <Phone className="h-4 w-4" aria-hidden="true" />
+                    Call {POLICE_PHONE.nonEmergency}
+                  </a>
+                  <ExternalLink href={POLICE_LINKS.nonEmergency.href}>{POLICE_LINKS.nonEmergency.label}</ExternalLink>
                 </div>
-                <p className="mt-5 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
-                  Police incident reference
-                </p>
-                <p className="mt-2 font-mono text-xl font-semibold tracking-wide text-slate-950 dark:text-white">
-                  {reference.incident}
-                </p>
-                <div className="mt-2">
-                  <CopyButton label="Copy incident reference" text={reference.incident} />
-                </div>
-                <p className="mt-4 text-sm leading-6 text-slate-600 dark:text-slate-400">
-                  Quote both references when contacting Police Scotland about this matter.
+                <p className="mt-4 text-sm font-medium leading-6 text-slate-700 dark:text-slate-300">
+                  In an emergency, always call {POLICE_PHONE.emergency}.
                 </p>
               </div>
-            )}
-
-            <div className="rounded-2xl border border-slate-200/80 bg-white/75 p-5 dark:border-white/10 dark:bg-white/[0.05]">
-              <h4 className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
-                Contacting the enquiry officer
-              </h4>
-              <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">
-                The enquiry officer currently understood to be dealing with relevant information is:
-              </p>
-              <p className="mt-3 flex items-center gap-2.5">
-                <UserRound className="h-5 w-5 text-sky-700 dark:text-sky-300" aria-hidden="true" />
-                <span>
-                  <span className="block text-[15px] font-semibold text-slate-950 dark:text-white">{contact.officer}</span>
-                  <span className="block text-sm text-slate-600 dark:text-slate-400">{contact.organisation}</span>
-                </span>
-              </p>
-              {contact.email ? (
-                // The address is only assembled into a mailto: link on click, so it is never shown on the page.
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (contact.email) window.location.href = buildMailtoUri(contact.email, subject, "");
-                  }}
-                  className={`${secondaryButton} mt-4`}
-                >
-                  <Mail className="h-4 w-4" aria-hidden="true" />
-                  Email the enquiry officer
-                </button>
-              ) : (
-                <p className="mt-4 rounded-xl bg-slate-100/80 px-4 py-3 text-sm leading-6 text-slate-700 dark:bg-white/[0.05] dark:text-slate-300">
-                  Direct contact details for the enquiry officer will be added once confirmed.
-                </p>
-              )}
             </div>
-          </Reveal>
-        </div>
+          </Accordion>
+        </Reveal>
       </section>
 
       {/* ── Evidence checklist ───────────────────────────── */}
@@ -470,12 +485,12 @@ export default function PoliceScotland() {
               </h3>
               <div className={`${copyClass} mt-5`}>
                 <p>
-                  Providing a short factual summary can help explain why you are making contact and what information you
-                  hold.
+                  If you decide to contact Police Scotland, a short factual summary can help you explain your circumstances
+                  and what records you hold.
                 </p>
                 <p>
-                  Keep it factual: describe what you paid, what you were told and what happened. It is for Police
-                  Scotland to assess the circumstances.
+                  Keep it factual: describe what you paid, what you were told and what happened. Avoid describing anyone&apos;s
+                  conduct as criminal. It is for Police Scotland to assess the circumstances.
                 </p>
               </div>
               <Notice
@@ -489,9 +504,8 @@ export default function PoliceScotland() {
                   will be lost if you close or reload this page.
                 </p>
                 <p>
-                  {contact.email
-                    ? "James Square will not send your email. It opens in your own email app for you to review and send yourself."
-                    : "James Square will not send anything. You can copy your summary and send it yourself."}
+                  James Square will not send anything. You can copy your summary and keep it ready in case Police
+                  Scotland asks you for information.
                 </p>
               </Notice>
               <button type="button" onClick={clearAll} className={`${secondaryButton} mt-4`}>
@@ -552,7 +566,12 @@ export default function PoliceScotland() {
                     />
                   </Field>
 
-                  <Field id={ids.address} label="Your James Square address" error={errors.address}>
+                  <Field
+                    id={ids.address}
+                    label="Your James Square address"
+                    hint="Start with your property number and we will suggest the rest. You can edit it."
+                    error={errors.address}
+                  >
                     <input
                       id={ids.address}
                       type="text"
@@ -561,15 +580,16 @@ export default function PoliceScotland() {
                       value={details.address}
                       onChange={(e) => set("address")(e.target.value)}
                       aria-invalid={errors.address ? true : undefined}
-                      aria-describedby={describedBy(ids.address, { error: errors.address })}
+                      aria-describedby={describedBy(ids.address, { hint: true, error: errors.address })}
                       className={`${inputClass} ${inputBorder(errors.address)}`}
                     />
+                    <AddressSuggestion inputId={ids.address} value={details.address} onAccept={set("address")} />
                   </Field>
 
                   <Field
                     id={ids.contact}
                     label="Preferred contact email or telephone"
-                    hint="Included in your email so Police Scotland knows how to contact you."
+                    hint="Included in your summary so Police Scotland knows how to contact you."
                     error={errors.contact}
                   >
                     <input
@@ -707,7 +727,7 @@ export default function PoliceScotland() {
 
                   <TextArea
                     id={ids.whyRelevant}
-                    label="Why do you believe Police Scotland should be aware of this?"
+                    label="Anything else you think may be helpful"
                     hint="Stick to the facts as you understand them."
                     value={details.whyRelevant}
                     onChange={set("whyRelevant")}
@@ -729,30 +749,6 @@ export default function PoliceScotland() {
               </div>
             ) : (
               <div className="space-y-6">
-                {stage === "opened" && (
-                  <div
-                    role="status"
-                    className="rounded-3xl border border-emerald-200/80 bg-emerald-50/80 p-5 dark:border-emerald-400/20 dark:bg-emerald-400/[0.08] sm:p-7"
-                  >
-                    <div className="flex items-start gap-3">
-                      <MailCheck className="mt-1 h-5 w-5 shrink-0 text-emerald-700 dark:text-emerald-300" aria-hidden="true" />
-                      <div>
-                        <h4
-                          ref={openedHeadingRef}
-                          tabIndex={-1}
-                          className={`text-xl font-semibold tracking-tight text-slate-950 outline-none dark:text-white ${scrollMargin}`}
-                        >
-                          Your email should now be open
-                        </h4>
-                        <p className="mt-2 text-[15px] leading-7 text-slate-700 dark:text-slate-300">
-                          Check the recipient, subject and message, then send it from your own email account. Keep a copy
-                          in your Sent folder. Police Scotland will determine what happens next.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
                 <div className={`${glassPanel} overflow-hidden`}>
                   <div className="border-b border-slate-200/80 px-5 py-4 dark:border-white/10 sm:px-7">
                     <h4
@@ -769,17 +765,8 @@ export default function PoliceScotland() {
                   </div>
                   <dl className="divide-y divide-slate-200/80 text-[15px] dark:divide-white/10">
                     <div className="flex flex-col gap-0.5 px-5 py-3 sm:flex-row sm:gap-3 sm:px-7">
-                      <dt className="w-20 shrink-0 font-semibold text-slate-500 dark:text-slate-400">To</dt>
-                      <dd className="font-medium text-slate-900 dark:text-white">
-                        {contact.officer}, {contact.organisation}
-                        {!contact.email && (
-                          <span className="font-normal text-slate-600 dark:text-slate-400"> – email address not yet confirmed</span>
-                        )}
-                      </dd>
-                    </div>
-                    <div className="flex flex-col gap-0.5 px-5 py-3 sm:flex-row sm:gap-3 sm:px-7">
                       <dt className="w-20 shrink-0 font-semibold text-slate-500 dark:text-slate-400">Subject</dt>
-                      <dd className="font-medium text-slate-900 dark:text-white">{subject}</dd>
+                      <dd className="font-medium text-slate-900 dark:text-white">{POLICE_SUMMARY_SUBJECT}</dd>
                     </div>
                   </dl>
                   <div className="border-t border-slate-200/80 bg-white/70 px-5 py-5 dark:border-white/10 dark:bg-slate-950/40 sm:px-7">
@@ -805,52 +792,25 @@ export default function PoliceScotland() {
                     <PencilLine className="h-4 w-4" aria-hidden="true" />
                     Edit my answers
                   </button>
-                  {mailto && (
-                    <a
-                      href={mailto}
-                      onClick={() => {
-                        pendingFocus.current = openedHeadingRef;
-                        setStage("opened");
-                      }}
-                      className={`${primaryButton} sm:min-w-[16rem] sm:text-base`}
-                    >
-                      <Mail className="h-5 w-5" aria-hidden="true" />
-                      {stage === "opened" ? "Open in my email app again" : "Open in my email app"}
-                    </a>
-                  )}
                 </div>
 
-                {!contact.email && (
-                  <Notice tone="info" icon={<ShieldCheck className="h-4 w-4" aria-hidden="true" />} title="Enquiry officer email not yet confirmed">
-                    <p>
-                      Direct contact details for the enquiry officer will be added once confirmed. In the meantime you can
-                      copy your summary and keep it ready. If you contact Police Scotland through its official channels,
-                      {reference.visible ? ` quote references ${reference.reference} and ${reference.incident}, and` : ""} mention that your information
-                      relates to the existing James Square / FIOR enquiry.
-                    </p>
-                    <p>
-                      <ExternalLink href={POLICE_LINKS.contact.href}>{POLICE_LINKS.contact.label}</ExternalLink>
-                    </p>
-                  </Notice>
-                )}
-
-                {mailto.length > MAILTO_SOFT_LIMIT && (
-                  <Notice tone="warning" title="Long message">
-                    <p>
-                      Some email apps shorten very long messages opened this way. Check the whole message arrived, or copy
-                      it below and paste it into a new email.
-                    </p>
-                  </Notice>
-                )}
+                <Notice tone="info" icon={<ShieldCheck className="h-4 w-4" aria-hidden="true" />} title="Using your summary">
+                  <p>
+                    Keep your summary ready if you call {POLICE_PHONE.nonEmergency}. If Police Scotland asks you to send
+                    information by email, paste it into a new email to the address they give you.
+                  </p>
+                  <p>
+                    <ExternalLink href={POLICE_LINKS.contact.href}>{POLICE_LINKS.contact.label}</ExternalLink>
+                  </p>
+                </Notice>
 
                 <div className="rounded-2xl border border-slate-200/80 bg-slate-50/70 p-5 dark:border-white/10 dark:bg-white/[0.04]">
                   <p className="text-[15px] font-semibold text-slate-900 dark:text-white">Copy your summary</p>
                   <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                    Paste each part into a new email in Gmail, Outlook, Apple Mail or any other email service.
+                    Copy your summary to keep it ready, or paste it into an email if Police Scotland asks you to send it.
                   </p>
                   <div className="mt-4 flex flex-wrap gap-2">
-                    {contact.email && <CopyButton label="Copy recipient address" text={contact.email} />}
-                    <CopyButton label="Copy subject" text={subject} />
+                    <CopyButton label="Copy subject" text={POLICE_SUMMARY_SUBJECT} />
                     <CopyButton label="Copy message" text={draft} />
                   </div>
                 </div>

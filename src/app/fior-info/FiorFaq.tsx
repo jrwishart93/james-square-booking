@@ -68,9 +68,9 @@ const faqs: { q: string; a: React.ReactNode }[] = [
     q: "What is happening with communal James Square money?",
     a: (
       <p>
-        Communal funds are separate from individual owner claims. Myreside Management has been pursuing the transfer and
-        recovery of outstanding communal funds from the previous factor on behalf of the development. The outcome of that
-        process cannot be guaranteed.
+        Communal funds are separate from individual owner claims. The committee understands that Myreside Management has
+        been pursuing the transfer of outstanding communal funds from the previous factor on behalf of the development.
+        The outcome of that process cannot be guaranteed.
       </p>
     ),
   },
@@ -79,13 +79,13 @@ const faqs: { q: string; a: React.ReactNode }[] = [
     a: (
       <>
         <p>
-          If you believe you have information which may be relevant to the existing enquiry, particularly regarding
-          payments towards proposed works which were not carried out or other circumstances which concern you, you can
-          make Police Scotland aware of your circumstances.
+          That is a decision for you. The committee does not encourage or discourage owners from contacting Police
+          Scotland. If you wish to, you can telephone 101 and ask to be directed to the enquiry officer dealing with the
+          FIOR matter relating to James Square.
         </p>
-        <p>Police Scotland will determine whether the information is relevant to its enquiry.</p>
+        <p>It is for Police Scotland to decide whether any information it receives is relevant.</p>
         <p>
-          <InternalLink href="#part-3">Police Scotland information</InternalLink>
+          <InternalLink href="#part-3">Contacting Police Scotland</InternalLink>
         </p>
       </>
     ),
@@ -94,7 +94,7 @@ const faqs: { q: string; a: React.ReactNode }[] = [
     q: "Will Police Scotland recover my money?",
     a: (
       <>
-        <p>A police enquiry and recovery of a civil debt are separate matters.</p>
+        <p>Reporting a concern to the police and recovering money you believe is owed to you are separate matters.</p>
         <p>Providing information to Police Scotland should not be treated as a method of obtaining repayment.</p>
         <p>
           <InternalLink href="#part-2">Recovering your money</InternalLink>
@@ -152,6 +152,27 @@ const faqs: { q: string; a: React.ReactNode }[] = [
         </p>
         <p>
           <ExternalLink href={LINKS.guide.href}>{LINKS.guide.label}</ExternalLink>
+        </p>
+      </>
+    ),
+  },
+  {
+    q: "What happens if FIOR is struck off the Companies House register?",
+    a: (
+      <>
+        <p>
+          If a company is struck off and dissolved, it generally ceases to exist as a legal entity. A claim cannot
+          normally be raised or continued against a dissolved company unless it is first restored to the register, which
+          is a separate legal process.
+        </p>
+        <p>
+          Check the live Companies House record for the company&apos;s current status. If you believe you are owed money,
+          you may wish to seek independent legal advice promptly, as dissolution could affect your recovery options.
+          GOV.UK explains how a person can object to a company being struck off.
+        </p>
+        <p className="flex flex-wrap gap-x-6 gap-y-2">
+          <ExternalLink href={FIOR_COMPANY.companiesHouseUrl}>Companies House record</ExternalLink>
+          <ExternalLink href={FIOR_COMPANY.strikeOffObjectionUrl}>Objecting to a strike-off (GOV.UK)</ExternalLink>
         </p>
       </>
     ),
@@ -250,8 +271,10 @@ const faqs: { q: string; a: React.ReactNode }[] = [
         <p>No. This resource provides general information, preparation tools and links to official services.</p>
         <p>
           The Owners Committee cannot determine whether an individual has a valid claim or represent an owner in court
-          proceedings.
+          proceedings. James-Square.com and the committee are not acting on behalf of Police Scotland, Companies House or
+          any legal adviser.
         </p>
+        <p>If you are unsure about your own position, consider obtaining independent legal advice.</p>
       </>
     ),
   },
@@ -275,8 +298,8 @@ const destinations = [
   {
     href: "#part-3",
     icon: ShieldCheck,
-    need: "I have information which may be relevant to Police Scotland",
-    action: "Police Scotland information",
+    need: "I wish to contact Police Scotland",
+    action: "Contacting Police Scotland",
     part: "Part 3",
   },
 ];

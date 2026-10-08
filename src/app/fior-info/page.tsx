@@ -17,6 +17,7 @@ import {
   UserRound,
   Users,
 } from "lucide-react";
+import CompanyStatusNotice from "./CompanyStatusNotice";
 import FiorFaq from "./FiorFaq";
 import PoliceScotland from "./PoliceScotland";
 import RepaymentRequest from "./RepaymentRequest";
@@ -25,12 +26,20 @@ import SectionNav from "./SectionNav";
 
 const pageTitle = "FIOR Property Assets | Owner Information | James Square";
 const pageDescription =
-  "Information for James Square owners about FIOR Property Assets: background, recovering money you believe is due to you, Police Scotland and frequently asked questions.";
+  "An independent information resource for James Square owners about the change of factor from FIOR Property Assets and the options owners may wish to consider.";
 
 export const metadata: Metadata = {
   title: pageTitle,
   description: pageDescription,
   alternates: { canonical: "https://www.james-square.com/fior-info" },
+  // Shared with owners by direct link. Kept out of search engines; next.config
+  // also sends a matching X-Robots-Tag header.
+  robots: {
+    index: false,
+    follow: false,
+    nocache: true,
+    googleBot: { index: false, follow: false, noimageindex: true },
+  },
   openGraph: {
     title: pageTitle,
     description: pageDescription,
@@ -53,15 +62,15 @@ const hoverLift =
 
 const statusMarkers = [
   { label: "Factor changed", value: "1 February 2026" },
-  { label: "Owner concerns", value: "Information gathered" },
-  { label: "Current position", value: "Information & options available" },
+  { label: "Owner reports", value: "Gathered by the committee" },
+  { label: "This page", value: "General information only" },
 ];
 
 const timeline = [
   {
     when: "Late 2025 / Early 2026",
     title: "Discussions about change of factor",
-    body: "Discussions took place regarding FIOR’s intention to leave James Square alongside concerns raised by owners about aspects of the factoring service.",
+    body: "Discussions took place about FIOR’s intention to leave James Square, alongside concerns raised by some owners about aspects of the factoring service.",
     icon: MessagesSquare,
   },
   {
@@ -90,9 +99,9 @@ const timeline = [
     icon: ClipboardList,
   },
   {
-    when: "Information provided to Police Scotland",
-    title: "Concerns reported",
-    body: "Information gathered by the committee was provided to Police Scotland. The matter remains subject to an ongoing enquiry.",
+    when: "Following the questionnaire",
+    title: "Concerns reported to Police Scotland",
+    body: "The committee passed the information it had gathered to Police Scotland. Any assessment of that information is a matter for Police Scotland.",
     icon: ShieldCheck,
   },
 ];
@@ -110,12 +119,12 @@ const concerns: { title: string; body: string; icon: LucideIcon }[] = [
   },
   {
     title: "Roof & repair funds",
-    body: "Money being requested from some owners towards proposed roof or repair works. Some owners reported that planned works associated with those payments had not been carried out.",
+    body: "Money requested from some owners towards proposed roof or repair works. Some owners reported that, as far as they were aware, the works associated with those payments had not been carried out.",
     icon: Hammer,
   },
   {
     title: "Repayment difficulties",
-    body: "Owners experiencing difficulties or delays when subsequently requesting repayment.",
+    body: "Owners reporting difficulties or delays when they later requested repayment.",
     icon: Undo2,
   },
 ];
@@ -167,7 +176,7 @@ const journey = [
     kicker: "Further information",
     title: "Police Scotland & FAQs",
     description:
-      "Information for owners whose circumstances may be relevant to the ongoing enquiry, together with answers to common questions.",
+      "How to contact Police Scotland if you wish to, how to request reference details, and answers to common questions.",
   },
 ];
 
@@ -207,8 +216,8 @@ export default function FiorInfoPage() {
               <br className="hidden sm:block" /> Assets
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-700 dark:text-slate-200 sm:text-xl sm:leading-9">
-              Information for James Square owners about outstanding funds, individual payments and the options available
-              to owners.
+              An independent information resource for James Square owners about outstanding funds, individual payments
+              and the options owners may wish to consider.
             </p>
           </Reveal>
 
@@ -235,6 +244,15 @@ export default function FiorInfoPage() {
             FIOR Property Assets as factor and concerns raised by owners regarding money they believe remains
             outstanding.
           </p>
+          <p className="mt-5 max-w-3xl text-[15px] leading-7 text-slate-600 dark:text-slate-400">
+            It describes what the committee understands to have happened, what owners have reported and where to find
+            official guidance. Reports from owners are described as reports: they have not been tested or verified by a
+            court or any other body. This page is general information, not legal advice.
+          </p>
+        </Reveal>
+
+        <Reveal className="mt-8 max-w-3xl">
+          <CompanyStatusNotice />
         </Reveal>
 
         <div className="mt-20 space-y-24 sm:mt-28 sm:space-y-32">
@@ -259,8 +277,8 @@ export default function FiorInfoPage() {
                   <p>
                     Following the change of factor, correspondence took place requesting that money and communal funds
                     held in connection with James Square be transferred to Myreside Management. At the time this page
-                    was prepared, the committee understands that some funds remain outstanding and Myreside continues to
-                    pursue this separately.
+                    was prepared, the committee&apos;s understanding was that some funds remained outstanding and that
+                    Myreside was pursuing this separately.
                   </p>
                 </div>
                 <p className="mt-6 border-l-2 border-sky-500 pl-4 text-[15px] font-medium leading-7 text-slate-900 dark:border-sky-400 dark:text-white">
@@ -313,7 +331,8 @@ export default function FiorInfoPage() {
                 <div className={`${copyClass} mt-6`}>
                   <p>
                     After Myreside Management took over, the James Square Owners Committee began receiving reports from
-                    individual owners who believed they had personally paid money to FIOR which should be returned.
+                    individual owners who believed they had personally paid money to FIOR which should be returned. The
+                    committee has not verified each report and cannot say whether any money is legally owed.
                   </p>
                   <p>Examples reported to the committee included:</p>
                 </div>
@@ -337,8 +356,9 @@ export default function FiorInfoPage() {
                 <p className="flex items-start gap-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 px-5 py-4 text-sm leading-6 text-slate-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-300">
                   <Info className="mt-0.5 h-4 w-4 shrink-0 text-slate-400 dark:text-slate-500" aria-hidden="true" />
                   <span>
-                    These are circumstances reported by individual owners. Their inclusion here should not be interpreted
-                    as a finding that FIOR or any individual has committed wrongdoing.
+                    These are circumstances reported by individual owners. They are not findings of fact. Their inclusion
+                    here does not mean that FIOR, or any director or employee of FIOR, has acted unlawfully or committed
+                    any wrongdoing.
                   </span>
                 </p>
               </Reveal>
@@ -356,7 +376,7 @@ export default function FiorInfoPage() {
                 <p>
                   As similar concerns were being raised by more than one owner, the James Square Owners Committee
                   prepared a questionnaire to better understand the scale and nature of the issue. A number of owners
-                  responded and confirmed circumstances in which they believed money remained due back to them.
+                  responded and described circumstances in which they believed money remained due back to them.
                 </p>
                 <p>
                   The purpose of gathering this information was to establish whether individual reports appeared to form
@@ -399,14 +419,18 @@ export default function FiorInfoPage() {
                   <div className={`${copyClass} mt-6`}>
                     <p>
                       Following the information received from owners, the committee contacted Police Scotland and
-                      provided information about the concerns which had been reported.
+                      passed on information about the concerns which had been reported.
                     </p>
                     <p>
-                      The purpose was to make Police Scotland aware that a number of owners reported difficulty
-                      recovering money and to allow Police Scotland to determine whether any circumstances required
-                      investigation. The matter remains the subject of an ongoing enquiry. Police Scotland has not
-                      reached a conclusion, and this page does not state or imply that FIOR, or any director or employee
-                      of FIOR, has committed an offence or is guilty of wrongdoing.
+                      The purpose was to make Police Scotland aware that a number of owners had reported difficulty
+                      recovering money, so that Police Scotland could decide whether any action was appropriate. That
+                      decision is for Police Scotland alone. The committee does not act on behalf of Police Scotland and
+                      cannot comment on any police enquiry.
+                    </p>
+                    <p>
+                      Reporting a concern to the police does not mean that an offence has been committed. This page does
+                      not state or imply that FIOR, or any director or employee of FIOR, has committed an offence or is
+                      guilty of any wrongdoing.
                     </p>
                   </div>
                 </div>
@@ -414,23 +438,22 @@ export default function FiorInfoPage() {
                 <div className="flex flex-col gap-4 lg:pt-12">
                   <div className="rounded-2xl border border-slate-200/80 bg-white/75 p-5 dark:border-white/10 dark:bg-white/[0.05]">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
-                      Current status
+                      What the committee has done
                     </p>
                     <p className="mt-2 flex items-center gap-2.5 text-lg font-semibold text-slate-950 dark:text-white">
                       <span className="relative flex h-2.5 w-2.5" aria-hidden="true">
                         <span className="h-2.5 w-2.5 rounded-full bg-sky-500 ring-4 ring-sky-500/15 dark:bg-sky-400 dark:ring-sky-400/15" />
                       </span>
-                      Ongoing enquiry
+                      Concerns reported
                     </p>
                   </div>
                   <div className="rounded-2xl border border-dashed border-slate-300/90 p-5 dark:border-white/15">
                     <p className="text-[15px] font-semibold text-slate-900 dark:text-white">
-                      Have information which may be relevant?
+                      Wish to contact Police Scotland?
                     </p>
                     <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                      If you believe your circumstances may be relevant to the ongoing Police Scotland enquiry, Part 3
-                      explains how you can make the enquiry officer aware of them. You do not need to take any action
-                      through this page.
+                      Part 3 explains how to contact Police Scotland and how to request the reference details, if you
+                      decide that you wish to. You do not need to take any action through this page.
                     </p>
                     <a
                       href="#part-3"
@@ -454,8 +477,10 @@ export default function FiorInfoPage() {
               </h2>
               <div className={`${copyClass} mt-6`}>
                 <p>
-                  The committee also sought legal guidance about the practical options available to owners who believe
-                  FIOR owes money directly to them. The guidance described two broad routes.
+                  The committee also sought general legal guidance about the practical options available to owners who
+                  believe FIOR owes money directly to them. Below is the committee&apos;s summary of that general
+                  guidance. It was not advice about any individual owner&apos;s circumstances and should not be relied
+                  on as legal advice.
                 </p>
               </div>
             </Reveal>
@@ -492,15 +517,16 @@ export default function FiorInfoPage() {
               <div className="rounded-3xl border border-sky-200/80 bg-gradient-to-br from-sky-50/90 to-white/60 p-6 dark:border-sky-400/20 dark:from-sky-400/[0.08] dark:to-white/[0.03] sm:p-8">
                 <div className={`${copyClass} max-w-3xl`}>
                   <p>
-                    The guidance received was that, while collective legal action could potentially be considered,
-                    affected owners could need to be individually onboarded by a solicitor, provide identification and
-                    documentation, formally instruct the firm and potentially share responsibility for legal costs. For
-                    relatively modest individual amounts, this may not be the most proportionate way for owners to
-                    attempt to recover their money.
+                    The committee&apos;s understanding of the guidance was that, while collective legal action could
+                    potentially be considered, affected owners might need to be individually onboarded by a solicitor,
+                    provide identification and documentation, formally instruct the firm and potentially share
+                    responsibility for legal costs. For relatively modest individual amounts, this may not be the most
+                    proportionate way for owners to attempt to recover their money.
                   </p>
                   <p className="font-medium text-slate-900 dark:text-white">
-                    Owners were therefore advised to consider whether the Scottish Simple Procedure may be appropriate
-                    for their individual circumstances. This is ultimately a decision for each individual owner.
+                    Owners may therefore wish to consider whether the Scottish Simple Procedure is appropriate for their
+                    individual circumstances, or to take their own independent legal advice. Whether to request
+                    repayment or take any legal action is a decision for each individual owner.
                   </p>
                 </div>
                 <a
@@ -526,7 +552,7 @@ export default function FiorInfoPage() {
               </h2>
               <p className={`${copyClass} mt-5`}>
                 This page is a guided resource for James Square owners in three parts. Each part is available now – go
-                straight to the one you need.
+                straight to the one you need. Using any part of it is optional.
               </p>
             </Reveal>
 
@@ -597,24 +623,33 @@ export default function FiorInfoPage() {
                 </h2>
                 <div className="mt-3 space-y-2.5 text-sm leading-6 text-slate-600 dark:text-slate-400">
                   <p>
-                    The information on this page has been prepared to help James Square owners understand the background
-                    to concerns involving FIOR Property Assets and the options which may be available to them.
+                    This page is an independent information resource for James Square owners. It has been prepared to
+                    help owners understand the background to concerns involving FIOR Property Assets and the options
+                    which may be available to them.
                   </p>
                   <p className="font-semibold text-slate-800 dark:text-slate-200">
-                    It is provided for general information only and does not constitute legal advice.
+                    It is provided for general information only and is not legal advice.
                   </p>
                   <p>
-                    The James Square Owners Committee and its members are not acting as legal representatives and cannot
-                    determine whether an individual owner has a valid legal claim.
+                    James-Square.com and the James Square Owners Committee are not acting on behalf of Police Scotland,
+                    Companies House, the Scottish Courts and Tribunals Service or any legal adviser. The committee and its
+                    members are not legal representatives and cannot determine whether an individual owner has a valid
+                    legal claim.
                   </p>
                   <p>
-                    Information provided to Police Scotland will be assessed by Police Scotland. The existence of an
-                    enquiry should not be interpreted as establishing that FIOR Property Assets, its directors, employees
-                    or any other person has committed a criminal offence.
+                    Statements on this page about what owners have reported are reports, not findings of fact. Any
+                    information provided to Police Scotland is for Police Scotland to assess. Reporting a concern does not
+                    establish that FIOR Property Assets, its directors, employees or any other person has committed an
+                    offence or acted unlawfully.
                   </p>
                   <p>
-                    Any decision to request repayment, commence court proceedings, obtain legal advice or provide
-                    information to Police Scotland remains a matter for the individual owner.
+                    Company information comes from the Companies House register and may change. Check the live record
+                    before relying on it.
+                  </p>
+                  <p>
+                    Each owner is responsible for deciding whether to request repayment, commence court proceedings,
+                    obtain legal advice or provide information to Police Scotland. If you are unsure about your own
+                    position, consider obtaining independent legal advice.
                   </p>
                   <p>
                     Court procedures, fees, forms and deadlines may change. Owners should always check the current
