@@ -29,6 +29,11 @@ const pageTitle = "FIOR Property Assets | Owner Information | James Square";
 const pageDescription =
   "An independent information resource for James Square owners about the change of factor from FIOR Property Assets and the options owners may wish to consider.";
 
+// Link-preview image shown when the page is shared (WhatsApp, email, social).
+// Kept under 300 KB so WhatsApp displays it.
+const shareImage = "https://www.james-square.com/images/og/fior-info.jpg";
+const shareImageAlt = "FIOR Property Update – information for James Square owners";
+
 export const metadata: Metadata = {
   title: pageTitle,
   description: pageDescription,
@@ -45,7 +50,15 @@ export const metadata: Metadata = {
     title: pageTitle,
     description: pageDescription,
     url: "https://www.james-square.com/fior-info",
+    siteName: "James Square",
     type: "article",
+    images: [{ url: shareImage, width: 1200, height: 628, alt: shareImageAlt, type: "image/jpeg" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: pageTitle,
+    description: pageDescription,
+    images: [{ url: shareImage, alt: shareImageAlt }],
   },
 };
 
