@@ -10,6 +10,8 @@ import {
   POLICE_SUMMARY_SUBJECT,
   REFERENCE_REQUEST_BODY,
   REFERENCE_REQUEST_SUBJECT,
+  POLICE_UPDATE_LIMIT,
+  buildUpdateRequest,
   joinDocuments,
   validatePoliceDetails,
   type PoliceDetails,
@@ -96,4 +98,37 @@ describe("joinDocuments", () => {
     expect(joinDocuments(["a"])).toBe("a");
     expect(joinDocuments([])).toBe("");
   });
+});
+
+describe("buildUpdateRequest", () => {
+  const all = [
+    { provideInformation: true, requestUpdate: true },
+    { provideInformation: true, requestUpdate: false },
+    { provideInformation: false, requestUpdate: true },
+    { provideInformation: false, requestUpdate: false },
+  ];
+
+  it("always quotes the incident number and stays within the form limit", () => {
+    for (const options of all) {
+      const text = buildUpdateRequest(options);
+      expect(text).toContain("incident PS-20260720-1008");
+      expect(text.length).toBeLessThanOrEqual(POLICE_UPDATE_LIMIT - 300);
+    }
+  });
+
+  it("uses the owner's own position and makes no allegation", () => {
+    const text = buildUpdateRequest({ provideInformation: true, requestUpdate: true });
+    expect(text).toContain("I am an owner at James Square");
+    expect(text).toContain("I believe I may be a complainer and would like to provide further information in relation to incident PS-20260720-1008.");
+    expect(text).toContain("I would also be grateful for an update");
+    for (const word of ["fraud", "stole", "embezzl", "theft", "criminal", "guilty"]) {
+      expect(text.toLowerCase()).not.toContain(word);
+    }
+  });
+
+  it("adds a tidied note in the owner's words", () => {
+    const text = buildUpdateRequest({ provideInformation: true, requestUpdate: false, extra: "  I paid towards\n roof works.  " });
+    expect(text).toContain("I paid towards roof works. Please could the officer");
+  });
+
 });

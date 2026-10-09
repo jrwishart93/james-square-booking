@@ -18,6 +18,7 @@ import {
   Trash2,
   Undo2,
 } from "lucide-react";
+import PoliceUpdateRequest from "./PoliceUpdateRequest";
 import Reveal from "./Reveal";
 import {
   Accordion,
@@ -342,8 +343,8 @@ export default function PoliceScotland() {
             Contacting Police Scotland
           </h3>
           <p className={`${copyClass} mt-5`}>
-            Open the section below for the police incident number, how to contact Police Scotland and how to request
-            any further reference details.
+            Open the section below for the police incident number, how to contact Police Scotland or ask for an update
+            online, and how to request any further reference details.
           </p>
         </Reveal>
 
@@ -383,6 +384,8 @@ export default function PoliceScotland() {
                 reference only and does not indicate any finding.
               </p>
             </div>
+
+            <PoliceUpdateRequest />
 
             <div className={`${copyClass} mt-5`}>
               <h5 className="text-base font-semibold text-slate-950 dark:text-white">Further reference details</h5>

@@ -48,6 +48,58 @@ export const POLICE_LINKS = {
   },
 } as const;
 
+/**
+ * Police Scotland's online "Ask for an update" form. It is on Police Scotland's
+ * own site, so this page cannot fill it in: owners copy the prepared answers
+ * across and submit the form themselves.
+ */
+export const POLICE_UPDATE_FORM_URL = "https://www.scotland.police.uk/secureforms/askupdate/";
+
+/** Character limit Police Scotland shows for "what you want an update on". */
+export const POLICE_UPDATE_LIMIT = 1000;
+
+/** Council area to select for James Square. */
+export const JAMES_SQUARE_COUNCIL_AREA = "City of Edinburgh";
+
+export type UpdateRequestOptions = {
+  /** The owner believes they may be a complainer and wishes to give further information. */
+  provideInformation: boolean;
+  /** The owner would like an update on the incident. */
+  requestUpdate: boolean;
+  /** Optional short note in the owner's own words. */
+  extra?: string;
+};
+
+/**
+ * Text for the "what would you like an update on" box. It always quotes the
+ * incident number, describes the owner's own position only and makes no
+ * allegation about anyone.
+ */
+export function buildUpdateRequest({ provideInformation, requestUpdate, extra = "" }: UpdateRequestOptions): string {
+  const parts = [
+    "I am an owner at James Square, Caledonian Crescent, Edinburgh. I am aware that concerns have been reported to Police Scotland regarding payments made to FIOR Property Assets, the former factor of the development.",
+  ];
+  if (provideInformation) {
+    parts.push(
+      `I believe I may be a complainer and would like to provide further information in relation to incident ${POLICE_INCIDENT_NUMBER}.`,
+    );
+  }
+  if (requestUpdate) {
+    parts.push(
+      provideInformation
+        ? "I would also be grateful for an update on the incident, as far as you are able to provide one."
+        : `I would be grateful for an update in relation to incident ${POLICE_INCIDENT_NUMBER}, as far as you are able to provide one.`,
+    );
+  }
+  if (!provideInformation && !requestUpdate) {
+    parts.push(`My enquiry relates to incident ${POLICE_INCIDENT_NUMBER}.`);
+  }
+  const note = extra.trim().replace(/\s+/g, " ");
+  if (note) parts.push(note);
+  parts.push("Please could the officer dealing with this incident contact me.");
+  return parts.join(" ");
+}
+
 export const POLICE_LIMITS = {
   short: 150,
   contact: 254,
