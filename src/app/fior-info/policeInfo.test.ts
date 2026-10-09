@@ -1,15 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { buildMailtoUri } from "./repaymentEmail";
 import * as policeInfo from "./policeInfo";
 import {
   EMPTY_POLICE_DETAILS,
   buildPoliceBody,
-  COMMITTEE_EMAIL,
-  MYRESIDE_REFERENCE_EMAIL,
   POLICE_INCIDENT_NUMBER,
   POLICE_SUMMARY_SUBJECT,
-  REFERENCE_REQUEST_BODY,
-  REFERENCE_REQUEST_SUBJECT,
+  POLICE_UPDATE_LIMIT,
+  buildUpdateRequest,
   joinDocuments,
   validatePoliceDetails,
   type PoliceDetails,
@@ -34,20 +31,13 @@ const details: PoliceDetails = {
 describe("police configuration", () => {
   it("publishes the incident number but no officer name or enquiry reference", () => {
     expect(POLICE_INCIDENT_NUMBER).toBe("PS-20260720-1008");
-    const published = JSON.stringify(policeInfo) + REFERENCE_REQUEST_BODY + REFERENCE_REQUEST_SUBJECT;
+    const published = JSON.stringify(policeInfo);
     expect(published).not.toMatch(/Webster|DC\s|EN\/\d/);
     expect(published).not.toMatch(/@scotland\.police\.uk/);
-    expect(REFERENCE_REQUEST_BODY).toContain("in addition to incident number PS-20260720-1008");
   });
 
-  it("directs reference requests to the committee and Myreside", () => {
-    expect(COMMITTEE_EMAIL).toBe("committee@james-square.com");
-    expect(MYRESIDE_REFERENCE_EMAIL).toBe("ania@myreside-management.co.uk");
-    const uri = buildMailtoUri(COMMITTEE_EMAIL, REFERENCE_REQUEST_SUBJECT, REFERENCE_REQUEST_BODY, [MYRESIDE_REFERENCE_EMAIL]);
-    const url = new URL(uri);
-    expect(url.pathname).toBe(COMMITTEE_EMAIL);
-    expect(url.searchParams.get("cc")).toBe(MYRESIDE_REFERENCE_EMAIL);
-    expect(url.searchParams.get("subject")).toBe(REFERENCE_REQUEST_SUBJECT);
+  it("no longer directs owners to the committee or Myreside for references", () => {
+    expect(JSON.stringify(policeInfo)).not.toMatch(/committee@|myreside-management/);
   });
 });
 
@@ -96,4 +86,37 @@ describe("joinDocuments", () => {
     expect(joinDocuments(["a"])).toBe("a");
     expect(joinDocuments([])).toBe("");
   });
+});
+
+describe("buildUpdateRequest", () => {
+  const all = [
+    { provideInformation: true, requestUpdate: true },
+    { provideInformation: true, requestUpdate: false },
+    { provideInformation: false, requestUpdate: true },
+    { provideInformation: false, requestUpdate: false },
+  ];
+
+  it("always quotes the incident number and stays within the form limit", () => {
+    for (const options of all) {
+      const text = buildUpdateRequest(options);
+      expect(text).toContain("incident PS-20260720-1008");
+      expect(text.length).toBeLessThanOrEqual(POLICE_UPDATE_LIMIT - 300);
+    }
+  });
+
+  it("uses the owner's own position and makes no allegation", () => {
+    const text = buildUpdateRequest({ provideInformation: true, requestUpdate: true });
+    expect(text).toContain("I am an owner at James Square");
+    expect(text).toContain("I believe I may be a complainer and would like to provide further information in relation to incident PS-20260720-1008.");
+    expect(text).toContain("I would also be grateful for an update");
+    for (const word of ["fraud", "stole", "embezzl", "theft", "criminal", "guilty"]) {
+      expect(text.toLowerCase()).not.toContain(word);
+    }
+  });
+
+  it("adds a tidied note in the owner's words", () => {
+    const text = buildUpdateRequest({ provideInformation: true, requestUpdate: false, extra: "  I paid towards\n roof works.  " });
+    expect(text).toContain("I paid towards roof works. Please could the officer");
+  });
+
 });

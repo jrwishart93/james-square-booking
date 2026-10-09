@@ -9,31 +9,11 @@ import { formatAmount, parseAmount } from "./repaymentEmail";
 
 // The page deliberately does not publish the name of any police officer. The
 // Police Scotland incident number is published so owners can quote it when
-// contacting Police Scotland; any further reference details are available from
-// the Owners Committee or Myreside, who can confirm the owner before sharing.
+// contacting Police Scotland. Owners are directed to Police Scotland's official
+// channels for updates.
 
 /** Police Scotland incident number, confirmed by the Owners Committee for owners to quote. */
 export const POLICE_INCIDENT_NUMBER = "PS-20260720-1008";
-
-/** Owners Committee inbox for reference requests. */
-export const COMMITTEE_EMAIL = "committee@james-square.com";
-
-/** Myreside Management contact who can also provide further reference details. */
-export const MYRESIDE_REFERENCE_EMAIL = "ania@myreside-management.co.uk";
-
-export const REFERENCE_REQUEST_SUBJECT = "Request for further Police Scotland reference details – James Square / FIOR";
-
-/** Short prefilled request. Left for the owner to complete and send themselves. */
-export const REFERENCE_REQUEST_BODY = [
-  "Dear James Square Owners Committee,",
-  "",
-  `I am a James Square owner. Please could you provide me with any further Police Scotland reference details, in addition to incident number ${POLICE_INCIDENT_NUMBER}, relating to the concerns reported about payments made to the former factor, FIOR Property Assets.`,
-  "",
-  "My name:",
-  "My James Square address:",
-  "",
-  "Kind regards,",
-].join("\n");
 
 export const POLICE_PHONE = {
   nonEmergency: "101",
@@ -47,6 +27,58 @@ export const POLICE_LINKS = {
     href: "https://www.scotland.police.uk/about-us/how-we-do-it/call-handling/non-emergencies/",
   },
 } as const;
+
+/**
+ * Police Scotland's online "Ask for an update" form. It is on Police Scotland's
+ * own site, so this page cannot fill it in: owners copy the prepared answers
+ * across and submit the form themselves.
+ */
+export const POLICE_UPDATE_FORM_URL = "https://www.scotland.police.uk/secureforms/askupdate/";
+
+/** Character limit Police Scotland shows for "what you want an update on". */
+export const POLICE_UPDATE_LIMIT = 1000;
+
+/** Council area to select for James Square. */
+export const JAMES_SQUARE_COUNCIL_AREA = "City of Edinburgh";
+
+export type UpdateRequestOptions = {
+  /** The owner believes they may be a complainer and wishes to give further information. */
+  provideInformation: boolean;
+  /** The owner would like an update on the incident. */
+  requestUpdate: boolean;
+  /** Optional short note in the owner's own words. */
+  extra?: string;
+};
+
+/**
+ * Text for the "what would you like an update on" box. It always quotes the
+ * incident number, describes the owner's own position only and makes no
+ * allegation about anyone.
+ */
+export function buildUpdateRequest({ provideInformation, requestUpdate, extra = "" }: UpdateRequestOptions): string {
+  const parts = [
+    "I am an owner at James Square, Caledonian Crescent, Edinburgh. I am aware that concerns have been reported to Police Scotland regarding payments made to FIOR Property Assets, the former factor of the development.",
+  ];
+  if (provideInformation) {
+    parts.push(
+      `I believe I may be a complainer and would like to provide further information in relation to incident ${POLICE_INCIDENT_NUMBER}.`,
+    );
+  }
+  if (requestUpdate) {
+    parts.push(
+      provideInformation
+        ? "I would also be grateful for an update on the incident, as far as you are able to provide one."
+        : `I would be grateful for an update in relation to incident ${POLICE_INCIDENT_NUMBER}, as far as you are able to provide one.`,
+    );
+  }
+  if (!provideInformation && !requestUpdate) {
+    parts.push(`My enquiry relates to incident ${POLICE_INCIDENT_NUMBER}.`);
+  }
+  const note = extra.trim().replace(/\s+/g, " ");
+  if (note) parts.push(note);
+  parts.push("Please could the officer dealing with this incident contact me.");
+  return parts.join(" ");
+}
 
 export const POLICE_LIMITS = {
   short: 150,
