@@ -3,13 +3,13 @@
 import { motion, useReducedMotion } from "framer-motion";
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 14 },
+  hidden: { opacity: 0, y: 28 },
   // A negative delay means reduced motion: show immediately.
   visible: (delay: number) => ({
     opacity: 1,
     y: 0,
     transition:
-      delay < 0 ? { duration: 0 } : { duration: 0.55, delay: delay * 0.07, ease: [0.22, 1, 0.36, 1] as const },
+      delay < 0 ? { duration: 0 } : { duration: 0.7, delay: delay * 0.08, ease: [0.22, 1, 0.36, 1] as const },
   }),
 };
 
@@ -36,7 +36,7 @@ export default function Reveal({
       initial="hidden"
       animate={reduce ? "visible" : undefined}
       whileInView={reduce ? undefined : "visible"}
-      viewport={{ once: true, margin: "-60px" }}
+      viewport={{ once: true, margin: "-80px" }}
     >
       {children}
     </MotionTag>

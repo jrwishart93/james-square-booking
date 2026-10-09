@@ -44,6 +44,7 @@ import {
   EMPTY_POLICE_DETAILS,
   MYRESIDE_REFERENCE_EMAIL,
   POLICE_EVIDENCE,
+  POLICE_INCIDENT_NUMBER,
   POLICE_LIMITS,
   POLICE_LINKS,
   POLICE_PHONE,
@@ -341,7 +342,8 @@ export default function PoliceScotland() {
             Contacting Police Scotland
           </h3>
           <p className={`${copyClass} mt-5`}>
-            Open the section below for how to contact Police Scotland and how to request the relevant reference details.
+            Open the section below for the police incident number, how to contact Police Scotland and how to request
+            any further reference details.
           </p>
         </Reveal>
 
@@ -361,14 +363,31 @@ export default function PoliceScotland() {
 
               <h5 className="pt-2 text-base font-semibold text-slate-950 dark:text-white">Contacting Police Scotland</h5>
               <p>
-                If you wish to contact Police Scotland, telephone {POLICE_PHONE.nonEmergency} and ask to be directed to the
-                enquiry officer dealing with the FIOR matter relating to James Square.
+                If you wish to contact Police Scotland, telephone {POLICE_PHONE.nonEmergency}, quote the incident number
+                below and ask to be directed to the enquiry officer dealing with the FIOR matter relating to James Square.
               </p>
+            </div>
 
-              <h5 className="pt-2 text-base font-semibold text-slate-950 dark:text-white">Police reference details</h5>
+            <div className="mt-5 rounded-2xl border border-slate-200/80 bg-white/75 p-5 dark:border-white/10 dark:bg-white/[0.05]">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+                Police incident number
+              </p>
+              <p className="mt-2 font-mono text-xl font-semibold tracking-wide text-slate-950 dark:text-white">
+                {POLICE_INCIDENT_NUMBER}
+              </p>
+              <div className="mt-2">
+                <CopyButton label="Copy incident number" text={POLICE_INCIDENT_NUMBER} />
+              </div>
+              <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-400">
+                Quote this number if you contact Police Scotland about this matter. An incident number is a record
+                reference only and does not indicate any finding.
+              </p>
+            </div>
+
+            <div className={`${copyClass} mt-5`}>
+              <h5 className="text-base font-semibold text-slate-950 dark:text-white">Further reference details</h5>
               <p>
-                Police reference numbers are not published on this page. If you need them, please contact the Owners
-                Committee at{" "}
+                If you need any further reference details, please contact the Owners Committee at{" "}
                 <a href={`mailto:${COMMITTEE_EMAIL}`} className="break-all font-semibold text-sky-700 underline underline-offset-2 dark:text-sky-300">
                   {COMMITTEE_EMAIL}
                 </a>{" "}
@@ -386,7 +405,7 @@ export default function PoliceScotland() {
             <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <a href={referenceMailto} className={primaryButton}>
                 <Mail className="h-4 w-4" aria-hidden="true" />
-                Request reference details
+                Request further reference details
               </a>
               <button
                 type="button"
@@ -404,7 +423,7 @@ export default function PoliceScotland() {
               </button>
             </div>
             <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-400">
-              “Request reference details” opens a short prefilled email to the committee, copied to Myreside, in your own
+              “Request further reference details” opens a short prefilled email to the committee, copied to Myreside, in your own
               email app. Add your name and address, then send it yourself.
             </p>
 
@@ -417,7 +436,9 @@ export default function PoliceScotland() {
                   </li>
                   <li>Explain that you are a James Square owner in Edinburgh.</li>
                   <li>Ask to be directed to the enquiry officer dealing with the FIOR matter relating to James Square.</li>
-                  <li>If you have the reference details, have them to hand when you call.</li>
+                  <li>
+                    Quote incident number <span className="font-mono font-semibold">{POLICE_INCIDENT_NUMBER}</span>.
+                  </li>
                 </ol>
                 <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
                   <a href={`tel:${POLICE_PHONE.nonEmergency}`} className={secondaryButton}>

@@ -6,6 +6,7 @@ import {
   buildPoliceBody,
   COMMITTEE_EMAIL,
   MYRESIDE_REFERENCE_EMAIL,
+  POLICE_INCIDENT_NUMBER,
   POLICE_SUMMARY_SUBJECT,
   REFERENCE_REQUEST_BODY,
   REFERENCE_REQUEST_SUBJECT,
@@ -31,10 +32,12 @@ const details: PoliceDetails = {
 };
 
 describe("police configuration", () => {
-  it("publishes no officer name or police reference number", () => {
+  it("publishes the incident number but no officer name or enquiry reference", () => {
+    expect(POLICE_INCIDENT_NUMBER).toBe("PS-20260720-1008");
     const published = JSON.stringify(policeInfo) + REFERENCE_REQUEST_BODY + REFERENCE_REQUEST_SUBJECT;
-    expect(published).not.toMatch(/Webster|DC\s|EN\/\d|PS-\d{8}/);
+    expect(published).not.toMatch(/Webster|DC\s|EN\/\d/);
     expect(published).not.toMatch(/@scotland\.police\.uk/);
+    expect(REFERENCE_REQUEST_BODY).toContain("in addition to incident number PS-20260720-1008");
   });
 
   it("directs reference requests to the committee and Myreside", () => {
@@ -67,7 +70,8 @@ describe("buildPoliceBody", () => {
     expect(body).toContain("Amount paid: £1,250.00");
     expect(body).toContain("Yes – April 2026");
     expect(body).toContain("including bank statements showing payment and FIOR invoices,");
-    expect(body).not.toMatch(/EN\/|PS-|Webster/);
+    expect(body).toContain("incident number I have been given for this matter is PS-20260720-1008.");
+    expect(body).not.toMatch(/EN\/|Webster/);
     expect(body).not.toMatch(/making enquiries|ongoing|investigat/i);
   });
 

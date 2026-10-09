@@ -2,7 +2,7 @@ import { ArrowRight, ArrowUp, BookOpen, Building2, HandCoins, Landmark, ShieldCh
 import Reveal from "./Reveal";
 import { Accordion, ExternalLink, copyClass, focusRing, glassPanel, h2Class } from "./ui";
 import { FIOR_COMPANY, LINKS, SOURCES_CHECKED_ON } from "./claimPrepSources";
-import { POLICE_LINKS } from "./policeInfo";
+import { POLICE_INCIDENT_NUMBER, POLICE_LINKS } from "./policeInfo";
 
 // FAQ, "What would you like to do?" and official resources for /fior-info.
 // Court procedure answers link to the live SCTS guidance rather than repeating
@@ -80,8 +80,8 @@ const faqs: { q: string; a: React.ReactNode }[] = [
       <>
         <p>
           That is a decision for you. The committee does not encourage or discourage owners from contacting Police
-          Scotland. If you wish to, you can telephone 101 and ask to be directed to the enquiry officer dealing with the
-          FIOR matter relating to James Square.
+          Scotland. If you wish to, you can telephone 101, quote incident number {POLICE_INCIDENT_NUMBER} and ask to be
+          directed to the enquiry officer dealing with the FIOR matter relating to James Square.
         </p>
         <p>It is for Police Scotland to decide whether any information it receives is relevant.</p>
         <p>

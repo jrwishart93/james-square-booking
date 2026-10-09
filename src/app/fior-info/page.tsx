@@ -22,6 +22,7 @@ import FiorFaq from "./FiorFaq";
 import PoliceScotland from "./PoliceScotland";
 import RepaymentRequest from "./RepaymentRequest";
 import Reveal from "./Reveal";
+import { Parallax, ScrollLine, ScrollProgress } from "./ScrollMotion";
 import SectionNav from "./SectionNav";
 
 const pageTitle = "FIOR Property Assets | Owner Information | James Square";
@@ -193,17 +194,16 @@ function SectionLabel({ number, children }: { number: string; children: React.Re
 export default function FiorInfoPage() {
   return (
     <div className="relative isolate -mx-4 -my-8 overflow-x-clip px-4 pb-16 sm:-mx-6 sm:px-6 sm:pb-24">
+      <ScrollProgress />
       <article className="mx-auto max-w-5xl">
         {/* ── Hero ─────────────────────────────────────────── */}
         <header id="part-1" className={`relative pb-10 pt-14 sm:pb-14 sm:pt-24 lg:pt-28 ${anchorMargin}`}>
-          <div
-            className="pointer-events-none absolute -left-24 -top-10 -z-10 h-[26rem] w-[26rem] rounded-full bg-sky-300/25 blur-3xl dark:bg-sky-500/15 sm:h-[34rem] sm:w-[34rem]"
-            aria-hidden="true"
-          />
-          <div
-            className="pointer-events-none absolute -right-32 top-20 -z-10 h-72 w-72 rounded-full bg-indigo-300/20 blur-3xl dark:bg-indigo-500/15 sm:h-96 sm:w-96"
-            aria-hidden="true"
-          />
+          <Parallax distance={160} className="absolute inset-0 -z-10">
+            <div className="absolute -left-24 -top-10 h-[26rem] w-[26rem] rounded-full bg-sky-300/25 blur-3xl dark:bg-sky-500/15 sm:h-[34rem] sm:w-[34rem]" />
+          </Parallax>
+          <Parallax distance={-90} className="absolute inset-0 -z-10">
+            <div className="absolute -right-32 top-20 h-72 w-72 rounded-full bg-indigo-300/20 blur-3xl dark:bg-indigo-500/15 sm:h-96 sm:w-96" />
+          </Parallax>
 
           <Reveal>
             <p className="inline-flex items-center gap-2 rounded-full border border-sky-200/80 bg-white/60 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-sky-700 backdrop-blur dark:border-sky-400/20 dark:bg-white/5 dark:text-sky-300">
@@ -288,9 +288,10 @@ export default function FiorInfoPage() {
             </div>
 
             <ol className="relative" aria-label="Timeline of events">
-              <span
-                className="absolute bottom-6 left-[1.1875rem] top-6 w-px bg-gradient-to-b from-sky-400/70 via-slate-300 to-slate-300/0 dark:from-sky-400/60 dark:via-white/15 dark:to-white/0"
-                aria-hidden="true"
+              <ScrollLine
+                className="bottom-6 left-[1.1875rem] top-6"
+                trackClassName="bg-gradient-to-b from-slate-300/80 to-slate-300/0 dark:from-white/15 dark:to-white/0"
+                fillClassName="bg-gradient-to-b from-sky-500 via-sky-400 to-sky-300/40 dark:from-sky-400 dark:via-sky-400/70 dark:to-sky-400/20"
               />
               {timeline.map(({ when, title, body, icon: Icon, milestone }, i) => (
                 <Reveal as="li" key={title} delay={i} className="relative pb-8 pl-16 last:pb-0">
@@ -558,9 +559,10 @@ export default function FiorInfoPage() {
 
             <ol className="relative mt-12 grid gap-5 lg:grid-cols-3 lg:gap-6" aria-label="FIOR owner resource parts">
               {/* connector: vertical on mobile, horizontal on desktop */}
-              <span
-                className="absolute bottom-10 left-[1.4375rem] top-10 w-px bg-gradient-to-b from-sky-400 via-sky-300/70 to-slate-300/60 dark:via-sky-400/40 dark:to-white/10 lg:hidden"
-                aria-hidden="true"
+              <ScrollLine
+                className="bottom-10 left-[1.4375rem] top-10 lg:hidden"
+                trackClassName="bg-slate-300/60 dark:bg-white/10"
+                fillClassName="bg-gradient-to-b from-sky-400 via-sky-300/80 to-sky-300/50 dark:via-sky-400/60 dark:to-sky-400/30"
               />
               <span
                 className="absolute left-[16.66%] right-[16.66%] top-[1.4375rem] hidden h-px bg-gradient-to-r from-sky-400 via-sky-300/70 to-slate-300/60 dark:via-sky-400/40 dark:to-white/10 lg:block"
