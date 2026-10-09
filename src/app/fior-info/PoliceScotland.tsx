@@ -39,19 +39,16 @@ import {
   scrollMargin,
   secondaryButton,
 } from "./ui";
-import { buildMailtoUri, sanitiseAmountInput } from "./repaymentEmail";
+import { sanitiseAmountInput } from "./repaymentEmail";
 import {
-  COMMITTEE_EMAIL,
   EMPTY_POLICE_DETAILS,
-  MYRESIDE_REFERENCE_EMAIL,
   POLICE_EVIDENCE,
   POLICE_INCIDENT_NUMBER,
   POLICE_LIMITS,
   POLICE_LINKS,
   POLICE_PHONE,
   POLICE_SUMMARY_SUBJECT,
-  REFERENCE_REQUEST_BODY,
-  REFERENCE_REQUEST_SUBJECT,
+  POLICE_UPDATE_FORM_URL,
   buildPoliceBody,
   validatePoliceDetails,
   type PoliceDetails,
@@ -146,9 +143,6 @@ function TextArea({
 export default function PoliceScotland() {
   const uid = useId();
   const ids = Object.fromEntries(fieldOrder.map((f) => [f, `${uid}-${f}`])) as Record<PoliceField, string>;
-  const referenceMailto = buildMailtoUri(COMMITTEE_EMAIL, REFERENCE_REQUEST_SUBJECT, REFERENCE_REQUEST_BODY, [
-    MYRESIDE_REFERENCE_EMAIL,
-  ]);
   const [showPhone, setShowPhone] = useState(false);
 
   const [details, setDetails] = useState<PoliceDetails>(EMPTY_POLICE_DETAILS);
@@ -344,7 +338,7 @@ export default function PoliceScotland() {
           </h3>
           <p className={`${copyClass} mt-5`}>
             Open the section below for the police incident number, how to contact Police Scotland or ask for an update
-            online, and how to request any further reference details.
+            online.
           </p>
         </Reveal>
 
@@ -387,29 +381,10 @@ export default function PoliceScotland() {
 
             <PoliceUpdateRequest />
 
-            <div className={`${copyClass} mt-5`}>
-              <h5 className="text-base font-semibold text-slate-950 dark:text-white">Further reference details</h5>
-              <p>
-                If you need any further reference details, please contact the Owners Committee at{" "}
-                <a href={`mailto:${COMMITTEE_EMAIL}`} className="break-all font-semibold text-sky-700 underline underline-offset-2 dark:text-sky-300">
-                  {COMMITTEE_EMAIL}
-                </a>{" "}
-                or Myreside Management at{" "}
-                <a
-                  href={`mailto:${MYRESIDE_REFERENCE_EMAIL}`}
-                  className="break-all font-semibold text-sky-700 underline underline-offset-2 dark:text-sky-300"
-                >
-                  {MYRESIDE_REFERENCE_EMAIL}
-                </a>
-                . You may be asked to confirm that you are a James Square owner.
-              </p>
-            </div>
-
             <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <a href={referenceMailto} className={primaryButton}>
-                <Mail className="h-4 w-4" aria-hidden="true" />
-                Request further reference details
-              </a>
+              <ExternalLink href={POLICE_UPDATE_FORM_URL} variant="primary">
+                Ask Police Scotland for an update
+              </ExternalLink>
               <button
                 type="button"
                 aria-expanded={showPhone}
@@ -426,8 +401,8 @@ export default function PoliceScotland() {
               </button>
             </div>
             <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-400">
-              “Request further reference details” opens a short prefilled email to the committee, copied to Myreside, in your own
-              email app. Add your name and address, then send it yourself.
+              For updates, please use Police Scotland&apos;s official website or telephone {POLICE_PHONE.nonEmergency}. The
+              committee cannot provide updates about any police enquiry.
             </p>
 
             <div id={`${uid}-phone`} hidden={!showPhone} className="mt-5">

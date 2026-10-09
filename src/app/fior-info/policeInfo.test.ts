@@ -1,15 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { buildMailtoUri } from "./repaymentEmail";
 import * as policeInfo from "./policeInfo";
 import {
   EMPTY_POLICE_DETAILS,
   buildPoliceBody,
-  COMMITTEE_EMAIL,
-  MYRESIDE_REFERENCE_EMAIL,
   POLICE_INCIDENT_NUMBER,
   POLICE_SUMMARY_SUBJECT,
-  REFERENCE_REQUEST_BODY,
-  REFERENCE_REQUEST_SUBJECT,
   POLICE_UPDATE_LIMIT,
   buildUpdateRequest,
   joinDocuments,
@@ -36,20 +31,13 @@ const details: PoliceDetails = {
 describe("police configuration", () => {
   it("publishes the incident number but no officer name or enquiry reference", () => {
     expect(POLICE_INCIDENT_NUMBER).toBe("PS-20260720-1008");
-    const published = JSON.stringify(policeInfo) + REFERENCE_REQUEST_BODY + REFERENCE_REQUEST_SUBJECT;
+    const published = JSON.stringify(policeInfo);
     expect(published).not.toMatch(/Webster|DC\s|EN\/\d/);
     expect(published).not.toMatch(/@scotland\.police\.uk/);
-    expect(REFERENCE_REQUEST_BODY).toContain("in addition to incident number PS-20260720-1008");
   });
 
-  it("directs reference requests to the committee and Myreside", () => {
-    expect(COMMITTEE_EMAIL).toBe("committee@james-square.com");
-    expect(MYRESIDE_REFERENCE_EMAIL).toBe("ania@myreside-management.co.uk");
-    const uri = buildMailtoUri(COMMITTEE_EMAIL, REFERENCE_REQUEST_SUBJECT, REFERENCE_REQUEST_BODY, [MYRESIDE_REFERENCE_EMAIL]);
-    const url = new URL(uri);
-    expect(url.pathname).toBe(COMMITTEE_EMAIL);
-    expect(url.searchParams.get("cc")).toBe(MYRESIDE_REFERENCE_EMAIL);
-    expect(url.searchParams.get("subject")).toBe(REFERENCE_REQUEST_SUBJECT);
+  it("no longer directs owners to the committee or Myreside for references", () => {
+    expect(JSON.stringify(policeInfo)).not.toMatch(/committee@|myreside-management/);
   });
 });
 

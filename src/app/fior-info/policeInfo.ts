@@ -9,31 +9,11 @@ import { formatAmount, parseAmount } from "./repaymentEmail";
 
 // The page deliberately does not publish the name of any police officer. The
 // Police Scotland incident number is published so owners can quote it when
-// contacting Police Scotland; any further reference details are available from
-// the Owners Committee or Myreside, who can confirm the owner before sharing.
+// contacting Police Scotland. Owners are directed to Police Scotland's official
+// channels for updates.
 
 /** Police Scotland incident number, confirmed by the Owners Committee for owners to quote. */
 export const POLICE_INCIDENT_NUMBER = "PS-20260720-1008";
-
-/** Owners Committee inbox for reference requests. */
-export const COMMITTEE_EMAIL = "committee@james-square.com";
-
-/** Myreside Management contact who can also provide further reference details. */
-export const MYRESIDE_REFERENCE_EMAIL = "ania@myreside-management.co.uk";
-
-export const REFERENCE_REQUEST_SUBJECT = "Request for further Police Scotland reference details – James Square / FIOR";
-
-/** Short prefilled request. Left for the owner to complete and send themselves. */
-export const REFERENCE_REQUEST_BODY = [
-  "Dear James Square Owners Committee,",
-  "",
-  `I am a James Square owner. Please could you provide me with any further Police Scotland reference details, in addition to incident number ${POLICE_INCIDENT_NUMBER}, relating to the concerns reported about payments made to the former factor, FIOR Property Assets.`,
-  "",
-  "My name:",
-  "My James Square address:",
-  "",
-  "Kind regards,",
-].join("\n");
 
 export const POLICE_PHONE = {
   nonEmergency: "101",
