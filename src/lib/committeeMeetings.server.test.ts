@@ -210,6 +210,47 @@ describe("private meeting access and request workflows", () => {
     expect(response.status).toBe(503);
     expect(await response.text()).not.toContain("teams.live.com");
   });
+  it("uses TEAMS_MEETING_CODE from the environment and ignores the stored code", async () => {
+    vi.stubEnv("TEAMS_MEETING_CODE", "1-1-2-2-3");
+    for (const code of ["11223", "1-1-2-2-3", " 1 1 2 2 3 "]) {
+      const response = await unlockMeeting(
+        request({ meetingId: "october-2026", code }),
+      );
+      expect(response.status).toBe(200);
+      const data = await response.json();
+      expect(data.meeting.id).toBe("october-2026");
+      expect(data.teamsUrl).toBe(
+        defaultPrivateHub().meetings.find((m) => m.id === "october-2026")
+          ?.teamsUrl,
+      );
+      expect(JSON.stringify(data)).not.toContain("11223");
+    }
+    const old = await unlockMeeting(
+      request({ meetingId: "october-2026", code: "52637" }),
+    );
+    expect(old.status).toBe(403);
+    expect(await old.text()).not.toContain("teams.live.com");
+  });
+  it("still unlocks with the environment code when the database is down", async () => {
+    vi.stubEnv("TEAMS_MEETING_CODE", "11223");
+    mocks.fail = true;
+    const response = await unlockMeeting(
+      request({ meetingId: "november-2026", code: "11223" }),
+    );
+    expect(response.status).toBe(200);
+    expect((await response.json()).teamsUrl).toMatch(
+      /^https:\/\/teams\.live\.com\/meet\//,
+    );
+    for (const body of [
+      { meetingId: "november-2026", code: "12345" },
+      { meetingId: "september-2026", code: "11223" },
+      { meetingId: "december-2026", code: "11223" },
+    ]) {
+      const denied = await unlockMeeting(request(body));
+      expect(denied.status).toBeGreaterThanOrEqual(400);
+      expect(await denied.text()).not.toContain("teams.live.com");
+    }
+  });
   it("supports code rotation and rejects the old code immediately", async () => {
     const hub = defaultPrivateHub();
     hub.accessCode = "67890";

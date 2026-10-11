@@ -1,6 +1,6 @@
 import "server-only";
 
-import { createHash, randomUUID } from "node:crypto";
+import { createHash, randomUUID, timingSafeEqual } from "node:crypto";
 import bcrypt from "bcryptjs";
 import { DateTime } from "luxon";
 import { Timestamp } from "firebase-admin/firestore";
@@ -207,9 +207,54 @@ export async function meetingThrottle(
   return response;
 }
 
+/** Rejects if the promise has not settled in time, so a stalled database cannot hang the page. */
+export function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error("Timed out")), ms);
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (error) => {
+        clearTimeout(timer);
+        reject(error);
+      },
+    );
+  });
+}
+
+/**
+ * The meeting access code set in Vercel (TEAMS_MEETING_CODE). When present it
+ * replaces the code stored in Firestore, and unlocking no longer depends on the
+ * database being reachable: the committee changes the code in Vercel instead.
+ */
+export function environmentMeetingCode() {
+  const value = process.env.TEAMS_MEETING_CODE;
+  if (!value) return null;
+  const code = normalizeMeetingCode(value).replace(/\s/g, "");
+  return code || null;
+}
+
+function sameCode(entered: string, expected: string) {
+  const a = createHash("sha256").update(entered).digest();
+  const b = createHash("sha256").update(expected).digest();
+  return timingSafeEqual(a, b);
+}
+
+const DATABASE_TIMEOUT_MS = 3000;
+
 export async function unlockMeeting(request: Request) {
   try {
-    const limited = await meetingThrottle(request, "meeting-unlock", 8);
+    const envCode = environmentMeetingCode();
+    // With the code in Vercel, a slow shared rate-limit store must not block
+    // owners joining; the per-instance limit still applies first.
+    const limited = envCode
+      ? await withTimeout(
+          meetingThrottle(request, "meeting-unlock", 8),
+          DATABASE_TIMEOUT_MS,
+        ).catch(() => null)
+      : await meetingThrottle(request, "meeting-unlock", 8);
     if (limited) return limited;
     const body = await meetingBody(request);
     if (
@@ -221,28 +266,52 @@ export async function unlockMeeting(request: Request) {
         { error: "Please enter the meeting access code." },
         400,
       );
-    const config = await getPrivateHub();
-    if (
-      !(await bcrypt.compare(
-        normalizeMeetingCode(body.code),
-        config.accessCodeHash,
-      ))
-    )
-      return meetingResponse(
+    const entered = normalizeMeetingCode(body.code).replace(/\s/g, "");
+    const wrongCode = () =>
+      meetingResponse(
         {
           error:
             "That access code is incorrect. Please check the code supplied by the committee.",
         },
         403,
       );
-    const meeting = config.meetings.find(
-      (m) => m.id === body.meetingId && !isPastMeeting(m),
-    );
-    if (!meeting?.teamsUrl)
-      return meetingResponse(
+    const noLink = () =>
+      meetingResponse(
         { error: "Online access is not available for this meeting." },
         404,
       );
+
+    if (envCode) {
+      if (!sameCode(entered, envCode)) return wrongCode();
+      // Prefer links the committee has saved in the admin workspace; fall back
+      // to the built-in links if the database is slow or unreachable.
+      const config = await withTimeout(
+        getPrivateHub(),
+        DATABASE_TIMEOUT_MS,
+      ).catch(() => null);
+      const saved = config?.meetings.find(
+        (m) => m.id === body.meetingId && !isPastMeeting(m),
+      );
+      if (saved?.teamsUrl)
+        return meetingResponse({
+          teamsUrl: saved.teamsUrl,
+          meeting: publicHub({ ...config!, meetings: [saved] }).meetings[0],
+        });
+      const fallback = DEFAULT_MEETINGS.find(
+        (m) => m.id === body.meetingId && !isPastMeeting(m),
+      );
+      const teamsUrl = fallback ? initialLinks[fallback.id] : undefined;
+      if (!fallback || !teamsUrl) return noLink();
+      return meetingResponse({ teamsUrl, meeting: fallback });
+    }
+
+    const config = await getPrivateHub();
+    if (!(await bcrypt.compare(entered, config.accessCodeHash)))
+      return wrongCode();
+    const meeting = config.meetings.find(
+      (m) => m.id === body.meetingId && !isPastMeeting(m),
+    );
+    if (!meeting?.teamsUrl) return noLink();
     return meetingResponse({
       teamsUrl: meeting.teamsUrl,
       meeting: publicHub({ ...config, meetings: [meeting] }).meetings[0],

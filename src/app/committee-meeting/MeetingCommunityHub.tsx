@@ -112,6 +112,11 @@ export default function MeetingCommunityHub({
       setVerified(false);
     }
   }, [today, hub.meetings, selectedId]);
+  // Once unlocked, move straight to the Join button so one more tap opens Teams.
+  const unlockedUrl = activeUnlocked?.teamsUrl;
+  useEffect(() => {
+    if (unlockedUrl) document.getElementById("join-teams-link")?.focus();
+  }, [unlockedUrl]);
   const focusSection = (ref: RefObject<HTMLHeadingElement | null>) => {
     ref.current?.scrollIntoView({
       behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
@@ -153,6 +158,15 @@ export default function MeetingCommunityHub({
     } finally {
       if (sequence === attempt.current) setUnlocking(false);
     }
+  };
+  const joinOnline = (id = selectedId) => {
+    changeMeeting(id);
+    focusSection(accessHeading);
+    // Put the cursor straight into the code box when it is showing.
+    window.setTimeout(
+      () => document.getElementById("meeting-code")?.focus({ preventScroll: true }),
+      0,
+    );
   };
   const changeMeeting = (id: string) => {
     if (id === selectedId) return;
@@ -233,6 +247,14 @@ export default function MeetingCommunityHub({
             className={primary}
           >
             Request to attend <ArrowUpRight size={18} aria-hidden="true" />
+          </button>
+          <button
+            disabled={!upcoming.length}
+            onClick={() => joinOnline(upcoming[0]?.id)}
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-slate-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white disabled:opacity-60"
+          >
+            <MonitorSmartphone size={18} aria-hidden="true" />
+            Join online
           </button>
           <a
             href="#upcoming-meetings"
@@ -354,14 +376,11 @@ export default function MeetingCommunityHub({
                   Request attendance
                 </button>
                 <button
-                  onClick={() => {
-                    changeMeeting(meeting.id);
-                    focusSection(accessHeading);
-                  }}
-                  className="inline-flex min-h-12 items-center gap-2 px-2 text-sm font-medium text-blue-700 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-blue-600 dark:text-blue-300"
+                  onClick={() => joinOnline(meeting.id)}
+                  className={secondary}
                 >
-                  <LockKeyhole size={15} aria-hidden="true" />
-                  Online access
+                  <MonitorSmartphone size={16} aria-hidden="true" />
+                  Join online
                 </button>
               </div>
               <Agenda meeting={meeting} />
@@ -431,11 +450,9 @@ export default function MeetingCommunityHub({
               Join the Meeting Online
             </h2>
             <p className={`mt-3 ${muted}`}>
-              To help manage attendance, online meeting details are provided to
-              owners who have registered their interest. Please complete the
-              RSVP form to request access. The committee will email you a
-              meeting access code, which you can enter below to reveal the
-              Microsoft Teams link.
+              Enter the meeting access code to open the Microsoft Teams link.
+              Don&apos;t have the code? Request it using the RSVP form and the
+              committee will email it to you.
             </p>
             <button
               onClick={() => rsvp(selectedId, "online")}
@@ -479,8 +496,9 @@ export default function MeetingCommunityHub({
                   Access Code
                   <input
                     id="meeting-code"
-                    type="password"
+                    type="text"
                     inputMode="numeric"
+                    pattern="[0-9 -]*"
                     autoComplete="off"
                     required
                     maxLength={64}
@@ -491,8 +509,8 @@ export default function MeetingCommunityHub({
                   />
                 </label>
                 <p id="code-help" className={muted}>
-                  Use the code provided by the committee. Hyphens may be
-                  included.
+                  Numbers only; hyphens and spaces are fine. Press Enter or
+                  Unlock to continue.
                 </p>
                 <button
                   disabled={unlocking || !selected}
@@ -517,6 +535,7 @@ export default function MeetingCommunityHub({
                   {activeUnlocked.meeting.time && " (UK time)"}
                 </p>
                 <a
+                  id="join-teams-link"
                   href={activeUnlocked.teamsUrl}
                   target="_blank"
                   rel="noopener noreferrer"

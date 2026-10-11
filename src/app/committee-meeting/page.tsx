@@ -5,7 +5,7 @@ import {
   DEFAULT_WHATSAPP_URL,
   londonToday,
 } from "@/lib/committeeMeetings";
-import { getPublicHub } from "@/lib/committeeMeetings.server";
+import { getPublicHub, withTimeout } from "@/lib/committeeMeetings.server";
 import MeetingCommunityHub from "./MeetingCommunityHub";
 
 export const dynamic = "force-dynamic";
@@ -18,7 +18,9 @@ export const metadata: Metadata = {
 };
 export default async function CommitteeMeetingPage() {
   let unavailable = false;
-  const hub = await getPublicHub().catch(() => {
+  // A stalled database previously hit Vercel's 10-second limit and broke the
+  // page; show the published defaults instead after three seconds.
+  const hub = await withTimeout(getPublicHub(), 3000).catch(() => {
     unavailable = true;
     return { meetings: DEFAULT_MEETINGS, whatsappUrl: DEFAULT_WHATSAPP_URL };
   });
