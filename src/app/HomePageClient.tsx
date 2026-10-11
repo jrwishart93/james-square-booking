@@ -13,6 +13,7 @@ import {
   PoolSafetyUpdateCard,
 } from '@/components/home/communityUpdates';
 import {
+  allFacilitiesClosed,
   bookingEnabled,
   facilitiesExplainer,
   facilitiesHeadline,
@@ -181,6 +182,14 @@ function SectionHeader({
   );
 }
 
+/**
+ * Homepage wording for the closure, reflecting the October 2026 RLSS review.
+ * Falls back to the shared explainer as soon as any facility reopens.
+ */
+const homeFacilitiesExplainer = allFacilitiesClosed
+  ? 'The swimming pool remains closed following safety assessments and the identification of significant concerns with its current design. Further repairs, professional advice and owner consideration will be required before reopening can be considered. The gym and sauna also remain closed, and booking is unavailable while the facilities are closed.'
+  : facilitiesExplainer;
+
 /** ------------------------------------------------
  *  Facilities status band
  *  ------------------------------------------------ */
@@ -254,7 +263,7 @@ function FacilitiesStatus({
         </div>
 
         <p className="mt-4 max-w-2xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-          {facilitiesExplainer}
+          {homeFacilitiesExplainer}
         </p>
 
         <div className="mt-5 flex flex-col gap-2.5 sm:flex-row sm:items-center">

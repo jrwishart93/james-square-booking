@@ -14,7 +14,6 @@ const quickLinks = [
   { href: "/updates", label: "Notices", icon: CalendarIcon },
   { href: "/local", label: "Living Here", icon: InfoIcon },
   { href: "/message-board", label: "Message Board", icon: MessageIcon },
-  { href: "/committee-meeting", label: "Committee Meetings", icon: CalendarIcon },
   {
     href: "/book",
     label: bookingEnabled ? "Book Facilities" : "Facilities",

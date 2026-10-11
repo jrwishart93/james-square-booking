@@ -393,8 +393,7 @@ export function CommitteeMeetingsCard({ className, anchor }: CardProps) {
         <div className="space-y-3">
           <p>
             Owners who would like to attend are asked to register their interest in advance using the
-            Committee Meetings page. Online joining details are sent privately to owners who have
-            registered; they are not published on the website.
+            Committee Meetings page.
           </p>
           <p>
             Please be aware that committee meetings are working meetings, rather than AGMs. Visiting

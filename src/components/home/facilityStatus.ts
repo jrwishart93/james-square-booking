@@ -85,5 +85,5 @@ export const facilitiesPageLinkLabel = bookingEnabled
  * under an Open chip, which is the contradiction this module exists to prevent.
  */
 export const facilitiesExplainer = allFacilitiesClosed
-  ? 'The swimming pool remains closed following safety assessments and the identification of significant concerns with its current design. Further repairs, professional advice and owner consideration will be required before reopening can be considered. There is no confirmed reopening date. Booking is unavailable while the facilities are closed.'
+  ? 'They have been closed since the plant room failure and remain closed on safety grounds. Repair and refurbishment options were discussed at the 2026 AGM and no reopening date has been set. Booking is unavailable until they reopen.'
   : 'Bookings are recommended for morning and evening sessions. Daytime use between 11:00 and 17:00 does not need a booking. Maximum of 2 bookings per facility per day.';

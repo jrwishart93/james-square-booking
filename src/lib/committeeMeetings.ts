@@ -1,96 +1,27 @@
 /**
- * Single source of truth for James Square committee meeting dates.
- *
- * The homepage "Upcoming committee meetings" card and the /committee-meeting
- * page both read from this list, so a date only ever has to be changed here.
+ * Committee meeting dates shown on the homepage "Upcoming committee meetings"
+ * card. The /committee-meeting page keeps its own details, so when a date
+ * changes there, change it here too.
  *
  * TO ADD A MEETING: append an entry with its start time as an ISO string that
  * carries the UK offset for that date (+01:00 during British Summer Time,
  * +00:00 otherwise). Meetings drop off "upcoming" automatically once they have
- * ended, so past entries can stay here as a record.
- *
- * Keep `teamsUrl` null unless the committee has decided the joining link may be
- * published openly. Online joining details are otherwise sent privately to
- * owners who register in advance.
+ * ended, so past entries can stay here as a record. Do not add joining links:
+ * the homepage never shows them.
  */
-
-export type AgendaItem = { title: string; description?: string };
 
 export type CommitteeMeeting = {
   id: string;
   /** Start time, ISO 8601 with the UK offset for that date. */
   startsAt: string;
   durationMinutes: number;
-  location: string;
-  /** Public Teams link, only when the committee has chosen to publish it. */
-  teamsUrl: string | null;
-  /** Calendar file under /public, without any private joining link. */
-  icsPath: string | null;
-  /** Null until the committee publishes the agenda. */
-  agenda: AgendaItem[] | null;
 };
 
-export const COMMITTEE_EMAIL = 'committee@james-square.com';
 export const COMMITTEE_MEETING_PATH = '/committee-meeting';
-export const MEETING_LOCATION = 'The Conservatory, James Square';
 
 export const committeeMeetings: CommitteeMeeting[] = [
-  {
-    id: '2026-09-15',
-    startsAt: '2026-09-15T18:15:00+01:00',
-    durationMinutes: 120,
-    location: MEETING_LOCATION,
-    teamsUrl: 'https://teams.live.com/meet/9379620383354?p=GEqjTA0LIPWYyshEWv',
-    icsPath: '/calendar/james-square-committee-meeting-september-2026.ics',
-    agenda: [
-      {
-        title: 'Swimming Pool – Lothian House Visit',
-        description:
-          'Update following the recent visit to the swimming pool facilities at Lothian House.',
-      },
-      {
-        title: 'Swimming Pool Risk Assessment',
-        description:
-          'Update following the recent risk assessment visit and any actions arising from it.',
-      },
-      {
-        title: 'Caretaker',
-        description: 'Update and discussion regarding the caretaker arrangements at James Square.',
-      },
-      {
-        title: 'Fire Alarm',
-        description: 'Update on recent fire alarm discussions, volunteer arrangements and training.',
-      },
-      {
-        title: 'Cleaning',
-        description: 'Update on recent discussions regarding cleaning arrangements at James Square.',
-      },
-      { title: 'FIOR', description: 'Update on matters relating to FIOR.' },
-      {
-        title: 'Myreside',
-        description: 'Update on recent discussions and matters raised with Myreside Management.',
-      },
-      { title: 'Any Other Business' },
-    ],
-  },
-  {
-    id: '2026-10-12',
-    startsAt: '2026-10-12T18:15:00+01:00',
-    durationMinutes: 120,
-    location: MEETING_LOCATION,
-    teamsUrl: null,
-    icsPath: '/calendar/james-square-committee-meeting-october-2026.ics',
-    agenda: null,
-  },
-  {
-    id: '2026-11-17',
-    startsAt: '2026-11-17T18:15:00+00:00',
-    durationMinutes: 120,
-    location: MEETING_LOCATION,
-    teamsUrl: null,
-    icsPath: '/calendar/james-square-committee-meeting-november-2026.ics',
-    agenda: null,
-  },
+  { id: '2026-10-12', startsAt: '2026-10-12T18:15:00+01:00', durationMinutes: 120 },
+  { id: '2026-11-17', startsAt: '2026-11-17T18:15:00+00:00', durationMinutes: 120 },
 ];
 
 export function meetingStart(meeting: CommitteeMeeting) {
@@ -106,14 +37,6 @@ export function upcomingMeetings(now = new Date(), meetings = committeeMeetings)
   return meetings
     .filter((meeting) => meetingEnd(meeting).getTime() > now.getTime())
     .sort((a, b) => meetingStart(a).getTime() - meetingStart(b).getTime());
-}
-
-/** The most recent meeting that has finished, if any. */
-export function lastMeeting(now = new Date(), meetings = committeeMeetings) {
-  const past = meetings
-    .filter((meeting) => meetingEnd(meeting).getTime() <= now.getTime())
-    .sort((a, b) => meetingStart(b).getTime() - meetingStart(a).getTime());
-  return past[0] ?? null;
 }
 
 const UK_TIME_ZONE = 'Europe/London';

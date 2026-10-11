@@ -4,7 +4,6 @@ import {
   formatMeetingDate,
   formatMeetingTime12,
   formatMeetingTime24,
-  lastMeeting,
   relativeMeetingDay,
   upcomingMeetings,
 } from './committeeMeetings';
@@ -40,7 +39,6 @@ describe('committee meeting dates', () => {
     const upcoming = upcomingMeetings(now);
     expect(upcoming.map((m) => m.id)).toEqual(['2026-11-17']);
     expect(relativeMeetingDay(upcoming[0], now)).toBeNull();
-    expect(lastMeeting(now)?.id).toBe('2026-10-12');
   });
 
   it('uses UK midnight for "tomorrow", not UTC', () => {
@@ -54,10 +52,5 @@ describe('committee meeting dates', () => {
 
   it('has nothing upcoming once every listed meeting is past', () => {
     expect(upcomingMeetings(new Date('2026-12-01T12:00:00Z'))).toEqual([]);
-  });
-
-  it('never publishes a Teams link for meetings without one approved', () => {
-    expect(byId('2026-10-12').teamsUrl).toBeNull();
-    expect(byId('2026-11-17').teamsUrl).toBeNull();
   });
 });
