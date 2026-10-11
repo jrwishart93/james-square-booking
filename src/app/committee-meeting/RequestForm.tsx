@@ -1,13 +1,20 @@
 "use client";
-import { useState, type FormEvent } from "react";
-import Link from "next/link";
-import { Send, CheckCircle2 } from "lucide-react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import { Check, Copy, Mail, Send, X } from "lucide-react";
 import {
   meetingLabel,
   type Attendance,
   type Meeting,
 } from "@/lib/committeeMeetings";
-import { input, muted, primary } from "./styles";
+import { input, muted, primary, secondary } from "./styles";
+import {
+  buildRequestEmail,
+  gmailHref,
+  mailtoHref,
+  outlookHref,
+  plainTextEmail,
+  type RequestEmail,
+} from "./requestEmail";
 type Props = {
   kind: "rsvp" | "membership";
   meetings: Meeting[];
@@ -25,69 +32,31 @@ export default function RequestForm({
   onAttendanceChange,
 }: Props) {
   const [whatsapp, setWhatsapp] = useState(false);
-  const [sending, setSending] = useState(false);
-  const [error, setError] = useState("");
-  const [result, setResult] = useState<{
-    message: string;
-    requestId: string;
-  } | null>(null);
+  const [email, setEmail] = useState<RequestEmail | null>(null);
   const prefix = kind === "rsvp" ? "attendance" : "membership";
-  const submit = async (event: FormEvent<HTMLFormElement>) => {
+  // The request is sent from the owner's own email account: the form only
+  // prepares the message. Nothing is stored on, or sent by, the website.
+  const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (sending) return;
     const form = new FormData(event.currentTarget);
-    setSending(true);
-    setError("");
-    try {
-      const response = await fetch("/api/committee-meetings/requests", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          kind,
-          name: form.get("name"),
-          email: form.get("email"),
-          property: form.get("property"),
-          message: form.get("message"),
-          meetingId: selectedId ?? "",
-          attendance: attendance ?? "",
-          whatsapp,
-          phone: form.get("phone") ?? "",
-          privacy: form.get("privacy") === "on",
-          website: form.get("website"),
-        }),
-      });
-      const data = await response.json();
-      if (!response.ok)
-        throw new Error(data.error ?? "We could not submit your request.");
-      setResult(data);
-    } catch (error) {
-      setError(
-        error instanceof Error ? error.message : "Please try again later.",
-      );
-    } finally {
-      setSending(false);
-    }
-  };
-  if (result)
-    return (
-      <div
-        role="status"
-        className="rounded-xl border border-emerald-200 bg-emerald-50 p-5 text-emerald-900 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-100"
-      >
-        <CheckCircle2 aria-hidden="true" className="mb-3 h-6 w-6" />
-        <p>{result.message}</p>
-        <p className="mt-3 break-all text-xs">
-          Your reference: {result.requestId}
-        </p>
-        <button
-          type="button"
-          className="mt-4 min-h-11 underline"
-          onClick={() => setResult(null)}
-        >
-          Submit another request
-        </button>
-      </div>
+    const text = (key: string) => String(form.get(key) ?? "");
+    const meeting = meetings.find((m) => m.id === selectedId);
+    setEmail(
+      buildRequestEmail({
+        kind,
+        name: text("name"),
+        email: text("email"),
+        property: text("property"),
+        message: text("message"),
+        meeting: meeting
+          ? `${meetingLabel(meeting)}${meeting.time ? `, ${meeting.time}` : ""}`
+          : undefined,
+        attendance: attendance ?? "",
+        whatsapp,
+        phone: text("phone"),
+      }),
     );
+  };
   return (
     <form onSubmit={submit} className="space-y-5">
       <div className="grid gap-5 sm:grid-cols-2">
@@ -237,55 +206,136 @@ export default function RequestForm({
           </p>
         </>
       )}
-      <div className="rounded-xl bg-slate-50 p-4 dark:bg-slate-800">
-        <label className="flex items-start gap-3 text-sm">
-          <input
-            type="checkbox"
-            name="privacy"
-            required
-            className="mt-1 h-5 w-5 shrink-0 accent-blue-700"
-          />
-          <span>
-            I understand that my details will be securely stored and shared with
-            authorised committee members to review and respond to this request.
-            Requests are retained for up to 180 days. Read the{" "}
-            <Link
-              href="/privacy"
-              className="text-blue-700 underline dark:text-blue-300"
-            >
-              privacy notice
-            </Link>
-            .
-          </span>
-        </label>
-      </div>
-      <div aria-hidden="true" className="hidden">
-        <label>
-          Leave this field empty
-          <input name="website" tabIndex={-1} autoComplete="off" />
-        </label>
-      </div>
-      {error && (
-        <p role="alert" className="text-sm text-red-700 dark:text-red-300">
-          {error}
-        </p>
-      )}
+      <p className="rounded-xl bg-slate-50 p-4 text-sm leading-relaxed text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+        When you continue, we will prepare an email to{" "}
+        <strong>committee@james-square.com</strong> with these details filled in,
+        for you to send from your own email account. Nothing is sent or stored
+        by the website, and nothing is sent until you press send in your email.
+      </p>
       <button
         type="submit"
-        disabled={sending || (kind === "rsvp" && !meetings.length)}
+        disabled={kind === "rsvp" && !meetings.length}
         className={primary}
       >
         <Send size={17} aria-hidden="true" />
-        {sending
-          ? "Submitting…"
-          : kind === "rsvp"
-            ? "Send attendance request"
-            : "Send membership enquiry"}
+        {kind === "rsvp"
+          ? "Prepare attendance request email"
+          : "Prepare membership enquiry email"}
       </button>
       <p className={muted}>
         All requests are reviewed by the committee. Access codes, committee
         membership and website permissions are never granted automatically.
       </p>
+      {email && <EmailDialog email={email} onClose={() => setEmail(null)} />}
     </form>
+  );
+}
+
+/** Modal with the prepared email and ways to send it. Uses the native dialog
+ *  element, so focus is trapped and Escape closes it. */
+function EmailDialog({
+  email,
+  onClose,
+}: {
+  email: RequestEmail;
+  onClose: () => void;
+}) {
+  const ref = useRef<HTMLDialogElement>(null);
+  const [copied, setCopied] = useState(false);
+  useEffect(() => {
+    const dialog = ref.current;
+    if (dialog && !dialog.open) dialog.showModal();
+  }, []);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(plainTextEmail(email));
+      setCopied(true);
+    } catch {
+      setCopied(false);
+    }
+  };
+  const link =
+    "text-sm font-semibold text-blue-700 underline underline-offset-2 hover:text-blue-900 dark:text-blue-300";
+  return (
+    <dialog
+      ref={ref}
+      onClose={onClose}
+      onClick={(e) => {
+        if (e.target === ref.current) ref.current?.close();
+      }}
+      aria-labelledby="request-email-title"
+      className="m-auto w-[calc(100%-2rem)] max-w-xl rounded-2xl border border-slate-200 bg-white p-0 text-slate-900 shadow-2xl backdrop:bg-slate-950/60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+    >
+      <div className="max-h-[85vh] overflow-y-auto p-5 sm:p-7">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 id="request-email-title" className="text-xl font-semibold">
+              Your email is ready to send
+            </h2>
+            <p className={`mt-1 ${muted}`}>
+              Open it in your email, check the details and press send. The
+              committee will reply to the address you send from.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => ref.current?.close()}
+            aria-label="Close"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-blue-600 dark:hover:bg-slate-800"
+          >
+            <X size={20} aria-hidden="true" />
+          </button>
+        </div>
+
+
+        <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+          <a href={mailtoHref(email)} className={`${primary} sm:flex-1`}>
+            <Mail size={17} aria-hidden="true" />
+            Open in my email app
+          </a>
+          <button type="button" onClick={copy} className={`${secondary} sm:flex-1`}>
+            {copied ? (
+              <Check size={17} aria-hidden="true" />
+            ) : (
+              <Copy size={17} aria-hidden="true" />
+            )}
+            {copied ? "Copied" : "Copy email text"}
+          </button>
+        </div>
+        <p role="status" className="sr-only">
+          {copied ? "Email text copied to the clipboard." : ""}
+        </p>
+
+        <p className={`mt-4 ${muted}`}>
+          Use webmail?{" "}
+          <a href={gmailHref(email)} target="_blank" rel="noopener noreferrer" className={link}>
+            Open in Gmail
+          </a>{" "}
+          or{" "}
+          <a href={outlookHref(email)} target="_blank" rel="noopener noreferrer" className={link}>
+            Outlook.com
+          </a>
+          . If nothing opens, copy the text and email it to{" "}
+          <span className="font-semibold">{email.to}</span>.
+        </p>
+
+        <dl className="mt-5 space-y-2 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm dark:border-slate-700 dark:bg-slate-800">
+          <div className="flex gap-2">
+            <dt className="w-16 shrink-0 font-semibold">To</dt>
+            <dd className="break-all">{email.to}</dd>
+          </div>
+          <div className="flex gap-2">
+            <dt className="w-16 shrink-0 font-semibold">Subject</dt>
+            <dd>{email.subject}</dd>
+          </div>
+          <div className="border-t border-slate-200 pt-3 dark:border-slate-700">
+            <dt className="sr-only">Message</dt>
+            <dd className="whitespace-pre-wrap break-words text-slate-700 dark:text-slate-200">
+              {email.body}
+            </dd>
+          </div>
+        </dl>
+      </div>
+    </dialog>
   );
 }
