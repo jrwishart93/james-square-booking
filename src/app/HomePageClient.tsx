@@ -7,6 +7,13 @@ import { useEffect, useState } from 'react';
 import { ArrowRight, ChevronRight, Megaphone } from 'lucide-react';
 import { activeNoticeSummaries, type NoticeSummary } from '@/components/home/notices';
 import {
+  CommitteeMeetingsCard,
+  CommunityWhatsAppCard,
+  FiorInfoCard,
+  PoolSafetyUpdateCard,
+} from '@/components/home/communityUpdates';
+import {
+  allFacilitiesClosed,
   bookingEnabled,
   facilitiesExplainer,
   facilitiesHeadline,
@@ -175,6 +182,14 @@ function SectionHeader({
   );
 }
 
+/**
+ * Homepage wording for the closure, reflecting the October 2026 RLSS review.
+ * Falls back to the shared explainer as soon as any facility reopens.
+ */
+const homeFacilitiesExplainer = allFacilitiesClosed
+  ? 'The swimming pool remains closed following safety assessments and the identification of significant concerns with its current design. Further repairs, professional advice and owner consideration will be required before reopening can be considered. The gym and sauna also remain closed, and booking is unavailable while the facilities are closed.'
+  : facilitiesExplainer;
+
 /** ------------------------------------------------
  *  Facilities status band
  *  ------------------------------------------------ */
@@ -248,17 +263,17 @@ function FacilitiesStatus({
         </div>
 
         <p className="mt-4 max-w-2xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-          {facilitiesExplainer}
+          {homeFacilitiesExplainer}
         </p>
 
         <div className="mt-5 flex flex-col gap-2.5 sm:flex-row sm:items-center">
-          <Link
-            href="/updates#pool-facilities"
+          <a
+            href="#pool-safety-review"
             className="inline-flex items-center justify-center gap-1.5 rounded-full bg-neutral-900 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-neutral-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200"
           >
-            Read the full facilities update
+            Read the October 2026 pool update
             <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
+          </a>
           <Link
             href="/updates"
             className="inline-flex items-center justify-center gap-1.5 rounded-full border border-black/10 px-5 py-2.5 text-sm font-semibold text-neutral-800 transition-colors hover:bg-black/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:border-white/15 dark:text-neutral-200 dark:hover:bg-white/10"
@@ -534,6 +549,8 @@ const audienceDoors: AudienceDoor[] = [
     body: 'Fior handover and the payments survey, AGM papers and summaries, sinking fund and Trinity balances, voting and consultations, your factor contacts.',
     cta: { label: 'Go to the owners area', href: '/owners' },
     links: [
+      { label: 'Committee meetings', href: '/committee-meeting' },
+      { label: 'Fior information for owners', href: '/fior-info' },
       { label: 'AGM papers and summaries', href: '/agm' },
       { label: 'Voting and consultations', href: '/voting' },
       { label: 'Fior payments survey', href: '/fior-questionnaire' },
@@ -546,6 +563,7 @@ const audienceDoors: AudienceDoor[] = [
     body: 'Current notices, bin days and recycling, building access and parking, is the pool open, the message board, local recommendations.',
     cta: { label: 'See what is happening', href: '/updates' },
     links: [
+      { label: 'Community WhatsApp group', href: '#community-whatsapp' },
       { label: 'Notices and updates', href: '/updates' },
       { label: 'Message board', href: '/message-board' },
       { label: 'Bins, access and parking', href: '/local' },
@@ -722,6 +740,8 @@ export default function HomePageClient() {
   useEffect(() => {
     setNotices(activeNoticeSummaries());
   }, []);
+  const featuredIds = new Set(notices.filter((notice) => notice.featured).map((n) => n.id));
+  const previousNotices = notices.filter((notice) => !notice.featured);
 
   return (
     <div className="px-4 py-8 sm:py-14">
@@ -792,13 +812,49 @@ export default function HomePageClient() {
         </motion.div>
       </section>
 
+      {/* COMMUNITY WHATSAPP INVITATION */}
+      {featuredIds.has('community-whatsapp') ? (
+        <section className="mx-auto mt-6 max-w-6xl sm:mt-10" aria-label="Community WhatsApp group">
+          <CommunityWhatsAppCard />
+        </section>
+      ) : null}
+
+      {/* LATEST COMMUNITY UPDATES */}
+      <section
+        className="mx-auto mt-12 max-w-6xl sm:mt-16"
+        aria-labelledby="community-updates-heading"
+      >
+        <h2 id="community-updates-heading" className="sr-only">
+          Latest Community Updates
+        </h2>
+        <SectionHeader
+          reduceMotion={reduceMotion}
+          action={
+            <Link
+              href="/updates"
+              className="inline-flex items-center gap-1 text-xs font-semibold text-neutral-600 transition-colors hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
+            >
+              All notices <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          }
+        >
+          Latest Community Updates
+        </SectionHeader>
+        {/* Two columns from md: committee beside the pool update, Fior across the full width below. */}
+        <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2 md:gap-5">
+          {featuredIds.has('committee-meetings') ? <CommitteeMeetingsCard /> : null}
+          {featuredIds.has('pool-safety-review') ? <PoolSafetyUpdateCard /> : null}
+          {featuredIds.has('fior-info') ? <FiorInfoCard className="md:col-span-2" /> : null}
+        </div>
+      </section>
+
       {/* FACILITIES STATUS */}
       <FacilitiesStatus noticeCount={notices.length} reduceMotion={reduceMotion} />
 
       {/* OWNERS AND RESIDENTS */}
       <AudienceDoors reduceMotion={reduceMotion} />
 
-      {/* LATEST UPDATES */}
+      {/* PREVIOUS UPDATES */}
       <section className="mx-auto mt-12 max-w-6xl sm:mt-16">
         <SectionHeader
           reduceMotion={reduceMotion}
@@ -811,7 +867,7 @@ export default function HomePageClient() {
             </Link>
           }
         >
-          Latest Updates
+          Previous Updates and Notices
         </SectionHeader>
         <motion.div
           initial="hidden"
@@ -820,7 +876,7 @@ export default function HomePageClient() {
           variants={staggerContainerVariants(reduceMotion, 0.08)}
           className="grid grid-cols-1 gap-4 md:grid-cols-3"
         >
-          {notices.slice(0, 3).map((notice) => (
+          {previousNotices.slice(0, 3).map((notice) => (
             <motion.div
               key={notice.id}
               variants={cardRevealVariants(reduceMotion)}
