@@ -39,10 +39,73 @@ export type NoticeSummary = {
   endsAt?: string;
   /** Optional extra condition, for notices whose relevance is not purely date based. */
   isActive?: () => boolean;
+  /**
+   * Featured notices render as full announcement cards in the homepage
+   * "Latest Community Updates" area (see components/home/communityUpdates.tsx),
+   * ahead of the older notices. Everything else shows under "Previous updates".
+   */
+  featured?: boolean;
+  /** Where the card's main button goes, and what it says. Reuse existing routes. */
+  href?: string;
+  ctaLabel?: string;
+  /** Owners-only notices are never shown on the public homepage or /updates. */
+  visibility?: 'public' | 'owners';
+  /** Drafts are kept here but not shown anywhere until set to 'published'. */
+  status?: 'published' | 'draft';
 };
 
-/** Ordered newest/most important first \u2014 homepage shows the first three active. */
+/**
+ * Ordered newest/most important first. The order here is the order on the
+ * homepage and on /updates, so this list is the priority. Keep the `date` as
+ * the date the notice was actually issued: re-dating an old notice because the
+ * page was redesigned makes it look newer than it is.
+ */
 export const noticeSummaries: NoticeSummary[] = [
+  {
+    id: 'community-whatsapp',
+    badge: 'Community',
+    title: 'Introducing the James Square Community WhatsApp Group',
+    summary:
+      'A new WhatsApp group for everyone living at James Square, owners and residents alike, to get to know neighbours, share helpful information and ask questions.',
+    date: '11 October 2026',
+    tone: 'info',
+    featured: true,
+    ctaLabel: 'Join Our Community WhatsApp Group',
+  },
+  {
+    id: 'committee-meetings',
+    badge: 'Committee',
+    title: 'Upcoming James Square Committee Meetings',
+    summary:
+      'Committee meetings take place at 18:15 in the Conservatory and on Microsoft Teams. Owners are welcome to request attendance in advance.',
+    date: '11 October 2026',
+    tone: 'action',
+    featured: true,
+    href: '/committee-meeting',
+    ctaLabel: 'View Meetings, Agendas & RSVP',
+  },
+  {
+    id: 'pool-safety-review',
+    badge: 'Swimming pool',
+    title: 'Swimming Pool: Important October 2026 Update',
+    summary:
+      'Myreside Management has issued an update following an independent RLSS UK safety review. The pool will remain closed and is to be drained while repairs and further assessments take place.',
+    date: 'October 2026',
+    tone: 'urgent',
+    featured: true,
+  },
+  {
+    id: 'fior-info',
+    badge: "Owners' information",
+    title: 'FIOR Property Assets: Information for Owners',
+    summary:
+      'An independent information resource for owners with questions about payments made to FIOR Property Assets and the changeover to Myreside Management.',
+    date: 'October 2026',
+    tone: 'info',
+    featured: true,
+    href: '/fior-info',
+    ctaLabel: 'View Fior Information for Owners',
+  },
   {
     id: 'pool-facilities',
     badge: 'Resident notice',
@@ -111,8 +174,14 @@ export const noticeSummaries: NoticeSummary[] = [
   },
 ];
 
+/** Published and public: the only notices the public pages may render at all. */
+export function isNoticePublic(notice: NoticeSummary) {
+  return (notice.status ?? 'published') === 'published' && (notice.visibility ?? 'public') === 'public';
+}
+
 /** A notice is active until its endsAt passes and any extra condition still holds. */
 export function isNoticeActive(notice: NoticeSummary, now = new Date()) {
+  if (!isNoticePublic(notice)) return false;
   if (notice.endsAt && now.getTime() >= new Date(notice.endsAt).getTime()) return false;
   if (notice.isActive && !notice.isActive()) return false;
   return true;
