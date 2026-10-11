@@ -69,12 +69,10 @@ export default function MeetingCommunityHub({
   hub,
   qrCode,
   today: initialToday,
-  unavailable,
 }: {
   hub: MeetingHub;
   qrCode: string;
   today: string;
-  unavailable: boolean;
 }) {
   const [today, setToday] = useState(initialToday);
   const { upcoming, past } = splitMeetings(hub.meetings, today);
@@ -98,6 +96,8 @@ export default function MeetingCommunityHub({
   const activeUnlocked =
     unlocked?.meeting.id === selectedId && selected ? unlocked : null;
   useEffect(() => {
+    // The page is cached, so the server's date can be a few minutes old.
+    setToday(londonToday());
     const interval = setInterval(() => setToday(londonToday()), 60_000);
     return () => clearInterval(interval);
   }, []);
@@ -264,16 +264,6 @@ export default function MeetingCommunityHub({
           </a>
         </div>
       </header>
-      {unavailable && (
-        <p
-          role="status"
-          className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100"
-        >
-          Meeting updates and requests are temporarily unavailable. The agenda
-          below is the published starting information. Please contact
-          committee@james-square.com for the latest details.
-        </p>
-      )}
       <nav
         aria-label="On this page"
         className="flex flex-wrap gap-x-6 gap-y-3 border-b border-slate-200 pb-5 text-sm font-medium dark:border-slate-700"
