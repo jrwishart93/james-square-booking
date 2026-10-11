@@ -11,10 +11,22 @@ import {
   RoadworksNotice,
   MyresideNotice,
   isNoticeActive,
+  isNoticePublic,
   noticeSummaries,
 } from '@/components/home/notices';
+import {
+  CommitteeMeetingsCard,
+  CommunityWhatsAppCard,
+  FiorInfoCard,
+  PoolSafetyUpdateCard,
+} from '@/components/home/communityUpdates';
 
+// The section wrapper below carries the anchor id, so the cards do not repeat it.
 const noticeComponents: Record<string, () => React.JSX.Element | null> = {
+  'community-whatsapp': () => <CommunityWhatsAppCard anchor={false} />,
+  'committee-meetings': () => <CommitteeMeetingsCard anchor={false} />,
+  'pool-safety-review': () => <PoolSafetyUpdateCard anchor={false} />,
+  'fior-info': () => <FiorInfoCard anchor={false} />,
   'pool-facilities': PoolNotice,
   'agm-voting': AGMOwnerVotingNotice,
   'agm-summary': AGMNotice,
@@ -24,7 +36,9 @@ const noticeComponents: Record<string, () => React.JSX.Element | null> = {
 };
 
 /** Notices render in the order they are declared in notices.tsx. */
-const orderedNotices = noticeSummaries.filter((notice) => noticeComponents[notice.id]);
+const orderedNotices = noticeSummaries.filter(
+  (notice) => noticeComponents[notice.id] && isNoticePublic(notice)
+);
 
 export default function UpdatesClient() {
   // Resolved after mount so the server and client markup match on date-gated notices.
