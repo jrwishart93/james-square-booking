@@ -33,20 +33,24 @@ export async function sendWithResend(args: {
   html: string;
   text?: string;
   attachments?: { filename: string; content: string }[];
+  idempotencyKey?: string;
 }) {
   const resend = getResendClient();
   const from = args.from ?? process.env.RESEND_FROM_EMAIL;
   if (!from) throw new Error("An email sender is not configured");
 
-  const { error, data } = await resend.emails.send({
-    from,
-    to: args.to,
-    replyTo: args.replyTo,
-    subject: args.subject,
-    html: args.html,
-    text: args.text ?? stripHtml(args.html),
-    attachments: args.attachments,
-  });
+  const { error, data } = await resend.emails.send(
+    {
+      from,
+      to: args.to,
+      replyTo: args.replyTo,
+      subject: args.subject,
+      html: args.html,
+      text: args.text ?? stripHtml(args.html),
+      attachments: args.attachments,
+    },
+    args.idempotencyKey ? { idempotencyKey: args.idempotencyKey } : undefined,
+  );
 
   if (error) throw new Error(error.message);
   return data;

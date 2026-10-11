@@ -9,9 +9,8 @@ DTSTAMP:20260915T000000Z
 DTSTART:20260915T171500Z
 DTEND:20260915T181500Z
 SUMMARY:James Square Committee Meeting
-DESCRIPTION:James Square Committee Meeting. Attend in person at The Conservatory\, James Square or remotely using Microsoft Teams.\n\nhttps://teams.live.com/meet/9379620383354?p=GEqjTA0LIPWYyshEWv
+DESCRIPTION:James Square Committee Meeting. Attend in person at The Conservatory\, James Square or remotely using Microsoft Teams.
 LOCATION:The Conservatory\, James Square
-URL:https://teams.live.com/meet/9379620383354?p=GEqjTA0LIPWYyshEWv
 STATUS:CONFIRMED
 END:VEVENT
 END:VCALENDAR

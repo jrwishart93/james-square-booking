@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     'How the James Square community website collects, uses, stores and protects residents’ personal information, and the rights you have under UK GDPR.',
 };
 
-const lastUpdated = '26 July 2026';
+const lastUpdated = '11 October 2026';
 
 export default function PrivacyPolicyPage() {
   return (
@@ -84,6 +84,11 @@ export default function PrivacyPolicyPage() {
               'Legitimate interests',
             ],
             [
+              'Committee meeting RSVPs and membership enquiries: name, email, property address, attendance preference, optional message and an optional WhatsApp number',
+              'To review attendance and membership requests and respond privately. A WhatsApp number is requested only when you opt in to interest in the private Committee group',
+              'Legitimate interests — managing Association meetings and membership enquiries',
+            ],
+            [
               'Sign-in timestamps, and an audit log of administrative actions',
               'To keep accounts secure and to show who changed what',
               'Legal obligation (UK GDPR security duty) and legitimate interests',
@@ -98,7 +103,7 @@ export default function PrivacyPolicyPage() {
 
         <p>
           We do not ask for, and do not want, information such as your date of birth, telephone
-          number, financial details, or any special category data (health, ethnicity, beliefs and
+          number except for the optional Committee WhatsApp interest described above, financial details, or any special category data (health, ethnicity, beliefs and
           so on). Please do not include such information in message board posts or emails.
         </p>
         <p>
@@ -116,8 +121,9 @@ export default function PrivacyPolicyPage() {
           requests from an address to stop repeated guessing of an access code.
         </p>
         <p>
-          We do not store IP addresses in our own database, and do not use them to build any profile
-          of you. Our hosting provider keeps short-term operational logs on our behalf.
+          We do not store raw IP addresses in our own database or use them to build a profile of
+          you. Meeting-access and form-protection counters use a hashed address identifier and
+          expire after 15 minutes. Our hosting provider keeps short-term operational logs on our behalf.
         </p>
       </LegalSection>
 
@@ -129,6 +135,7 @@ export default function PrivacyPolicyPage() {
             'Bookings show as “booked” to other residents. Your email address is not revealed to them.',
             'Site administrators can see resident accounts, bookings and audit logs in order to run the site. Administrative actions are logged.',
             'The committee can see emails sent to committee addresses, and the archive of emails sent through the site.',
+            'Meeting RSVPs and membership enquiries are visible only to authorised committee members and administrators, never to ordinary visitors. Joining a WhatsApp group may make your name and phone number visible to other group participants.',
           ]}
         />
         <p>
@@ -178,7 +185,9 @@ export default function PrivacyPolicyPage() {
           </Link>
           . In summary: account details are kept while your account is active, bookings for two
           years, audit logs for two years, and communications for as long as they are relevant to
-          the running of the building.
+          the running of the building. Website meeting RSVPs and membership enquiries are retained
+          for 180 days, with deletion controls available to the committee. Copies sent to the committee
+          mailbox are managed separately under the communications retention policy.
         </p>
       </LegalSection>
 

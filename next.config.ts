@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import withPWA from "next-pwa";
+import defaultRuntimeCaching from "next-pwa/cache";
 
 /**
  * Content Security Policy.
@@ -146,6 +147,11 @@ const nextConfig: NextConfig = {
 const withPWAConfig = withPWA({
   dest: "public",
   disable: process.env.NODE_ENV === "development",
+  runtimeCaching: [
+    // Private committee responses must never enter the PWA's default API cache.
+    { urlPattern: /\/api\/committee-meetings(?:\/|$)/, handler: "NetworkOnly", method: "GET" },
+    ...defaultRuntimeCaching,
+  ],
 });
 
 export default withPWAConfig(nextConfig);

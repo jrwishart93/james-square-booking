@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     'How long James Square keeps each type of information, what happens when an account is closed, and how deletion is carried out.',
 };
 
-const lastUpdated = '26 July 2026';
+const lastUpdated = '11 October 2026';
 
 export default function DataRetentionPage() {
   return (
@@ -94,6 +94,11 @@ export default function DataRetentionPage() {
               'Communications with owners about building matters may be needed for Association records and any dispute',
             ],
             [
+              'Website committee meeting RSVPs and membership enquiries, including optional WhatsApp details',
+              '180 days from submission; earlier deletion is available on request',
+              'Time to review and respond. Expired requests are hidden from the workspace and removed through database expiry or committee deletion controls. Notification copies in the committee mailbox follow the email retention policy',
+            ],
+            [
               'Administrative audit log',
               '24 months',
               'Accountability for changes to accounts and roles',
@@ -110,8 +115,8 @@ export default function DataRetentionPage() {
             ],
             [
               'Rate-limiting counters',
-              'Minutes',
-              'Held in memory only, to slow down automated guessing; never written to the database',
+              '15 minutes for meeting and enquiry counters',
+              'In-memory throttles and server-only database counters protect against automated guessing and spam. Database counters contain a hashed client identifier and an expiry timestamp, and are removed by the configured expiry policy',
             ],
           ]}
         />

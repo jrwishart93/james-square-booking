@@ -62,7 +62,7 @@ service cloud.firestore {
     // access is decided by `roles.owner` or the `owner` custom claim.
     function privilegedUserFields() {
       return [
-        'isAdmin', 'roles', 'disabled', 'isFlagged',
+        'isAdmin', 'isCommittee', 'roles', 'disabled', 'isFlagged',
         'residentTypeConfirmedAt', 'residentTypeConfirmedBy'
       ];
     }
@@ -98,6 +98,7 @@ service cloud.firestore {
       allow create: if isSignedIn()
         && request.auth.uid == userId
         && request.resource.data.get('isAdmin', false) == false
+        && request.resource.data.get('isCommittee', false) == false
         && !request.resource.data.keys().hasAny(['roles', 'disabled', 'isFlagged'])
         && (
           !('email' in request.resource.data) ||
@@ -374,6 +375,15 @@ service cloud.firestore {
 
     // Daily counters are also server-only and cannot be manipulated by clients.
     match /cctvRequestCounters/{date} {
+      allow read, write: if false;
+    }
+
+    // Meeting access codes, private Teams URLs and residents' requests are
+    // available exclusively through validated server routes, never client SDKs.
+    match /committeeMeetingConfig/{document} {
+      allow read, write: if false;
+    }
+    match /committeeRequests/{document} {
       allow read, write: if false;
     }
 

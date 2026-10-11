@@ -261,6 +261,22 @@ await check('an undeclared collection is denied by default', () =>
   assertFails(getDoc(doc(residentA, 'someFutureCollection/x'))),
 );
 
+// Meeting configuration and personal requests must stay server-only even for
+// administrators using the browser SDK. Committee status is privileged.
+await testEnv.withSecurityRulesDisabled(async context => {
+  await setDoc(doc(context.firestore(), 'committeeMeetingConfig/hub'), { accessCodeHash: 'private-test-hash', meetings: [] });
+  await setDoc(doc(context.firestore(), 'committeeRequests/test-request'), { name: 'Private resident', email: 'private@example.com', status: 'pending' });
+});
+for (const [label, db] of [['anonymous', anon], ['resident', residentA], ['admin', admin]]) {
+  for (const path of ['committeeMeetingConfig/hub', 'committeeRequests/test-request']) {
+    await check(`${label} cannot read ${path} through the client SDK`, () => assertFails(getDoc(doc(db, path))));
+    await check(`${label} cannot write ${path} through the client SDK`, () => assertFails(setDoc(doc(db, path), { tampered: true })));
+  }
+}
+await check('a resident cannot grant themselves committee privileges', () => assertFails(updateDoc(doc(residentB, 'users/resident-b'), { isCommittee: true })));
+const newCommitteeApplicant = testEnv.authenticatedContext('new-committee-applicant', { email: 'new@example.com' }).firestore();
+await check('a new user cannot register with committee privileges', () => assertFails(setDoc(doc(newCommitteeApplicant, 'users/new-committee-applicant'), { email: 'new@example.com', isCommittee: true })));
+
 await testEnv.cleanup();
 
 const failures = results.filter((result) => !result.ok);

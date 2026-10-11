@@ -1,5 +1,6 @@
 import CommitteeInboxDemo from './CommitteeInboxDemo';
 import InboundEmailFeed from './InboundEmailFeed';
+import MeetingManagement from '@/components/committee/MeetingManagement';
 import CommitteeEmailPanel from '../../components/committee/CommitteeEmailPanel';
 import PreviouslySentEmails, { type SentEmail } from '../../components/committee/PreviouslySentEmails';
 
@@ -231,6 +232,8 @@ export default function CommitteeContent() {
           Private workspace for James Square committee members.
         </p>
       </header>
+
+      <MeetingManagement />
 
       <section className={`${glassCard} space-y-3 p-6`}>
         <h2 className="text-xl font-semibold">Under construction</h2>
