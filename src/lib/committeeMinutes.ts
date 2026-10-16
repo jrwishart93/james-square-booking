@@ -43,7 +43,7 @@ export const MINUTES: Minutes[] = [
       "Erica",
       "Derek (via Microsoft Teams)",
     ],
-    status: "draft",
+    status: "approved",
     keyPoints: [
       "Swimming pool: draining is being planned to reduce running costs, and quotations for repairs and improvements are being sought. No design or spending has been approved; options and costs will be put to owners first.",
       "A Swimming Pool Focus Group is proposed, and interested owners are invited to get involved.",

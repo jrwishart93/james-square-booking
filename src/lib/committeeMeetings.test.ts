@@ -22,7 +22,7 @@ const form = {
   website: "",
 };
 describe("committee meeting dates and forms", () => {
-  it("uses both confirmed 18:15 dates and keeps December unconfirmed", () => {
+  it("uses the confirmed 18:15 dates for October to December", () => {
     const october = DEFAULT_MEETINGS[0],
       november = DEFAULT_MEETINGS[1],
       december = DEFAULT_MEETINGS[2];
@@ -30,8 +30,8 @@ describe("committee meeting dates and forms", () => {
     expect(meetingLabel(november)).toBe("Tuesday 17 November 2026");
     expect(october.time).toBe("18:15");
     expect(november.time).toBe("18:15");
-    expect(december.date).toBeNull();
-    expect(december.time).toBeNull();
+    expect(meetingLabel(december)).toBe("Tuesday 8 December 2026");
+    expect(december.time).toBe("18:15");
     expect(december.agenda).toEqual([]);
     expect(november.agenda).toEqual([]);
   });
@@ -72,7 +72,13 @@ describe("committee meeting dates and forms", () => {
     expect(meetingCalendar(DEFAULT_MEETINGS[1], url)).toContain(
       "DTSTART:20261117T181500Z",
     );
-    expect(meetingCalendar(DEFAULT_MEETINGS[2], url)).toBeNull();
+    expect(meetingCalendar(DEFAULT_MEETINGS[2], url)).toContain(
+      "DTSTART:20261208T181500Z",
+    );
+    // A meeting without a confirmed day never gets an invented date.
+    expect(
+      meetingCalendar({ ...DEFAULT_MEETINGS[2], date: null, time: null }, url),
+    ).toBeNull();
   });
   it("folds calendar lines at 75 UTF-8 bytes and escapes text", () => {
     const ics = meetingCalendar(
