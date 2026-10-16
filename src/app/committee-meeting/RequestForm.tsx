@@ -160,7 +160,7 @@ export default function RequestForm({
           placeholder={
             kind === "rsvp"
               ? "If there are any points you would like the committee to be aware of ahead of the meeting, please include them here."
-              : "Your interests, experience or ideas for James Square"
+              : "Your interests, experience or ideas for James Square, including whether you would like to help with the Swimming Pool Focus Group or communications"
           }
         />
       </label>
