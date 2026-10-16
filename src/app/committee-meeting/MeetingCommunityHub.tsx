@@ -26,6 +26,8 @@ import {
   type Meeting,
   type MeetingHub,
 } from "@/lib/committeeMeetings";
+import { minutesFor, publishedMinutes } from "@/lib/committeeMinutes";
+import MeetingMinutes from "./MeetingMinutes";
 import RequestForm from "./RequestForm";
 import { card, input, muted, primary, secondary } from "./styles";
 
@@ -88,6 +90,8 @@ export default function MeetingCommunityHub({
   const [accessError, setAccessError] = useState("");
   const [copied, setCopied] = useState("");
   const [membershipOpen, setMembershipOpen] = useState(false);
+  const minutes = publishedMinutes();
+  const [openMinutes, setOpenMinutes] = useState<string | null>(null);
   const rsvpHeading = useRef<HTMLHeadingElement>(null),
     accessHeading = useRef<HTMLHeadingElement>(null),
     membershipHeading = useRef<HTMLHeadingElement>(null);
@@ -125,6 +129,22 @@ export default function MeetingCommunityHub({
       block: "start",
     });
     ref.current?.focus({ preventScroll: true });
+  };
+  const openMembership = () => {
+    setMembershipOpen(true);
+    focusSection(membershipHeading);
+  };
+  const readMinutes = (meetingId: string) => {
+    setOpenMinutes(meetingId);
+    document.getElementById(`minutes-${meetingId}`)?.scrollIntoView({
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "instant"
+        : "smooth",
+      block: "start",
+    });
+    document
+      .getElementById(`minutes-${meetingId}-heading`)
+      ?.focus({ preventScroll: true });
   };
   const rsvp = (id = selectedId, method: Attendance = "unsure") => {
     changeMeeting(id);
@@ -164,7 +184,8 @@ export default function MeetingCommunityHub({
     focusSection(accessHeading);
     // Put the cursor straight into the code box when it is showing.
     window.setTimeout(
-      () => document.getElementById("meeting-code")?.focus({ preventScroll: true }),
+      () =>
+        document.getElementById("meeting-code")?.focus({ preventScroll: true }),
       0,
     );
   };
@@ -270,6 +291,7 @@ export default function MeetingCommunityHub({
       >
         {[
           ["#upcoming-meetings", "Upcoming meetings"],
+          ...(minutes.length ? [["#meeting-minutes", "Meeting minutes"]] : []),
           ["#online-access", "Online access"],
           ["#previous-meetings", "Previous meetings"],
           ["#join-committee", "Join the committee"],
@@ -384,6 +406,42 @@ export default function MeetingCommunityHub({
           </p>
         )}
       </section>
+      {minutes.length > 0 && (
+        <section
+          id="meeting-minutes"
+          aria-labelledby="minutes-heading"
+          className="scroll-mt-24"
+        >
+          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-emerald-700 dark:text-emerald-300">
+            What was discussed
+          </p>
+          <h2
+            id="minutes-heading"
+            className="mt-2 text-2xl font-semibold tracking-tight"
+          >
+            Meeting Minutes
+          </h2>
+          <p className={`mb-5 mt-2 ${muted}`}>
+            A summary of each meeting, with the full minutes available to read.
+          </p>
+          <div className="space-y-5">
+            {minutes.map((m, i) => (
+              <MeetingMinutes
+                key={m.meetingId}
+                minutes={m}
+                latest={i === 0}
+                expanded={openMinutes === m.meetingId}
+                onToggle={() =>
+                  setOpenMinutes(
+                    openMinutes === m.meetingId ? null : m.meetingId,
+                  )
+                }
+                onGetInvolved={openMembership}
+              />
+            ))}
+          </div>
+        </section>
+      )}
       <div className="grid items-start gap-6 lg:grid-cols-[1.35fr_1fr]">
         <section
           id="request-attendance"
@@ -679,8 +737,8 @@ export default function MeetingCommunityHub({
           Previous Meetings &amp; Agendas
         </h2>
         <p className={`mb-5 mt-2 ${muted}`}>
-          The record of what was scheduled for discussion. Agendas are separate
-          from approved minutes.
+          The record of what was scheduled for discussion. Where minutes have
+          been published, you can open them from here.
         </p>
         <div className="space-y-3">
           {past.map((m) => (
@@ -707,6 +765,15 @@ export default function MeetingCommunityHub({
                   {m.location} · {m.time ?? "Time was not confirmed"}
                 </p>
                 <Agenda meeting={m} />
+                {minutesFor(m.id) && (
+                  <button
+                    type="button"
+                    onClick={() => readMinutes(m.id)}
+                    className={`mt-5 ${secondary}`}
+                  >
+                    Read the meeting minutes
+                  </button>
+                )}
                 {m.approvedMinutes && (
                   <div className="mt-5 border-t border-slate-200 pt-5 dark:border-slate-700">
                     <h3 className="font-semibold">Approved meeting minutes</h3>
@@ -746,6 +813,12 @@ export default function MeetingCommunityHub({
             <p className={`mt-2 ${muted}`}>
               We welcome interest from owners who would like to contribute to
               the community, share ideas and support the work of the committee.
+            </p>
+            <p className={`mt-2 ${muted}`}>
+              We are also looking for volunteers to help with the proposed
+              Swimming Pool Focus Group and with communications, website updates
+              and social media. You can register interest in either using this
+              form.
             </p>
           </div>
           <button
