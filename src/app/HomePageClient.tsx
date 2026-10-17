@@ -2,8 +2,15 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion, AnimatePresence, useReducedMotion, type Variants } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import {
+  motion,
+  AnimatePresence,
+  useReducedMotion,
+  useScroll,
+  useTransform,
+  type Variants,
+} from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
 import { ArrowRight, ChevronRight, Megaphone } from 'lucide-react';
 import { activeNoticeSummaries, type NoticeSummary } from '@/components/home/notices';
 import {
@@ -187,7 +194,7 @@ function SectionHeader({
  * Falls back to the shared explainer as soon as any facility reopens.
  */
 const homeFacilitiesExplainer = allFacilitiesClosed
-  ? 'The swimming pool remains closed following safety assessments and the identification of significant concerns with its current design. Further repairs, professional advice and owner consideration will be required before reopening can be considered. The gym and sauna also remain closed, and booking is unavailable while the facilities are closed.'
+  ? 'The swimming pool remains closed after an independent safety review in October 2026 identified significant concerns with its current design. Further repairs, professional advice and owner consideration will be needed before reopening can be considered. The gym and sauna also remain closed, and booking is unavailable in the meantime.'
   : facilitiesExplainer;
 
 /** ------------------------------------------------
@@ -375,7 +382,11 @@ function PhotoCarousel() {
   return (
     <section className="mx-auto max-w-6xl mt-14 sm:mt-16">
       <SectionHeader reduceMotion={Boolean(reduceMotion)}>Around James Square</SectionHeader>
-      <div
+      <motion.div
+        initial="hidden"
+        whileInView="show"
+        viewport={viewportOnce}
+        variants={fadeUpVariants(Boolean(reduceMotion))}
         className={`${glass} p-4 sm:p-6`}
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
@@ -490,7 +501,7 @@ function PhotoCarousel() {
           </a>
           .
         </p>
-      </div>
+      </motion.div>
     </section>
   );
 }
@@ -498,9 +509,15 @@ function PhotoCarousel() {
 /** ------------------------------------------------
  *  Subtle install-app card
  *  ------------------------------------------------ */
-function InstallAppCard() {
+function InstallAppCard({ reduceMotion }: { reduceMotion: boolean }) {
   return (
-    <section className="mx-auto max-w-6xl mt-14 sm:mt-16">
+    <motion.section
+      initial="hidden"
+      whileInView="show"
+      viewport={viewportOnce}
+      variants={fadeUpVariants(reduceMotion)}
+      className="mx-auto max-w-6xl mt-14 sm:mt-16"
+    >
       <Link
         href="/how-to-app"
         className={`${glass} group flex items-center gap-4 p-4 transition-colors hover:bg-white/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:hover:bg-white/15 sm:p-5`}
@@ -526,7 +543,7 @@ function InstallAppCard() {
           How to install <ArrowRight className="h-3.5 w-3.5" />
         </span>
       </Link>
-    </section>
+    </motion.section>
   );
 }
 /** ------------------------------------------------
@@ -546,7 +563,7 @@ const audienceDoors: AudienceDoor[] = [
     eyebrow: 'For owners',
     title: 'Owners',
     strapline: 'Governance, money and decisions.',
-    body: 'Fior handover and the payments survey, AGM papers and summaries, sinking fund and Trinity balances, voting and consultations, your factor contacts.',
+    body: 'Committee meetings and minutes, the Fior handover and payments survey, AGM papers and summaries, sinking fund and Trinity balances, voting and consultations, and your factor contacts.',
     cta: { label: 'Go to the owners area', href: '/owners' },
     links: [
       { label: 'Committee meetings', href: '/committee-meeting' },
@@ -560,7 +577,7 @@ const audienceDoors: AudienceDoor[] = [
     eyebrow: 'For residents',
     title: 'Residents',
     strapline: 'Living here, day to day.',
-    body: 'Current notices, bin days and recycling, building access and parking, is the pool open, the message board, local recommendations.',
+    body: 'Current notices, bin days and recycling, building access and parking, facility status, the message board and local recommendations.',
     cta: { label: 'See what is happening', href: '/updates' },
     links: [
       { label: 'Community WhatsApp group', href: '#community-whatsapp' },
@@ -695,12 +712,12 @@ function NewToJamesSquare({ reduceMotion }: { reduceMotion: boolean }) {
           New to James Square
         </h2>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-          James Square is a residential development on Caledonian Crescent in Dalry, Edinburgh. The
-          building is managed by Myreside Management, who have been the factor since February 2026.
+          James Square is a residential development on Caledonian Crescent in Dalry, Edinburgh.
+          Myreside Management took over as the building&apos;s factor in February 2026.
         </p>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-          The shared pool, gym and sauna are currently closed. Everything else about the building,
-          including bins, access and parking, is covered in Living Here.
+          The shared pool, gym and sauna are currently closed. Everything else about day-to-day
+          life in the building, including bins, access and parking, is covered in Living Here.
         </p>
         <div className="mt-5 flex flex-col gap-2.5 sm:flex-row">
           <Link
@@ -726,6 +743,15 @@ function NewToJamesSquare({ reduceMotion }: { reduceMotion: boolean }) {
  *  ------------------------------------------------ */
 export default function HomePageClient() {
   const reduceMotion = Boolean(useReducedMotion());
+  // Scroll-linked parallax: the photo drifts slower than the page and the title lifts away.
+  const heroRef = useRef<HTMLElement>(null);
+  const { scrollYProgress: heroProgress } = useScroll({
+    target: heroRef,
+    offset: ['start start', 'end start'],
+  });
+  const heroImageY = useTransform(heroProgress, [0, 1], reduceMotion ? [0, 0] : [0, 90]);
+  const heroContentY = useTransform(heroProgress, [0, 1], reduceMotion ? [0, 0] : [0, -40]);
+  const heroContentOpacity = useTransform(heroProgress, [0, 0.8], reduceMotion ? [1, 1] : [1, 0.2]);
   const heroKenBurnsAnimate = reduceMotion
     ? { scale: 1, x: 0, y: 0 }
     : { scale: [1, 1.045, 1], x: [0, 10, 0], y: [0, -7, 0] };
@@ -746,42 +772,44 @@ export default function HomePageClient() {
   return (
     <div className="px-4 py-8 sm:py-14">
       {/* HERO */}
-      <section className="mx-auto max-w-6xl">
+      <section ref={heroRef} className="mx-auto max-w-6xl">
         <motion.div
           initial="hidden"
           animate="show"
           variants={staggerContainerVariants(reduceMotion, 0.12)}
           className="relative overflow-hidden rounded-3xl border border-white/15 bg-slate-950 shadow-[0_24px_80px_rgba(2,6,23,0.25)]"
         >
-          {/* Ken Burns background */}
-          <motion.div
-            className="absolute inset-0"
-            initial={{ opacity: 0, scale: 1, x: 0, y: 0 }}
-            animate={{ opacity: 1, ...heroKenBurnsAnimate }}
-            transition={{
-              ...heroKenBurnsTransition,
-              opacity: { duration: reduceMotion ? 0 : 1.1, ease: 'easeOut' },
-            }}
-            style={{ willChange: 'transform' }}
-          >
-            <Image
-              src="/images/buildingimages/Day-drone-js.png"
-              alt="Aerial view of James Square, Edinburgh, by day"
-              width={1536}
-              height={1024}
-              priority
-              className="block h-full w-full object-cover dark:hidden"
-              sizes="(min-width: 1152px) 1152px, 100vw"
-            />
-            <Image
-              src="/images/buildingimages/Night-drone-js.png"
-              alt="Aerial view of James Square, Edinburgh, at night"
-              width={1536}
-              height={1024}
-              priority
-              className="hidden h-full w-full object-cover dark:block"
-              sizes="(min-width: 1152px) 1152px, 100vw"
-            />
+          {/* Ken Burns background, with an outer layer for the scroll parallax */}
+          <motion.div className="absolute -inset-y-12 inset-x-0" style={{ y: heroImageY }}>
+            <motion.div
+              className="absolute inset-0"
+              initial={{ opacity: 0, scale: 1, x: 0, y: 0 }}
+              animate={{ opacity: 1, ...heroKenBurnsAnimate }}
+              transition={{
+                ...heroKenBurnsTransition,
+                opacity: { duration: reduceMotion ? 0 : 1.1, ease: 'easeOut' },
+              }}
+              style={{ willChange: 'transform' }}
+            >
+              <Image
+                src="/images/buildingimages/Day-drone-js.png"
+                alt="Aerial view of James Square, Edinburgh, by day"
+                width={1536}
+                height={1024}
+                priority
+                className="block h-full w-full object-cover dark:hidden"
+                sizes="(min-width: 1152px) 1152px, 100vw"
+              />
+              <Image
+                src="/images/buildingimages/Night-drone-js.png"
+                alt="Aerial view of James Square, Edinburgh, at night"
+                width={1536}
+                height={1024}
+                priority
+                className="hidden h-full w-full object-cover dark:block"
+                sizes="(min-width: 1152px) 1152px, 100vw"
+              />
+            </motion.div>
           </motion.div>
 
           {/* Scrim for text legibility */}
@@ -789,7 +817,10 @@ export default function HomePageClient() {
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_45%,rgba(2,6,23,0.35)_100%)]" />
 
           {/* Content */}
-          <div className="relative z-10 flex min-h-[320px] flex-col items-center justify-end px-6 pb-8 pt-16 text-center sm:min-h-[460px] sm:pb-12 lg:min-h-[520px]">
+          <motion.div
+            style={{ y: heroContentY, opacity: heroContentOpacity }}
+            className="relative z-10 flex min-h-[320px] flex-col items-center justify-end px-6 pb-8 pt-16 text-center sm:min-h-[460px] sm:pb-12 lg:min-h-[520px]"
+          >
             <motion.p
               variants={fadeUpVariants(reduceMotion)}
               className="text-[10px] font-semibold uppercase tracking-[0.35em] text-white/70 sm:text-xs"
@@ -808,15 +839,22 @@ export default function HomePageClient() {
             >
               Notices, building information and shared facilities, all in one place.
             </motion.p>
-          </div>
+          </motion.div>
         </motion.div>
       </section>
 
       {/* COMMUNITY WHATSAPP INVITATION */}
       {featuredIds.has('community-whatsapp') ? (
-        <section className="mx-auto mt-6 max-w-6xl sm:mt-10" aria-label="Community WhatsApp group">
-          <CommunityWhatsAppCard />
-        </section>
+        <motion.section
+          initial="hidden"
+          whileInView="show"
+          viewport={viewportOnce}
+          variants={fadeUpVariants(reduceMotion)}
+          className="mx-auto mt-6 max-w-6xl sm:mt-10"
+          aria-label="Community WhatsApp group"
+        >
+          <CommunityWhatsAppCard compact />
+        </motion.section>
       ) : null}
 
       {/* LATEST COMMUNITY UPDATES */}
@@ -841,11 +879,29 @@ export default function HomePageClient() {
           Latest Community Updates
         </SectionHeader>
         {/* Two columns from md: committee beside the pool update, Fior across the full width below. */}
-        <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2 md:gap-5">
-          {featuredIds.has('committee-meetings') ? <CommitteeMeetingsCard /> : null}
-          {featuredIds.has('pool-safety-review') ? <PoolSafetyUpdateCard /> : null}
-          {featuredIds.has('fior-info') ? <FiorInfoCard className="md:col-span-2" /> : null}
-        </div>
+        <motion.div
+          initial="hidden"
+          whileInView="show"
+          viewport={viewportOnce}
+          variants={staggerContainerVariants(reduceMotion, 0.1)}
+          className="grid grid-cols-1 items-start gap-4 md:grid-cols-2 md:gap-5"
+        >
+          {featuredIds.has('committee-meetings') ? (
+            <motion.div variants={cardRevealVariants(reduceMotion)}>
+              <CommitteeMeetingsCard compact />
+            </motion.div>
+          ) : null}
+          {featuredIds.has('pool-safety-review') ? (
+            <motion.div variants={cardRevealVariants(reduceMotion)}>
+              <PoolSafetyUpdateCard compact />
+            </motion.div>
+          ) : null}
+          {featuredIds.has('fior-info') ? (
+            <motion.div variants={cardRevealVariants(reduceMotion)} className="md:col-span-2">
+              <FiorInfoCard compact />
+            </motion.div>
+          ) : null}
+        </motion.div>
       </section>
 
       {/* FACILITIES STATUS */}
@@ -898,7 +954,7 @@ export default function HomePageClient() {
       <NewToJamesSquare reduceMotion={reduceMotion} />
 
       {/* INSTALL APP */}
-      <InstallAppCard />
+      <InstallAppCard reduceMotion={reduceMotion} />
     </div>
   );
 }

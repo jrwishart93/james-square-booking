@@ -7,6 +7,7 @@
  */
 
 import Link from 'next/link';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useEffect, useId, useState } from 'react';
 import {
   ArrowRight,
@@ -27,6 +28,7 @@ import {
   relativeMeetingDay,
   upcomingMeetings,
 } from '@/lib/committeeMeetingDates';
+import { publishedMinutes } from '@/lib/committeeMinutes';
 import { noticeSummaries, type NoticeSummary } from './notices';
 
 /**
@@ -45,7 +47,16 @@ const focusRing =
 
 const primaryButton = `inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full bg-neutral-900 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-200 ${focusRing}`;
 
-type CardProps = { className?: string; anchor?: boolean };
+type CardProps = {
+  className?: string;
+  anchor?: boolean;
+  /**
+   * Homepage mode: the headline facts stay visible and the supporting detail
+   * moves behind a "More information" button. /updates leaves this off and
+   * shows each announcement in full.
+   */
+  compact?: boolean;
+};
 
 function notice(id: string): NoticeSummary {
   const found = noticeSummaries.find((n) => n.id === id);
@@ -131,6 +142,7 @@ function Disclosure({
 }) {
   const [open, setOpen] = useState(false);
   const regionId = useId();
+  const reduceMotion = useReducedMotion();
   return (
     <div>
       <button
@@ -146,8 +158,21 @@ function Disclosure({
           className={`h-4 w-4 transition-transform motion-reduce:transition-none ${open ? 'rotate-180' : ''}`}
         />
       </button>
-      <div id={regionId} hidden={!open} className="mt-4">
-        {children}
+      <div id={regionId}>
+        <AnimatePresence initial={false}>
+          {open ? (
+            <motion.div
+              key="content"
+              initial={reduceMotion ? false : { height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={reduceMotion ? { opacity: 0 } : { height: 0, opacity: 0 }}
+              transition={{ duration: reduceMotion ? 0 : 0.35, ease: [0.22, 1, 0.36, 1] }}
+              className="overflow-hidden"
+            >
+              <div className="pt-4">{children}</div>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
       </div>
     </div>
   );
@@ -200,8 +225,37 @@ export function WhatsAppQrCode({ size = 148 }: { size?: number }) {
 /** ------------------------------------------------
  *  1. Community WhatsApp group (feature card)
  *  ------------------------------------------------ */
-export function CommunityWhatsAppCard({ anchor = true }: CardProps) {
+export function CommunityWhatsAppCard({ anchor = true, compact = false }: CardProps) {
   const n = notice('community-whatsapp');
+  const groupDetails = (
+    <div className="space-y-2.5 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+      <p>
+        This community group is open to James Square owners and residents. It is separate from
+        the Committee WhatsApp group, which is used by committee members for committee
+        business.
+      </p>
+      <p>
+        Owners interested in becoming involved with the committee can find further information
+        on the{' '}
+        <Link
+          href={COMMITTEE_MEETING_PATH}
+          className="font-semibold text-neutral-900 underline underline-offset-2 hover:text-sky-700 dark:text-neutral-100 dark:hover:text-sky-300"
+        >
+          Committee Meetings page
+        </Link>
+        .
+      </p>
+      <p className="flex gap-2 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
+        <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+        <span>
+          Joining is your choice: nobody is added to either group automatically. Members of a
+          WhatsApp group may be able to see one another&apos;s phone numbers. The group is not an
+          official channel for reporting urgent maintenance or emergencies: contact Myreside
+          Management or the emergency services as usual.
+        </span>
+      </p>
+    </div>
+  );
   return (
     <article
       id={anchor ? n.id : undefined}
@@ -231,11 +285,13 @@ export function CommunityWhatsAppCard({ anchor = true }: CardProps) {
           </h2>
 
           <div className="mt-3 max-w-2xl space-y-3 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300 sm:text-[15px]">
-            <p>We&apos;ve created a new WhatsApp group for everyone living at James Square.</p>
             <p>
-              Whether you&apos;re an owner or a resident, the group provides an easy way to get to know
-              your neighbours, share helpful information, ask questions and stay connected with the
-              wider James Square community.
+              In October 2026 we launched a WhatsApp group for everyone living at James Square.
+            </p>
+            <p>
+              Whether you&apos;re an owner or a resident, the group is an easy way to get to know your
+              neighbours, share helpful information, ask questions and stay connected with the wider
+              James Square community.
             </p>
             <p className="font-medium text-neutral-900 dark:text-neutral-100">
               Everyone living at James Square is welcome to join.
@@ -275,32 +331,12 @@ export function CommunityWhatsAppCard({ anchor = true }: CardProps) {
             </div>
           </details>
 
-          <div className="mt-5 space-y-2.5 border-t border-black/5 pt-4 text-sm leading-relaxed text-neutral-700 dark:border-white/10 dark:text-neutral-300">
-            <p>
-              This community group is open to James Square owners and residents. It is separate from
-              the Committee WhatsApp group, which is used by committee members for committee
-              business.
-            </p>
-            <p>
-              Owners interested in becoming involved with the committee can find further information
-              on the{' '}
-              <Link
-                href={COMMITTEE_MEETING_PATH}
-                className="font-semibold text-neutral-900 underline underline-offset-2 hover:text-sky-700 dark:text-neutral-100 dark:hover:text-sky-300"
-              >
-                Committee Meetings page
-              </Link>
-              .
-            </p>
-            <p className="flex gap-2 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
-              <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-              <span>
-                Joining is your choice: nobody is added to either group automatically. Members of a
-                WhatsApp group may be able to see one another&apos;s phone numbers. The group is not an
-                official channel for reporting urgent maintenance or emergencies: contact Myreside
-                Management or the emergency services as usual.
-              </span>
-            </p>
+          <div className="mt-5 border-t border-black/5 pt-4 dark:border-white/10">
+            {compact ? (
+              <Disclosure label="More information about the group">{groupDetails}</Disclosure>
+            ) : (
+              groupDetails
+            )}
           </div>
         </div>
 
@@ -319,6 +355,15 @@ export function CommunityWhatsAppCard({ anchor = true }: CardProps) {
 /** ------------------------------------------------
  *  2. Committee meetings (dates from lib/committeeMeetings)
  *  ------------------------------------------------ */
+/** e.g. "12 October" for a minutes date such as "2026-10-12". */
+function formatMinutesDate(isoDate: string) {
+  return new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Europe/London',
+    day: 'numeric',
+    month: 'long',
+  }).format(new Date(`${isoDate}T12:00:00Z`));
+}
+
 function useMountedNow() {
   // Resolved after mount: the homepage is prerendered, so the build time is not "now".
   const [now, setNow] = useState<Date | null>(null);
@@ -330,8 +375,9 @@ function useMountedNow() {
   return now;
 }
 
-export function CommitteeMeetingsCard({ className, anchor }: CardProps) {
+export function CommitteeMeetingsCard({ className, anchor, compact = false }: CardProps) {
   const n = notice('committee-meetings');
+  const lastMinutes = publishedMinutes()[0];
   const now = useMountedNow();
   const upcoming = now ? upcomingMeetings(now) : [];
   const [next, following] = upcoming;
@@ -358,10 +404,12 @@ export function CommitteeMeetingsCard({ className, anchor }: CardProps) {
               </>
             ) : null}
           </p>
-          <p>
-            James Square owners are welcome to request attendance, either online via Microsoft Teams
-            or in person at the Conservatory.
-          </p>
+          {compact ? null : (
+            <p>
+              James Square owners are welcome to request attendance, either online via Microsoft
+              Teams or in person at the Conservatory.
+            </p>
+          )}
           <ul className="grid gap-2 sm:grid-cols-2" aria-label="Upcoming meeting dates">
             {upcoming.slice(0, 2).map((meeting, index) => (
               <li
@@ -389,8 +437,14 @@ export function CommitteeMeetingsCard({ className, anchor }: CardProps) {
         </p>
       )}
 
-      <Disclosure label="Attending as an owner">
+      <Disclosure label={compact ? 'More information' : 'Attending as an owner'}>
         <div className="space-y-3">
+          {compact ? (
+            <p>
+              James Square owners are welcome to request attendance, either online via Microsoft
+              Teams or in person at the Conservatory.
+            </p>
+          ) : null}
           <p>
             Owners who would like to attend are asked to register their interest in advance using the
             Committee Meetings page.
@@ -400,6 +454,26 @@ export function CommitteeMeetingsCard({ className, anchor }: CardProps) {
             owners are welcome to observe, with an opportunity for questions after committee
             discussions have concluded, subject to time available.
           </p>
+          {lastMinutes ? (
+            <div className="space-y-2 rounded-xl border border-black/5 bg-white/55 p-4 dark:border-white/10 dark:bg-white/5">
+              <DetailHeading>
+                Key points from the {formatMinutesDate(lastMinutes.date)} meeting
+                {lastMinutes.status === 'draft' ? ' (draft minutes)' : ''}
+              </DetailHeading>
+              <ul className="list-disc space-y-1 pl-5 marker:text-neutral-400">
+                {lastMinutes.keyPoints.map((point) => (
+                  <li key={point}>{point}</li>
+                ))}
+              </ul>
+              <Link
+                href={`${COMMITTEE_MEETING_PATH}#minutes-${lastMinutes.meetingId}`}
+                className="inline-flex items-center gap-1 text-sm font-semibold text-neutral-900 underline underline-offset-2 hover:text-sky-700 dark:text-neutral-100 dark:hover:text-sky-300"
+              >
+                Read the full minutes
+                <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+              </Link>
+            </div>
+          ) : null}
         </div>
       </Disclosure>
 
@@ -423,18 +497,20 @@ function DetailHeading({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function PoolSafetyUpdateCard({ className, anchor }: CardProps) {
+export function PoolSafetyUpdateCard({ className, anchor, compact = false }: CardProps) {
   const n = notice('pool-safety-review');
   return (
     <AnnouncementCard notice={n} icon={Waves} className={className} anchor={anchor}>
       <p>
-        Myreside Management has issued an important update following an independent swimming pool
-        safety review by the Royal Life Saving Society (RLSS UK).
+        In October 2026, Myreside Management issued an important update following an independent
+        swimming pool safety review by the Royal Life Saving Society (RLSS UK).
       </p>
-      <p>
-        The review identified significant safety concerns with the existing pool design, particularly
-        the steeply sloping sides and deep end.
-      </p>
+      {compact ? null : (
+        <p>
+          The review identified significant safety concerns with the existing pool design,
+          particularly the steeply sloping sides and deep end.
+        </p>
+      )}
       <p>
         The pool will remain closed and is to be drained while repairs and further assessments take
         place. At this stage, the process of assessing and completing the necessary works is expected
@@ -444,7 +520,10 @@ export function PoolSafetyUpdateCard({ className, anchor }: CardProps) {
         Owners are encouraged to check their emails from Myreside Management for the full update.
       </p>
 
-      <Disclosure label="Read More About the Swimming Pool Update" openLabel="Show less">
+      <Disclosure
+        label={compact ? 'More information' : 'Read More About the Swimming Pool Update'}
+        openLabel="Show less"
+      >
         <div className="space-y-5 border-t border-black/5 pt-4 dark:border-white/10">
           <section className="space-y-2">
             <DetailHeading>What did the safety review identify?</DetailHeading>
@@ -468,7 +547,7 @@ export function PoolSafetyUpdateCard({ className, anchor }: CardProps) {
 
           <section className="space-y-2">
             <DetailHeading>What happens to the pool now?</DetailHeading>
-            <p>Myreside has decided to drain the pool.</p>
+            <p>Myreside decided to drain the pool.</p>
             <p>
               This will allow previously identified ceiling, cornice and other repairs to be carried
               out safely while reducing the ongoing costs of maintaining water quality and operating
@@ -547,15 +626,10 @@ export function PoolSafetyUpdateCard({ className, anchor }: CardProps) {
 /** ------------------------------------------------
  *  4. FIOR Property Assets information
  *  ------------------------------------------------ */
-export function FiorInfoCard({ className, anchor }: CardProps) {
+export function FiorInfoCard({ className, anchor, compact = false }: CardProps) {
   const n = notice('fior-info');
-  return (
-    <AnnouncementCard notice={n} icon={Landmark} className={className} anchor={anchor}>
-      <p>
-        Following the change of property factor earlier this year, the James Square Owners Committee
-        has published a dedicated information resource for owners who may have questions about
-        payments made to FIOR Property Assets.
-      </p>
+  const details = (
+    <>
       <p>
         The information covers the changeover to Myreside Management, concerns reported by individual
         owners, outstanding communal funds and guidance on options that owners may wish to consider
@@ -573,6 +647,22 @@ export function FiorInfoCard({ className, anchor }: CardProps) {
           treated as findings of wrongdoing.
         </span>
       </p>
+    </>
+  );
+  return (
+    <AnnouncementCard notice={n} icon={Landmark} className={className} anchor={anchor}>
+      <p>
+        Following the change of property factor on 1 February 2026, the James Square Owners
+        Committee published a dedicated information resource for owners who may have questions
+        about payments made to FIOR Property Assets.
+      </p>
+      {compact ? (
+        <Disclosure label="More information">
+          <div className="space-y-3">{details}</div>
+        </Disclosure>
+      ) : (
+        details
+      )}
       <div className="pt-1">
         <Link href={n.href ?? '/fior-info'} className={primaryButton}>
           {n.ctaLabel}

@@ -22,6 +22,7 @@ export const COMMITTEE_MEETING_PATH = '/committee-meeting';
 export const committeeMeetings: CommitteeMeeting[] = [
   { id: '2026-10-12', startsAt: '2026-10-12T18:15:00+01:00', durationMinutes: 120 },
   { id: '2026-11-17', startsAt: '2026-11-17T18:15:00+00:00', durationMinutes: 120 },
+  { id: '2026-12-08', startsAt: '2026-12-08T18:15:00+00:00', durationMinutes: 120 },
 ];
 
 export function meetingStart(meeting: CommitteeMeeting) {

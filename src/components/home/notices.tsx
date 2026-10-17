@@ -66,7 +66,7 @@ export const noticeSummaries: NoticeSummary[] = [
     badge: 'Community',
     title: 'Introducing the James Square Community WhatsApp Group',
     summary:
-      'A new WhatsApp group for everyone living at James Square, owners and residents alike, to get to know neighbours, share helpful information and ask questions.',
+      'A WhatsApp group launched in October 2026 for everyone living at James Square, owners and residents alike, to get to know neighbours, share helpful information and ask questions.',
     date: '11 October 2026',
     tone: 'info',
     featured: true,
@@ -77,7 +77,7 @@ export const noticeSummaries: NoticeSummary[] = [
     badge: 'Committee',
     title: 'Upcoming James Square Committee Meetings',
     summary:
-      'Committee meetings take place at 18:15 in the Conservatory and on Microsoft Teams. Owners are welcome to request attendance in advance.',
+      'Committee meetings take place at 18:15 in the Conservatory and on Microsoft Teams. The minutes of the 12 October meeting have been approved and published.',
     date: '11 October 2026',
     tone: 'action',
     featured: true,
@@ -89,7 +89,7 @@ export const noticeSummaries: NoticeSummary[] = [
     badge: 'Swimming pool',
     title: 'Swimming Pool: Important October 2026 Update',
     summary:
-      'Myreside Management has issued an update following an independent RLSS UK safety review. The pool will remain closed and is to be drained while repairs and further assessments take place.',
+      'Myreside Management issued an update in October 2026 following an independent RLSS UK safety review. The pool remains closed and is to be drained while repairs and further assessments take place.',
     date: 'October 2026',
     tone: 'urgent',
     featured: true,
@@ -111,7 +111,7 @@ export const noticeSummaries: NoticeSummary[] = [
     badge: 'Resident notice',
     title: 'Pool, Gym and Sauna Closed',
     summary:
-      'The swimming pool, gym and sauna remain closed on safety grounds following the plant room failure. No reopening date has been set.',
+      'The swimming pool, gym and sauna closed on safety grounds after the plant room failure and remain closed. No reopening date has been set; see the October 2026 pool update for the latest position.',
     date: 'Updated June 2026',
     tone: 'urgent',
   },
@@ -120,7 +120,7 @@ export const noticeSummaries: NoticeSummary[] = [
     badge: "Owners' notice",
     title: 'Owner Consultation Results',
     summary:
-      'The consultation has closed, with the majority of owners supporting progress on the proposals presented following the 2026 AGM.',
+      'The consultation closed, with the majority of owners supporting progress on the proposals presented following the 2026 AGM.',
     date: 'Updated July 2026',
     tone: 'info',
   },
@@ -138,7 +138,7 @@ export const noticeSummaries: NoticeSummary[] = [
     badge: 'Property management',
     title: 'Myreside Management',
     summary:
-      'Myreside Management are the active property factor for James Square. All owner payments, maintenance requests and queries should go to Myreside.',
+      'Myreside Management took over as property factor for James Square on 1 February 2026. All owner payments, maintenance requests and queries should go to Myreside.',
     date: 'Since 1 February 2026',
     tone: 'info',
   },
@@ -147,7 +147,7 @@ export const noticeSummaries: NoticeSummary[] = [
     badge: 'Footpath closure',
     title: 'Telfer Subway / Caledonian Crescent Closure',
     summary:
-      'The Telfer Subway is closed to pedestrians and cyclists from Monday 15 to Friday 19 June 2026, with a signed diversion in place.',
+      'The Telfer Subway was closed to pedestrians and cyclists from Monday 15 to Friday 19 June 2026, with a signed diversion in place.',
     date: '15 to 19 June 2026',
     tone: 'urgent',
     endsAt: '2026-06-20T00:00:00+01:00',
