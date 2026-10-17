@@ -171,6 +171,32 @@ service cloud.firestore {
       allow create, update, delete: if isAdmin();
     }
 
+    // ────────────── LOCAL PROJECTS ──────────────
+    // Neighbourhood projects on /local. Public content, edited by admins. Drafts
+    // (published == false) are visible to admins only, so public list queries
+    // must filter on published == true.
+    function validLocalProject(d) {
+      return d.keys().hasOnly([
+          'title', 'summary', 'body', 'status', 'linkUrl', 'linkLabel',
+          'imageUrl', 'order', 'published', 'updatedAt', 'updatedBy'
+        ])
+        && d.title is string && d.title.size() > 0 && d.title.size() <= 120
+        && d.summary is string && d.summary.size() <= 400
+        && d.body is string && d.body.size() <= 4000
+        && d.status in ['ongoing', 'upcoming', 'in-progress', 'completed']
+        && d.linkUrl is string && d.linkUrl.size() <= 500
+        && d.linkLabel is string && d.linkLabel.size() <= 60
+        && d.imageUrl is string && d.imageUrl.size() <= 500
+        && d.order is number
+        && d.published is bool;
+    }
+
+    match /localProjects/{projectId} {
+      allow read: if resource.data.published == true || isAdmin();
+      allow create, update: if isAdmin() && validLocalProject(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
     // ────────────── MESSAGE BOARD ──────────────
     // A residents' board. Posts carry author names, so reading requires a login;
     // this also removes the board from search-engine and scraper reach.

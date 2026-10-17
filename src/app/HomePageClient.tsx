@@ -583,7 +583,7 @@ const audienceDoors: AudienceDoor[] = [
       { label: 'Community WhatsApp group', href: '#community-whatsapp' },
       { label: 'Notices and updates', href: '/updates' },
       { label: 'Message board', href: '/message-board' },
-      { label: 'Bins, access and parking', href: '/local' },
+      { label: 'Bins, access and parking', href: '/local#bins' },
     ],
   },
 ];
@@ -649,12 +649,12 @@ function AudienceDoors({ reduceMotion }: { reduceMotion: boolean }) {
  *  Living here: the day to day practicalities
  *  ------------------------------------------------ */
 const livingHereLinks = [
-  { title: 'Bins and recycling', blurb: 'Collection days and where the bins are.', href: '/local' },
-  { title: 'Access and parking', blurb: 'Entry, fobs, visitors and where to park.', href: '/local' },
+  { title: 'Bins and recycling', blurb: 'Where the bins are and how to get rid of bulky items.', href: '/local#bins' },
+  { title: 'Access and parking', blurb: 'Fobs, pool access, your parking space and visitors.', href: '/local#parking' },
   { title: 'Cleaning', blurb: 'Stair and common area cleaning schedule.', href: '/cleaning' },
   { title: 'Message board', blurb: 'Ask neighbours a question or share news.', href: '/message-board' },
   { title: 'Your factor', blurb: 'Myreside Management contacts and reporting.', href: '/myreside' },
-  { title: 'Around Dalry', blurb: 'Coffee, food and shops within a short walk.', href: '/local' },
+  { title: 'Around Dalry', blurb: 'Food, coffee, shops, pharmacies and GPs nearby.', href: '/local#around' },
 ];
 
 function LivingHere({ reduceMotion }: { reduceMotion: boolean }) {

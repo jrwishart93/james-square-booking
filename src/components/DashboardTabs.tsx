@@ -23,7 +23,7 @@ type TabConfig = {
 const tabs: TabConfig[] = [
   { label: 'Dashboard', href: '/dashboard' },
   { label: 'Book Facilities', href: '/book' },
-  { label: 'Useful Info', href: '/useful-info', matchPrefixes: ['/useful-info', '/local'] },
+  { label: 'Living Here', href: '/local', matchPrefixes: ['/local', '/useful-info', '/stories'] },
   { label: 'Owners', href: '/owners', requiresOwner: true },
   {
     label: 'Voting',

@@ -19,6 +19,7 @@ import {
 import OwnersPanel from './OwnersPanel';
 import AdminEmailPanel from './AdminEmailPanel';
 import AdminVoteAuditPanel from './AdminVoteAuditPanel';
+import LocalProjectsPanel from './LocalProjectsPanel';
 import { getQuestions } from '@/app/voting/services/storageService';
 import type { Question } from '@/app/voting/types';
 
@@ -276,7 +277,7 @@ export default function AdminDashboard() {
     'all' | 'Pool' | 'Gym' | 'Sauna'
   >('all');
   const [activeTab, setActiveTab] = useState<
-    'overview' | 'voting' | 'users' | 'owners' | 'comms' | 'system'
+    'overview' | 'voting' | 'users' | 'owners' | 'comms' | 'local' | 'system'
   >('overview');
   const [bookingTimeFilter, setBookingTimeFilter] = useState<
     'all' | 'peak' | 'off-peak'
@@ -1229,6 +1230,7 @@ export default function AdminDashboard() {
     { id: 'users', label: 'Users' },
     { id: 'owners', label: 'Owners' },
     { id: 'comms', label: 'Comms' },
+    { id: 'local', label: 'Living Here' },
     { id: 'system', label: 'System' },
   ] as const;
 
@@ -1437,6 +1439,16 @@ export default function AdminDashboard() {
             defaultOpen
           >
             <OwnersPanel />
+          </Section>
+        )}
+
+        {activeTab === 'local' && (
+          <Section
+            title="Local Projects"
+            subtitle="Add, edit, hide or delete the projects shown on the Living Here page"
+            defaultOpen
+          >
+            <LocalProjectsPanel />
           </Section>
         )}
 
