@@ -23,7 +23,7 @@ describe('committee meeting dates', () => {
   it('promotes October as next on 11 October, and says tomorrow', () => {
     const now = new Date('2026-10-11T12:00:00+01:00');
     const upcoming = upcomingMeetings(now);
-    expect(upcoming.map((m) => m.id)).toEqual(['2026-10-12', '2026-11-17']);
+    expect(upcoming.map((m) => m.id)).toEqual(['2026-10-12', '2026-11-17', '2026-12-08']);
     expect(relativeMeetingDay(upcoming[0], now)).toBe('tomorrow');
   });
 
@@ -37,7 +37,7 @@ describe('committee meeting dates', () => {
   it('promotes November once the October meeting has finished', () => {
     const now = new Date('2026-10-12T21:00:00+01:00');
     const upcoming = upcomingMeetings(now);
-    expect(upcoming.map((m) => m.id)).toEqual(['2026-11-17']);
+    expect(upcoming.map((m) => m.id)).toEqual(['2026-11-17', '2026-12-08']);
     expect(relativeMeetingDay(upcoming[0], now)).toBeNull();
   });
 
@@ -51,6 +51,6 @@ describe('committee meeting dates', () => {
   });
 
   it('has nothing upcoming once every listed meeting is past', () => {
-    expect(upcomingMeetings(new Date('2026-12-01T12:00:00Z'))).toEqual([]);
+    expect(upcomingMeetings(new Date('2027-01-01T12:00:00Z'))).toEqual([]);
   });
 });
