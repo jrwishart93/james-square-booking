@@ -30,14 +30,9 @@ import {
 } from '@/lib/committeeMeetingDates';
 import { publishedMinutes } from '@/lib/committeeMinutes';
 import { noticeSummaries, type NoticeSummary } from './notices';
+import { COMMUNITY_WHATSAPP_URL } from '@/lib/community';
 
-/**
- * The community group's invitation link. To replace the invitation (for example
- * after resetting the link in WhatsApp), change it here: the button and the QR
- * code both follow.
- */
-export const COMMUNITY_WHATSAPP_URL =
-  'https://chat.whatsapp.com/EyIsRJB2nLGCKR5AADHXjO?s=cl&p=i&ilr=4&iam=2';
+export { COMMUNITY_WHATSAPP_URL };
 
 const glass =
   'jqs-glass rounded-2xl border border-white/20 bg-white/50 dark:bg-white/10 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.06)]';

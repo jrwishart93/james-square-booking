@@ -25,6 +25,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     },
     {
+      url: `${BASE_URL}/local`,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
+      url: `${BASE_URL}/stories`,
+      changeFrequency: 'yearly',
+      priority: 0.5,
+    },
+    {
       url: `${BASE_URL}/pool3d`,
       changeFrequency: 'monthly',
       priority: 0.6,

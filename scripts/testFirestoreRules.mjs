@@ -277,6 +277,44 @@ await check('a resident cannot grant themselves committee privileges', () => ass
 const newCommitteeApplicant = testEnv.authenticatedContext('new-committee-applicant', { email: 'new@example.com' }).firestore();
 await check('a new user cannot register with committee privileges', () => assertFails(setDoc(doc(newCommitteeApplicant, 'users/new-committee-applicant'), { email: 'new@example.com', isCommittee: true })));
 
+// ── Local projects (/local) ──────────────────────────────────────────────────
+const localProject = {
+  title: 'Voi e-bikes',
+  summary: 'Dockless e-bikes near James Square.',
+  body: '',
+  status: 'ongoing',
+  linkUrl: 'https://www.voi.com',
+  linkLabel: 'Visit Voi',
+  imageUrl: '',
+  order: 10,
+  published: true,
+};
+await testEnv.withSecurityRulesDisabled(async (context) => {
+  await setDoc(doc(context.firestore(), 'localProjects/live'), localProject);
+  await setDoc(doc(context.firestore(), 'localProjects/draft'), { ...localProject, published: false });
+});
+await check('anonymous can list published local projects', () =>
+  assertSucceeds(getDocs(query(collection(anon, 'localProjects'), where('published', '==', true)))),
+);
+await check('anonymous cannot read a draft local project', () =>
+  assertFails(getDoc(doc(anon, 'localProjects/draft'))),
+);
+await check('anonymous cannot list every local project including drafts', () =>
+  assertFails(getDocs(collection(anon, 'localProjects'))),
+);
+await check('a resident cannot create a local project', () =>
+  assertFails(setDoc(doc(residentA, 'localProjects/new'), localProject)),
+);
+await check('an admin can create a local project', () =>
+  assertSucceeds(setDoc(doc(admin, 'localProjects/new'), localProject)),
+);
+await check('an admin cannot store an unexpected field on a local project', () =>
+  assertFails(setDoc(doc(admin, 'localProjects/bad'), { ...localProject, html: '<script></script>' })),
+);
+await check('an admin cannot store an unknown project status', () =>
+  assertFails(setDoc(doc(admin, 'localProjects/bad'), { ...localProject, status: 'cancelled' })),
+);
+
 await testEnv.cleanup();
 
 const failures = results.filter((result) => !result.ok);

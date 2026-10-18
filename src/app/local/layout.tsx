@@ -1,30 +1,32 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
+const title = "Living Here | James Square";
+const description =
+  "A practical guide for owners and tenants at James Square: key contacts, pool access, parking, bins, parcels, fire safety and what's nearby in Dalry.";
+
 export const metadata: Metadata = {
-  title: "Useful Information | James Square",
-  description:
-    "Local information for residents and visitors to James Square, including updates like our winter waxwing sightings.",
+  title,
+  description,
   metadataBase: new URL("https://www.james-square.com"),
+  alternates: { canonical: "https://www.james-square.com/local" },
   openGraph: {
-    title: "Winter Visitors at James Square",
-    description: "A rare visit from Bohemian waxwings spotted at James Square.",
-    url: "https://www.james-square.com/local#winter-visitors",
-    type: "article",
+    title: "Living at James Square",
+    description,
+    url: "https://www.james-square.com/local",
+    type: "website",
     images: [
       {
-        url: "https://www.james-square.com/images/buildingimages/Bird-3.JPG",
-        width: 1200,
-        height: 630,
-        alt: "Bohemian waxwings perched at James Square",
+        url: "https://www.james-square.com/images/buildingimages/garden.jpg",
+        alt: "Illustration of the gardens at James Square",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Winter Visitors at James Square",
-    description: "A rare visit from Bohemian waxwings spotted at James Square.",
-    images: ["https://www.james-square.com/images/buildingimages/Bird-3.JPG"],
+    title: "Living at James Square",
+    description,
+    images: ["https://www.james-square.com/images/buildingimages/garden.jpg"],
   },
 };
 
