@@ -16,6 +16,8 @@ export type DirectoryPlace = {
   phone?: string;
   site?: string;
   map: string;
+  /** Shopfront photo, where we have one. */
+  img?: string;
 };
 
 /** A Google Maps search link, for places we hold no verified pin for. */
@@ -31,6 +33,7 @@ export const DIRECTORY: DirectoryPlace[] = [
     desc: 'Large international all-you-can-eat buffet at the end of Dalry Road. Prices vary by day.',
     address: 'Dalry Road',
     map: mapSearch('Hot World Cuisine Buffet Dalry Road'),
+    img: '/images/venues/hot-world-edi-outside.png',
   },
   {
     name: 'First Coast',
@@ -40,6 +43,7 @@ export const DIRECTORY: DirectoryPlace[] = [
     phone: '+441313134404',
     site: 'https://first-coast.co.uk',
     map: 'https://maps.app.goo.gl/AmhsMkzahv44ko1e8?g_st=ipc',
+    img: '/images/venues/first-coast-front.png',
   },
   {
     name: 'La Casa',
@@ -49,6 +53,7 @@ export const DIRECTORY: DirectoryPlace[] = [
     phone: '01313372875',
     site: 'https://la-casa-restaurant.co.uk',
     map: 'https://maps.app.goo.gl/bubDdGhPAbQaJPkD8?g_st=ipc',
+    img: '/images/venues/la-casa-front.png',
   },
   {
     name: 'Locanda De Gusti',
@@ -58,6 +63,7 @@ export const DIRECTORY: DirectoryPlace[] = [
     phone: '+441313468800',
     site: 'https://locandadegusti.com',
     map: 'https://maps.app.goo.gl/N1WB5xvQWjd4nvSq6?g_st=ipc',
+    img: '/images/venues/locanda-front.png',
   },
   {
     name: 'Kuzina',
@@ -67,6 +73,7 @@ export const DIRECTORY: DirectoryPlace[] = [
     phone: '01312256066',
     site: 'https://kuzinaedinburgh.co.uk',
     map: 'https://maps.app.goo.gl/ZnUcb9Acp74yWd1T7?g_st=ipc',
+    img: '/images/venues/kuzina-front.png',
   },
   {
     name: 'Mia Italian Kitchen',
@@ -76,6 +83,7 @@ export const DIRECTORY: DirectoryPlace[] = [
     phone: '01316291750',
     site: 'https://mia-restaurant.co.uk',
     map: 'https://maps.app.goo.gl/gT6npc6BMHzTq8739?g_st=ipc',
+    img: '/images/venues/mia-italian-front.png',
   },
   {
     name: 'The Fountain',
@@ -84,6 +92,7 @@ export const DIRECTORY: DirectoryPlace[] = [
     address: '131 Dundee Street, EH11 1AX',
     site: 'https://fountainbar.co.uk',
     map: 'https://maps.app.goo.gl/sTSyoFAYQptRSyaW8?g_st=ipc',
+    img: '/images/venues/the-fountain-front.png',
   },
   {
     name: 'Kebabish',
@@ -93,6 +102,7 @@ export const DIRECTORY: DirectoryPlace[] = [
     phone: '01313373371',
     site: 'https://ko-edinburgh.co.uk',
     map: 'https://maps.app.goo.gl/sXkyaW5stYCtbATw8?g_st=ipc',
+    img: '/images/venues/kebabish-front.png',
   },
   {
     name: 'Sushiya',
@@ -102,6 +112,7 @@ export const DIRECTORY: DirectoryPlace[] = [
     phone: '+447340888780',
     site: 'https://sushiya-jp.com',
     map: 'https://maps.app.goo.gl/1owzMordTrvdpUvEA?g_st=ipc',
+    img: '/images/venues/sushiya-front.png',
   },
 
   // Coffee
@@ -113,6 +124,7 @@ export const DIRECTORY: DirectoryPlace[] = [
     phone: '01312593073',
     site: 'https://the-roasters.co.uk',
     map: 'https://maps.app.goo.gl/dbRhj9TqNGVq4tJSA?g_st=ipc',
+    img: '/images/venues/roasters-front.png',
   },
   {
     name: 'Throat Punch',
@@ -122,6 +134,7 @@ export const DIRECTORY: DirectoryPlace[] = [
     phone: '07984983066',
     site: 'https://throatpunch.co.uk',
     map: 'https://maps.app.goo.gl/uedsBb2w7xQFvUZ88?g_st=ipc',
+    img: '/images/venues/throatpunch.png',
   },
   {
     name: 'Not Just Coffee',
@@ -130,6 +143,7 @@ export const DIRECTORY: DirectoryPlace[] = [
     address: '165–167 Dalry Road, EH11 2EA',
     phone: '07766904442',
     map: 'https://maps.app.goo.gl/EvGBTx5XApScaCta8?g_st=ipc',
+    img: '/images/venues/not-just-coffee.png',
   },
   {
     name: 'Chapter One',
@@ -139,6 +153,7 @@ export const DIRECTORY: DirectoryPlace[] = [
     phone: '+447900075632',
     site: 'https://chapterone.coffee',
     map: 'https://maps.app.goo.gl/2JR9yCGdRuj57yPC6?g_st=ipc',
+    img: '/images/venues/chapter-one.png',
   },
   {
     name: 'Black Sheep Coffee',
@@ -148,6 +163,7 @@ export const DIRECTORY: DirectoryPlace[] = [
     phone: '+442039886994',
     site: 'https://blacksheepcoffee.co.uk',
     map: 'https://maps.app.goo.gl/nozosckyPm6eULsR7?g_st=ipc',
+    img: '/images/venues/black-sheep.png',
   },
 
   // Groceries
@@ -157,6 +173,7 @@ export const DIRECTORY: DirectoryPlace[] = [
     desc: 'Closest convenience store, open late. Voi bikes are usually parked outside.',
     address: '114 Dalry Road, EH11 2EZ',
     map: 'https://maps.app.goo.gl/rBzUKwdusLq3GLDw5?g_st=ipc',
+    img: '/images/venues/coop-front.png',
   },
   {
     name: 'Lidl',
@@ -164,6 +181,7 @@ export const DIRECTORY: DirectoryPlace[] = [
     desc: 'Discount supermarket with an in-store bakery.',
     address: 'Dalry Road, EH11 2EF',
     map: 'https://maps.app.goo.gl/Hh46iSbbhCAVHGu4A?g_st=ipc',
+    img: '/images/lidl-front.png',
   },
   {
     name: 'Tesco Express',
@@ -171,6 +189,7 @@ export const DIRECTORY: DirectoryPlace[] = [
     desc: 'Top-up shop at Haymarket.',
     address: '78–82 Haymarket Terrace, EH12',
     map: 'https://maps.app.goo.gl/kreRFxGswvmMdd9F9?g_st=ipc',
+    img: '/images/venues/tesco-front.png',
   },
   {
     name: 'Sainsbury’s Local',
@@ -178,6 +197,7 @@ export const DIRECTORY: DirectoryPlace[] = [
     desc: 'Convenience branch on Dundee Street.',
     address: '81–85 Dundee Street, EH11 1AW',
     map: 'https://maps.app.goo.gl/B4cYp64Vji41puFi8?g_st=ipc',
+    img: '/images/venues/sainsburys-front.png',
   },
   {
     name: 'Scotmid',
@@ -185,6 +205,7 @@ export const DIRECTORY: DirectoryPlace[] = [
     desc: 'Scottish co-operative convenience store.',
     address: '112 Dundee Street',
     map: 'https://maps.app.goo.gl/hzU9Ywv8fah8DUxJ9?g_st=ipc',
+    img: '/images/venues/scotmid-front.png',
   },
 
   // Pharmacies
