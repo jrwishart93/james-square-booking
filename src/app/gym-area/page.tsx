@@ -231,6 +231,45 @@ const futureIdeas = [
   'Additional storage and accessories',
 ];
 
+const visualStages = [
+  {
+    src: `${IMG_DIR}/01-committee-room-current.jpg`,
+    width: IMG_WIDTH,
+    height: IMG_HEIGHT,
+    label: 'Photo',
+    title: 'Today',
+    body: 'The former committee room as it is now, used mainly for storage.',
+    alt: 'Photograph of the former committee room today, with a table, chairs and stored items',
+  },
+  {
+    src: `${IMG_DIR}/02-room-cleared.jpg`,
+    width: IMG_WIDTH,
+    height: IMG_HEIGHT,
+    label: 'Concept',
+    title: 'Cleared and ready',
+    body: 'Furniture and stored items removed, leaving an empty room to clean and prepare.',
+    alt: 'Concept visualisation of the former committee room cleared of furniture',
+  },
+  {
+    src: `${IMG_DIR}/05-painted-and-equipped.jpg`,
+    width: IMG_WIDTH,
+    height: IMG_HEIGHT,
+    label: 'Concept',
+    title: 'Painted, with our existing equipment',
+    body: 'A fresh coat of paint and the gym equipment we already own, moved from the pool area.',
+    alt: 'Concept visualisation of the room painted grey and white, with the existing benches, power rack, kettlebells and dumbbells',
+  },
+  {
+    src: `${IMG_DIR}/06-longer-term.jpg`,
+    width: 948,
+    height: 1660,
+    label: 'Future concept',
+    title: 'What it could become',
+    body: 'An idea of what further investment in newer equipment might allow. Not planned or funded.',
+    alt: 'Concept visualisation of a possible longer-term gym with a treadmill, exercise bike, cable machine and dumbbell rack',
+  },
+];
+
 // ───────────────────────── Styles ─────────────────────────
 
 const card =
@@ -477,32 +516,43 @@ export default function GymAreaPage() {
               </Reveal>
             ))}
           </ol>
-          <Reveal className="grid grid-cols-2 gap-3 sm:gap-5">
-            {[
-              {
-                src: `${IMG_DIR}/02-room-cleared.jpg`,
-                alt: 'Concept visualisation of the former committee room cleared of furniture',
-                label: 'Concept: cleared',
-              },
-              {
-                src: `${IMG_DIR}/04-equipment-relocated.jpg`,
-                alt: 'Concept visualisation of the room with the existing gym equipment relocated',
-                label: 'Concept: equipped',
-              },
-            ].map(item => (
-              <figure key={item.src} className="relative overflow-hidden rounded-3xl">
-                <Image
-                  src={item.src}
-                  alt={item.alt}
-                  width={IMG_WIDTH}
-                  height={IMG_HEIGHT}
-                  sizes="(min-width: 1152px) 560px, 50vw"
-                  className="aspect-[4/5] h-full w-full object-cover transition duration-700 motion-safe:md:hover:scale-[1.03]"
-                />
-                <ImageLabel>{item.label}</ImageLabel>
-              </figure>
+        </section>
+
+        <section aria-labelledby="stages" className="space-y-10">
+          <SectionHeading
+            id="stages"
+            kicker="Four stages"
+            title="From Storage Room to Residents’ Gym"
+            intro="How the room could change, from how it looks today to what might be possible in the longer term. Only the first image is a photograph; the others are computer-generated concepts."
+          />
+          <ol className="grid grid-cols-2 gap-x-3 gap-y-8 sm:gap-x-5 lg:grid-cols-4">
+            {visualStages.map((stage, index) => (
+              <Reveal as="li" key={stage.src} delay={index} className="group">
+                <figure>
+                  <div className="relative overflow-hidden rounded-3xl bg-slate-200 shadow-[0_12px_32px_rgba(15,23,42,0.10)] dark:bg-slate-800">
+                    <Image
+                      src={stage.src}
+                      alt={stage.alt}
+                      width={stage.width}
+                      height={stage.height}
+                      sizes="(min-width: 1152px) 270px, (min-width: 1024px) 24vw, 50vw"
+                      className="aspect-[3/4] h-full w-full object-cover transition duration-700 motion-safe:md:group-hover:scale-[1.03]"
+                    />
+                    <ImageLabel>{stage.label}</ImageLabel>
+                  </div>
+                  <figcaption className="mt-4">
+                    <p className="font-mono text-xs font-semibold text-emerald-700 dark:text-emerald-400">
+                      Stage {index + 1}
+                    </p>
+                    <h3 className="mt-1 font-semibold leading-snug text-slate-950 sm:text-lg dark:text-white">
+                      {stage.title}
+                    </h3>
+                    <p className="mt-1.5 text-sm leading-6 text-slate-700 dark:text-slate-300">{stage.body}</p>
+                  </figcaption>
+                </figure>
+              </Reveal>
             ))}
-          </Reveal>
+          </ol>
         </section>
 
         <section
@@ -740,14 +790,14 @@ export default function GymAreaPage() {
             </div>
             <div className="relative min-h-[22rem] lg:min-h-full">
               <Image
-                src={`${IMG_DIR}/04-equipment-relocated.jpg`}
-                alt="Concept visualisation of a residents' gym in the former committee room"
+                src={`${IMG_DIR}/06-longer-term.jpg`}
+                alt="Concept visualisation of how the gym could look in the longer term with newer equipment"
                 fill
                 sizes="(min-width: 1024px) 480px, 100vw"
                 className="object-cover"
               />
               <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-slate-950/60 to-transparent lg:bg-gradient-to-r lg:from-slate-950/50" />
-              <ImageLabel>Concept</ImageLabel>
+              <ImageLabel>Future concept</ImageLabel>
             </div>
           </div>
         </section>
