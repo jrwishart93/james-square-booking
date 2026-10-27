@@ -175,7 +175,7 @@ export default function CookiePolicyPage() {
 
       <LegalSection title="Third parties">
         <p>
-          Some pages embed content from other organisations — Vimeo for video, Google Maps for
+          Some pages embed content from other organisations — Vimeo and YouTube for video, Google Maps for
           location, Microsoft Forms for questionnaires. These are loaded only when you allow
           functional cookies, so no request reaches them until then. Where an embed is switched
           off you will see a placeholder offering to enable it.
