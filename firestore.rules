@@ -413,6 +413,12 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // Volunteer offers from /gym-area: names and email addresses, written by
+    // the server route via the Admin SDK and read by the committee only.
+    match /gymVolunteers/{docId} {
+      allow read, write: if false;
+    }
+
     // ────────────── DEFAULT DENY ──────────────
     // Any collection not named above is inaccessible from a client. New features
     // must add an explicit rule, which is the safe direction to fail in.

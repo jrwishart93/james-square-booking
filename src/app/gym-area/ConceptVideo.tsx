@@ -10,7 +10,7 @@ const WATCH_URL = `https://youtube.com/shorts/${VIDEO_ID}`;
 const EMBED_URL = `https://www.youtube-nocookie.com/embed/${VIDEO_ID}?rel=0&playsinline=1`;
 
 const frame =
-  'relative mx-auto aspect-[9/16] w-full max-w-[420px] overflow-hidden rounded-3xl border border-slate-200/80 bg-slate-900 shadow-[0_18px_38px_rgba(15,23,42,0.16)] dark:border-white/10';
+  'relative mx-auto aspect-[9/16] w-full max-w-[400px] lg:max-w-[360px] overflow-hidden rounded-3xl border border-slate-200/80 bg-slate-900 shadow-[0_18px_38px_rgba(15,23,42,0.16)] dark:border-white/10';
 
 function VideoPlaceholder() {
   const { openPreferences } = useConsent();
