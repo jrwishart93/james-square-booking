@@ -66,6 +66,26 @@ describe('POST /api/gym-volunteer', () => {
     expect(mocks.sendWithResend).not.toHaveBeenCalled();
   });
 
+  it('accepts and emails the optional phone number and availability', async () => {
+    const result = await post({ ...valid, phone: '+44 7700 900123', availability: ['weekends'] });
+    expect(result.status).toBe(200);
+    expect(mocks.saveGymVolunteer).toHaveBeenCalledWith(
+      expect.objectContaining({ phone: '+44 7700 900123', availability: ['weekends'] }),
+    );
+    const { text } = mocks.sendWithResend.mock.calls[0][0];
+    expect(text).toContain('Phone: +44 7700 900123');
+    expect(text).toContain('Usually available: Weekends');
+  });
+
+  it('rejects an invalid phone number or availability option', async () => {
+    const badPhone = await post({ ...valid, phone: 'call me' });
+    expect(badPhone.status).toBe(400);
+    expect((await badPhone.json()).fields).toMatchObject({ phone: expect.any(String) });
+    const badAvailability = await post({ ...valid, availability: ['midnight'] });
+    expect((await badAvailability.json()).fields).toMatchObject({ availability: expect.any(String) });
+    expect(mocks.sendWithResend).not.toHaveBeenCalled();
+  });
+
   it('rejects a filled honeypot', async () => {
     expect((await post({ ...valid, website: 'spam.example' })).status).toBe(400);
     expect(mocks.saveGymVolunteer).not.toHaveBeenCalled();
