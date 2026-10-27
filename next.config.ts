@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 import withPWA from "next-pwa";
 import defaultRuntimeCaching from "next-pwa/cache";
 
+import { PUBLIC_LISTING as GYM_AREA_PUBLIC } from "./src/app/gym-area/visibility";
+
 /**
  * Content Security Policy.
  *
@@ -35,8 +37,8 @@ const contentSecurityPolicy = [
     "https://*.cloudfunctions.net",
     "https://firebaseinstallations.googleapis.com",
   ].join(" "),
-  // Vimeo player, Google Maps embeds and Microsoft Forms are embedded in places.
-  "frame-src 'self' https://player.vimeo.com https://www.google.com https://forms.office.com",
+  // Vimeo and YouTube players, Google Maps embeds and Microsoft Forms are embedded in places.
+  "frame-src 'self' https://player.vimeo.com https://www.youtube-nocookie.com https://www.google.com https://forms.office.com",
   "worker-src 'self' blob:",
   "manifest-src 'self'",
   "base-uri 'self'",
@@ -107,6 +109,15 @@ const nextConfig: NextConfig = {
         source: "/fior-info",
         headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" }],
       },
+      // Gym relocation proposal: link-only until PUBLIC_LISTING is switched on.
+      ...(GYM_AREA_PUBLIC
+        ? []
+        : [
+            {
+              source: "/gym-area",
+              headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" }],
+            },
+          ]),
       {
         // Never let a proxy or CDN cache an authenticated API response.
         source: "/api/:path*",
