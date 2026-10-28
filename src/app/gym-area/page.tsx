@@ -343,7 +343,7 @@ export default function GymAreaPage() {
         <div className="relative grid items-center gap-10 lg:grid-cols-[1.1fr_1fr]">
           <Reveal>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300">
-              James Square Residents and Proprietors Association
+              Gym Relocation Proposal
             </p>
             <h1 className="mt-4 text-[2.5rem] font-bold leading-[1.05] tracking-tight sm:text-6xl">
               A New Space for Our Gym
