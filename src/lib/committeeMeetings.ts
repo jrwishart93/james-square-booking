@@ -12,7 +12,8 @@ export type Meeting = {
   agenda: AgendaItem[];
   approvedMinutes: string;
 };
-export type MeetingHub = { meetings: Meeting[]; whatsappUrl: string };
+/** Public meeting data. The WhatsApp invitation is deliberately not part of it: see residentCheck.ts. */
+export type MeetingHub = { meetings: Meeting[] };
 export type Attendance = "online" | "in-person" | "unsure";
 export type CommitteeRequest = {
   kind: "rsvp" | "membership";
@@ -25,8 +26,6 @@ export type CommitteeRequest = {
   whatsapp: boolean;
   phone: string;
 };
-export const DEFAULT_WHATSAPP_URL =
-  "https://chat.whatsapp.com/EyIsRJB2nLGCKR5AADHXjO?s=cl&p=i&ilr=4&iam=2";
 const location = "The Conservatory, James Square";
 export const DEFAULT_MEETINGS: Meeting[] = [
   {

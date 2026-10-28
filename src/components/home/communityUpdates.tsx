@@ -18,7 +18,6 @@ import {
   Info,
   Landmark,
   MessageCircle,
-  QrCode,
   Users,
   Waves,
 } from 'lucide-react';
@@ -32,9 +31,7 @@ import {
 } from '@/lib/committeeMeetingDates';
 import { publishedMinutes } from '@/lib/committeeMinutes';
 import { noticeSummaries, type NoticeSummary } from './notices';
-import { COMMUNITY_WHATSAPP_URL } from '@/lib/community';
-
-export { COMMUNITY_WHATSAPP_URL };
+import ResidentWhatsAppGate from '@/components/community/ResidentWhatsAppGate';
 
 const glass =
   'jqs-glass rounded-2xl border border-white/20 bg-white/50 dark:bg-white/10 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.06)]';
@@ -176,57 +173,6 @@ function Disclosure({
 }
 
 /** ------------------------------------------------
- *  WhatsApp QR code
- *  ------------------------------------------------ */
-export function WhatsAppQrCode({
-  size = 148,
-  url = COMMUNITY_WHATSAPP_URL,
-  label = 'QR code that opens the invitation to the James Square Community WhatsApp group',
-}: {
-  size?: number;
-  /** Invitation to encode. Pass a constant, never user input. */
-  url?: string;
-  label?: string;
-}) {
-  const [svg, setSvg] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    import('qrcode')
-      .then((QR) => QR.toString(url, { type: 'svg', margin: 1, errorCorrectionLevel: 'M' }))
-      .then((markup) => {
-        if (!cancelled) setSvg(markup);
-      })
-      .catch(() => {
-        if (!cancelled) setSvg(null);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [url]);
-
-  return (
-    <div
-      role="img"
-      aria-label={label}
-      className="rounded-xl bg-white p-2 shadow-sm ring-1 ring-black/5"
-      style={{ width: size + 16, height: size + 16 }}
-    >
-      {svg ? (
-        // Generated locally from a constant invitation URL, never from user input.
-        <div
-          aria-hidden="true"
-          className="h-full w-full [&>svg]:h-full [&>svg]:w-full"
-          dangerouslySetInnerHTML={{ __html: svg }}
-        />
-      ) : (
-        <div aria-hidden="true" className="h-full w-full animate-pulse rounded bg-neutral-100" />
-      )}
-    </div>
-  );
-}
-
-/** ------------------------------------------------
  *  1. Community WhatsApp group (feature card)
  *  ------------------------------------------------ */
 export function CommunityWhatsAppCard({ anchor = true, compact = false }: CardProps) {
@@ -303,37 +249,12 @@ export function CommunityWhatsAppCard({ anchor = true, compact = false }: CardPr
           </div>
 
           <div className="mt-5">
-            <a
-              href={COMMUNITY_WHATSAPP_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-emerald-700 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-emerald-800 sm:w-auto sm:text-base ${focusRing}`}
-            >
-              <MessageCircle className="h-4 w-4" aria-hidden="true" />
-              {n.ctaLabel}
-              <span className="sr-only"> (opens WhatsApp)</span>
-            </a>
+            <ResidentWhatsAppGate
+              group="community"
+              ctaLabel={n.ctaLabel ?? 'Join Our Community WhatsApp Group'}
+              groupName="the James Square Community WhatsApp group"
+            />
           </div>
-
-          {/* On phones the QR code is secondary: tap the button instead. */}
-          <details className="group mt-3 md:hidden">
-            <summary
-              className={`inline-flex min-h-11 cursor-pointer list-none items-center gap-1.5 rounded-full px-1 text-sm font-medium text-neutral-700 dark:text-neutral-300 [&::-webkit-details-marker]:hidden ${focusRing}`}
-            >
-              <QrCode className="h-4 w-4" aria-hidden="true" />
-              Show QR code to scan from another device
-              <ChevronDown
-                className="h-4 w-4 transition-transform group-open:rotate-180 motion-reduce:transition-none"
-                aria-hidden="true"
-              />
-            </summary>
-            <div className="mt-3 flex flex-col items-start gap-2">
-              <WhatsAppQrCode size={160} />
-              <p className="text-xs text-neutral-600 dark:text-neutral-400">
-                Scan with your phone to join.
-              </p>
-            </div>
-          </details>
 
           <div className="mt-5 border-t border-black/5 pt-4 dark:border-white/10">
             {compact ? (
@@ -344,13 +265,6 @@ export function CommunityWhatsAppCard({ anchor = true, compact = false }: CardPr
           </div>
         </div>
 
-        {/* Desktop and tablet: QR beside the announcement. */}
-        <div className="hidden shrink-0 flex-col items-center gap-2.5 rounded-2xl border border-black/5 bg-white/60 p-4 text-center dark:border-white/10 dark:bg-white/5 md:flex">
-          <WhatsAppQrCode size={156} />
-          <p className="max-w-[11rem] text-xs font-medium text-neutral-700 dark:text-neutral-300">
-            Scan with your phone to join.
-          </p>
-        </div>
       </div>
     </article>
   );

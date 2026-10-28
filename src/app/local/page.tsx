@@ -14,7 +14,6 @@ import {
   KeyRound,
   Mail,
   MapPin,
-  MessageCircle,
   Package,
   Phone,
   Recycle,
@@ -26,7 +25,7 @@ import {
   Waves,
   Wrench,
 } from 'lucide-react';
-import { COMMUNITY_WHATSAPP_URL } from '@/lib/community';
+import ResidentWhatsAppGate from '@/components/community/ResidentWhatsAppGate';
 import SectionNav from './_components/SectionNav';
 import MoveInChecklist from './_components/MoveInChecklist';
 import DeliveryNote from './_components/DeliveryNote';
@@ -237,9 +236,12 @@ export default function LivingHerePage() {
               quickly.
             </p>
             <div className="mt-auto pt-4">
-              <a href={COMMUNITY_WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className={primaryButton}>
-                <MessageCircle className="h-4 w-4" aria-hidden /> Join the group
-              </a>
+              <ResidentWhatsAppGate
+                group="community"
+                ctaLabel="Join the group"
+                groupName="the James Square Community WhatsApp group"
+                qrSize={128}
+              />
             </div>
           </Card>
         </div>

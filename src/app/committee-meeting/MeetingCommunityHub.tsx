@@ -1,5 +1,4 @@
 "use client";
-import Image from "next/image";
 import { useEffect, useRef, useState, type RefObject } from "react";
 import {
   ArrowDown,
@@ -27,6 +26,7 @@ import {
   type MeetingHub,
 } from "@/lib/committeeMeetings";
 import { minutesFor, publishedMinutes } from "@/lib/committeeMinutes";
+import ResidentWhatsAppGate from "@/components/community/ResidentWhatsAppGate";
 import MeetingMinutes from "./MeetingMinutes";
 import RequestForm from "./RequestForm";
 import { card, input, muted, primary, secondary } from "./styles";
@@ -69,11 +69,9 @@ function Agenda({ meeting }: { meeting: Meeting }) {
 }
 export default function MeetingCommunityHub({
   hub,
-  qrCode,
   today: initialToday,
 }: {
   hub: MeetingHub;
-  qrCode: string;
   today: string;
 }) {
   const [today, setToday] = useState(initialToday);
@@ -853,84 +851,48 @@ export default function MeetingCommunityHub({
         aria-labelledby="whatsapp-heading"
         className="scroll-mt-24 rounded-3xl border border-emerald-200 bg-emerald-50 p-6 sm:p-9 dark:border-emerald-800 dark:bg-emerald-950/40"
       >
-        <div className="grid items-start gap-8 md:grid-cols-[1fr_220px]">
-          <div>
-            <MessageCircle
-              aria-hidden="true"
-              className="mb-4 h-8 w-8 text-emerald-800 dark:text-emerald-200"
+        <div>
+          <MessageCircle
+            aria-hidden="true"
+            className="mb-4 h-8 w-8 text-emerald-800 dark:text-emerald-200"
+          />
+          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-emerald-800 dark:text-emerald-200">
+            Say hello to your neighbours
+          </p>
+          <h2
+            id="whatsapp-heading"
+            className="mt-2 text-2xl font-semibold sm:text-3xl"
+          >
+            Join the James Square Community WhatsApp Group
+          </h2>
+          <div className={`mt-4 space-y-3 ${muted}`}>
+            <p>
+              We&apos;ve created a new James Square Community WhatsApp group
+              for owners and residents who would like an easy way to keep in
+              touch with their neighbours.
+            </p>
+            <p>
+              The group is a space to communicate, share helpful information
+              and discuss matters relating to day-to-day life at James Square.
+            </p>
+            <p>
+              Whether you are an owner or a resident, you&apos;re welcome to
+              join and be part of our community.
+            </p>
+          </div>
+          <div className="mt-6 max-w-2xl">
+            <ResidentWhatsAppGate
+              group="community"
+              ctaLabel="Join Community WhatsApp Group"
+              groupName="the James Square Community WhatsApp group"
+              qrSize={180}
             />
-            <p className="text-xs font-semibold uppercase tracking-[0.15em] text-emerald-800 dark:text-emerald-200">
-              Say hello to your neighbours
-            </p>
-            <h2
-              id="whatsapp-heading"
-              className="mt-2 text-2xl font-semibold sm:text-3xl"
-            >
-              Join the James Square Community WhatsApp Group
-            </h2>
-            <div className={`mt-4 space-y-3 ${muted}`}>
-              <p>
-                We&apos;ve created a new James Square Community WhatsApp group
-                for owners and residents who would like an easy way to keep in
-                touch with their neighbours.
-              </p>
-              <p>
-                The group is a space to communicate, share helpful information
-                and discuss matters relating to day-to-day life at James Square.
-              </p>
-              <p>
-                Whether you are an owner or a resident, you&apos;re welcome to
-                join and be part of our community.
-              </p>
-            </div>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <a
-                href={hub.whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`${primary} !bg-emerald-800 hover:!bg-emerald-900`}
-              >
-                Join Community WhatsApp Group
-                <ArrowUpRight size={16} aria-hidden="true" />
-              </a>
-              <button
-                onClick={() =>
-                  void copy(hub.whatsappUrl, "Community invite link")
-                }
-                className={secondary}
-              >
-                <Copy size={16} aria-hidden="true" />
-                Copy Invite Link
-              </button>
-            </div>
-            <p className={`mt-4 ${muted}`}>
-              This community group is separate from the private Committee
-              WhatsApp group. Other WhatsApp participants may be able to see
-              your name and telephone number.
-            </p>
           </div>
-          <div className="mx-auto w-full max-w-[220px] text-center">
-            <div className="rounded-2xl bg-white p-2 shadow-sm">
-              <Image
-                unoptimized
-                src={qrCode}
-                width={256}
-                height={256}
-                alt="QR code for the James Square Community WhatsApp invitation"
-                className="h-auto w-full"
-              />
-            </div>
-            <p className={`mt-3 ${muted}`}>
-              Scan with your mobile device to join the community.
-            </p>
-            <a
-              href={qrCode}
-              download="james-square-community-whatsapp.png"
-              className="mt-2 inline-flex min-h-11 items-center text-sm font-medium text-emerald-800 underline dark:text-emerald-200"
-            >
-              Download QR code
-            </a>
-          </div>
+          <p className={`mt-4 ${muted}`}>
+            This community group is separate from the private Committee
+            WhatsApp group. Other WhatsApp participants may be able to see
+            your name and telephone number.
+          </p>
         </div>
         <p className="mt-7 border-t border-emerald-200 pt-5 text-sm leading-relaxed text-emerald-950 dark:border-emerald-800 dark:text-emerald-100">
           This is an informal community communication group and is not a
