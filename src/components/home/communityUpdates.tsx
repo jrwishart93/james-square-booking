@@ -6,6 +6,7 @@
  * from `noticeSummaries` in ./notices.tsx; this file holds the content.
  */
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useEffect, useId, useState } from 'react';
@@ -13,6 +14,7 @@ import {
   ArrowRight,
   CalendarDays,
   ChevronDown,
+  Dumbbell,
   Info,
   Landmark,
   MessageCircle,
@@ -176,15 +178,22 @@ function Disclosure({
 /** ------------------------------------------------
  *  WhatsApp QR code
  *  ------------------------------------------------ */
-export function WhatsAppQrCode({ size = 148 }: { size?: number }) {
+export function WhatsAppQrCode({
+  size = 148,
+  url = COMMUNITY_WHATSAPP_URL,
+  label = 'QR code that opens the invitation to the James Square Community WhatsApp group',
+}: {
+  size?: number;
+  /** Invitation to encode. Pass a constant, never user input. */
+  url?: string;
+  label?: string;
+}) {
   const [svg, setSvg] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     import('qrcode')
-      .then((QR) =>
-        QR.toString(COMMUNITY_WHATSAPP_URL, { type: 'svg', margin: 1, errorCorrectionLevel: 'M' })
-      )
+      .then((QR) => QR.toString(url, { type: 'svg', margin: 1, errorCorrectionLevel: 'M' }))
       .then((markup) => {
         if (!cancelled) setSvg(markup);
       })
@@ -194,17 +203,17 @@ export function WhatsAppQrCode({ size = 148 }: { size?: number }) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [url]);
 
   return (
     <div
       role="img"
-      aria-label="QR code that opens the invitation to the James Square Community WhatsApp group"
+      aria-label={label}
       className="rounded-xl bg-white p-2 shadow-sm ring-1 ring-black/5"
       style={{ width: size + 16, height: size + 16 }}
     >
       {svg ? (
-        // Generated locally from the constant above, never from user input.
+        // Generated locally from a constant invitation URL, never from user input.
         <div
           aria-hidden="true"
           className="h-full w-full [&>svg]:h-full [&>svg]:w-full"
@@ -663,6 +672,48 @@ export function FiorInfoCard({ className, anchor, compact = false }: CardProps) 
           {n.ctaLabel}
           <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
         </Link>
+      </div>
+    </AnnouncementCard>
+  );
+}
+
+/** ------------------------------------------------
+ *  Gym proposal (links to /gym-area)
+ *  ------------------------------------------------ */
+export function GymProposalCard({ className, anchor }: CardProps) {
+  const n = notice('gym-proposal');
+  return (
+    <AnnouncementCard notice={n} icon={Dumbbell} className={className} anchor={anchor}>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-6">
+        <div className="min-w-0 flex-1 space-y-3">
+          <p>
+            Following requests from residents, the committee supports turning the former committee room beneath
+            Block 45 into a small gym, reusing equipment that is currently sitting unused in the closed pool area.
+          </p>
+          <p>
+            Plans are at the planning and preparation stage. The gym is a separate project and does not replace or
+            delay the swimming pool refurbishment.
+          </p>
+          <div className="pt-1">
+            <Link href={n.href ?? '/gym-area'} className={primaryButton}>
+              {n.ctaLabel}
+              <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+            </Link>
+          </div>
+        </div>
+        <div className="relative order-first overflow-hidden rounded-xl sm:order-none sm:w-56 sm:shrink-0">
+          <Image
+            src="/images/gym-area/05-painted-and-equipped.jpg"
+            alt="Concept visualisation of the former committee room painted and fitted with the existing gym equipment"
+            width={1086}
+            height={1448}
+            sizes="(min-width: 640px) 224px, 100vw"
+            className="aspect-[16/10] w-full object-cover sm:aspect-[4/3]"
+          />
+          <span className="absolute left-2 top-2 rounded-full bg-neutral-950/75 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white">
+            Concept
+          </span>
+        </div>
       </div>
     </AnnouncementCard>
   );

@@ -33,6 +33,7 @@ import ConceptVideo from './ConceptVideo';
 import { Drift, ProgressBar, Reveal, ScrollLine } from './Motion';
 import SectionNav from './SectionNav';
 import VolunteerForm from './VolunteerForm';
+import WhatsAppInvite from './WhatsAppInvite';
 import { PUBLIC_LISTING } from './visibility';
 
 const pageTitle = 'A New Space for Our Gym — James Square';
@@ -828,9 +829,14 @@ export default function GymAreaPage() {
               </p>
             </Reveal>
           </div>
-          <Reveal delay={1} className={`${card} p-5 sm:p-8`}>
-            <VolunteerForm />
-          </Reveal>
+          <div className="space-y-5">
+            <Reveal delay={1} className={`${card} p-5 sm:p-8`}>
+              <VolunteerForm />
+            </Reveal>
+            <Reveal delay={2}>
+              <WhatsAppInvite />
+            </Reveal>
+          </div>
         </section>
 
         <section aria-labelledby="feedback" className={`${card} p-6 text-center sm:p-12`}>

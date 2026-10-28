@@ -16,6 +16,7 @@ import { activeNoticeSummaries, type NoticeSummary } from '@/components/home/not
 import {
   CommitteeMeetingsCard,
   CommunityWhatsAppCard,
+  GymProposalCard,
   FiorInfoCard,
   PoolSafetyUpdateCard,
 } from '@/components/home/communityUpdates';
@@ -878,7 +879,7 @@ export default function HomePageClient() {
         >
           Latest Community Updates
         </SectionHeader>
-        {/* Two columns from md: committee beside the pool update, Fior across the full width below. */}
+        {/* Two columns from md: committee beside the pool update, then the gym proposal and Fior across the full width. */}
         <motion.div
           initial="hidden"
           whileInView="show"
@@ -894,6 +895,11 @@ export default function HomePageClient() {
           {featuredIds.has('pool-safety-review') ? (
             <motion.div variants={cardRevealVariants(reduceMotion)}>
               <PoolSafetyUpdateCard compact />
+            </motion.div>
+          ) : null}
+          {featuredIds.has('gym-proposal') ? (
+            <motion.div variants={cardRevealVariants(reduceMotion)} className="md:col-span-2">
+              <GymProposalCard />
             </motion.div>
           ) : null}
           {featuredIds.has('fior-info') ? (

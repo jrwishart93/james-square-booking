@@ -95,6 +95,18 @@ export const noticeSummaries: NoticeSummary[] = [
     featured: true,
   },
   {
+    id: 'gym-proposal',
+    badge: 'Gym proposal',
+    title: 'A New Space for Our Gym',
+    summary:
+      'The committee supports relocating suitable gym equipment from the closed pool area into the former committee room beneath Block 45, to create a small residents’ gym at minimal cost.',
+    date: 'October 2026',
+    tone: 'action',
+    featured: true,
+    href: '/gym-area',
+    ctaLabel: 'See the Gym Proposal',
+  },
+  {
     id: 'fior-info',
     badge: "Owners' information",
     title: 'FIOR Property Assets: Information for Owners',
