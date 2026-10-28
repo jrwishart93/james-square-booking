@@ -14,7 +14,6 @@ import {
 import { requireCommittee } from "@/lib/security/requireAuth";
 import {
   DEFAULT_MEETINGS,
-  DEFAULT_WHATSAPP_URL,
   isPastMeeting,
   meetingLabel,
   normalizeMeetingCode,
@@ -23,6 +22,16 @@ import {
   type Meeting,
   type MeetingHub,
 } from "@/lib/committeeMeetings";
+
+/**
+ * The community group invitation used until the committee sets another from the
+ * meetings admin screen. It is only ever sent to a browser by
+ * /api/whatsapp-invite after the resident check. It has been published in this
+ * public repository, so reset it in WhatsApp and save the new link in the admin
+ * screen.
+ */
+export const DEFAULT_WHATSAPP_URL =
+  "https://chat.whatsapp.com/EyIsRJB2nLGCKR5AADHXjO?s=cl&p=i&ilr=4&iam=2";
 
 export type PrivateMeeting = Meeting & { teamsUrl: string };
 export type PrivateHub = {
@@ -110,8 +119,8 @@ export async function getPrivateHub(): Promise<PrivateHub> {
 }
 export function publicHub(config: PrivateHub): MeetingHub {
   // Explicit allowlist, never spread private documents into a public response.
+  // The WhatsApp invitation is excluded: it is released only after the resident check.
   return {
-    whatsappUrl: config.whatsappUrl,
     meetings: config.meetings.map((m) => ({
       id: m.id,
       title: m.title,

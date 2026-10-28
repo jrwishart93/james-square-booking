@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
   DEFAULT_MEETINGS,
-  DEFAULT_WHATSAPP_URL,
   londonToday,
   meetingCalendar,
   meetingLabel,
@@ -164,10 +163,5 @@ describe("committee meeting dates and forms", () => {
         "2026-10-11",
       ).phone,
     ).toBe("+44 (0)7700 900123");
-  });
-  it("keeps the public WhatsApp invite exact", () => {
-    expect(DEFAULT_WHATSAPP_URL).toBe(
-      "https://chat.whatsapp.com/EyIsRJB2nLGCKR5AADHXjO?s=cl&p=i&ilr=4&iam=2",
-    );
   });
 });

@@ -1,10 +1,5 @@
 import type { Metadata } from "next";
-import QRCode from "qrcode";
-import {
-  DEFAULT_MEETINGS,
-  DEFAULT_WHATSAPP_URL,
-  londonToday,
-} from "@/lib/committeeMeetings";
+import { DEFAULT_MEETINGS, londonToday } from "@/lib/committeeMeetings";
 import { getPublicHub, withTimeout } from "@/lib/committeeMeetings.server";
 import MeetingCommunityHub from "./MeetingCommunityHub";
 
@@ -50,19 +45,6 @@ export default async function CommitteeMeetingPage() {
   // If the database is slow or unreachable, fall back to the published meetings.
   const hub = await withTimeout(getPublicHub(), 3000).catch(() => ({
     meetings: DEFAULT_MEETINGS,
-    whatsappUrl: DEFAULT_WHATSAPP_URL,
   }));
-  const qrCode = await QRCode.toDataURL(hub.whatsappUrl, {
-    width: 256,
-    margin: 4,
-    errorCorrectionLevel: "M",
-    color: { dark: "#000000", light: "#ffffff" },
-  });
-  return (
-    <MeetingCommunityHub
-      hub={hub}
-      qrCode={qrCode}
-      today={londonToday()}
-    />
-  );
+  return <MeetingCommunityHub hub={hub} today={londonToday()} />;
 }

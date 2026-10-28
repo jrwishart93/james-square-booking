@@ -148,12 +148,13 @@ describe("private meeting access and request workflows", () => {
       meetingBody(local("https://another-site.example")),
     ).rejects.toThrow();
   });
-  it("public projection strips links, access code, hash and private extra fields", () => {
+  it("public projection strips links, WhatsApp invite, access code, hash and private extra fields", () => {
     const hub = defaultPrivateHub();
     const data = JSON.stringify(publicHub(hub));
     expect(data).not.toContain("teams.live.com");
     expect(data).not.toContain("52637");
     expect(data).not.toContain("accessCode");
+    expect(data).not.toContain("chat.whatsapp.com");
     expect(data).toContain("2026-10-12");
     expect(data).toContain("2026-11-17");
   });
