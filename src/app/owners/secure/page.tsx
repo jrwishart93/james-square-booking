@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, type ReactNode } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { Calendar, ChevronDown, ClipboardCheck, ExternalLink, FileText, Mail, X } from 'lucide-react';
+import { Banknote, Calendar, ChevronDown, ClipboardCheck, ExternalLink, FileText, Mail, X } from 'lucide-react';
 
 import { GlassCard } from '@/components/GlassCard';
 import GradientBG from '@/components/GradientBG';
@@ -154,6 +154,12 @@ const OwnersSecurePage = () => {
         </motion.div>
 
         <div className="space-y-10">
+          <motion.div variants={itemVariants}>
+            <Link href="/simple" className="group flex items-start gap-4 rounded-2xl border border-blue-200/70 bg-white/75 p-6 shadow-[0_12px_40px_rgba(15,23,42,.08)] backdrop-blur transition hover:-translate-y-0.5 hover:shadow-xl dark:border-blue-300/15 dark:bg-white/5">
+              <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-blue-600 text-white"><Banknote size={22}/></span>
+              <span className="flex-1"><strong className="text-lg text-slate-950 dark:text-white">FIOR: Recovering Money</strong><span className="mt-1 block text-sm text-slate-600 dark:text-slate-300">Information and resources for owners who believe FIOR owes them money.</span><span className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-blue-700 dark:text-blue-300">Open owner resource <span aria-hidden>→</span></span></span>
+            </Link>
+          </motion.div>
           <motion.div variants={itemVariants}>
             <OwnerSectionGroup
               id="current-agm-2026"
