@@ -55,7 +55,9 @@ function Agenda({ meeting }: { meeting: Meeting }) {
               <div>
                 <h4 className="text-sm font-semibold">{a.title}</h4>
                 {a.description && (
-                  <p className={`mt-1 ${muted}`}>{a.description}</p>
+                  <p className={`mt-1 whitespace-pre-line ${muted}`}>
+                    {a.description}
+                  </p>
                 )}
               </div>
             </li>
