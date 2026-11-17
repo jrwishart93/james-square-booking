@@ -81,8 +81,49 @@ export const DEFAULT_MEETINGS: Meeting[] = [
     date: "2026-11-17",
     time: "18:15",
     location,
-    agenda: [],
     approvedMinutes: "",
+    // Sub-items are kept in the description, one per line, so the meetings
+    // admin screen can edit them in its existing description box.
+    agenda: [
+      { title: "Welcome and rules for non-committee members joining" },
+      { title: "Members stepping down and thanks" },
+      {
+        title: "Update from Myreside Management",
+        description:
+          "Update on items 4–9 below, for later discussion by the committee.",
+      },
+      { title: "Caretaker discussions" },
+      {
+        title: "Swimming pool",
+        description: [
+          "a. Works in the background for re-opening",
+          "b. Current quotes for making safe and emptying the pool",
+          "c. Feedback from owners so far (Facebook group etc.)",
+        ].join("\n"),
+      },
+      {
+        title: "Gym equipment use",
+        description: "a. Committee room works discussion",
+      },
+      { title: "Cleaning discussions" },
+      { title: "Leaks and repairs" },
+      {
+        title: "Garden maintenance",
+        description: [
+          "a. Tree outside 61",
+          "b. Upkeep of grounds behind 59, 57 and 55",
+        ].join("\n"),
+      },
+      { title: "Facebook group and general media management" },
+      {
+        title: "Any Other Business (AOB)",
+        description: [
+          "a. Bulky items uplift",
+          "b. Hearsay on Fior",
+          "c. Window transoms",
+        ].join("\n"),
+      },
+    ],
   },
   {
     id: "december-2026",

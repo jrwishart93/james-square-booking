@@ -32,7 +32,7 @@ describe("committee meeting dates and forms", () => {
     expect(meetingLabel(december)).toBe("Tuesday 8 December 2026");
     expect(december.time).toBe("18:15");
     expect(december.agenda).toEqual([]);
-    expect(november.agenda).toEqual([]);
+    expect(november.agenda).toHaveLength(11);
   });
   it("archives only past dates, retains agendas, and sorts chronologically", () => {
     const before = splitMeetings([...DEFAULT_MEETINGS].reverse(), "2026-10-11");
@@ -53,6 +53,9 @@ describe("committee meeting dates and forms", () => {
     expect(
       after.past.find((m) => m.id === "september-2026")?.agenda,
     ).toHaveLength(8);
+    expect(
+      after.past.find((m) => m.id === "november-2026")?.agenda,
+    ).toHaveLength(11);
     expect(after.past.find((m) => m.id === "august-2026")?.agenda).toHaveLength(
       9,
     );
